@@ -79,30 +79,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LEAD-01 | TBD | Pending |
-| LEAD-02 | TBD | Pending |
-| LEAD-03 | TBD | Pending |
-| LEAD-04 | TBD | Pending |
-| LEAD-05 | TBD | Pending |
-| IMPORT-01 | TBD | Pending |
-| IMPORT-02 | TBD | Pending |
-| IMPORT-03 | TBD | Pending |
-| PIPE-01 | TBD | Pending |
-| PIPE-02 | TBD | Pending |
-| PIPE-03 | TBD | Pending |
-| REMIND-01 | TBD | Pending |
-| REMIND-02 | TBD | Pending |
-| WA-01 | TBD | Pending |
-| WA-02 | TBD | Pending |
-| WA-03 | TBD | Pending |
-| WA-04 | TBD | Pending |
-| WA-05 | TBD | Pending |
+| LEAD-01 | Phase 1 | Pending |
+| LEAD-02 | Phase 1 | Pending |
+| LEAD-03 | Phase 1 | Pending |
+| LEAD-04 | Phase 1 | Pending |
+| LEAD-05 | Phase 2 | Pending |
+| IMPORT-01 | Phase 2 | Pending |
+| IMPORT-02 | Phase 2 | Pending |
+| IMPORT-03 | Phase 2 | Pending |
+| PIPE-01 | Phase 3 | Pending |
+| PIPE-02 | Phase 3 | Pending |
+| PIPE-03 | Phase 3 | Pending |
+| REMIND-01 | Phase 4 | Pending |
+| REMIND-02 | Phase 1 | Pending |
+| WA-01 | Phase 4 | Pending |
+| WA-02 | Phase 4 | Pending |
+| WA-03 | Phase 4 | Pending |
+| WA-04 | Phase 4 | Pending |
+| WA-05 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️ (roadmap not yet created)
+- Mapped to phases: 18
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-19*
-*Last updated: 2026-07-19 after initial definition*
+*Last updated: 2026-07-19 after roadmap creation*
