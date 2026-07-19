@@ -30,7 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Admin can assign each lead to exactly one sub-nicho from that list
   4. Admin can soft-delete a lead — it disappears from active views but remains recoverable, never permanently lost
   5. Admin can view the full lead list, filtered and sorted by sub-nicho, pipeline stage, and follow-up date
-**Plans**: TBD
+**Plans**: 4 plans (Walking Skeleton — see SKELETON.md)
+- [ ] 01-01-PLAN.md — Walking Skeleton: scaffold Next.js 16 + Drizzle/SQLite + shadcn + corte vertical de sub-nicho (LEAD-02)
+- [ ] 01-02-PLAN.md — Corte vertical de criar/editar lead: modal 9 campos, combobox de sub-nicho, lista base (LEAD-01, LEAD-03)
+- [ ] 01-03-PLAN.md — Lista filtrável/ordenável/paginada: filtros sub-nicho/etapa/follow-up (REMIND-02)
+- [ ] 01-04-PLAN.md — Soft-delete com confirmação + página Lixeira/restaurar (LEAD-04)
 
 ### Phase 2: CSV Bulk Import
 **Goal**: Admin can import a batch of leads from a cowork-delivered CSV file end-to-end, without manual re-typing, safely and reversibly
@@ -77,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Lead & Sub-nicho Foundation | 0/TBD | Not started | - |
+| 1. Lead & Sub-nicho Foundation | 0/4 | Planned | - |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
 | 3. Sales Pipeline & Funnel View | 0/TBD | Not started | - |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 0/TBD | Not started | - |
