@@ -1,7 +1,8 @@
 ---
 phase: 1
 slug: 01-lead-sub-nicho-foundation
-status: draft
+status: approved
+reviewed_at: 2026-07-19
 shadcn_initialized: false
 preset: none
 created: 2026-07-19
