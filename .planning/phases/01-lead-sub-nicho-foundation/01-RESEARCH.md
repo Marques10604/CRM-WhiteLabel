@@ -568,12 +568,13 @@ export async function restoreLead(leadId: number) {
 | A1 | Comportamento exato do `npx shadcn@latest init` para um projeto novo em 2026-07-19 (se realmente já oferece Base UI como padrão sem flag adicional) | Pitfall 2, State of the Art | Baixo-médio: se o CLI ainda pedir Radix por padrão, o combobox precisará da receita antiga (Popover+Command) em vez do componente nativo — mais código, mas o mesmo resultado funcional. Confirmar no momento real do `init` e ajustar o plano se necessário |
 | A2 | Normalização de fuso horário necessária para `followUpDate` (Pitfall 6) não foi verificada contra um caso de teste real desta aplicação | Common Pitfalls (Pitfall 6) | Baixo: é um padrão de armadilha bem conhecido em qualquer app com filtro de data; se não tratado, o pior caso é um lead aparecer no filtro errado por algumas horas perto da virada do dia — fácil de corrigir depois, mas melhor prevenir na task de schema/formulário |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Confirmação exata da experiência do `shadcn init` para este projeto específico**
    - O que sabemos: em julho de 2026 o shadcn/ui mudou para Base UI como padrão para projetos novos (confirmado via changelog oficial).
    - O que não está claro: se o CLI pergunta interativamente ("Radix ou Base UI?") ou já aplica Base UI sem pergunta, e se isso afeta os nomes/props exatos dos componentes gerados (`Combobox`, `Calendar`, `Form`).
    - Recomendação: o planejador deve incluir uma task inicial de "rodar `shadcn init`, inspecionar `components.json` e `components/ui/` gerados, e confirmar quais componentes/props usar antes de escrever o combobox de sub-nicho" — não assumir a API exata sem essa checagem ao vivo.
+   - **RESOLVED:** verificação ao vivo delegada à Task 2 do `01-01-PLAN.md`, com fallback determinístico (aceitar Base UI mesmo se Radix for oferecido) documentado no Pitfall 2 acima. Não bloqueia a fase — apenas exige a checagem no momento da execução.
 
 ## Environment Availability
 

@@ -137,11 +137,11 @@ Nenhum bloco de terceiros foi solicitado ou considerado. Todos os componentes v�
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: FLAG (não-bloqueante — falta ponto focal declarado por tela e `aria-label` em botões ícone-apenas; recomendado, não obrigatório)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved (2026-07-19, por gsd-ui-checker) — 5/6 PASS, 1 FLAG não-bloqueante
