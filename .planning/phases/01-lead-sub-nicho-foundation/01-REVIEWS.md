@@ -2,12 +2,21 @@
 phase: 1
 reviewers: [codex]
 reviewed_at: 2026-07-19T20:09:00Z
+cycles:
+  - cycle: 1
+    reviewed_at: 2026-07-19T20:09:00Z
+    high_concerns: 4
+  - cycle: 2
+    reviewed_at: 2026-07-19T21:00:00Z
+    high_concerns: 2
 plans_reviewed: [01-01-PLAN.md, 01-02-PLAN.md, 01-03-PLAN.md, 01-04-PLAN.md]
 ---
 
 # Cross-AI Plan Review — Phase 1: Lead & Sub-nicho Foundation
 
-**Note:** `claude` was skipped as a reviewer (self — this review was run from inside Claude Code, per the workflow's self-exclusion rule for independence). No other CLIs (`gemini`, `coderabbit`, `opencode`, `qwen`, `cursor`, local model servers) were detected/requested on this system. Only `codex` was invoked, per the `--codex` flag.
+**Note:** `claude` was skipped as a reviewer (self — this review was run from inside Claude Code, per the workflow's self-exclusion rule for independence). No other CLIs (`gemini`, `coderabbit`, `opencode`, `qwen`, `cursor`, local model servers) were detected/requested on this system. Only `codex` was invoked, per the `--codex` flag, in both cycle 1 and cycle 2.
+
+## Cycle 1 — Codex Review (Initial)
 
 ## Codex Review
 
@@ -152,3 +161,81 @@ Only one external reviewer (`codex`) was invoked for this cycle, so there is no 
 
 ### Divergent Views
 Not applicable — single reviewer this cycle.
+
+---
+
+## Cycle 2 — Codex Review (Re-review after fixes)
+
+**Context:** Cycle 1's codex review found 4 HIGH concerns. Commit `3fd40d9` ("docs(01): replan phase incorporating cross-AI review feedback (codex cycle 1)") revised all 4 plans to address them. This cycle re-reviews the updated 01-01 through 01-04 PLAN.md files, explicitly verifying resolution status of each prior HIGH and checking for new issues.
+
+**Reviewed at:** 2026-07-19 (cycle 2) · **Reviewer:** codex (only external CLI available/requested; `claude` self-excluded per workflow rule)
+
+### Summary
+
+The revised plan set is materially stronger than Cycle 1. The 4 prior HIGH concerns are addressed with concrete behavior, test cases, and verification hooks rather than vague intent. Codex would still tighten a few implementation-risk areas before execution, especially around nullable follow-up dates, the hard-delete guard's Windows portability, and the money parser being more permissive than the tests imply. Overall the plans still cover the 5 Phase 1 success criteria.
+
+### Cycle 1 Resolution Verdicts
+
+1. **HIGH #1 — sonner/date-fns human checkpoint ambiguity: FULLY RESOLVED**
+   `01-01` now defines a finite 4-item checklist: exact package name (typosquat check), official repo, exact pinned version, and download volume, plus an explicit non-approval path. Wired into a blocking human checkpoint before install.
+
+2. **HIGH #2 — valorEstimado contract underspecified: FULLY RESOLVED**
+   `01-02` now specifies `parseBRLToCents`/`formatCentsToBRL`, pt-BR parsing, empty-value rejection, explicit zero handling, cent rounding (round-half-up), and 9 test cases. Wired into `scripts/test-money.cjs` plus action-level tests.
+
+3. **HIGH #3 — telefone normalization underspecified: FULLY RESOLVED**
+   `01-02` now gives a clear `normalizePhone` contract: digits-only, BR DDI `55`, 10/11-digit local numbers, 12/13-digit already-prefixed numbers, invalid lengths rejected, with explicit tests. Closes the Phase 4 `wa.me` data-quality risk.
+
+4. **HIGH #4 — hard-delete grep too narrow (only `src/actions/`): PARTIALLY RESOLVED**
+   The intent is fixed: `guard:no-hard-delete` now scans all of `src/` (not just `src/actions/`), and the verify block also checks for destructive SQL in migrations. Remaining gap: the proposed `package.json` script uses POSIX shell syntax (`! grep -rEn ...`), which may behave inconsistently across Git Bash / PowerShell / `npm.cmd` on this project's Windows environment. Codex recommends implementing the guard as a Node script (`scripts/guard-no-hard-delete.cjs`) instead of inline shell syntax for reliable cross-shell behavior.
+
+### New Concerns
+
+- **HIGH — Follow-up date is specified as both required (DB/Zod) and nullable (list behavior) across plans, with no reachable path to the nullable case.**
+  `01-01`'s schema analog declares `followUpDate: integer(...).notNull()` and `01-02`'s `leadSchema` uses `followUpDate: z.coerce.date()` with no `.nullable()/.optional()` — consistent with `01-SPEC.md`'s locked constraint "All 9 fields are required at save time — no partial/draft leads are persisted." Yet `01-03-PLAN.md` Task 1 specifies real behavior and acceptance criteria for "leads sem data de follow-up" (`sortUndefined: 'last'`, a `filterFn` that excludes null-date leads from the date-range filter), and per its own acceptance criteria this must be implemented and grep-verified. Given the DB column is `NOT NULL` and the form always requires the field, this code path is unreachable through the app's own UI in Phase 1 — either the requiredness should be relaxed (nullable follow-up date), or `01-03`'s null-handling spec should be removed/marked as forward-looking-only (e.g., anticipating Phase 2 CSV import rows that might arrive without a date). This should be resolved explicitly before execution, not left as an implicit contradiction between plans.
+
+- **MEDIUM — `guard:no-hard-delete` may be brittle on Windows.**
+  Suggested fix: `scripts/guard-no-hard-delete.cjs` (recursive file scan + regex) invoked via `"guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs"`, avoiding Git Bash/PowerShell/npm-script shell differences.
+
+- **MEDIUM — Money parser may accept malformed input by silently stripping unexpected characters.**
+  The spec strips everything that isn't a digit, `.`, or `,` before parsing, so inputs like `"abc1"` reduce to `"1"` rather than being rejected. If intentional (to tolerate a leading "R$ " prefix), tighten with a pre-validation regex that allows only currency symbols/whitespace/digits/separators and rejects other embedded characters, rather than silently discarding arbitrary junk.
+
+- **MEDIUM — `subnichoId` existence check has a check-then-write race window.**
+  The plan validates `subnichoId` existence via a `SELECT` before insert/update, which is good for inline UX, but doesn't catch the case where the sub-nicho is deleted between the check and the write. Recommend also catching the FK constraint failure (from `onDelete: "restrict"`) and mapping it to the same `"Selecione um sub-nicho."` inline error as a defense-in-depth backstop.
+
+- **LOW — Hard-delete guard scope (`src/`) still excludes `scripts/`.**
+  The original Cycle 1 concern explicitly mentioned "a script, a future utility" as an unprotected path. `01-04`'s guard scans `src/` but the repo already has a `scripts/` directory (e.g., `scripts/test-*.cjs`, `scripts/verify-schema.cjs`) sitting outside that scan. Consider scanning `src/` + `scripts/` + migration folders together (with an explicit allowlist for the schema-creation migration itself).
+
+### Suggestions
+
+- Replace the shell-based `guard:no-hard-delete` grep with a small Node script for reliable behavior across Windows shells; wire it into the same verify step already planned.
+- Resolve the follow-up-date required/nullable contract explicitly before implementation — either drop `01-03`'s null-handling behavior (documenting it as N/A for Phase 1) or relax the field to nullable end-to-end (schema, Zod, form) and update `01-SPEC.md`'s "all 9 fields required" acceptance criterion accordingly. Do not leave the two plans implicitly disagreeing.
+- Add an FK-constraint-violation catch in `createLead`/`updateLead` as a backstop behind the existing `subnichoId` existence pre-check.
+- Tighten `parseBRLToCents` to reject strings with disallowed characters instead of stripping them silently.
+- Add an explicit action-level test asserting soft-delete idempotency preserves the original `deletedAt` timestamp on a second delete call.
+
+### Risk Assessment (Codex, cycle 2)
+
+**Overall risk: MEDIUM.** The four original HIGH issues are mostly closed — three fully, one partially (Windows shell portability). The main remaining risk is not conceptual scope; it is implementation ambiguity in follow-up-date nullability (a genuine unresolved contradiction between `01-02` and `01-03`) and verification-script brittleness on Windows. Resolving those two before execution would bring the phase close to LOW risk.
+
+---
+
+## Cycle 2 Consensus Summary
+
+Single reviewer (`codex`) again this cycle — no cross-model divergence to synthesize.
+
+### Cumulative Status of Cycle 1's 4 HIGH Concerns
+| # | Concern | Status |
+|---|---------|--------|
+| 1 | 01-01 sonner/date-fns checkpoint ambiguity | ✅ Fully resolved |
+| 2 | 01-02 valorEstimado contract underspecified | ✅ Fully resolved |
+| 3 | 01-02 telefone normalization underspecified | ✅ Fully resolved |
+| 4 | 01-04 hard-delete grep scoped too narrow | ⚠️ Partially resolved (scope fixed; Windows shell portability of the guard script is unverified) |
+
+### New HIGH Raised This Cycle
+- Follow-up date is `NOT NULL`/required end-to-end in `01-01`/`01-02`, but `01-03` specifies real, grep-verified behavior for leads with a null follow-up date — an unreachable code path per the current locked schema. Needs an explicit decision (relax to nullable, or drop `01-03`'s null-handling spec) before execution.
+
+### Open MEDIUM/LOW Items
+- `guard:no-hard-delete` shell portability on Windows (MEDIUM)
+- Money parser silently strips unexpected characters instead of rejecting them (MEDIUM)
+- `subnichoId` check-then-write race has no FK-violation backstop (MEDIUM)
+- Hard-delete guard scope excludes `scripts/` (LOW)
