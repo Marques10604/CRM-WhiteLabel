@@ -1,7 +1,7 @@
 ---
 phase: 1
 reviewers: [codex]
-reviewed_at: 2026-07-19T20:09:00Z
+reviewed_at: 2026-07-19T22:00:00Z
 cycles:
   - cycle: 1
     reviewed_at: 2026-07-19T20:09:00Z
@@ -9,6 +9,9 @@ cycles:
   - cycle: 2
     reviewed_at: 2026-07-19T21:00:00Z
     high_concerns: 2
+  - cycle: 3
+    reviewed_at: 2026-07-19T22:00:00Z
+    high_concerns: 0
 plans_reviewed: [01-01-PLAN.md, 01-02-PLAN.md, 01-03-PLAN.md, 01-04-PLAN.md]
 ---
 
@@ -239,3 +242,63 @@ Single reviewer (`codex`) again this cycle — no cross-model divergence to synt
 - Money parser silently strips unexpected characters instead of rejecting them (MEDIUM)
 - `subnichoId` check-then-write race has no FK-violation backstop (MEDIUM)
 - Hard-delete guard scope excludes `scripts/` (LOW)
+
+---
+
+## Cycle 3 — Codex Review (Final cycle before escalation gate)
+
+**Context:** Cycle 2 found 2 HIGH concerns remaining (hard-delete guard Windows portability; `followUpDate` required-vs-nullable contradiction between `01-02` and `01-03`) plus 3 MEDIUM/LOW items. Commits `c1e3feb` ("resolve cycle 2 cross-AI review concerns") and `8fa35cd` ("update state after cycle 2 review resolution") claim to have fixed all of them — the hard-delete guard was rewritten as `scripts/guard-no-hard-delete.cjs` (a portable Node script), and the `followUpDate` contradiction was resolved by locking Phase 1 to always-required follow-up dates (citing `01-SPEC.md` line 85: "All 9 lead fields are required at save time") and stripping the now-unreachable null-handling behavior from `01-03`'s testable acceptance criteria. This cycle re-reviews the current `01-01` through `01-04` PLAN.md files, explicitly verifying resolution of both prior HIGHs, re-checking the 3 MEDIUM/LOW items, and scanning for anything new introduced by the cycle-2 fixes themselves.
+
+**Reviewed at:** 2026-07-19 (cycle 3) · **Reviewer:** codex (only external CLI available; `claude` self-excluded per workflow rule — this review was run from inside Claude Code)
+
+### Summary
+
+Cycle 3 materially resolves the two remaining HIGH issues from Cycle 2 at the plan level. The plans now give executable, testable instructions instead of vague intent. Codex noted it verified this at the plan-text level (the repo does not yet contain an implemented `scripts/guard-no-hard-delete.cjs` — Phase 1 has not been executed yet), so this is a plan-review verdict, not a runtime-implementation verification.
+
+### Cycle 2 HIGH Resolution Verdicts
+
+1. **Hard-delete guard portability: FULLY RESOLVED (at plan level).**
+   `01-04-PLAN.md` now explicitly rejects POSIX shell syntax ("NÃO usar `grep`/`!` inline no `package.json`") and requires `scripts/guard-no-hard-delete.cjs` as "um script Node puro (sem dependência de shell)" invoked via `node scripts/guard-no-hard-delete.cjs` (01-04, lines 127, 134, 146). It also requires scanning `src/`, `scripts/`, and `src/db/migrations/`, a self-exclusion `ALLOWLIST`, and two explicit smoke tests (`db.delete(leads)` injection in code; `DELETE FROM`/`DROP TABLE` injection in a migration `.sql`) with expected exit codes (01-04, lines 130-148). This closes the Windows/Git Bash/PowerShell/npm.cmd portability concern raised in Cycle 2.
+
+2. **`followUpDate` required-vs-nullable contradiction: FULLY RESOLVED.**
+   `01-03-PLAN.md` now states the decision explicitly in a "Nota de resolução" at the top of the plan: "`followUpDate` é sempre presente na Fase 1," citing `01-SPEC.md` line 85 verbatim ("All 9 lead fields are required at save time — no partial/draft leads are persisted"), noting the Zod schema uses `z.coerce.date()` with no `.nullable()` and the DB column is `NOT NULL` (01-01), and declaring that Phase 1 has no CSV import path (that's Phase 2), so no code path can produce a null `followUpDate` in this phase. The previously testable `sortUndefined: 'last'` / null-date `filterFn` requirements are now explicitly marked "OPCIONAL, defensivo... NÃO é um requisito testável desta fase e NÃO é objeto de verificação/grep aqui" (01-03, line 54) — verified independently: `01-SPEC.md` line 85 does say exactly this, so the citation is accurate, not fabricated.
+
+### Cycle 2 MEDIUM/LOW Resolution Status
+
+- **Money parser strict validation: FULLY RESOLVED.** `01-02` now requires strict pre-validation via regex `/^\s*(R\$)?\s*[\d.,]+\s*$/` before any stripping, explicitly rejecting `"abc1"`, `"1abc"`, `"12x34"` as `NaN` instead of silently reducing them to a partial number (01-02, lines 146, 168, 175-176).
+- **`subnichoId` FK backstop: FULLY RESOLVED.** `01-02` now requires both the pre-write `SELECT` existence check AND a `try/catch` around `db.insert`/`db.update` that maps `SQLITE_CONSTRAINT_FOREIGNKEY` to the same `{ errors: { subnichoId: ["Selecione um sub-nicho."] } }` field error, closing the check-then-write race window (01-02, lines 163-164, 168, 180, 275).
+- **Hard-delete guard scope excluding `scripts/`: FULLY RESOLVED.** `01-04` now scopes the guard to `src/ + scripts/ + src/db/migrations/`, and the smoke-test acceptance criteria require injecting `db.delete(leads)` into either `src/` or `scripts/` (01-04, lines 26, 42, 119, 130, 145, 147).
+
+### New Concerns
+
+- **LOW — Action success-return-shape inconsistency introduced by the `01-04` fix.** `01-01` (line 213) and `01-02` (lines 156, 168) return `{ success: true }` on success; `01-04`'s `softDeleteLead`/`restoreLead` now specify `{ ok: true }` while simultaneously calling it "mesma forma de retorno das outras actions" (same shape as the other actions) — which it is not (01-04, line 125). Verified directly against plan text: this is a real, if minor, contract inconsistency. Recommend standardizing on `{ success: true }` everywhere unless there's a deliberate reason to split the contract.
+- **LOW — Residual stale wording in the locked `01-SPEC.md`.** Requirement/acceptance line 50 still reads "...the topmost lead has the earliest (or no) follow-up date among all active leads," which contradicts line 85's "all 9 fields required" and predates `01-03`'s resolution note. Verified directly: line 50 does still contain this phrase. Not a blocker — `01-03`'s plan-level resolution note is authoritative and correctly cites line 85 — but the SPEC itself has one leftover confusing phrase worth a follow-up cleanup pass when convenient (not required before execution).
+
+### Final Risk Assessment (Codex, cycle 3)
+
+**Overall risk: LOW.** Both Cycle 2 HIGH issues are resolved at the plan level with concrete, testable, grep-verifiable acceptance criteria rather than restated intent. The 3 MEDIUM/LOW items are also resolved. The two new findings this cycle are both LOW severity, cosmetic/consistency issues that do not block execution: (1) an action-return-shape naming mismatch (`{ ok: true }` vs `{ success: true }`) worth normalizing during implementation, and (2) one leftover stale sentence in `01-SPEC.md` that `01-03`'s plan-level note already correctly overrides. Remaining risk is execution discipline — actually building the Node guard exactly as specified and not silently reintroducing nullable-follow-up handling as a "real" Phase 1 requirement — not plan-quality risk.
+
+---
+
+## Cycle 3 Consensus Summary
+
+Single reviewer (`codex`) again this cycle — no cross-model divergence to synthesize.
+
+### Cumulative Status of All HIGH Concerns Across 3 Cycles
+| # | Concern | Raised | Status |
+|---|---------|--------|--------|
+| 1 | 01-01 sonner/date-fns checkpoint ambiguity | Cycle 1 | ✅ Fully resolved (cycle 1→2) |
+| 2 | 01-02 valorEstimado contract underspecified | Cycle 1 | ✅ Fully resolved (cycle 1→2) |
+| 3 | 01-02 telefone normalization underspecified | Cycle 1 | ✅ Fully resolved (cycle 1→2) |
+| 4 | 01-04 hard-delete grep scoped too narrow / Windows shell portability | Cycle 1→2 | ✅ Fully resolved (cycle 2→3) |
+| 5 | followUpDate required-vs-nullable contradiction (01-02 vs 01-03) | Cycle 2 | ✅ Fully resolved (cycle 2→3) |
+
+### New HIGH Raised This Cycle
+None.
+
+### Open MEDIUM/LOW Items (all newly raised this cycle, none carried over — prior MEDIUM/LOW all resolved)
+- Action success-return-shape inconsistency: `{ ok: true }` (01-04) vs `{ success: true }` (01-01/01-02) (LOW)
+- `01-SPEC.md` line 50 has stale "earliest (or no) follow-up date" wording superseded by line 85 + 01-03's resolution note (LOW)
+
+### Convergence Status
+Zero HIGH concerns remain after 3 cycles. Per the plan-review-convergence loop's exit criteria, this phase's plans are ready to proceed to execution without a 4th cycle or escalation.
