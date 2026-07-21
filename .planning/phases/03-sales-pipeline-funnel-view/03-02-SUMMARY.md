@@ -120,3 +120,7 @@ None - nenhuma configuração de serviço externo necessária. O `./data/crm.db`
 ---
 *Phase: 03-sales-pipeline-funnel-view*
 *Completed: 2026-07-21*
+
+## Self-Check: PASSED
+
+All 5 claimed files verified present (`src/app/pipeline/page.tsx`, `src/components/pipeline-board.tsx`, `src/components/pipeline-column.tsx`, `src/components/pipeline-lead-card.tsx`, `src/components/app-sidebar.tsx`, this SUMMARY.md). All 3 commits (`910dfd4`, `7c92f69`, `ccf7cad`) confirmed present via `git log --oneline` on this worktree branch.
