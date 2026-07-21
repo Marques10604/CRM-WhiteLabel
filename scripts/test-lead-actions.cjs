@@ -1,0 +1,302 @@
+// Verifica src/actions/lead-actions.ts (Task 1 do plano 01-02): createLead/
+// updateLead com leadSchema, pré-checagem de subnichoId no banco, e o backstop
+// de captura de violação de FK (SQLITE_CONSTRAINT_FOREIGNKEY), exercitado nas
+// DUAS partes exigidas pelo plano:
+//   (a) contrato do banco — db.insert(leads) DIRETO com subnichoId inexistente
+//       lança err.code === "SQLITE_CONSTRAINT_FOREIGNKEY"
+//   (b) fiação do código — grep estático confirma que o try/catch de
+//       createLead/updateLead envolve o próprio insert/update e testa esse
+//       mesmo err.code
+//
+// Roda contra um banco SQLite TEMPORÁRIO e isolado (não toca ./data/crm.db).
+const { register } = require("node:module");
+const { pathToFileURL } = require("node:url");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const Database = require("better-sqlite3");
+
+register("./ts-alias-loader.mjs", pathToFileURL(__dirname + "/"));
+
+let failed = 0;
+
+function check(condition, message) {
+  if (condition) {
+    console.log(`OK ${message}`);
+  } else {
+    console.error(`FAIL ${message}`);
+    failed++;
+  }
+}
+
+// --- (b) Fiação do código: grep estático em lead-actions.ts (não depende de import) ---
+function staticCheckFkWiring() {
+  const source = fs.readFileSync(path.join(__dirname, "..", "src", "actions", "lead-actions.ts"), "utf8");
+
+  check(
+    /function isForeignKeyViolation/.test(source) &&
+      /SQLITE_CONSTRAINT_FOREIGNKEY/.test(source),
+    "lead-actions.ts define isForeignKeyViolation() testando err.code === \"SQLITE_CONSTRAINT_FOREIGNKEY\""
+  );
+
+  const createIdx = source.indexOf("export async function createLead");
+  const updateIdx = source.indexOf("export async function updateLead");
+  check(createIdx !== -1 && updateIdx !== -1 && createIdx < updateIdx, "createLead e updateLead estão ambos exportados de lead-actions.ts");
+
+  const createBody = source.slice(createIdx, updateIdx);
+  const updateBody = source.slice(updateIdx);
+
+  for (const [name, body, dbCallLabel, dbCallPattern] of [
+    ["createLead", createBody, "db.insert(leads)", /db\s*\.\s*insert\s*\(\s*leads\s*\)/],
+    ["updateLead", updateBody, "db.update(leads)", /db\s*\.\s*update\s*\(\s*leads\s*\)/],
+  ]) {
+    const tryStart = body.indexOf("try {");
+    const revalidateStart = body.indexOf("revalidatePath(");
+    check(tryStart !== -1 && revalidateStart !== -1 && tryStart < revalidateStart, `${name}: possui um bloco try{...} antes de revalidatePath("/")`);
+
+    const tryCatchRegion = tryStart !== -1 && revalidateStart !== -1 ? body.slice(tryStart, revalidateStart) : "";
+
+    check(dbCallPattern.test(tryCatchRegion), `${name}: o try{} envolve diretamente ${dbCallLabel}`);
+    check(/catch\s*\(err\)/.test(tryCatchRegion), `${name}: possui catch (err) logo após o ${dbCallLabel}`);
+
+    const isForeignKeyCallIdx = tryCatchRegion.indexOf("isForeignKeyViolation(err)");
+    const throwErrIdx = tryCatchRegion.indexOf("throw err");
+    check(
+      isForeignKeyCallIdx !== -1 && throwErrIdx !== -1 && isForeignKeyCallIdx < throwErrIdx,
+      `${name}: o catch chama isForeignKeyViolation(err) antes de re-lançar erros não-FK (throw err)`
+    );
+
+    check(
+      tryCatchRegion.includes('subnichoId: ["Selecione um sub-nicho."]'),
+      `${name}: o catch de violação de FK retorna { errors: { subnichoId: ["Selecione um sub-nicho."] } }`
+    );
+  }
+}
+
+// --- Comportamento em runtime contra um banco SQLite temporário isolado ---
+async function runBehaviorTests() {
+  const tmpDb = path.join(os.tmpdir(), `crm-leads-test-lead-actions-${Date.now()}.db`);
+  process.env.DB_FILE_NAME = tmpDb;
+
+  const migrationSql = fs
+    .readFileSync(path.join(__dirname, "..", "src", "db", "migrations", "0000_gifted_slapstick.sql"), "utf8")
+    .replace(/--> statement-breakpoint/g, "");
+
+  const setupDb = new Database(tmpDb);
+  setupDb.pragma("foreign_keys = ON");
+  setupDb.exec(migrationSql);
+  const subnichoInsert = setupDb.prepare("INSERT INTO subnichos (nome) VALUES (?)").run("Nutricionista");
+  const subnichoId = Number(subnichoInsert.lastInsertRowid);
+  setupDb.close();
+
+  // Importados DEPOIS de DB_FILE_NAME estar setado, para que src/db/client.ts
+  // abra a conexão no banco temporário (o módulo é cacheado no primeiro import).
+  const { createLead, updateLead } = await import("@/actions/lead-actions");
+  const { db } = await import("@/db/client");
+  const { leads } = await import("@/db/schema");
+  const { eq } = await import("drizzle-orm");
+
+  function makeFormData(overrides = {}) {
+    const fd = new FormData();
+    const base = {
+      nome: "Joao Silva",
+      telefone: "(11) 91234-5678",
+      canal: "whatsapp",
+      origem: "Instagram Ads",
+      valorEstimado: "1.234,56",
+      notas: "Lead quente, pediu retorno.",
+      followUpDate: "2026-08-01",
+      subnichoId: String(subnichoId),
+      ...overrides,
+    };
+    for (const [key, value] of Object.entries(base)) {
+      fd.set(key, value);
+    }
+    return fd;
+  }
+
+  async function countLeads() {
+    return (await db.select().from(leads)).length;
+  }
+
+  // Next.js's revalidatePath() lança "static generation store missing" quando
+  // chamado fora de uma request real do Next — mas isso acontece DEPOIS que a
+  // escrita no banco já foi confirmada (ver 01-01-SUMMARY.md, mesma pitfall).
+  // Tolerar esse throw específico aqui e verificar o efeito real via leitura
+  // do banco, em vez de depender do valor de retorno da action nesses casos.
+  async function callToleratingRevalidate(fn, formData) {
+    try {
+      return { threw: false, result: await fn(undefined, formData) };
+    } catch (err) {
+      if (typeof err?.message === "string" && /revalidatePath|static generation store/i.test(err.message)) {
+        return { threw: true, err };
+      }
+      throw err;
+    }
+  }
+
+  // Caso 1: createLead com os 9 campos válidos -> insere 1 linha.
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(createLead, makeFormData());
+    const after = await countLeads();
+    check(after === before + 1, `createLead válido: insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (!outcome.threw) {
+      check(outcome.result?.success === true, "createLead válido: retorna { success: true } quando revalidatePath não lança");
+    } else {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(row?.telefone === "5511912345678", `createLead válido: telefone normalizado para "5511912345678" (got ${row?.telefone})`);
+    check(row?.valorEstimado === 123456, `createLead válido: valorEstimado === 123456 centavos (got ${row?.valorEstimado})`);
+  }
+
+  // Caso 2: nome vazio -> erro, não insere.
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ nome: "" }));
+    const after = await countLeads();
+    check(after === before, "createLead com nome vazio: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.nome) && result.errors.nome.includes("Nome é obrigatório."),
+      `createLead com nome vazio: errors.nome inclui "Nome é obrigatório." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 3: telefone inválido -> erro, não insere.
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ telefone: "1234" }));
+    const after = await countLeads();
+    check(after === before, "createLead com telefone inválido: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.telefone) && result.errors.telefone.length > 0,
+      `createLead com telefone inválido: errors.telefone presente (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 4: valor vazio -> erro "Valor estimado é obrigatório.", não insere.
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ valorEstimado: "" }));
+    const after = await countLeads();
+    check(after === before, "createLead com valor vazio: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.valorEstimado) &&
+        result.errors.valorEstimado.includes("Valor estimado é obrigatório."),
+      `createLead com valor vazio: errors.valorEstimado inclui "Valor estimado é obrigatório." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 5: valor "abc1" (caractere inválido embutido) -> mesmo erro, não insere.
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ valorEstimado: "abc1" }));
+    const after = await countLeads();
+    check(after === before, 'createLead com valor "abc1": NÃO insere');
+    check(
+      Array.isArray(result?.errors?.valorEstimado) &&
+        result.errors.valorEstimado.includes("Valor estimado é obrigatório."),
+      `createLead com valor "abc1": errors.valorEstimado inclui "Valor estimado é obrigatório." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 6: subnichoId inexistente (pré-checagem via SELECT) -> erro, não insere.
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ subnichoId: "999999" }));
+    const after = await countLeads();
+    check(after === before, "createLead com subnichoId inexistente: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.subnichoId) &&
+        result.errors.subnichoId.includes("Selecione um sub-nicho."),
+      `createLead com subnichoId inexistente: errors.subnichoId inclui "Selecione um sub-nicho." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 7: updateLead com id válido -> atualiza a linha existente (não cria nova).
+  {
+    const inserted = await db
+      .insert(leads)
+      .values({
+        nome: "Original",
+        telefone: "5511911111111",
+        canal: "instagram",
+        origem: "CSV",
+        valorEstimado: 1000,
+        notas: "nota original",
+        followUpDate: new Date("2026-01-01"),
+        subnichoId,
+        stage: "novo",
+      })
+      .returning({ id: leads.id });
+    const id = inserted[0].id;
+
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(updateLead, makeFormData({ nome: "Atualizado", id: String(id) }));
+    const after = await countLeads();
+    check(after === before, `updateLead com id válido: NÃO cria nova linha (antes=${before}, depois=${after})`);
+    if (!outcome.threw) {
+      check(outcome.result?.success === true, "updateLead com id válido: retorna { success: true } quando revalidatePath não lança");
+    } else {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).where(eq(leads.id, id));
+    check(row?.nome === "Atualizado", `updateLead com id válido: linha existente foi atualizada (got nome=${row?.nome})`);
+  }
+
+  // Caso 8 (backstop de FK, parte a — CONTRATO DO BANCO): db.insert(leads)
+  // DIRETO (bypassando createLead) com subnichoId inexistente deve lançar
+  // err.code === "SQLITE_CONSTRAINT_FOREIGNKEY". Prova que onDelete:"restrict"
+  // está ativo e a violação é observável em runtime — NÃO exercita o
+  // try/catch de createLead, só o contrato de FK do driver.
+  {
+    let thrownErr = null;
+    try {
+      await db.insert(leads).values({
+        nome: "Bypass FK",
+        telefone: "5511922222222",
+        canal: "instagram",
+        origem: "CSV",
+        valorEstimado: 500,
+        notas: "teste de backstop de FK",
+        followUpDate: new Date("2026-01-01"),
+        subnichoId: 999999,
+        stage: "novo",
+      });
+    } catch (err) {
+      thrownErr = err;
+    }
+    check(thrownErr !== null, "db.insert(leads) DIRETO com subnichoId inexistente: lança um erro");
+    check(
+      thrownErr?.code === "SQLITE_CONSTRAINT_FOREIGNKEY",
+      `db.insert(leads) DIRETO com subnichoId inexistente: err.code === "SQLITE_CONSTRAINT_FOREIGNKEY" (got ${thrownErr?.code})`
+    );
+  }
+
+  try {
+    fs.unlinkSync(tmpDb);
+  } catch {
+    /* best-effort cleanup; better-sqlite3 pode manter o handle aberto neste processo */
+  }
+  try {
+    fs.unlinkSync(tmpDb + "-shm");
+  } catch {}
+  try {
+    fs.unlinkSync(tmpDb + "-wal");
+  } catch {}
+}
+
+(async () => {
+  staticCheckFkWiring();
+  await runBehaviorTests();
+
+  if (failed > 0) {
+    console.error(`\n[test-lead-actions] ${failed} falha(s).`);
+    process.exit(1);
+  }
+  console.log("\n[test-lead-actions] OK: todas as asserções passaram.");
+})().catch((err) => {
+  console.error("[test-lead-actions] ERRO:", err.stack || err);
+  process.exit(1);
+});
