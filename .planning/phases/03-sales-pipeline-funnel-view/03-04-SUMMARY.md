@@ -91,3 +91,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 03-sales-pipeline-funnel-view*
 *Completed: 2026-07-21*
+
+## Self-Check: PASSED
+
+All claimed files verified present (`src/actions/lead-actions.ts`, this SUMMARY.md). All 3 commits (`e8158e4`, `3836578`, `599c8a8`) confirmed present via `git log --oneline --all` on this worktree branch.
