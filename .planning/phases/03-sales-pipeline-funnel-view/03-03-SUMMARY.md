@@ -132,3 +132,7 @@ None - nenhuma configuração de serviço externo necessária. O checkpoint de l
 ---
 *Phase: 03-sales-pipeline-funnel-view*
 *Completed: 2026-07-21*
+
+## Self-Check: PASSED
+
+All 6 claimed files verified present (`src/components/motivo-perda-dialog.tsx`, `src/actions/lead-actions.ts`, `src/components/pipeline-board.tsx`, `src/components/pipeline-column.tsx`, `src/components/pipeline-lead-card.tsx`, this SUMMARY.md). All 3 commits (`db412e9`, `d30199c`, `f2d061e`) confirmed present via `git log --oneline --all` on this worktree branch.
