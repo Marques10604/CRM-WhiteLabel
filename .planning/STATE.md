@@ -86,6 +86,14 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T00:38:12.705Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-07-21 (orchestrator, after 2x spend-limit interruption on executor subagents)
+Stopped at: 01-02-PLAN.md, Task 1 DONE and committed (`6093d39`). Task 2 and Task 3 NOT started.
 Resume file: None
+
+### 01-02 progress
+
+- Task 1 ("money/phone utils + leadSchema + Server Actions de lead + sub-nicho combobox"): ✅ committed `6093d39`. Verified directly (not by a subagent) after 2 executor subagents hit the monthly spend limit mid-task: `npx tsc --noEmit` clean, `test-money.cjs`/`test-phone.cjs`/`test-lead-actions.cjs` all pass (18+6+"all" assertions), grep checks for no-hard-delete / no-cmdk / pre-validation-regex all confirmed.
+- Task 2 ("Modal de lead 3 seções + discard-changes-dialog + etapa-badge"): ⬜ not started. Files: `src/components/lead-form-dialog.tsx`, `src/components/discard-changes-dialog.tsx`, `src/components/etapa-badge.tsx`.
+- Task 3 ("Rota / com lista base de leads"): ⬜ not started. Files: `src/app/page.tsx`, `src/components/lead-table.tsx`, `src/components/lead-table-columns.tsx`.
+
+Next action: re-run `/gsd-execute-phase 01` (or resume 01-02 executor) scoped to Tasks 2-3 only — Task 1 is done, don't redo it.
