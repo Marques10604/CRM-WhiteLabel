@@ -23,7 +23,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Pipeline
 
-- [ ] **PIPE-01**: Board com 4 etapas fixas (Novo, Contatado, Negociação, Fechado/Perdido) com contagem de leads por etapa
+- [ ] **PIPE-01**: Board com 5 etapas fixas (Novo, Contatado, Negociação, Fechado, Perdido) com contagem de leads por etapa (etapa combinada original desmembrada — decisão em `03-CONTEXT.md` D-01, ver fase 3)
 - [ ] **PIPE-02**: Admin pode mover um lead entre etapas via arrastar-e-soltar (drag-and-drop)
 - [ ] **PIPE-03**: Sistema destaca leads "esfriando" — parados há muito tempo em "Contatado" sem atividade recente
 

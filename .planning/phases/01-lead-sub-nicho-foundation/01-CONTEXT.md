@@ -51,7 +51,7 @@ Downstream agents MUST read `01-SPEC.md` before planning or implementing. Requir
 - **D-07:** Clicking a row opens the same edit modal used for creation, pre-filled with that lead's data.
 - **D-08:** Row-level actions (edit, delete) are direct icon buttons on the row, not hidden behind a "…" menu.
 - **D-09:** Etapa is displayed as a colored badge in the list (e.g., cinza=Novo, azul=Contatado, amarelo=Negociação, verde/vermelho=Fechado/Perdido) — anticipates reuse by the Phase 3 board.
-- **D-10:** "Fechado/Perdido" remains a single etapa value, exactly as locked in SPEC.md/ROADMAP.md — not split into two separate stages.
+- **D-10 (SUPERSEDED by Phase 3 D-01):** "Fechado/Perdido" remains a single etapa value, exactly as locked in SPEC.md/ROADMAP.md — not split into two separate stages. *Revisited and reversed during Phase 3 discussion (2026-07-21): the admin asked to split this into "Fechado" and "Perdido" for clearer win/loss visibility. See `.planning/phases/03-sales-pipeline-funnel-view/03-CONTEXT.md` D-01 through D-05 for the new decision and migration plan. This D-10 entry is kept for history — Phase 1's implementation still uses the combined value until Phase 3 executes the schema migration.*
 - **D-11:** Filters (sub-nicho, etapa, follow-up date range) live in a fixed toolbar always visible above the table, not a collapsible panel.
 - **D-12:** Pagination is classic (prev/next controls), 25 leads per page — using `@tanstack/react-table`'s built-in pagination.
 - **D-13:** Empty state (no leads yet) shows explanatory text plus a "Novo lead" call-to-action button, in addition to the always-visible "Novo lead" button elsewhere on the screen.

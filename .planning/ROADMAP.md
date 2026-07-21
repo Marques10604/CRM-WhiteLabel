@@ -54,9 +54,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Phase 1 (needs the lead data model); benefits from Phase 2 (real imported data to validate against)
 **Requirements**: PIPE-01, PIPE-02, PIPE-03
 **Success Criteria** (what must be TRUE):
-  1. Admin sees a board with the 4 fixed stages (Novo, Contatado, Negociação, Fechado/Perdido) and a live count of leads in each
-  2. Admin can drag-and-drop a lead card from one stage to another
-  3. Leads stuck in "Contatado" without recent activity are visually flagged as "esfriando," so they don't silently go cold
+  1. Admin sees a board with 5 fixed stages (Novo, Contatado, Negociação, Fechado, Perdido — split during Phase 3 discussion, see `03-CONTEXT.md` D-01, supersedes `01-CONTEXT.md` D-10) and a live count of leads in each
+  2. Admin can drag-and-drop a lead card from one stage to another; moving a card to Perdido optionally captures a loss reason (`motivoPerda`)
+  3. Leads stuck in "Contatado" without recent activity (5+ days since last stage change) are visually flagged as "esfriando," so they don't silently go cold
 **Plans**: TBD
 **UI hint**: yes
 
