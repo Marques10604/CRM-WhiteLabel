@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-21T02:11:46.701Z"
-last_activity: 2026-07-21 -- Phase 01 execution started
+last_updated: "2026-07-21T02:44:35.759Z"
+last_activity: 2026-07-21
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 01 (lead-sub-nicho-foundation) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 01
-Last activity: 2026-07-21 -- Phase 01 execution started
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-07-21
 
-Progress: [█████░░░░░] 50%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [█████░░░░░] 50%
 *Updated after each plan completion*
 | Phase 01 P01 | 70min | 4 tasks | 46 files |
 | Phase 01 P02 | 45min | 3 tasks | 13 files |
+| Phase 01-lead-sub-nicho-foundation P03 | 25min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 01]: turbopack.root adicionado ao next.config.ts para corrigir detecção incorreta de workspace root pelo Turbopack
 - [Phase ?]: [Phase 01] Lead form submits raw DOM FormData (not react-hook-form parsed values) to avoid double-converting valorEstimado, since parseBRLToCents is not idempotent on its own centavos output
 - [Phase ?]: [Phase 01] Base UI Dialog onOpenChange + eventDetails.cancel() used to intercept unsaved-changes close (D-04), no extra confirmation library needed
+- [Phase 01-lead-sub-nicho-foundation]: npx shadcn add popover falhou por falta de memoria neste host; popover.tsx foi escrito a mao seguindo o padrao de dialog.tsx/select.tsx (Base UI Popover)
+- [Phase 01-lead-sub-nicho-foundation]: Filtro de sub-nicho na lead-table compara por subnichoId (numero), nao por subnichoNome (texto exibido)
+- [Phase 01-lead-sub-nicho-foundation]: DEFAULT_SORTING e FollowUpDateRange centralizados em lead-table-columns.tsx para evitar import circular entre lead-table.tsx e lead-table-toolbar.tsx
 
 ### Pending Todos
 
@@ -89,8 +93,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T02:10:33.249Z
-Stopped at: Completed 01-02-PLAN.md (Tasks 1-3 all committed: 6093d39, b2806b0, c71fd7d)
+Last session: 2026-07-21T02:44:35.732Z
+Stopped at: Completed 01-03-PLAN.md (Tasks 1-2 all committed: 728163f, 82b18ae)
 Resume file: None
 
 ### 01-02 progress
@@ -108,4 +112,6 @@ Resume file: None
 
 01-03-PLAN.md is now FULLY COMPLETE (Tasks 1-2 all committed: `728163f`, `82b18ae`). A real `npm run dev` click-through of sorting/filtering/pagination in the browser is still recommended before considering the UI polished (no browser access in this headless executor — same caveat as 01-02).
 
-Next action: write SUMMARY.md, then STATE.md/ROADMAP.md/REQUIREMENTS.md final updates + metadata commit.
+01-03-SUMMARY.md written and self-checked; STATE.md/ROADMAP.md/REQUIREMENTS.md updated via gsd-sdk.
+
+Next action: resume with plan 01-04 (soft-delete/lixeira).
