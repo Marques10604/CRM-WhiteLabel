@@ -77,6 +77,7 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general
+- [Separar Fechado e Perdido em duas etapas distintas](.planning/todos/pending/2026-07-21-separar-fechado-perdido.md) — area: general — conflita com D-10 (01-CONTEXT.md), decidir antes/durante a Fase 3
 
 ### Blockers/Concerns
 
