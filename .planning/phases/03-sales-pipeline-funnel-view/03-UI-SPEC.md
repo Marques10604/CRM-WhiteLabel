@@ -68,6 +68,8 @@ Uso específico desta fase:
 
 Nenhum tamanho intermediário ou peso adicional (ex.: 12px, 700 bold) é introduzido — mantém consistência com a Fase 1.
 
+**Foco visual da tela `/pipeline`:** a pilha de colunas/cards do board é o foco visual primário — é o que domina a área útil da tela e o que o olho encontra primeiro. O título "Pipeline" (Display, 28px) e qualquer ação de topo de página são secundários, seguindo a mesma hierarquia adotada na lista de leads da Fase 1 (o dado, não o chrome, é o protagonista).
+
 ---
 
 ## Color
@@ -144,11 +146,11 @@ Nenhum bloco novo do registry shadcn é necessário — o board reaproveita `Dia
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS (recommendation applied — primary focal point declared above)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED (2026-07-21)
