@@ -57,7 +57,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Admin sees a board with 5 fixed stages (Novo, Contatado, Negociação, Fechado, Perdido — split during Phase 3 discussion, see `03-CONTEXT.md` D-01, supersedes `01-CONTEXT.md` D-10) and a live count of leads in each
   2. Admin can drag-and-drop a lead card from one stage to another; moving a card to Perdido optionally captures a loss reason (`motivoPerda`)
   3. Leads stuck in "Contatado" without recent activity (5+ days since last stage change) are visually flagged as "esfriando," so they don't silently go cold
-**Plans**: TBD
+**Plans**: 3 plans
+- [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01)
+- [ ] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
+- [ ] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
 **UI hint**: yes
 
 ### Phase 4: Follow-up Dashboard & WhatsApp Outreach
