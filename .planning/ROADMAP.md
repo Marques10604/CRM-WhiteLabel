@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Lead & Sub-nicho Foundation** - Admin can fully manage leads and the sub-nicho taxonomy by hand, with a filterable/sortable list and safe (recoverable) deletion
 - [ ] **Phase 2: CSV Bulk Import** - Admin can import a cowork CSV batch end-to-end, with Brazilian delimiter/encoding auto-detection and duplicate protection
-- [ ] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged
+- [x] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged (completed 2026-07-21)
 - [ ] **Phase 4: Follow-up Dashboard & WhatsApp Outreach** - Admin opens the CRM to overdue follow-ups by default and reaches out via one-click WhatsApp templates
 
 ## Phase Details
@@ -60,7 +60,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 - [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01) — planned, not yet executed
 - [x] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
-- [ ] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
+- [x] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
 **UI hint**: yes
 
 ### Phase 4: Follow-up Dashboard & WhatsApp Outreach
@@ -86,5 +86,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Lead & Sub-nicho Foundation | 3/4 | In Progress|  |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
-| 3. Sales Pipeline & Funnel View | 2/3 | In Progress|  |
+| 3. Sales Pipeline & Funnel View | 3/3 | Complete   | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 0/TBD | Not started | - |
