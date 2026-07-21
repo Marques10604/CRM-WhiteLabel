@@ -4,16 +4,16 @@ import type { Lead } from "@/types";
 export type Stage = Lead["stage"];
 
 /**
- * Paleta fixa de etapa (D-09). "Fechado/Perdido" é tratado como um único
- * valor de estado terminal (schema Drizzle `stage` enum) — usa uma cor
- * neutra escura (slate) em vez de verde/vermelho, já que não há dado no
- * banco para diferenciar ganho de perda (ver nota de resolução UI-SPEC).
+ * Paleta fixa de etapa (D-09). A partir da Fase 3 (D-01/D-05), "Fechado" e
+ * "Perdido" são duas etapas distintas do enum `stage` — verde para Fechado
+ * (ganho) e vermelho para Perdido, consistentes com a paleta já usada aqui.
  */
 const STAGE_CONFIG: Record<Stage, { label: string; bg: string; text: string }> = {
   novo: { label: "Novo", bg: "#F4F4F5", text: "#3F3F46" },
   contatado: { label: "Contatado", bg: "#DBEAFE", text: "#1D4ED8" },
   negociacao: { label: "Negociação", bg: "#FEF3C7", text: "#B45309" },
-  fechado_perdido: { label: "Fechado/Perdido", bg: "#E2E8F0", text: "#1E293B" },
+  fechado: { label: "Fechado", bg: "#DCFCE7", text: "#15803D" },
+  perdido: { label: "Perdido", bg: "#FEE2E2", text: "#B91C1C" },
 };
 
 /** Lista de etapas + label, reaproveitada pelo filtro de etapa da toolbar (01-03, D-11). */

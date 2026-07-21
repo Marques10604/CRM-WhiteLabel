@@ -25,9 +25,11 @@ export const leads = sqliteTable(
     notas: text("notas").notNull(),
     followUpDate: integer("follow_up_date", { mode: "timestamp" }).notNull(),
     subnichoId: integer("subnicho_id").notNull().references(() => subnichos.id, { onDelete: "restrict" }),
-    stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado_perdido"] })
+    stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado", "perdido"] })
       .notNull()
       .default("novo"),
+    motivoPerda: text("motivo_perda"), // nullable, D-03 (preenchido opcionalmente ao mover para "perdido")
+    stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
     deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),

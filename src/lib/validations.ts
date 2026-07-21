@@ -35,8 +35,16 @@ export const leadSchema = z.object({
   followUpDate: z.coerce.date(),
   subnichoId: z.coerce.number().int().positive("Selecione um sub-nicho."),
   stage: z
-    .enum(["novo", "contatado", "negociacao", "fechado_perdido"])
+    .enum(["novo", "contatado", "negociacao", "fechado", "perdido"])
     .default("novo"),
+  motivoPerda: z.string().trim().optional(),
 });
 
 export type LeadFormValues = z.input<typeof leadSchema>;
+
+/** Contrato enxuto para a mudança de etapa via drag-and-drop (03-03, updateLeadStage). */
+export const stageUpdateSchema = z.object({
+  id: z.coerce.number().int().positive(),
+  stage: z.enum(["novo", "contatado", "negociacao", "fechado", "perdido"]),
+  motivoPerda: z.string().trim().optional(),
+});
