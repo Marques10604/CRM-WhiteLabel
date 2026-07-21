@@ -83,6 +83,12 @@ None yet.
 - Phase 2 (CSV Import): no real cowork CSV sample available yet — Brazilian delimiter/encoding/phone-format assumptions must be validated against a real file as early as possible, per research SUMMARY.md gaps.
 - Cross-cutting: keep checking every phase for scope creep into auth/multi-user/mobile/WhatsApp Business API — explicitly out of scope per PROJECT.md.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260720-x41 | Corrigir dialog/modal de preenchimento maior que a tela - adicionar max-h e overflow-y-auto | 2026-07-21 | c00c8cb | [260720-x41-corrigir-dialog-modal-de-preenchimento-n](./quick/260720-x41-corrigir-dialog-modal-de-preenchimento-n/) |
+
 ## Deferred Items
 
 Items acknowledged and carried forward from previous milestone close:
