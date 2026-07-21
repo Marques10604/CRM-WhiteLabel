@@ -76,7 +76,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general
 
 ### Blockers/Concerns
 
