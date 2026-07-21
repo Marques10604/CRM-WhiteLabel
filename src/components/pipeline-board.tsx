@@ -1,11 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, startTransition, useOptimistic } from "react";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { STAGE_OPTIONS } from "@/components/etapa-badge";
 import { PipelineColumn } from "@/components/pipeline-column";
 import { PipelineLeadCard } from "@/components/pipeline-lead-card";
+import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
+import { updateLeadStage } from "@/actions/lead-actions";
 import type { Lead, Subnicho } from "@/types";
 
 type PipelineBoardProps = {
@@ -19,15 +29,41 @@ type DialogState =
   | { mode: "create" }
   | { mode: "edit"; lead: Lead };
 
+type MotivoPerdaState =
+  | { open: false }
+  | { open: true; leadNome: string };
+
+const STAGE_LABEL_BY_VALUE = new Map(
+  STAGE_OPTIONS.map((option) => [option.value, option.label])
+);
+
 /**
- * Board somente-leitura (03-02) — 5 colunas fixas derivadas de `STAGE_OPTIONS`
- * (fonte única de nomes/ordem das etapas, `etapa-badge.tsx`). Reusa VERBATIM o
- * padrão de dialog-state de `lead-table.tsx` para o clique-abre-modal (D-10).
- * NENHUM `@dnd-kit` nesta fase — apenas render + clique; 03-03 vai envolver
- * este layout de colunas/cards com `DndContext` sem reestruturação.
+ * Board com drag-and-drop persistente (03-03, PIPE-02). `DndContext` no
+ * root; `PointerSensor` com `activationConstraint: { distance: 8 }` evita
+ * que o drag engula o clique-para-editar (Pitfall 4). `useOptimistic` move
+ * o card instantaneamente; se `updateLeadStage` falhar, o estado base nunca
+ * muda e o React reverte o otimista sozinho ao assentar a transição
+ * (RESEARCH.md Pattern 2). Soltar em "Perdido" abre um modal opcional e
+ * não-bloqueante de motivo da perda (D-04): o card já se moveu de forma
+ * otimista e a mesma transição fica pendente aguardando a decisão do modal
+ * (Pular/Salvar motivo) antes de chamar `updateLeadStage` uma única vez.
  */
 export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBoardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
+  const [motivoPerdaState, setMotivoPerdaState] = useState<MotivoPerdaState>({
+    open: false,
+  });
+  const motivoResolverRef = useRef<((motivo: string | undefined) => void) | null>(null);
+
+  const [optimisticLeads, setOptimisticStage] = useOptimistic(
+    leads,
+    (state, { id, stage }: { id: number; stage: Lead["stage"] }) =>
+      state.map((lead) => (lead.id === id ? { ...lead, stage } : lead))
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
@@ -41,13 +77,49 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBo
     for (const option of STAGE_OPTIONS) {
       grouped.set(option.value, []);
     }
-    for (const lead of leads) {
+    for (const lead of optimisticLeads) {
       grouped.get(lead.stage)?.push(lead);
     }
     return grouped;
-  }, [leads]);
+  }, [optimisticLeads]);
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
+
+  function handleDragEnd(event: DragEndEvent) {
+    const leadId = Number(event.active.id);
+    const newStage = event.over?.id as Lead["stage"] | undefined;
+    if (!newStage) return; // soltou fora de qualquer coluna — no-op
+
+    const lead = optimisticLeads.find((l) => l.id === leadId);
+
+    startTransition(async () => {
+      setOptimisticStage({ id: leadId, stage: newStage });
+
+      let motivoPerda: string | undefined;
+      if (newStage === "perdido") {
+        // Modal opcional/não-bloqueante (D-04): o card já se moveu acima.
+        // A transição fica pendente até o admin clicar Pular/Salvar motivo.
+        setMotivoPerdaState({ open: true, leadNome: lead?.nome ?? "" });
+        motivoPerda = await new Promise<string | undefined>((resolve) => {
+          motivoResolverRef.current = resolve;
+        });
+      }
+
+      const result = await updateLeadStage(leadId, newStage, motivoPerda);
+      if (result && "errors" in result) {
+        toast.error("Não foi possível mover o lead. Tente novamente.");
+        return;
+      }
+      const label = STAGE_LABEL_BY_VALUE.get(newStage) ?? newStage;
+      toast.success(`Lead movido para ${label}.`);
+    });
+  }
+
+  function resolveMotivoPerda(motivo: string | undefined) {
+    setMotivoPerdaState({ open: false });
+    motivoResolverRef.current?.(motivo);
+    motivoResolverRef.current = null;
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -60,24 +132,31 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBo
         </Button>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-8">
-        {STAGE_OPTIONS.map((option) => {
-          const columnLeads = leadsByStage.get(option.value) ?? [];
-          return (
-            <PipelineColumn key={option.value} label={option.label} count={columnLeads.length}>
-              {columnLeads.map((lead) => (
-                <PipelineLeadCard
-                  key={lead.id}
-                  lead={lead}
-                  subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
-                  isEsfriando={esfriandoSet.has(lead.id)}
-                  onClick={() => setDialogState({ mode: "edit", lead })}
-                />
-              ))}
-            </PipelineColumn>
-          );
-        })}
-      </div>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="flex gap-6 overflow-x-auto pb-8">
+          {STAGE_OPTIONS.map((option) => {
+            const columnLeads = leadsByStage.get(option.value) ?? [];
+            return (
+              <PipelineColumn
+                key={option.value}
+                stage={option.value}
+                label={option.label}
+                count={columnLeads.length}
+              >
+                {columnLeads.map((lead) => (
+                  <PipelineLeadCard
+                    key={lead.id}
+                    lead={lead}
+                    subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
+                    isEsfriando={esfriandoSet.has(lead.id)}
+                    onClick={() => setDialogState({ mode: "edit", lead })}
+                  />
+                ))}
+              </PipelineColumn>
+            );
+          })}
+        </div>
+      </DndContext>
 
       <LeadFormDialog
         key={dialogState.mode === "edit" ? `edit-${dialogState.lead.id}` : "create"}
@@ -87,6 +166,16 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBo
         }}
         subnichos={subnichos}
         lead={dialogLead}
+      />
+
+      <MotivoPerdaDialog
+        open={motivoPerdaState.open}
+        leadNome={motivoPerdaState.open ? motivoPerdaState.leadNome : ""}
+        onOpenChange={(open) => {
+          if (!open) resolveMotivoPerda(undefined);
+        }}
+        onSkip={() => resolveMotivoPerda(undefined)}
+        onSave={(motivo) => resolveMotivoPerda(motivo)}
       />
     </div>
   );

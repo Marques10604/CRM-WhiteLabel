@@ -1,6 +1,11 @@
 "use client";
 
+import { useDroppable } from "@dnd-kit/core";
+import { cn } from "@/lib/utils";
+import type { Lead } from "@/types";
+
 type PipelineColumnProps = {
+  stage: Lead["stage"];
   label: string;
   count: number;
   children: React.ReactNode;
@@ -11,13 +16,20 @@ type PipelineColumnProps = {
  * "{label} · {count}" (apenas contagem, sem soma de valor). Largura mínima
  * de 288px, nunca encolhe (`shrink-0`) — o board pai rola horizontalmente.
  * Estado vazio: texto muted, sem CTA (diferente da lista, D-13/01-CONTEXT).
- * `useDroppable` (03-03) será adicionado aqui sem reestruturar o layout.
+ * `useDroppable` (id = stage) torna a coluna um alvo de drop (03-03).
  */
-export function PipelineColumn({ label, count, children }: PipelineColumnProps) {
+export function PipelineColumn({ stage, label, count, children }: PipelineColumnProps) {
   const hasCards = Boolean(count > 0);
+  const { setNodeRef, isOver } = useDroppable({ id: stage });
 
   return (
-    <div className="flex min-w-[288px] shrink-0 flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2">
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex min-w-[288px] shrink-0 flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2 transition-colors",
+        isOver ? "bg-[#E4E4E7]" : null
+      )}
+    >
       <div className="sticky top-0 flex items-baseline gap-2 rounded-md bg-[#F4F4F5] px-2 py-2">
         <h2 className="text-[20px] leading-tight font-semibold">{label}</h2>
         <span className="text-[14px] leading-normal text-muted-foreground">
