@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Lead & Sub-nicho Foundation** - Admin can fully manage leads and the sub-nicho taxonomy by hand, with a filterable/sortable list and safe (recoverable) deletion
 - [ ] **Phase 2: CSV Bulk Import** - Admin can import a cowork CSV batch end-to-end, with Brazilian delimiter/encoding auto-detection and duplicate protection
-- [x] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged (completed 2026-07-21)
+- [~] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged (gap closure 03-04 pending — verifier found 2 blockers)
 - [ ] **Phase 4: Follow-up Dashboard & WhatsApp Outreach** - Admin opens the CRM to overdue follow-ups by default and reaches out via one-click WhatsApp templates
 
 ## Phase Details
@@ -57,10 +57,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Admin sees a board with 5 fixed stages (Novo, Contatado, Negociação, Fechado, Perdido — split during Phase 3 discussion, see `03-CONTEXT.md` D-01, supersedes `01-CONTEXT.md` D-10) and a live count of leads in each
   2. Admin can drag-and-drop a lead card from one stage to another; moving a card to Perdido optionally captures a loss reason (`motivoPerda`)
   3. Leads stuck in "Contatado" without recent activity (5+ days since last stage change) are visually flagged as "esfriando," so they don't silently go cold
-**Plans**: 3 plans
-- [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01) — planned, not yet executed
+**Plans**: 4 plans (3 executed + 1 gap closure)
+- [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01)
 - [x] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
 - [x] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
+- [ ] 03-04-PLAN.md — Gap closure: revalidação cruzada /↔/pipeline + stageChangedAt no caminho de edição por formulário (PIPE-01, PIPE-03)
 **UI hint**: yes
 
 ### Phase 4: Follow-up Dashboard & WhatsApp Outreach
@@ -86,5 +87,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Lead & Sub-nicho Foundation | 3/4 | In Progress|  |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
-| 3. Sales Pipeline & Funnel View | 3/3 | Complete   | 2026-07-21 |
+| 3. Sales Pipeline & Funnel View | 3/4 | Gap closure pending | - |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 0/TBD | Not started | - |
