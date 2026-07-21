@@ -18,6 +18,7 @@ import {
 import {
   Field,
   FieldContent,
+  FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
@@ -177,6 +178,7 @@ export function LeadFormDialog({
                     aria-invalid={!!errors.telefone}
                     {...form.register("telefone")}
                   />
+                  <FieldDescription>Com DDD.</FieldDescription>
                   <FieldError errors={[errors.telefone]} />
                 </FieldContent>
               </Field>
@@ -207,6 +209,9 @@ export function LeadFormDialog({
                       </Select>
                     )}
                   />
+                  <FieldDescription>
+                    Por onde você vai abordar esse lead (Instagram ou WhatsApp).
+                  </FieldDescription>
                   <FieldError errors={[errors.canal]} />
                 </FieldContent>
               </Field>
@@ -215,6 +220,9 @@ export function LeadFormDialog({
                 <FieldLabel htmlFor="origem">Origem</FieldLabel>
                 <FieldContent>
                   <Input id="origem" aria-invalid={!!errors.origem} {...form.register("origem")} />
+                  <FieldDescription>
+                    De onde esse lead veio — ex: indicação, anúncio, evento, parceria com o cowork.
+                  </FieldDescription>
                   <FieldError errors={[errors.origem]} />
                 </FieldContent>
               </Field>
@@ -238,6 +246,9 @@ export function LeadFormDialog({
                       />
                     )}
                   />
+                  <FieldDescription>
+                    Categoria do lead (ex: nutricionista, terapeuta).
+                  </FieldDescription>
                   <FieldError errors={[errors.subnichoId]} />
                 </FieldContent>
               </Field>
@@ -268,6 +279,7 @@ export function LeadFormDialog({
                       </Select>
                     )}
                   />
+                  <FieldDescription>Onde esse lead está no funil de vendas.</FieldDescription>
                   <FieldError errors={[errors.stage]} />
                 </FieldContent>
               </Field>
@@ -281,6 +293,9 @@ export function LeadFormDialog({
                     aria-invalid={!!errors.valorEstimado}
                     {...form.register("valorEstimado")}
                   />
+                  <FieldDescription>
+                    Quanto esse negócio pode valer em R$ se fechar — ajuda a ter noção do funil.
+                  </FieldDescription>
                   <FieldError errors={[errors.valorEstimado]} />
                 </FieldContent>
               </Field>
@@ -293,6 +308,7 @@ export function LeadFormDialog({
                 <FieldLabel htmlFor="notas">Notas</FieldLabel>
                 <FieldContent>
                   <Textarea id="notas" aria-invalid={!!errors.notas} {...form.register("notas")} />
+                  <FieldDescription>Anotações livres sobre esse lead.</FieldDescription>
                   <FieldError errors={[errors.notas]} />
                 </FieldContent>
               </Field>
@@ -324,6 +340,7 @@ export function LeadFormDialog({
                       );
                     }}
                   />
+                  <FieldDescription>Data do próximo contato com esse lead.</FieldDescription>
                   <FieldError errors={[errors.followUpDate]} />
                 </FieldContent>
               </Field>
