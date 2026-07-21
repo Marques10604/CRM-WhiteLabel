@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sqlite database (local data, not versioned — só src/db/migrations/ é versionado)
+/data/*.db*
+/data/*.db-*
