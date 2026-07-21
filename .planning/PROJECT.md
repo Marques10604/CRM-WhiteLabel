@@ -14,7 +14,9 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet — ship to validate)
+- Cada lead segue um pipeline com etapas: Novo → Contatado → Negociação → Fechado / Perdido (Validado na Fase 3 — etapa combinada desmembrada em Fechado e Perdido distintos, decisão D-01 em `03-CONTEXT.md`)
+- Admin pode mover um lead entre etapas do pipeline (Validado na Fase 3 — drag-and-drop com @dnd-kit e reversão automática em falha)
+- Admin visualiza o funil de vendas (quantos leads em cada etapa) de forma rápida (Validado na Fase 3 — board Kanban em `/pipeline`, contagem ao vivo por coluna)
 
 ### Active
 
@@ -22,11 +24,8 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - [ ] Cada lead tem um sub-nicho da área da saúde (nutricionista, terapeuta, etc.)
 - [ ] Admin pode cadastrar novos sub-nichos livremente (lista cresce com o tempo, não é fixa)
 - [ ] Admin pode filtrar/organizar leads por sub-nicho
-- [ ] Cada lead segue um pipeline com etapas: Novo → Contatado → Negociação → Fechado / Perdido
-- [ ] Admin pode mover um lead entre etapas do pipeline
 - [ ] Cada lead registra: notas livres, data do próximo follow-up, canal de contato (Instagram/WhatsApp), origem, valor estimado do negócio
-- [ ] Admin visualiza o funil de vendas (quantos leads em cada etapa) de forma rápida
-- [ ] Admin recebe algum destaque/lembrete visual de leads com follow-up vencido ou próximo
+- [ ] Admin recebe algum destaque/lembrete visual de leads com follow-up vencido ou próximo (nota: leads "esfriando" por etapa parada já implementado na Fase 3; alerta específico de follow-up vencido/próximo ainda pendente — Fase 4)
 - [ ] Admin pode cadastrar templates fixos de mensagem de WhatsApp com variáveis (ex: {nome}, sub-nicho/contexto)
 - [ ] Ao importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido (link pronto, envio manual — sem API de envio automático)
 - [ ] Na data de follow-up agendada, o sistema sugere abrir o WhatsApp com o template de follow-up preenchido (mesmo mecanismo: link pronto, envio manual)
@@ -79,4 +78,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-19 after initialization*
+*Last updated: 2026-07-21 after Phase 3 (Sales Pipeline & Funnel View) completion*
