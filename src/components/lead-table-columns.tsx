@@ -1,4 +1,4 @@
-import type { Column, ColumnDef } from "@tanstack/react-table";
+import type { Column, ColumnDef, SortingState } from "@tanstack/react-table";
 import { format, endOfDay, startOfDay } from "date-fns";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { EtapaBadge } from "@/components/etapa-badge";
@@ -9,6 +9,13 @@ export type LeadRow = Lead & { subnichoNome: string };
 
 /** Intervalo [início, fim] usado pelo filtro de follow-up (01-03, D-11). */
 export type FollowUpDateRange = [Date | undefined, Date | undefined];
+
+/**
+ * Sort default (sem interação): follow-up mais próximo primeiro
+ * (D-12/must_haves). Compartilhado entre `lead-table.tsx` (estado inicial) e
+ * `lead-table-toolbar.tsx` (restaurado pelo botão "Limpar filtros").
+ */
+export const DEFAULT_SORTING: SortingState = [{ id: "followUpDate", desc: false }];
 
 /**
  * Cabeçalho de coluna clicável que alterna a direção do sort (asc/desc) via

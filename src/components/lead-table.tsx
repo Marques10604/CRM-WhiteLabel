@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
 
@@ -20,11 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
-import { leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
+import { LeadTableToolbar } from "@/components/lead-table-toolbar";
+import { DEFAULT_SORTING, leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
 import type { Lead, Subnicho } from "@/types";
-
-/** Sort default (sem interação): follow-up mais próximo primeiro (D-12/must_haves). */
-const DEFAULT_SORTING: SortingState = [{ id: "followUpDate", desc: false }];
 
 type LeadTableProps = {
   leads: Lead[];
@@ -44,6 +44,7 @@ type DialogState =
 export function LeadTable({ leads, subnichos }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
@@ -64,10 +65,12 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
     columns: leadTableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 25 } }, // D-12
     onSortingChange: setSorting,
-    state: { sorting },
+    onColumnFiltersChange: setColumnFilters,
+    state: { sorting, columnFilters },
   });
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
@@ -100,6 +103,8 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
         </div>
       ) : (
         <>
+          <LeadTableToolbar table={table} subnichos={subnichos} />
+
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

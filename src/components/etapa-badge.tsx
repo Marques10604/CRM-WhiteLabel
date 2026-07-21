@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { Lead } from "@/types";
 
-type Stage = Lead["stage"];
+export type Stage = Lead["stage"];
 
 /**
  * Paleta fixa de etapa (D-09). "Fechado/Perdido" é tratado como um único
@@ -15,6 +15,11 @@ const STAGE_CONFIG: Record<Stage, { label: string; bg: string; text: string }> =
   negociacao: { label: "Negociação", bg: "#FEF3C7", text: "#B45309" },
   fechado_perdido: { label: "Fechado/Perdido", bg: "#E2E8F0", text: "#1E293B" },
 };
+
+/** Lista de etapas + label, reaproveitada pelo filtro de etapa da toolbar (01-03, D-11). */
+export const STAGE_OPTIONS: { value: Stage; label: string }[] = (
+  Object.keys(STAGE_CONFIG) as Stage[]
+).map((value) => ({ value, label: STAGE_CONFIG[value].label }));
 
 export function EtapaBadge({ stage }: { stage: Stage }) {
   const config = STAGE_CONFIG[stage];
