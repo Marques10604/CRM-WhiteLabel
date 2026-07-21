@@ -287,17 +287,15 @@ See Architecture Patterns section above for the two load-bearing examples (DndCo
 | A2 | Package legitimacy of `@dnd-kit/core`/`@dnd-kit/sortable` (slopcheck could not run in this environment) | Package Legitimacy Audit | Low — mitigated by 20M+/week downloads, matching official GitHub org (`clauderic/dnd-kit`), and prior independent verification in this project's own `STACK.md` (npm registry, 2026-07-19) |
 | A3 | `PointerSensor` `activationConstraint: { distance: 8 }` is the right configuration to disambiguate card-click-to-edit from drag-start | Common Pitfall 4 | Low-Medium — exact distance value is a UX tuning detail, not a correctness risk; worst case the admin needs a slightly different threshold, easy to adjust post-implementation |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should `updateLeadStage` be a separate Server Action, or should `updateLead` be extended to also accept a bare stage-only payload?**
+1. **RESOLVED — Should `updateLeadStage` be a separate Server Action, or should `updateLead` be extended to also accept a bare stage-only payload?**
    - What we know: `createLead`/`updateLead` in `lead-actions.ts` both take full `FormData` validated by the full `leadSchema` (nome, telefone, canal, etc. all required) — a drag-and-drop stage change has none of that data available, only `{ id, newStage, motivoPerda? }`.
-   - What's unclear: Whether the planner should write a lean, separate action (recommended) or thread a "partial update" path through the existing one.
-   - Recommendation: Add a small dedicated `updateLeadStage(id, stage, motivoPerda?)` Server Action with its own minimal Zod schema (`stageUpdateSchema`), called directly (not via `useActionState`/`formAction`, since it's triggered by a drag event, not a form submit) — keeps `updateLead`'s full-form validation untouched and matches the async-function-call pattern shown in Pattern 2 above.
+   - Recommendation (adopted in 03-03-PLAN.md): Add a small dedicated `updateLeadStage(id, stage, motivoPerda?)` Server Action with its own minimal Zod schema (`stageUpdateSchema`), called directly (not via `useActionState`/`formAction`, since it's triggered by a drag event, not a form submit) — keeps `updateLead`'s full-form validation untouched and matches the async-function-call pattern shown in Pattern 2 above.
 
-2. **Where exactly does the "esfriando" 5-day check run — Server Component (baked into the initial payload) or Client Component (computed against `Date.now()` on each render)?**
+2. **RESOLVED — Where exactly does the "esfriando" 5-day check run — Server Component (baked into the initial payload) or Client Component (computed against `Date.now()` on each render)?**
    - What we know: D-06/D-07 only specify the rule (5+ days in Contatado since last stage change), not where to compute it.
-   - What's unclear: A Server-Component-computed flag can go stale if the admin leaves the tab open for days without a refresh; a Client-Component computation re-evaluates on every render/navigation.
-   - Recommendation: Compute in the Server Component at fetch time (simplest, matches existing `page.tsx` pattern of doing date logic server-side) — acceptable staleness risk since `revalidatePath` re-fetches on every mutation and the admin is expected to reload periodically; not worth client-side re-computation complexity for a solo internal tool.
+   - Recommendation (adopted in 03-02-PLAN.md): Compute in the Server Component at fetch time (simplest, matches existing `page.tsx` pattern of doing date logic server-side) — acceptable staleness risk since `revalidatePath` re-fetches on every mutation and the admin is expected to reload periodically; not worth client-side re-computation complexity for a solo internal tool.
 
 ## Sources
 
