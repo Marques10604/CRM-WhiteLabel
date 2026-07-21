@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-07-21T05:00:03.845Z",
+  "phase": "3",
+  "phase_name": "sales-pipeline-funnel-view",
+  "phase_dir": ".planning/phases/03-sales-pipeline-funnel-view",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": "discuss-phase-3", "name": "Discuss Phase 3 (8 gray areas, incl. Fechado/Perdido split)", "status": "done", "commit": "ffcba99"},
+    {"id": "ui-phase-3", "name": "UI-SPEC.md for Phase 3 (approved 6/6 dimensions)", "status": "done", "commit": "610a415"},
+    {"id": "research-phase-3", "name": "RESEARCH.md for Phase 3 (dnd-kit + SQLite enum migration + esfriando)", "status": "done", "commit": "3f75ceb"},
+    {"id": "pattern-map-phase-3", "name": "PATTERNS.md for Phase 3", "status": "done", "commit": "e3e00d5"},
+    {"id": "plan-03-01", "name": "03-01-PLAN.md written (schema/data-layer foundation)", "status": "planned_not_executed", "commit": "e3e00d5"},
+    {"id": "plan-03-02", "name": "03-02-PLAN.md written (read-only board)", "status": "planned_not_executed", "commit": "1c218bf"},
+    {"id": "plan-03-03", "name": "03-03-PLAN.md written (drag-and-drop persistence)", "status": "planned_not_executed", "commit": "1c218bf"},
+    {"id": "plan-checker-phase-3", "name": "Plan checker verification passed (1 non-blocking warning, since fixed)", "status": "done", "commit": "4220d64"},
+    {"id": "quick-260720-x41", "name": "Quick fix: dialog/modal overflow (max-h + overflow-y-auto)", "status": "done", "commit": "c00c8cb"},
+    {"id": "quick-260721-0cl", "name": "Quick fix: field help text on lead form", "status": "done", "commit": "689b168"}
+  ],
+  "remaining_tasks": [
+    {"id": "execute-03-01", "name": "Execute 03-01: enum split migration + motivoPerda/stageChangedAt columns + badge/modal update", "status": "not_started"},
+    {"id": "execute-03-02", "name": "Execute 03-02: read-only Kanban board, /pipeline route, esfriando flag", "status": "not_started"},
+    {"id": "execute-03-03", "name": "Execute 03-03: @dnd-kit install (has a BLOCKING human legitimacy checkpoint before install), updateLeadStage, drag persistence", "status": "not_started"},
+    {"id": "01-04-deferred", "name": "Phase 1's 01-04-PLAN.md (soft-delete + Lixeira) is still pending — user explicitly chose to jump to Phase 3 first, this is not forgotten, just deferred", "status": "not_started"}
+  ],
+  "blockers": [],
+  "human_actions_pending": [
+    {"action": "Approve @dnd-kit/core + @dnd-kit/sortable package legitimacy before 03-03's npm install step runs", "context": "First new npm dependency added since project scaffold; 03-03-PLAN.md opens with a mandatory non-autonomous checkpoint for this — cannot be auto-approved", "blocking": true},
+    {"action": "Run a real `npm run dev` click-through once Phase 3 executes", "context": "No browser access in headless executor sessions throughout this project so far — every phase so far has been verified via tsc/build/synthetic scripts only, never visually in a real browser", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "Split combined 'Fechado/Perdido' stage into two distinct stages (Fechado, Perdido)", "rationale": "Admin wants to distinguish wins from losses for a clearer funnel view; reverses Phase 1's locked D-10 decision", "phase": "3"},
+    {"decision": "Existing 2 leads in fechado_perdido migrate to 'Fechado' by default", "rationale": "Only 2 rows affected (confirmed via live DB query) — trivial for admin to manually reassign any that were actually losses", "phase": "3"},
+    {"decision": "New optional motivoPerda field, prompted (not required) when dragging a card to Perdido", "rationale": "Admin wants to capture loss reasons but not block the workflow", "phase": "3"},
+    {"decision": "Esfriando = 5+ days since last STAGE CHANGE (not last edit), only flags cards in Contatado", "rationale": "Simpler to compute (existing stage-entry timestamp concept), matches admin's mental model of 'stuck in the funnel'", "phase": "3"},
+    {"decision": "Board is unfiltered for v1, count-only per column (no value roll-up), dedicated /pipeline route with sidebar nav entry", "rationale": "Keeps v1 scope contained; value roll-up stays PIPE-V2-01, filters explicitly deferred", "phase": "3"},
+    {"decision": "updateLeadStage is a plain async Server Action called via startTransition + useOptimistic, NOT the useActionState/FormData convention used by createLead/updateLead", "rationale": "Drag-and-drop triggers a JS event, not a form submit — matches RESEARCH.md's verified React 19 pattern", "phase": "3"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "Run /gsd-execute-phase 3 to execute the 3 verified plans (03-01 -> 03-02 -> 03-03 in sequence, waves 1/2/3). Expect a mandatory human checkpoint partway through 03-03 for the @dnd-kit package-legitimacy approval.",
+  "context_notes": "Session covered: 2 quick UI fixes (dialog overflow, field help text), then a full discuss-phase -> ui-phase -> research -> pattern-map -> plan -> plan-check cycle for Phase 3. The planner's first attempt was cut off mid-response by an API connection error after writing 03-01-PLAN.md but before committing it or writing 03-02/03-03 — this was caught and recovered (re-spawned planner in resume mode for 03-02/03-03, then manually committed the orphaned 03-01-PLAN.md + 03-PATTERNS.md that had been written to disk but never git-added). ROADMAP.md's premature '[x] 03-01-PLAN.md' checkbox (planner marked it complete when only planned) was also corrected to '[ ]'. Two backlog todos were captured and then folded into Phase 3 scope during discussion: separar-fechado-perdido (now implemented as 03-CONTEXT.md D-01-D-05) and a still-pending sequencia-follow-up-escalonada (belongs to Phase 4, left in .planning/todos/pending/). Phase 1's 01-04 (soft-delete/Lixeira) remains undone — user explicitly deprioritized it in favor of Phase 3, not an oversight."
+}
