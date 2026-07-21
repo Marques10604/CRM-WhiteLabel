@@ -4,7 +4,8 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { leads, subnichos } from "@/db/schema";
-import { leadSchema } from "@/lib/validations";
+import { leadSchema, stageUpdateSchema } from "@/lib/validations";
+import type { Lead } from "@/types";
 
 type ActionState =
   | { success: true }
@@ -96,5 +97,47 @@ export async function updateLead(
   }
 
   revalidatePath("/");
+  return { success: true };
+}
+
+/**
+ * Mudança de etapa via drag-and-drop no board (03-03, PIPE-02). Chamada
+ * diretamente do onDragEnd (função de argumentos posicionais, NÃO
+ * (_prevState, formData) — não é ligada a useActionState). Só grava
+ * stageChangedAt quando a etapa realmente muda (Pitfall 3 do RESEARCH.md),
+ * preservando o relógio de "esfriando" em edições que não mudam a etapa.
+ */
+export async function updateLeadStage(
+  id: number,
+  stage: Lead["stage"],
+  motivoPerda?: string
+): Promise<ActionState> {
+  const parsed = stageUpdateSchema.safeParse({ id, stage, motivoPerda });
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const [current] = await db
+    .select({ stage: leads.stage })
+    .from(leads)
+    .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
+  if (!current) {
+    return { errors: { id: ["Lead inválido."] } };
+  }
+
+  const stageChanged = current.stage !== parsed.data.stage;
+
+  await db
+    .update(leads)
+    .set({
+      stage: parsed.data.stage,
+      ...(parsed.data.motivoPerda !== undefined
+        ? { motivoPerda: parsed.data.motivoPerda }
+        : {}),
+      ...(stageChanged ? { stageChangedAt: new Date() } : {}),
+    })
+    .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
+
+  revalidatePath("/pipeline");
   return { success: true };
 }
