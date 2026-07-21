@@ -58,7 +58,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Admin can drag-and-drop a lead card from one stage to another; moving a card to Perdido optionally captures a loss reason (`motivoPerda`)
   3. Leads stuck in "Contatado" without recent activity (5+ days since last stage change) are visually flagged as "esfriando," so they don't silently go cold
 **Plans**: 3 plans
-- [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01)
+- [ ] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01) — planned, not yet executed
 - [ ] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
 - [ ] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
 **UI hint**: yes
