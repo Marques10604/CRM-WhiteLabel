@@ -88,6 +88,7 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260720-x41 | Corrigir dialog/modal de preenchimento maior que a tela - adicionar max-h e overflow-y-auto | 2026-07-21 | c00c8cb | [260720-x41-corrigir-dialog-modal-de-preenchimento-n](./quick/260720-x41-corrigir-dialog-modal-de-preenchimento-n/) |
+| 260721-0cl | Adicionar texto de ajuda/descrição abaixo do label de cada campo do formulário de lead | 2026-07-21 | 689b168 | [260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo](./quick/260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo/) |
 
 ## Deferred Items
 
