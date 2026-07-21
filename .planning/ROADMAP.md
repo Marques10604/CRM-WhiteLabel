@@ -59,7 +59,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Leads stuck in "Contatado" without recent activity (5+ days since last stage change) are visually flagged as "esfriando," so they don't silently go cold
 **Plans**: 3 plans
 - [x] 03-01-PLAN.md — Fundacao de data-layer: split do enum Fechado/Perdido + colunas motivoPerda/stageChangedAt + badge/modal (PIPE-01) — planned, not yet executed
-- [ ] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
+- [x] 03-02-PLAN.md — Board somente-leitura: 5 colunas, contagem, esfriando, clique-abre-modal, rota /pipeline + nav (PIPE-01, PIPE-03)
 - [ ] 03-03-PLAN.md — Drag-and-drop persistente: @dnd-kit, updateLeadStage, movimento otimista, modal de motivoPerda (PIPE-02)
 **UI hint**: yes
 
@@ -86,5 +86,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Lead & Sub-nicho Foundation | 3/4 | In Progress|  |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
-| 3. Sales Pipeline & Funnel View | 1/3 | In Progress|  |
+| 3. Sales Pipeline & Funnel View | 2/3 | In Progress|  |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 0/TBD | Not started | - |
