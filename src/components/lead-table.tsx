@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type SortingState,
+} from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +22,9 @@ import {
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
 import type { Lead, Subnicho } from "@/types";
+
+/** Sort default (sem interação): follow-up mais próximo primeiro (D-12/must_haves). */
+const DEFAULT_SORTING: SortingState = [{ id: "followUpDate", desc: false }];
 
 type LeadTableProps = {
   leads: Lead[];
@@ -33,6 +43,7 @@ type DialogState =
  */
 export function LeadTable({ leads, subnichos }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
 
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
@@ -52,6 +63,11 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
     data,
     columns: leadTableColumns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 25 } }, // D-12
+    onSortingChange: setSorting,
+    state: { sorting },
   });
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
@@ -83,36 +99,74 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
           </Button>
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className="cursor-pointer"
-                onClick={() => setDialogState({ mode: "edit", lead: row.original })}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        <>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={leadTableColumns.length}
+                    className="py-8 text-center text-[14px] text-muted-foreground"
+                  >
+                    Nenhum lead encontrado com os filtros aplicados.
                   </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </TableRow>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className="cursor-pointer"
+                    onClick={() => setDialogState({ mode: "edit", lead: row.original })}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          <div className="flex items-center justify-between text-[14px] leading-normal text-muted-foreground">
+            <span>
+              Página {table.getState().pagination.pageIndex + 1} de{" "}
+              {Math.max(table.getPageCount(), 1)}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Próximo
+              </Button>
+            </div>
+          </div>
+        </>
       )}
 
       <LeadFormDialog
