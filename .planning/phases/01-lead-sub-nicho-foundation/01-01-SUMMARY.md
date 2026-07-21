@@ -180,3 +180,7 @@ None — no external service configuration required. The app runs entirely local
 ---
 *Phase: 01-lead-sub-nicho-foundation*
 *Completed: 2026-07-20*
+
+## Self-Check: PASSED
+
+All 12 claimed files confirmed present on disk (`src/db/schema.ts`, `src/db/client.ts`, `drizzle.config.ts`, `src/types/index.ts`, `src/lib/validations.ts`, `src/actions/subnicho-actions.ts`, `src/components/subnicho-manager.tsx`, `src/components/app-sidebar.tsx`, `src/app/subnichos/page.tsx`, `src/app/lixeira/page.tsx`, `scripts/verify-schema.cjs`, this SUMMARY.md). All 4 claimed commit hashes (`5827e04`, `2aeb0ac`, `fbb40ee`, `e509ac6`) confirmed present in `git log --oneline --all`.
