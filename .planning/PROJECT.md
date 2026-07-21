@@ -28,7 +28,7 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - [ ] Admin recebe algum destaque/lembrete visual de leads com follow-up vencido ou próximo (nota: leads "esfriando" por etapa parada já implementado na Fase 3; alerta específico de follow-up vencido/próximo ainda pendente — Fase 4)
 - [ ] Admin pode cadastrar templates fixos de mensagem de WhatsApp com variáveis (ex: {nome}, sub-nicho/contexto)
 - [ ] Ao importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido (link pronto, envio manual — sem API de envio automático)
-- [ ] Na data de follow-up agendada, o sistema sugere abrir o WhatsApp com o template de follow-up preenchido (mesmo mecanismo: link pronto, envio manual)
+- [ ] O dashboard de follow-ups lista os leads com follow-up vencido/próximo e oferece um botão inline "Enviar WhatsApp" que o admin clica para abrir o WhatsApp com o template de follow-up preenchido (link pronto, envio manual — dashboard mostra o que está pendente e o disparo é sempre por clique do admin, sem gatilho automático por data)
 
 ### Out of Scope
 

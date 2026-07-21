@@ -418,7 +418,7 @@ This is a brand-new table (`CREATE TABLE`), not an `ALTER TABLE` on existing dat
 | A3 | `db.transaction()` on `drizzle-orm/better-sqlite3` is synchronous and supports the unset-then-set pattern shown in Pattern 3 | Pattern 3, Don't Hand-Roll | Medium — if the transaction API shape differs from what's shown (e.g., requires `async`/`await` internally, or a different callback signature), the planner's task will need a quick Context7/docs check at plan-time; not independently re-verified via Context7 in this research session (Context7 MCP tools were not available in this environment). |
 | A4 | Drizzle-kit's sqlite-dialect partial-unique-index bug (`#4688`) still applies to the installed `drizzle-kit@0.31.10` / `drizzle-orm@0.45.2` versions | Anti-Patterns, Pitfall 3 | Low — even if this specific bug has since been fixed, the *recommendation* (app-layer transaction over partial index) remains strictly safer and simpler for this project's scale; no downside to following it regardless of the bug's current status. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the dashboard also need "Enviar WhatsApp" buttons, or only the pipeline+dashboard per D-14's literal wording?**
    - What we know: D-14 explicitly says "both the follow-up dashboard items and the pipeline cards."
