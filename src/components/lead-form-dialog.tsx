@@ -55,7 +55,8 @@ const STAGE_OPTIONS = [
   { value: "novo", label: "Novo" },
   { value: "contatado", label: "Contatado" },
   { value: "negociacao", label: "Negociação" },
-  { value: "fechado_perdido", label: "Fechado/Perdido" },
+  { value: "fechado", label: "Fechado" },
+  { value: "perdido", label: "Perdido" },
 ] as const;
 
 type ActionState =
@@ -99,6 +100,7 @@ export function LeadFormDialog({
       followUpDate: lead?.followUpDate,
       subnichoId: lead?.subnichoId,
       stage: lead?.stage ?? "novo",
+      motivoPerda: lead?.motivoPerda ?? "",
     },
   });
 
@@ -283,6 +285,23 @@ export function LeadFormDialog({
                   <FieldError errors={[errors.stage]} />
                 </FieldContent>
               </Field>
+
+              {form.watch("stage") === "perdido" ? (
+                <Field data-invalid={!!errors.motivoPerda}>
+                  <FieldLabel htmlFor="motivoPerda">Motivo da perda</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      id="motivoPerda"
+                      aria-invalid={!!errors.motivoPerda}
+                      {...form.register("motivoPerda")}
+                    />
+                    <FieldDescription>
+                      Opcional — por que esse lead foi perdido (ex: sem orçamento, escolheu concorrente).
+                    </FieldDescription>
+                    <FieldError errors={[errors.motivoPerda]} />
+                  </FieldContent>
+                </Field>
+              ) : null}
 
               <Field data-invalid={!!errors.valorEstimado}>
                 <FieldLabel htmlFor="valorEstimado">Valor estimado</FieldLabel>
