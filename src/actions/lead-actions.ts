@@ -82,12 +82,29 @@ export async function updateLead(
     return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
   }
 
+  // Guard isNull(deletedAt): impede editar um lead soft-deletado via
+  // chamada direta — leads na Lixeira só podem ser restaurados (01-04).
+  // SELECT-then-compare (mesmo padrão de updateLeadStage): só grava
+  // stageChangedAt quando a etapa submetida pelo dropdown do formulário
+  // realmente difere da etapa armazenada — preserva o relógio de
+  // "esfriando" em edições que não mexem na etapa (PIPE-03, gap #2).
+  const [current] = await db
+    .select({ stage: leads.stage })
+    .from(leads)
+    .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
+  if (!current) {
+    return { errors: { id: ["Lead inválido."] } };
+  }
+
+  const stageChanged = current.stage !== parsed.data.stage;
+
   try {
-    // Guard isNull(deletedAt): impede editar um lead soft-deletado via
-    // chamada direta — leads na Lixeira só podem ser restaurados (01-04).
     await db
       .update(leads)
-      .set(parsed.data)
+      .set({
+        ...parsed.data,
+        ...(stageChanged ? { stageChangedAt: new Date() } : {}),
+      })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
   } catch (err) {
     // Mesmo backstop de FK do createLead.
