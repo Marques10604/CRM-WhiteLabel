@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Leads" },
+  { href: "/", label: "Follow-ups" },
+  { href: "/leads", label: "Leads" },
   { href: "/pipeline", label: "Pipeline" },
+  { href: "/templates", label: "Templates" },
   { href: "/subnichos", label: "Sub-nichos" },
   { href: "/lixeira", label: "Lixeira" },
 ] as const;
