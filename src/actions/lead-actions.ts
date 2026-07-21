@@ -60,6 +60,7 @@ export async function createLead(
   }
 
   revalidatePath("/");
+  revalidatePath("/pipeline");
   return { success: true };
 }
 
@@ -97,6 +98,7 @@ export async function updateLead(
   }
 
   revalidatePath("/");
+  revalidatePath("/pipeline");
   return { success: true };
 }
 
@@ -139,5 +141,6 @@ export async function updateLeadStage(
     .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
 
   revalidatePath("/pipeline");
+  revalidatePath("/");
   return { success: true };
 }
