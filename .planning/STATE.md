@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-21T02:10:33.301Z"
-last_activity: 2026-07-21
+last_updated: "2026-07-21T02:11:46.701Z"
+last_activity: 2026-07-21 -- Phase 01 execution started
 progress:
   total_phases: 4
   completed_phases: 0
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 01 (lead-sub-nicho-foundation) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
-Last activity: 2026-07-21
+Plan: 1 of 4
+Status: Executing Phase 01
+Last activity: 2026-07-21 -- Phase 01 execution started
 
 Progress: [█████░░░░░] 50%
 
@@ -99,6 +99,11 @@ Resume file: None
 - Task 2 ("Modal de lead 3 seções + discard-changes-dialog + etapa-badge"): ✅ committed `b2806b0`. `npx tsc --noEmit` clean, `npm run build` passes. Grep checks confirmed: no `useFormState`, `formatCentsToBRL` used on edit-mode prefill, `startOfDay` used to normalize follow-up date, discard dialog literal copy present, etapa-badge hex palette present with no green/red for fechado_perdido. `<human-check>` browser click-through NOT run by this headless executor (no browser access) — substituted by `tsc`+`build` automated verification per 01-01-SUMMARY.md precedent; a real `npm run dev` click-through is still recommended before considering the UI polished (flagged in 01-02-SUMMARY.md).
 - Task 3 ("Rota / com lista base de leads"): ✅ committed `c71fd7d`. `npx tsc --noEmit` clean, `npm run build` passes. Grep checks confirmed: `isNull(leads.deletedAt)`/`orderBy(asc(leads.followUpDate))` in page.tsx, empty-state literal copy in lead-table.tsx. `<human-check>` browser click-through NOT run (no browser) — substituted by a temporary `tsx` script that called `createLead` directly against the real `./data/crm.db` (create 2 leads, confirm ordering by soonest follow-up, confirm valor/telefone normalization, confirm sub-nicho name join), then deleted all test rows and the script itself. A real `npm run dev` click-through is still recommended before considering the UI polished (flagged in 01-02-SUMMARY.md).
 
-01-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3 all committed: `6093d39`, `b2806b0`, `c71fd7d`). SUMMARY.md pending, then STATE.md/ROADMAP.md/REQUIREMENTS.md final updates + metadata commit.
+01-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3 all committed: `6093d39`, `b2806b0`, `c71fd7d`, docs commit `8f47672`).
 
-Next action: after this executor finishes (SUMMARY + final metadata commit), resume with plan 01-03.
+### 01-03 progress
+
+- Task 1 ("Sorting + paginação 25/página na lead-table"): ✅ committed `728163f`. `npx tsc --noEmit` clean, `npm run build` passes. `getSortedRowModel`/`getPaginationRowModel` added to `useReactTable`, `initialState.pagination.pageSize: 25`, `initialState`-equivalent default sort `followUpDate` asc via `useState` seed, sortable headers (Nome/Sub-nicho/Etapa/Follow-up) via `column.getToggleSortingHandler()`, Telefone `enableSorting: false`, Anterior/Próximo pagination controls. `<human-check>` browser click-through NOT run (no browser access) — substituted by a temporary headless `tsx` script using `@tanstack/react-table`'s `createTable` core API directly against the real `leadTableColumns` export (30 synthetic leads, asserted: page 1 = 25 rows sorted ascending by followUpDate, page 2 = remaining 5, prev/next boundary flags, Nome column asc/desc toggle produces different order, Telefone not sortable) — all assertions passed, then the script was deleted per project convention (01-01/01-02 precedent).
+- Task 2 ("Toolbar fixa de filtros"): NOT STARTED yet.
+
+Next action: implement Task 2 (lead-table-toolbar.tsx + getFilteredRowModel + columnFilters state + date-range filterFn wiring), verify, commit, then SUMMARY.md + final STATE/ROADMAP/REQUIREMENTS updates + metadata commit.
