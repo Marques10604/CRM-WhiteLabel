@@ -126,3 +126,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 03-sales-pipeline-funnel-view*
 *Completed: 2026-07-21*
+
+## Self-Check: PASSED
+
+All 8 claimed files verified present (`src/db/schema.ts`, `src/lib/validations.ts`, `src/db/migrations/0001_grey_xavin.sql`, `src/db/migrations/0002_backfill-fechado-perdido-split.sql`, `scripts/verify-pipeline-migration.cjs`, `src/components/etapa-badge.tsx`, `src/components/lead-form-dialog.tsx`, this SUMMARY.md). All 4 commits (`59e8e18`, `aaf6787`, `30dc7d4`, `13e4c41`) confirmed present in `git log` on this worktree branch (ancestor chain from base `9055309`). Noted: unrelated orphaned commits `dc9dc98`/`3e2e761` from a prior abandoned session exist in the repo's reflog-reachable history (visible via `git log --all`) but are not ancestors of this branch — no conflict with this plan's work.
