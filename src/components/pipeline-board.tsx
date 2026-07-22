@@ -15,13 +15,15 @@ import { STAGE_OPTIONS } from "@/components/etapa-badge";
 import { PipelineColumn } from "@/components/pipeline-column";
 import { PipelineLeadCard } from "@/components/pipeline-lead-card";
 import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
+import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
-import type { Lead, Subnicho } from "@/types";
+import type { Lead, Subnicho, Template } from "@/types";
 
 type PipelineBoardProps = {
   leads: Lead[];
   subnichos: Subnicho[];
   esfriandoLeadIds: number[];
+  templates: Template[];
 };
 
 type DialogState =
@@ -32,6 +34,10 @@ type DialogState =
 type MotivoPerdaState =
   | { open: false }
   | { open: true; leadNome: string };
+
+type PreviewState =
+  | { open: false }
+  | { open: true; lead: Lead; subnichoNome: string };
 
 const STAGE_LABEL_BY_VALUE = new Map(
   STAGE_OPTIONS.map((option) => [option.value, option.label])
@@ -48,11 +54,12 @@ const STAGE_LABEL_BY_VALUE = new Map(
  * otimista e a mesma transição fica pendente aguardando a decisão do modal
  * (Pular/Salvar motivo) antes de chamar `updateLeadStage` uma única vez.
  */
-export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBoardProps) {
+export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }: PipelineBoardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [motivoPerdaState, setMotivoPerdaState] = useState<MotivoPerdaState>({
     open: false,
   });
+  const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
   const motivoResolverRef = useRef<((motivo: string | undefined) => void) | null>(null);
 
   const [optimisticLeads, setOptimisticStage] = useOptimistic(
@@ -150,6 +157,13 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBo
                     subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
                     isEsfriando={esfriandoSet.has(lead.id)}
                     onClick={() => setDialogState({ mode: "edit", lead })}
+                    onSendWhatsApp={() =>
+                      setPreviewState({
+                        open: true,
+                        lead,
+                        subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+                      })
+                    }
                   />
                 ))}
               </PipelineColumn>
@@ -176,6 +190,17 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds }: PipelineBo
         }}
         onSkip={() => resolveMotivoPerda(undefined)}
         onSave={(motivo) => resolveMotivoPerda(motivo)}
+      />
+
+      <WhatsAppPreviewDialog
+        open={previewState.open}
+        onOpenChange={(open) => {
+          if (!open) setPreviewState({ open: false });
+        }}
+        lead={previewState.open ? previewState.lead : undefined}
+        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        templates={templates}
+        defaultTipo="primeiro_contato"
       />
     </div>
   );

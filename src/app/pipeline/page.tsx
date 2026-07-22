@@ -1,7 +1,7 @@
 import { asc, isNull } from "drizzle-orm";
 import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
-import { leads, subnichos } from "@/db/schema";
+import { leads, subnichos, templates } from "@/db/schema";
 import { PipelineBoard } from "@/components/pipeline-board";
 
 /**
@@ -11,15 +11,17 @@ import { PipelineBoard } from "@/components/pipeline-board";
  * `contatado` com 5+ dias desde a última mudança de etapa. Leads sem
  * `stageChangedAt` (criados antes de qualquer `updateLeadStage`) nunca são
  * flagados — guard explícito abaixo evita quebrar o cálculo com `null`.
+ * `templates` alimenta o botão inline "Enviar WhatsApp" (WA-05) de cada card.
  */
 export default async function PipelinePage() {
-  const [activeLeads, allSubnichos] = await Promise.all([
+  const [activeLeads, allSubnichos, allTemplates] = await Promise.all([
     db
       .select()
       .from(leads)
       .where(isNull(leads.deletedAt))
       .orderBy(asc(leads.followUpDate)),
     db.select().from(subnichos),
+    db.select().from(templates),
   ]);
 
   const esfriandoLeadIds = activeLeads
@@ -38,6 +40,7 @@ export default async function PipelinePage() {
         leads={activeLeads}
         subnichos={allSubnichos}
         esfriandoLeadIds={esfriandoLeadIds}
+        templates={allTemplates}
       />
     </div>
   );

@@ -4,6 +4,8 @@ import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizePhone } from "@/lib/phone";
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import type { Lead } from "@/types";
 
 type PipelineLeadCardProps = {
@@ -11,6 +13,7 @@ type PipelineLeadCardProps = {
   subnichoNome: string;
   isEsfriando: boolean;
   onClick: () => void;
+  onSendWhatsApp: () => void;
 };
 
 /**
@@ -27,6 +30,7 @@ export function PipelineLeadCard({
   subnichoNome,
   isEsfriando,
   onClick,
+  onSendWhatsApp,
 }: PipelineLeadCardProps) {
   const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: lead.id,
@@ -55,9 +59,23 @@ export function PipelineLeadCard({
         isDragging ? "z-10 opacity-70" : null
       )}
     >
-      <span className="text-[16px] leading-normal font-normal text-foreground">
-        {lead.nome}
-      </span>
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-[16px] leading-normal font-normal text-foreground">
+          {lead.nome}
+        </span>
+        {/* stopPropagation em pointerdown/click: impede que o botão vire drag-handle
+            (useDraggable listeners no wrapper) ou dispare o onClick de edição do card. */}
+        <div
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <WhatsAppSendButton
+            nome={lead.nome}
+            disabled={normalizePhone(lead.telefone) === null}
+            onClick={onSendWhatsApp}
+          />
+        </div>
+      </div>
       <span className="text-[14px] leading-normal text-muted-foreground">
         {subnichoNome}
       </span>
