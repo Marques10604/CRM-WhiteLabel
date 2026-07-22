@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -33,10 +33,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { SubnichoCombobox } from "@/components/subnicho-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
+import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
-import type { Lead, Subnicho } from "@/types";
+import { useFirstContactTrigger } from "@/hooks/use-first-contact-trigger";
+import type { Lead, Subnicho, Template } from "@/types";
 
 type LeadFormDialogProps = {
   open: boolean;
@@ -44,6 +46,10 @@ type LeadFormDialogProps = {
   subnichos: Subnicho[];
   /** Presença de `lead` decide o modo: undefined = criar, definido = editar (D-07). */
   lead?: Lead;
+  /** Template padrão de 1º contato, usado pelo auto-gatilho WA-04 (D-19). */
+  firstContactTemplate?: Template;
+  /** Lista completa de templates, repassada ao preview auto-aberto de 1º contato. */
+  templates?: Template[];
 };
 
 const CANAL_OPTIONS = [
@@ -60,7 +66,7 @@ const STAGE_OPTIONS = [
 ] as const;
 
 type ActionState =
-  | { success: true }
+  | { success: true; lead?: Lead }
   | { errors: Record<string, string[] | undefined> }
   | undefined;
 
@@ -78,6 +84,8 @@ export function LeadFormDialog({
   onOpenChange,
   subnichos,
   lead,
+  firstContactTemplate,
+  templates,
 }: LeadFormDialogProps) {
   const isEditMode = Boolean(lead);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
@@ -86,6 +94,12 @@ export function LeadFormDialog({
   );
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const firstContact = useFirstContactTrigger(firstContactTemplate);
+
+  const subnichoNameById = useMemo(
+    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
+    [subnichos]
+  );
 
   const form = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
@@ -109,6 +123,15 @@ export function LeadFormDialog({
       toast.success("Lead salvo com sucesso.");
       form.reset();
       onOpenChange(false);
+      // Auto-gatilho WA-04 (D-18/D-19/D-21): só na criação manual (nunca em
+      // edição), e só quando o server devolveu o lead recém-criado. Fechar
+      // o preview NÃO desfaz a criação — o lead já está persistido (D-20).
+      if (!isEditMode && state.lead) {
+        firstContact.trigger(
+          state.lead,
+          subnichoNameById.get(state.lead.subnichoId) ?? "—"
+        );
+      }
     } else if (state && "errors" in state) {
       toast.error("Não foi possível salvar o lead. Tente novamente.");
     }
@@ -386,6 +409,18 @@ export function LeadFormDialog({
         open={showDiscardDialog}
         onOpenChange={setShowDiscardDialog}
         onDiscard={handleDiscard}
+      />
+
+      <WhatsAppPreviewDialog
+        open={firstContact.open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) firstContact.close();
+        }}
+        lead={firstContact.lead}
+        subnichoNome={firstContact.subnichoNome ?? "—"}
+        templates={templates ?? []}
+        defaultTipo="primeiro_contato"
+        subtitulo={`Sugestão: enviar mensagem de primeiro contato para ${firstContact.lead?.nome ?? ""}.`}
       />
     </>
   );

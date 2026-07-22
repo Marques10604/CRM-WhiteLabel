@@ -32,6 +32,8 @@ type WhatsAppPreviewDialogProps = {
   subnichoNome: string;
   templates: Template[];
   defaultTipo: Template["tipo"];
+  /** Subtítulo customizável (ex: auto-gatilho de 1º contato, D-19). Fallback: "Mensagem para {nome}". */
+  subtitulo?: string;
 };
 
 const TIPO_OPTIONS = [
@@ -61,6 +63,7 @@ export function WhatsAppPreviewDialog({
   subnichoNome,
   templates,
   defaultTipo,
+  subtitulo,
 }: WhatsAppPreviewDialogProps) {
   const [tipo, setTipo] = useState<Template["tipo"]>(defaultTipo);
   const [texto, setTexto] = useState("");
@@ -106,7 +109,7 @@ export function WhatsAppPreviewDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Pré-visualizar mensagem</DialogTitle>
-          <DialogDescription>{`Mensagem para ${lead.nome}`}</DialogDescription>
+          <DialogDescription>{subtitulo ?? `Mensagem para ${lead.nome}`}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">

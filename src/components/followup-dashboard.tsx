@@ -60,6 +60,11 @@ export function FollowupDashboard({
     [subnichos]
   );
 
+  const firstContactTemplate = useMemo(
+    () => templates.find((template) => template.tipo === "primeiro_contato" && template.isDefault),
+    [templates]
+  );
+
   const totalCount = vencidos.length + hoje.length + proximos7Dias.length;
 
   const sections: UrgencySection[] = [
@@ -207,6 +212,8 @@ export function FollowupDashboard({
         }}
         subnichos={subnichos}
         lead={dialogLead}
+        templates={templates}
+        firstContactTemplate={firstContactTemplate}
       />
 
       <WhatsAppPreviewDialog

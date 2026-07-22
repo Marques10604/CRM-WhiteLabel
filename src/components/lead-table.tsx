@@ -24,11 +24,12 @@ import {
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadTableToolbar } from "@/components/lead-table-toolbar";
 import { DEFAULT_SORTING, leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
-import type { Lead, Subnicho } from "@/types";
+import type { Lead, Subnicho, Template } from "@/types";
 
 type LeadTableProps = {
   leads: Lead[];
   subnichos: Subnicho[];
+  templates: Template[];
 };
 
 type DialogState =
@@ -41,7 +42,7 @@ type DialogState =
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
  * `<LeadFormDialog>` pré-preenchido (D-07). Estado vazio com CTA (D-13).
  */
-export function LeadTable({ leads, subnichos }: LeadTableProps) {
+export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -49,6 +50,11 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
     [subnichos]
+  );
+
+  const firstContactTemplate = useMemo(
+    () => templates.find((template) => template.tipo === "primeiro_contato" && template.isDefault),
+    [templates]
   );
 
   const data = useMemo<LeadRow[]>(
@@ -182,6 +188,8 @@ export function LeadTable({ leads, subnichos }: LeadTableProps) {
         }}
         subnichos={subnichos}
         lead={dialogLead}
+        templates={templates}
+        firstContactTemplate={firstContactTemplate}
       />
     </div>
   );

@@ -77,6 +77,11 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
     [subnichos]
   );
 
+  const firstContactTemplate = useMemo(
+    () => templates.find((template) => template.tipo === "primeiro_contato" && template.isDefault),
+    [templates]
+  );
+
   const esfriandoSet = useMemo(() => new Set(esfriandoLeadIds), [esfriandoLeadIds]);
 
   const leadsByStage = useMemo(() => {
@@ -180,6 +185,8 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
         }}
         subnichos={subnichos}
         lead={dialogLead}
+        templates={templates}
+        firstContactTemplate={firstContactTemplate}
       />
 
       <MotivoPerdaDialog
