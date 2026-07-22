@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 04 — follow-up-dashboard-whatsapp-outreach
+**Current focus:** Phase 01 — lead-sub-nicho-foundation (resuming to close out 01-04, Phase 4 UAT deferred)
 
 ## Current Position
 
-Phase: 04 (follow-up-dashboard-whatsapp-outreach) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
+Phase: 01 (lead-sub-nicho-foundation) — RESUMING
+Plan: 4 of 4 (01-04-PLAN.md not started)
+Status: Phase 04 code-complete/verified (partial, human UAT deferred); next work is 01-04-PLAN.md to close Phase 1
 Last activity: 2026-07-22
 
 Progress: [█████████░] 92%
@@ -117,9 +117,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T03:46:48.545Z
-Stopped at: Session resumed from phase-04 handoff, awaiting human decision on how to proceed (browser UAT via claude-in-chrome vs. move to 01-04/Phase 2)
-Resume file: .planning/phases/04-follow-up-dashboard-whatsapp-outreach/.continue-here.md
+Last session: 2026-07-22T04:12:00.000Z
+Stopped at: User is restarting their computer. Decision made: defer Phase 4's human UAT and the rest of /gsd:config, resume next session with 01-04-PLAN.md (soft-delete + Lixeira) to close out Phase 1. Dev server was attempted for a visual check but crashed on OOM (host has ~4GB RAM, 0.64GB free at the time) — not restarted.
+Resume file: .planning/phases/01-lead-sub-nicho-foundation/.continue-here.md
 
 ### 01-02 progress
 
