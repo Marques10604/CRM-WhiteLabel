@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-22T02:16:31.387Z"
+last_updated: "2026-07-22T02:36:23.012Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
   percent: 25
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 04 (follow-up-dashboard-whatsapp-outreach) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-22
 
-Progress: [████████░░] 75%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [████████░░] 75%
 | Phase 01-lead-sub-nicho-foundation P03 | 25min | 2 tasks | 5 files |
 | Phase 04 P01 | 45min | 2 tasks | 5 files |
 | Phase 04 P02 | 50min | 3 tasks | 8 files |
+| Phase 04-follow-up-dashboard-whatsapp-outreach P03 | 40min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 'Novo lead' on the dashboard opens LeadFormDialog in create mode locally (DialogState union) instead of navigating to /leads, per D-03 -- this surface is reused by 04-04's auto-trigger (WA-04)
 - [Phase 04-02]: 'templates' table applied via drizzle-kit push produces no git-trackable diff (data/crm.db is gitignored, push writes no migration SQL) — Task 2 verified live-DB state directly via better-sqlite3 query instead of committing a file
 - [Phase 04-02]: 'one default per type' invariant (D-12) enforced via db.transaction() desmarca-entao-marca, not a partial uniqueIndex().where() (drizzle-kit generates incorrect SQL for that shape on SQLite)
+- [Phase 04-03]: waHref no whatsapp-preview-dialog.tsx e recomputado a cada render a partir do texto vivo da textarea (Pitfall 4), nunca memoizado do renderTemplate() inicial
+- [Phase 04-03]: 'Abrir WhatsApp' renderizado como <a> estilizado via buttonVariants() em vez de Button render={...} (API polimorfica nao verificada nesta lib Base UI, mesmo precedente do 04-01)
+- [Phase 04-03]: pipeline-lead-card.tsx usa stopPropagation em onPointerDown E onClick no wrapper do botao de WhatsApp, pois useDraggable e o onClick de edicao do card exigem interceptacao separada
 
 ### Pending Todos
 
@@ -109,8 +113,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T02:16:31.257Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-07-22T02:36:22.950Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
 
 ### 01-02 progress
