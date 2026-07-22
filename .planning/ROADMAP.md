@@ -12,7 +12,7 @@ The journey goes from a bare-bones but complete manual lead tracker, to a bulk-i
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Lead & Sub-nicho Foundation** - Admin can fully manage leads and the sub-nicho taxonomy by hand, with a filterable/sortable list and safe (recoverable) deletion
+- [x] **Phase 1: Lead & Sub-nicho Foundation** - Admin can fully manage leads and the sub-nicho taxonomy by hand, with a filterable/sortable list and safe (recoverable) deletion (completed 2026-07-22)
 - [ ] **Phase 2: CSV Bulk Import** - Admin can import a cowork CSV batch end-to-end, with Brazilian delimiter/encoding auto-detection and duplicate protection
 - [~] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged (gap closure 03-04 pending — verifier found 2 blockers)
 - [x] **Phase 4: Follow-up Dashboard & WhatsApp Outreach** - Admin opens the CRM to overdue follow-ups by default and reaches out via one-click WhatsApp templates (completed 2026-07-22)
@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 01-01-PLAN.md — Walking Skeleton: scaffold Next.js 16 + Drizzle/SQLite + shadcn + corte vertical de sub-nicho (LEAD-02)
 - [x] 01-02-PLAN.md — Corte vertical de criar/editar lead: modal 9 campos, combobox de sub-nicho, lista base (LEAD-01, LEAD-03)
 - [x] 01-03-PLAN.md — Lista filtrável/ordenável/paginada: filtros sub-nicho/etapa/follow-up (REMIND-02)
-- [ ] 01-04-PLAN.md — Soft-delete com confirmação + página Lixeira/restaurar (LEAD-04)
+- [x] 01-04-PLAN.md — Soft-delete com confirmação + página Lixeira/restaurar (LEAD-04)
 
 ### Phase 2: CSV Bulk Import
 **Goal**: Admin can import a batch of leads from a cowork-delivered CSV file end-to-end, without manual re-typing, safely and reversibly
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Lead & Sub-nicho Foundation | 3/4 | In Progress|  |
+| 1. Lead & Sub-nicho Foundation | 4/4 | Complete   | 2026-07-22 |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
 | 3. Sales Pipeline & Funnel View | 4/4 | Complete    | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 4/4 | Complete   | 2026-07-22 |
