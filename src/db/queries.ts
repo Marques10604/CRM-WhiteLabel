@@ -28,12 +28,14 @@ export type LeadsByUrgency = {
 /**
  * Agrupamento puro por urgência (D-02) — sem I/O, testável isoladamente.
  * `now` é injetável para testes; usa `startOfDay` para normalizar "hoje" e
- * `addDays(today, 7)` como limite superior de "Próximos 7 dias" (exclusivo).
- * Leads com follow-up 8+ dias no futuro não aparecem em nenhum grupo.
+ * `addDays(today, 8)` como limite superior (exclusivo) de "Próximos 7 dias",
+ * de forma que um lead com vencimento em `today + 7` (o 7º dia futuro) ainda
+ * seja incluído no grupo. Leads com follow-up 8+ dias no futuro não aparecem
+ * em nenhum grupo.
  */
 export function groupLeadsByUrgency(activeLeads: Lead[], now?: Date): LeadsByUrgency {
   const today = startOfDay(now ?? new Date());
-  const in7Days = addDays(today, 7);
+  const in7Days = addDays(today, 8);
 
   const vencidos: Lead[] = [];
   const hoje: Lead[] = [];
