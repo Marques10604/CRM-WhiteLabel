@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -11,6 +11,7 @@ import {
   type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +23,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
+import { DeleteLeadDialog } from "@/components/delete-lead-dialog";
 import { LeadTableToolbar } from "@/components/lead-table-toolbar";
 import { DEFAULT_SORTING, leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
+import { softDeleteLead } from "@/actions/lead-actions";
 import type { Lead, Subnicho, Template } from "@/types";
 
 type LeadTableProps = {
@@ -37,6 +40,9 @@ type DialogState =
   | { mode: "create" }
   | { mode: "edit"; lead: Lead };
 
+/** Estado do modal de confirmação de exclusão (D-05). */
+type DeleteState = { open: false } | { open: true; lead: LeadRow };
+
 /**
  * Tabela de leads ativos (D-06) — sort/filtro/paginação entram no plano
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
@@ -44,8 +50,10 @@ type DialogState =
  */
 export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
+  const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [, startTransition] = useTransition();
 
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
@@ -77,9 +85,23 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     state: { sorting, columnFilters },
+    meta: {
+      onEditLead: (lead) => setDialogState({ mode: "edit", lead }),
+      onDeleteLead: (lead) => setDeleteState({ open: true, lead }),
+    },
   });
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
+
+  function handleDeleteConfirm() {
+    if (!deleteState.open) return;
+    const { lead } = deleteState;
+    startTransition(async () => {
+      await softDeleteLead(lead.id);
+      toast.success("Lead movido para a Lixeira.");
+      setDeleteState({ open: false });
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -190,6 +212,15 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}
+      />
+
+      <DeleteLeadDialog
+        open={deleteState.open}
+        onOpenChange={(open) => {
+          if (!open) setDeleteState({ open: false });
+        }}
+        leadNome={deleteState.open ? deleteState.lead.nome : ""}
+        onConfirm={handleDeleteConfirm}
       />
     </div>
   );
