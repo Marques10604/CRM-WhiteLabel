@@ -13,6 +13,20 @@ export const subnichos = sqliteTable(
   ]
 );
 
+export const templates = sqliteTable(
+  "templates",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    tipo: text("tipo", { enum: ["primeiro_contato", "follow_up", "prova_valor"] }).notNull(),
+    nome: text("nome").notNull(),
+    corpo: text("corpo").notNull(),
+    isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  },
+  (table) => [index("templates_tipo_idx").on(table.tipo)]
+);
+
 export const leads = sqliteTable(
   "leads",
   {

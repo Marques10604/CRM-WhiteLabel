@@ -48,3 +48,14 @@ export const stageUpdateSchema = z.object({
   stage: z.enum(["novo", "contatado", "negociacao", "fechado", "perdido"]),
   motivoPerda: z.string().trim().optional(),
 });
+
+export const templateSchema = z.object({
+  tipo: z.enum(["primeiro_contato", "follow_up", "prova_valor"], {
+    error: "Selecione um tipo.",
+  }),
+  nome: z.string().trim().min(1, "Nome é obrigatório."),
+  corpo: z.string().trim().min(1, "Mensagem é obrigatória."),
+  isDefault: z.coerce.boolean().default(false),
+});
+
+export type TemplateFormValues = z.input<typeof templateSchema>;
