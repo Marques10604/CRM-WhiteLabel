@@ -8,7 +8,7 @@ import { leadSchema, stageUpdateSchema } from "@/lib/validations";
 import type { Lead } from "@/types";
 
 type ActionState =
-  | { success: true }
+  | { success: true; lead?: Lead }
   | { errors: Record<string, string[] | undefined> }
   | undefined;
 
@@ -47,8 +47,9 @@ export async function createLead(
     return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
   }
 
+  let inserted: Lead;
   try {
-    await db.insert(leads).values(parsed.data);
+    [inserted] = await db.insert(leads).values(parsed.data).returning();
   } catch (err) {
     // Backstop de FK: sub-nicho apagado ENTRE a pré-checagem acima e este
     // insert (janela de corrida check-then-write). onDelete:"restrict" no
@@ -60,8 +61,9 @@ export async function createLead(
   }
 
   revalidatePath("/");
+  revalidatePath("/leads");
   revalidatePath("/pipeline");
-  return { success: true };
+  return { success: true, lead: inserted };
 }
 
 export async function updateLead(
