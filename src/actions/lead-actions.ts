@@ -49,7 +49,15 @@ export async function createLead(
 
   let inserted: Lead;
   try {
-    [inserted] = await db.insert(leads).values(parsed.data).returning();
+    // Stampa stageChangedAt na criação (WR-01): sem isso, um lead criado
+    // diretamente em "contatado" (o form permite escolher a etapa inicial)
+    // ficaria com stageChangedAt nulo para sempre, nunca podendo ser
+    // sinalizado como "esfriando" até que sua etapa mudasse e voltasse via
+    // updateLead/updateLeadStage.
+    [inserted] = await db
+      .insert(leads)
+      .values({ ...parsed.data, stageChangedAt: new Date() })
+      .returning();
   } catch (err) {
     // Backstop de FK: sub-nicho apagado ENTRE a pré-checagem acima e este
     // insert (janela de corrida check-then-write). onDelete:"restrict" no
