@@ -1,11 +1,26 @@
 import type { Column, ColumnDef, SortingState } from "@tanstack/react-table";
 import { format, endOfDay, startOfDay } from "date-fns";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import type { Lead } from "@/types";
 
 /** Lead com o nome do sub-nicho já resolvido (join client-side em lead-table.tsx). */
 export type LeadRow = Lead & { subnichoNome: string };
+
+/**
+ * Callbacks de ação de linha (D-08) injetados via `meta` do `useReactTable`
+ * (definido em lead-table.tsx) — os column defs abaixo são um `const` fora
+ * do componente, então não têm acesso direto ao estado de dialog; `meta` é o
+ * canal recomendado do TanStack Table para isso.
+ */
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData> {
+    onEditLead?: (lead: LeadRow) => void;
+    onDeleteLead?: (lead: LeadRow) => void;
+  }
+}
 
 /** Intervalo [início, fim] usado pelo filtro de follow-up (01-03, D-11). */
 export type FollowUpDateRange = [Date | undefined, Date | undefined];
@@ -102,5 +117,44 @@ export const leadTableColumns: ColumnDef<LeadRow>[] = [
     accessorKey: "telefone",
     header: "Telefone",
     enableSorting: false,
+  },
+  {
+    id: "acoes",
+    header: "Ações",
+    enableSorting: false,
+    // D-08: botões de ícone diretos (editar/excluir), sem menu "…". 36px de
+    // alvo de toque (`size="icon-lg"` = size-9, a variante que efetivamente
+    // renderiza 36px neste design system — `size="icon"` renderiza 32px).
+    // stopPropagation em ambos: o `<tr>` pai (lead-table.tsx) tem onClick de
+    // edição de linha (D-07); sem isto, clicar em editar/excluir também
+    // dispararia a abertura do modal de edição por baixo.
+    cell: ({ row, table }) => (
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label={`Editar ${row.original.nome}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            table.options.meta?.onEditLead?.(row.original);
+          }}
+        >
+          <Pencil className="size-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label={`Excluir ${row.original.nome}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            table.options.meta?.onDeleteLead?.(row.original);
+          }}
+        >
+          <Trash2 className="size-4 text-[#DC2626]" />
+        </Button>
+      </div>
+    ),
   },
 ];

@@ -12,7 +12,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **LEAD-01**: Admin pode cadastrar/editar um lead com nome, telefone, canal de contato, origem, valor estimado, notas, data de follow-up e etapa
 - [x] **LEAD-02**: Admin pode cadastrar e renomear sub-nichos numa lista administrável (evita duplicatas como "Nutri" e "nutricionista")
 - [x] **LEAD-03**: Cada lead pertence a exatamente um sub-nicho da lista administrável
-- [ ] **LEAD-04**: Exclusão de lead é soft-delete — nunca apaga de forma definitiva, pode ser recuperado
+- [x] **LEAD-04**: Exclusão de lead é soft-delete — nunca apaga de forma definitiva, pode ser recuperado
 - [ ] **LEAD-05**: Cada lead importado é rastreado com o lote (batch) de importação de origem
 
 ### Importação CSV
@@ -82,7 +82,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LEAD-01 | Phase 1 | Complete |
 | LEAD-02 | Phase 1 | Complete |
 | LEAD-03 | Phase 1 | Complete |
-| LEAD-04 | Phase 1 | Pending |
+| LEAD-04 | Phase 1 | Complete |
 | LEAD-05 | Phase 2 | Pending |
 | IMPORT-01 | Phase 2 | Pending |
 | IMPORT-02 | Phase 2 | Pending |

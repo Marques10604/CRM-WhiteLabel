@@ -1,6 +1,13 @@
 "use server";
 
-import { and, eq, isNull } from "drizzle-orm";
+/**
+ * Convenção LEAD-04: nenhum código em src/ ou scripts/ pode fazer hard-delete
+ * de leads/subnichos (chamar o delete() do Drizzle direto nessas tabelas) e
+ * nenhuma migração pode conter DELETE FROM/DROP TABLE — exclusão é sempre
+ * soft-delete (deletedAt). Verificar com `npm run guard:no-hard-delete`.
+ */
+
+import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { leads, subnichos } from "@/db/schema";
@@ -176,5 +183,44 @@ export async function updateLeadStage(
 
   revalidatePath("/pipeline");
   revalidatePath("/");
+  return { success: true };
+}
+
+/**
+ * Soft-delete de lead (LEAD-04, D-05) — NUNCA hard-delete na tabela leads. Idempotente:
+ * o where restringe a linhas ainda ativas (isNull(deletedAt)), então excluir
+ * um lead já excluído é um no-op seguro (não sobrescreve o deletedAt original
+ * nem lança erro). Revalida todas as rotas que listam leads ativos (D-14/D-01
+ * de 04-04: "/" é o dashboard, "/leads" a lista completa, "/pipeline" o board)
+ * mais "/lixeira", onde o lead passa a aparecer.
+ */
+export async function softDeleteLead(leadId: number): Promise<ActionState> {
+  await db
+    .update(leads)
+    .set({ deletedAt: sql`(unixepoch())` })
+    .where(and(eq(leads.id, leadId), isNull(leads.deletedAt)));
+
+  revalidatePath("/");
+  revalidatePath("/leads");
+  revalidatePath("/pipeline");
+  revalidatePath("/lixeira");
+  return { success: true };
+}
+
+/**
+ * Restaura lead da Lixeira (D-17) — instantâneo, sem confirmação (ação
+ * segura/não-destrutiva). Idempotente: o where restringe a linhas na lixeira
+ * (isNotNull(deletedAt)), então restaurar um lead já ativo é um no-op seguro.
+ */
+export async function restoreLead(leadId: number): Promise<ActionState> {
+  await db
+    .update(leads)
+    .set({ deletedAt: null })
+    .where(and(eq(leads.id, leadId), isNotNull(leads.deletedAt)));
+
+  revalidatePath("/");
+  revalidatePath("/leads");
+  revalidatePath("/pipeline");
+  revalidatePath("/lixeira");
   return { success: true };
 }
