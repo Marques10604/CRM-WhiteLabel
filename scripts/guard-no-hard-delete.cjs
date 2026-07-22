@@ -12,7 +12,11 @@
  *   - src/ + scripts/ (código: .ts/.tsx/.js/.cjs/.mjs) atrás de hard-delete de
  *     leads/subnichos especificamente: .delete(leads ...), .delete(subnichos ...)
  *     (escopo LEAD-04 — outras tabelas, ex. `templates`, podem legitimamente
- *     ter hard-delete próprio, ver D-13 em 04-01; não é escopo desta guarda)
+ *     ter hard-delete próprio, ver D-13 em 04-01; não é escopo desta guarda),
+ *     E TAMBÉM SQL cru destrutivo contra essas duas tabelas escrito dentro de
+ *     código (ex.: db.run(sql`DELETE FROM leads...`), .exec("DROP TABLE leads")) —
+ *     sem isso, SQL raw em .ts/.js escapava da guarda mesmo sendo o hard-delete
+ *     que LEAD-04 proíbe (achado da auditoria de segurança da Fase 1, T-01-11)
  *   - src/db/migrations/ (.sql) atrás de SQL destrutivo: DELETE FROM, DROP TABLE
  *
  * Convenção (ver comentário espelhado em src/actions/lead-actions.ts):
@@ -43,6 +47,17 @@ const ALLOWLIST = [path.join("scripts", "guard-no-hard-delete.cjs")];
 // tabelas (ex. `templates`, D-13 de 04-01) podem ter hard-delete legítimo e
 // intencional fora da garantia de soft-delete que este guard protege.
 const CODE_PATTERNS = [/\.delete\(\s*leads\b/, /\.delete\(\s*subnichos\b/];
+
+// SQL cru destrutivo contra leads/subnichos escrito dentro de código (não só
+// migrações) — ex.: db.run(sql`DELETE FROM leads WHERE ...`), sqlite.exec("DROP
+// TABLE subnichos"). Escopado a leads/subnichos (mesma filosofia de CODE_PATTERNS,
+// não um banimento genérico de DELETE FROM/DROP TABLE em qualquer código).
+const CODE_SQL_PATTERNS = [
+  /\bDELETE\s+FROM\s+[`"']?leads\b/i,
+  /\bDELETE\s+FROM\s+[`"']?subnichos\b/i,
+  /\bDROP\s+TABLE\s+[`"']?leads\b/i,
+  /\bDROP\s+TABLE\s+[`"']?subnichos\b/i,
+];
 
 const SQL_PATTERNS = [/\bDELETE\s+FROM\b/i, /\bDROP\s+TABLE\b/i];
 
@@ -104,7 +119,7 @@ function walk(dirAbsPath) {
     const isSqlMigration = ext === ".sql" && relPath.startsWith(SQL_MIGRATIONS_DIR + path.sep);
 
     if (CODE_EXTENSIONS.has(ext)) {
-      scanFile(entryAbsPath, relPath, CODE_PATTERNS);
+      scanFile(entryAbsPath, relPath, [...CODE_PATTERNS, ...CODE_SQL_PATTERNS]);
     } else if (isSqlMigration) {
       scanFile(entryAbsPath, relPath, SQL_PATTERNS);
     }
