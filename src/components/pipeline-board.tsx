@@ -60,7 +60,16 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
     open: false,
   });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
-  const motivoResolverRef = useRef<((motivo: string | undefined) => void) | null>(null);
+  // Fila de resolvers pendentes do modal "motivo da perda" (CR-02): um
+  // `useRef` único era sobrescrito quando um segundo lead era solto em
+  // "Perdido" antes do primeiro modal ser fechado, perdendo o `resolve` da
+  // primeira transição (que nunca chamava `updateLeadStage`). Agora cada
+  // drag para "Perdido" entra numa fila; o modal exibe um lead por vez e
+  // avança para o próximo pendente ao resolver o atual, garantindo que
+  // nenhuma transição de estágio fique órfã.
+  const motivoQueueRef = useRef<
+    { leadId: number; leadNome: string; resolve: (motivo: string | undefined) => void }[]
+  >([]);
 
   const [optimisticLeads, setOptimisticStage] = useOptimistic(
     leads,
@@ -111,9 +120,15 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
       if (newStage === "perdido") {
         // Modal opcional/não-bloqueante (D-04): o card já se moveu acima.
         // A transição fica pendente até o admin clicar Pular/Salvar motivo.
-        setMotivoPerdaState({ open: true, leadNome: lead?.nome ?? "" });
+        // Enfileira este lead (CR-02) em vez de assumir que é o único drag
+        // pendente — se o modal já estiver aberto para outro lead, este
+        // apenas aguarda sua vez na fila.
         motivoPerda = await new Promise<string | undefined>((resolve) => {
-          motivoResolverRef.current = resolve;
+          const leadNome = lead?.nome ?? "";
+          motivoQueueRef.current.push({ leadId, leadNome, resolve });
+          if (motivoQueueRef.current.length === 1) {
+            setMotivoPerdaState({ open: true, leadNome });
+          }
         });
       }
 
@@ -128,9 +143,17 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
   }
 
   function resolveMotivoPerda(motivo: string | undefined) {
-    setMotivoPerdaState({ open: false });
-    motivoResolverRef.current?.(motivo);
-    motivoResolverRef.current = null;
+    const current = motivoQueueRef.current.shift();
+    current?.resolve(motivo);
+    const next = motivoQueueRef.current[0];
+    if (next) {
+      // Outro lead já está aguardando (CR-02): avança a fila em vez de
+      // fechar o modal, evitando que a promessa dele fique presa sem
+      // resolver.
+      setMotivoPerdaState({ open: true, leadNome: next.leadNome });
+    } else {
+      setMotivoPerdaState({ open: false });
+    }
   }
 
   return (
