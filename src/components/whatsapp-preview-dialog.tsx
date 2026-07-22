@@ -99,84 +99,92 @@ export function WhatsAppPreviewDialog({
     );
   }
 
-  if (!lead) return null;
-
-  const tel = normalizePhone(lead.telefone);
-  const waHref = tel ? buildWaLink(tel, texto) : undefined;
+  // WR-04: manter o `<Dialog>` sempre montado (guardar só o conteúdo) em
+  // vez de `if (!lead) return null` — retornar null aqui desmontava a
+  // árvore inteira do Radix Dialog assim que `lead` ficava undefined
+  // (chamadores limpam `open` e `lead` na mesma atualização de estado ao
+  // fechar), arrancando o modal antes de ele rodar a própria animação de
+  // fechamento — diferente de todo outro dialog do app.
+  const tel = lead ? normalizePhone(lead.telefone) : undefined;
+  const waHref = lead && tel ? buildWaLink(tel, texto) : undefined;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open && !!lead} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Pré-visualizar mensagem</DialogTitle>
-          <DialogDescription>{subtitulo ?? `Mensagem para ${lead.nome}`}</DialogDescription>
-        </DialogHeader>
+        {lead ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Pré-visualizar mensagem</DialogTitle>
+              <DialogDescription>{subtitulo ?? `Mensagem para ${lead.nome}`}</DialogDescription>
+            </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          <Field>
-            <FieldLabel htmlFor="whatsapp-tipo">Tipo de mensagem</FieldLabel>
-            <FieldContent>
-              <Select
-                items={TIPO_OPTIONS as unknown as { value: string; label: string }[]}
-                value={tipo}
-                onValueChange={(value) => handleTipoChange(value as Template["tipo"])}
-              >
-                <SelectTrigger id="whatsapp-tipo" className="w-full">
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIPO_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FieldContent>
-          </Field>
+            <div className="flex flex-col gap-4">
+              <Field>
+                <FieldLabel htmlFor="whatsapp-tipo">Tipo de mensagem</FieldLabel>
+                <FieldContent>
+                  <Select
+                    items={TIPO_OPTIONS as unknown as { value: string; label: string }[]}
+                    value={tipo}
+                    onValueChange={(value) => handleTipoChange(value as Template["tipo"])}
+                  >
+                    <SelectTrigger id="whatsapp-tipo" className="w-full">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIPO_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="whatsapp-texto">Mensagem</FieldLabel>
-            <FieldContent>
-              <Textarea
-                id="whatsapp-texto"
-                className="min-h-32"
-                value={texto}
-                onChange={(event) => setTexto(event.target.value)}
-              />
-            </FieldContent>
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="whatsapp-texto">Mensagem</FieldLabel>
+                <FieldContent>
+                  <Textarea
+                    id="whatsapp-texto"
+                    className="min-h-32"
+                    value={texto}
+                    onChange={(event) => setTexto(event.target.value)}
+                  />
+                </FieldContent>
+              </Field>
 
-          {!tel ? (
-            <p className="text-sm text-[#B91C1C]">Telefone inválido — edite o lead.</p>
-          ) : null}
-        </div>
+              {!tel ? (
+                <p className="text-sm text-[#B91C1C]">Telefone inválido — edite o lead.</p>
+              ) : null}
+            </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          {waHref ? (
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                buttonVariants(),
-                "gap-1.5 bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancelar
+              </Button>
+              {waHref ? (
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => onOpenChange(false)}
+                  className={cn(
+                    buttonVariants(),
+                    "gap-1.5 bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
+                  )}
+                >
+                  <MessageCircle />
+                  Abrir WhatsApp
+                </a>
+              ) : (
+                <Button type="button" disabled className="gap-1.5 bg-[#0D9488] text-white">
+                  <MessageCircle />
+                  Abrir WhatsApp
+                </Button>
               )}
-            >
-              <MessageCircle />
-              Abrir WhatsApp
-            </a>
-          ) : (
-            <Button type="button" disabled className="gap-1.5 bg-[#0D9488] text-white">
-              <MessageCircle />
-              Abrir WhatsApp
-            </Button>
-          )}
-        </DialogFooter>
+            </DialogFooter>
+          </>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
