@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-22T01:49:02.112Z"
+last_updated: "2026-07-22T02:16:31.387Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
   percent: 25
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 04 (follow-up-dashboard-whatsapp-outreach) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-07-22
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [███████░░░] 67%
 | Phase 01 P02 | 45min | 3 tasks | 13 files |
 | Phase 01-lead-sub-nicho-foundation P03 | 25min | 2 tasks | 5 files |
 | Phase 04 P01 | 45min | 2 tasks | 5 files |
+| Phase 04 P02 | 50min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Dashboard scope excludes fechado/perdido leads via notInArray centralized in getActiveDashboardLeads() to avoid duplicating the exclusion filter across future queries (D-04)
 - [Phase ?]: Empty urgency sections are omitted entirely (no header/body) rather than showing a per-section empty message
 - [Phase ?]: 'Novo lead' on the dashboard opens LeadFormDialog in create mode locally (DialogState union) instead of navigating to /leads, per D-03 -- this surface is reused by 04-04's auto-trigger (WA-04)
+- [Phase 04-02]: 'templates' table applied via drizzle-kit push produces no git-trackable diff (data/crm.db is gitignored, push writes no migration SQL) — Task 2 verified live-DB state directly via better-sqlite3 query instead of committing a file
+- [Phase 04-02]: 'one default per type' invariant (D-12) enforced via db.transaction() desmarca-entao-marca, not a partial uniqueIndex().where() (drizzle-kit generates incorrect SQL for that shape on SQLite)
 
 ### Pending Todos
 
@@ -106,7 +109,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T01:49:02.083Z
+Last session: 2026-07-22T02:16:31.257Z
 Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
