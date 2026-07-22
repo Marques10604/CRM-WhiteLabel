@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { subnichos } from "@/db/schema";
+import { subnichos, templates } from "@/db/schema";
 import { getActiveDashboardLeads, groupLeadsByUrgency } from "@/db/queries";
 import { FollowupDashboard } from "@/components/followup-dashboard";
 
@@ -8,11 +8,14 @@ import { FollowupDashboard } from "@/components/followup-dashboard";
  * agrupado por urgência (Vencidos/Hoje/Próximos 7 dias), sem filtro manual.
  * A lista completa de leads foi movida para `/leads`. Agrupamento é
  * computado no servidor via `groupLeadsByUrgency` (função pura, testável).
+ * `templates` alimenta o botão inline "Enviar WhatsApp" (WA-05) — modal de
+ * preview com tipo pré-selecionado "Follow-up" (D-15).
  */
 export default async function Home() {
-  const [activeLeads, allSubnichos] = await Promise.all([
+  const [activeLeads, allSubnichos, allTemplates] = await Promise.all([
     getActiveDashboardLeads(),
     db.select().from(subnichos),
+    db.select().from(templates),
   ]);
 
   const { vencidos, hoje, proximos7Dias } = groupLeadsByUrgency(activeLeads);
@@ -25,6 +28,7 @@ export default async function Home() {
         hoje={hoje}
         proximos7Dias={proximos7Dias}
         subnichos={allSubnichos}
+        templates={allTemplates}
       />
     </div>
   );

@@ -6,19 +6,27 @@ import { format } from "date-fns";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
-import type { Lead, Subnicho } from "@/types";
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
+import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
+import { normalizePhone } from "@/lib/phone";
+import type { Lead, Subnicho, Template } from "@/types";
 
 type FollowupDashboardProps = {
   vencidos: Lead[];
   hoje: Lead[];
   proximos7Dias: Lead[];
   subnichos: Subnicho[];
+  templates: Template[];
 };
 
 type DialogState =
   | { mode: "closed" }
   | { mode: "create" }
   | { mode: "edit"; lead: Lead };
+
+type PreviewState =
+  | { open: false }
+  | { open: true; lead: Lead; subnichoNome: string };
 
 type UrgencySection = {
   key: string;
@@ -42,8 +50,10 @@ export function FollowupDashboard({
   hoje,
   proximos7Dias,
   subnichos,
+  templates,
 }: FollowupDashboardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
+  const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
 
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
@@ -164,7 +174,23 @@ export function FollowupDashboard({
                           </span>
                         </div>
                       </div>
-                      <EtapaBadge stage={lead.stage} />
+                      <div className="flex items-center gap-2">
+                        <EtapaBadge stage={lead.stage} />
+                        {/* stopPropagation: o clique no botão não deve abrir a edição do item (D-05) */}
+                        <div onClick={(event) => event.stopPropagation()}>
+                          <WhatsAppSendButton
+                            nome={lead.nome}
+                            disabled={normalizePhone(lead.telefone) === null}
+                            onClick={() =>
+                              setPreviewState({
+                                open: true,
+                                lead,
+                                subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -181,6 +207,17 @@ export function FollowupDashboard({
         }}
         subnichos={subnichos}
         lead={dialogLead}
+      />
+
+      <WhatsAppPreviewDialog
+        open={previewState.open}
+        onOpenChange={(open) => {
+          if (!open) setPreviewState({ open: false });
+        }}
+        lead={previewState.open ? previewState.lead : undefined}
+        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        templates={templates}
+        defaultTipo="follow_up"
       />
     </div>
   );
