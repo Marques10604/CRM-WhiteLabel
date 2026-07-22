@@ -42,6 +42,20 @@ export const leadSchema = z.object({
 
 export type LeadFormValues = z.input<typeof leadSchema>;
 
+/**
+ * Schema de linha de CSV confirmada (IMPORT-01/02, D-12), derivado de
+ * leadSchema — nunca uma cópia paralela de campo a campo. `subnichoId` é
+ * omitido porque a linha de CSV carrega o NOME do sub-nicho, resolvido para
+ * id só dentro da transação de bulkImportLeads. `followUpDate` é omitido
+ * porque nenhuma coluna de follow-up é coletada do CSV — o servidor grava
+ * followUpDate = new Date() (momento da importação) diretamente no insert.
+ */
+export const csvRowSchema = leadSchema.omit({ subnichoId: true, followUpDate: true }).extend({
+  subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
+});
+
+export type CsvRowValues = z.infer<typeof csvRowSchema>;
+
 /** Contrato enxuto para a mudança de etapa via drag-and-drop (03-03, updateLeadStage). */
 export const stageUpdateSchema = z.object({
   id: z.coerce.number().int().positive(),
