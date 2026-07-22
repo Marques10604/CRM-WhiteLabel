@@ -47,7 +47,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. System flags likely duplicate leads (matching phone number) before the import is confirmed, so the admin can decide whether to skip or keep them
   4. Every imported lead is tagged with the import batch it came from, distinguishing it from manually-entered leads and enabling batch-level review later
 **Plans**: 3 plans
-- [ ] 02-01-PLAN.md — Motor de importacao: schema importBatchId (LEAD-05) + encoding/mapeamento/dedup + Server Actions transacionais (IMPORT-02, IMPORT-03)
+- [x] 02-01-PLAN.md — Motor de importacao: schema importBatchId (LEAD-05) + encoding/mapeamento/dedup + Server Actions transacionais (IMPORT-02, IMPORT-03)
 - [ ] 02-02-PLAN.md — Wizard de upload/mapeamento/previa com flags + confirmacao (IMPORT-01, IMPORT-02, IMPORT-03)
 - [ ] 02-03-PLAN.md — Tela pos-importacao com envio de WhatsApp por lote (D-13/D-14, LEAD-05)
 
@@ -93,6 +93,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Lead & Sub-nicho Foundation | 4/4 | Complete   | 2026-07-22 |
-| 2. CSV Bulk Import | 0/3 | Not started | - |
+| 2. CSV Bulk Import | 1/3 | In Progress|  |
 | 3. Sales Pipeline & Funnel View | 4/4 | Complete    | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | 4/4 | Complete   | 2026-07-22 |
