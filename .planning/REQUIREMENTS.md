@@ -37,7 +37,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **WA-01**: Admin pode criar e editar templates de mensagem do WhatsApp com variáveis (ex: {nome})
 - [x] **WA-02**: Sistema gera link wa.me com a mensagem do template preenchida e corretamente codificada (acentos, emojis, quebras de linha) e número de telefone brasileiro normalizado
 - [x] **WA-03**: Admin pode visualizar preview da mensagem final (variáveis já preenchidas) antes de abrir o WhatsApp
-- [ ] **WA-04**: Ao importar um lead novo, sistema sugere automaticamente abrir o WhatsApp com o template de primeiro contato
+- [x] **WA-04**: Ao importar um lead novo, sistema sugere automaticamente abrir o WhatsApp com o template de primeiro contato
 - [x] **WA-05**: Botão de enviar WhatsApp aparece inline na lista de lembretes e no card do pipeline
 
 ## v2 Requirements
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WA-01 | Phase 4 | Complete |
 | WA-02 | Phase 4 | Complete |
 | WA-03 | Phase 4 | Complete |
-| WA-04 | Phase 4 | Pending |
+| WA-04 | Phase 4 | Complete |
 | WA-05 | Phase 4 | Complete |
 
 **Coverage:**

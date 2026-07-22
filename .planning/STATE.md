@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-07-22T02:36:23.012Z"
+status: verifying
+last_updated: "2026-07-22T02:50:00.109Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 12
-  completed_plans: 10
-  percent: 25
+  completed_plans: 11
+  percent: 50
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 
 Phase: 04 (follow-up-dashboard-whatsapp-outreach) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-22
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████░░] 83%
 | Phase 04 P01 | 45min | 2 tasks | 5 files |
 | Phase 04 P02 | 50min | 3 tasks | 8 files |
 | Phase 04-follow-up-dashboard-whatsapp-outreach P03 | 40min | 3 tasks | 8 files |
+| Phase 04-follow-up-dashboard-whatsapp-outreach P04 | 35min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 04-03]: waHref no whatsapp-preview-dialog.tsx e recomputado a cada render a partir do texto vivo da textarea (Pitfall 4), nunca memoizado do renderTemplate() inicial
 - [Phase 04-03]: 'Abrir WhatsApp' renderizado como <a> estilizado via buttonVariants() em vez de Button render={...} (API polimorfica nao verificada nesta lib Base UI, mesmo precedente do 04-01)
 - [Phase 04-03]: pipeline-lead-card.tsx usa stopPropagation em onPointerDown E onClick no wrapper do botao de WhatsApp, pois useDraggable e o onClick de edicao do card exigem interceptacao separada
+- [Phase 04-04]: ActionState.success carries optional lead? field (not a second variant) so updateLead stays type-compatible with createLead's returning()
+- [Phase 04-04]: WhatsAppPreviewDialog gained optional subtitulo prop with fallback to preserve the 04-03 manual-send subtitle unchanged while the auto-trigger flow injects the UI-SPEC-mandated copy
+- [Phase 04-04]: First custom hook in the project: src/hooks/use-first-contact-trigger.ts, designed for reuse by the future CSV import (Phase 2 backlog) per D-18
 
 ### Pending Todos
 
@@ -113,8 +117,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T02:36:22.950Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-07-22T02:49:59.974Z
+Stopped at: Completed 04-04-PLAN.md (phase 04 complete, all 4 plans)
 Resume file: None
 
 ### 01-02 progress

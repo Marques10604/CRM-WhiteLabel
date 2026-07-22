@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Lead & Sub-nicho Foundation** - Admin can fully manage leads and the sub-nicho taxonomy by hand, with a filterable/sortable list and safe (recoverable) deletion
 - [ ] **Phase 2: CSV Bulk Import** - Admin can import a cowork CSV batch end-to-end, with Brazilian delimiter/encoding auto-detection and duplicate protection
 - [~] **Phase 3: Sales Pipeline & Funnel View** - Admin sees the funnel at a glance and drags leads between stages, with stalled leads flagged (gap closure 03-04 pending — verifier found 2 blockers)
-- [ ] **Phase 4: Follow-up Dashboard & WhatsApp Outreach** - Admin opens the CRM to overdue follow-ups by default and reaches out via one-click WhatsApp templates
+- [x] **Phase 4: Follow-up Dashboard & WhatsApp Outreach** - Admin opens the CRM to overdue follow-ups by default and reaches out via one-click WhatsApp templates (completed 2026-07-22)
 
 ## Phase Details
 
@@ -79,7 +79,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 04-01-PLAN.md — Corte vertical do dashboard de follow-ups: / vira painel por urgência, lista move p/ /leads, nav 6 itens (REMIND-01)
 - [x] 04-02-PLAN.md — Sistema de templates de WhatsApp: tabela templates + push + CRUD /templates + padrão-por-tipo (WA-01)
 - [x] 04-03-PLAN.md — Envio inline: whatsapp.ts (wa.me) + botão + modal de preview no dashboard e no pipeline (WA-02, WA-03, WA-05)
-- [ ] 04-04-PLAN.md — Auto-gatilho de 1º contato após criar lead, via hook reutilizável (WA-04)
+- [x] 04-04-PLAN.md — Auto-gatilho de 1º contato após criar lead, via hook reutilizável (WA-04)
 **UI hint**: yes
 
 ## Progress
@@ -92,4 +92,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Lead & Sub-nicho Foundation | 3/4 | In Progress|  |
 | 2. CSV Bulk Import | 0/TBD | Not started | - |
 | 3. Sales Pipeline & Funnel View | 4/4 | Complete    | 2026-07-21 |
-| 4. Follow-up Dashboard & WhatsApp Outreach | 3/4 | In Progress|  |
+| 4. Follow-up Dashboard & WhatsApp Outreach | 4/4 | Complete   | 2026-07-22 |
