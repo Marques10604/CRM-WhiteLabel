@@ -14,16 +14,19 @@ type ActionState =
 
 /**
  * Garante "um padrão por tipo" (D-12): desmarca atomicamente o padrão atual
- * do tipo (se houver) e marca o novo `id` — transação síncrona do
- * better-sqlite3, nunca confiar na UI para esse invariante.
+ * do tipo (se houver) e marca o novo `id`. Async + awaited at every call
+ * site (WR-03) so this is portable across both documented driver variants:
+ * `drizzle-orm/better-sqlite3` transactions happen to run synchronously,
+ * but `drizzle-orm/libsql` (the recommended hosted/Turso variant) is
+ * asynchronous — an un-awaited call there would race ahead of the commit.
  */
-function applyDefaultTemplate(id: number, tipo: Template["tipo"]) {
-  db.transaction((tx) => {
-    tx.update(templates)
+async function applyDefaultTemplate(id: number, tipo: Template["tipo"]) {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(templates)
       .set({ isDefault: false })
-      .where(and(eq(templates.tipo, tipo), eq(templates.isDefault, true)))
-      .run();
-    tx.update(templates).set({ isDefault: true }).where(eq(templates.id, id)).run();
+      .where(and(eq(templates.tipo, tipo), eq(templates.isDefault, true)));
+    await tx.update(templates).set({ isDefault: true }).where(eq(templates.id, id));
   });
 }
 
@@ -44,7 +47,7 @@ export async function createTemplate(
     .returning({ id: templates.id });
 
   if (isDefault) {
-    applyDefaultTemplate(inserted.id, parsed.data.tipo);
+    await applyDefaultTemplate(inserted.id, parsed.data.tipo);
   }
 
   revalidatePath("/templates");
@@ -72,7 +75,7 @@ export async function updateTemplate(
   await db.update(templates).set({ ...rest, isDefault }).where(eq(templates.id, id));
 
   if (isDefault) {
-    applyDefaultTemplate(id, parsed.data.tipo);
+    await applyDefaultTemplate(id, parsed.data.tipo);
   }
 
   revalidatePath("/templates");
@@ -103,7 +106,7 @@ export async function setDefaultTemplate(
     return { errors: { id: ["Template inválido."] } };
   }
 
-  applyDefaultTemplate(id, tipo);
+  await applyDefaultTemplate(id, tipo);
 
   revalidatePath("/templates");
   revalidatePath("/");
