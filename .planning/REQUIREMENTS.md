@@ -13,13 +13,13 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **LEAD-02**: Admin pode cadastrar e renomear sub-nichos numa lista administrável (evita duplicatas como "Nutri" e "nutricionista")
 - [x] **LEAD-03**: Cada lead pertence a exatamente um sub-nicho da lista administrável
 - [x] **LEAD-04**: Exclusão de lead é soft-delete — nunca apaga de forma definitiva, pode ser recuperado
-- [ ] **LEAD-05**: Cada lead importado é rastreado com o lote (batch) de importação de origem
+- [x] **LEAD-05**: Cada lead importado é rastreado com o lote (batch) de importação de origem
 
 ### Importação CSV
 
 - [ ] **IMPORT-01**: Admin pode importar leads via arquivo CSV com mapeamento de colunas e preview antes de confirmar
-- [ ] **IMPORT-02**: Sistema detecta e avisa sobre leads duplicados (por telefone) antes de confirmar a importação
-- [ ] **IMPORT-03**: Sistema detecta automaticamente delimitador (vírgula/ponto-e-vírgula) e codificação de exportações CSV brasileiras (Excel pt-BR)
+- [x] **IMPORT-02**: Sistema detecta e avisa sobre leads duplicados (por telefone) antes de confirmar a importação
+- [x] **IMPORT-03**: Sistema detecta automaticamente delimitador (vírgula/ponto-e-vírgula) e codificação de exportações CSV brasileiras (Excel pt-BR)
 
 ### Pipeline
 
@@ -83,10 +83,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LEAD-02 | Phase 1 | Complete |
 | LEAD-03 | Phase 1 | Complete |
 | LEAD-04 | Phase 1 | Complete |
-| LEAD-05 | Phase 2 | Pending |
+| LEAD-05 | Phase 2 | Complete |
 | IMPORT-01 | Phase 2 | Pending |
-| IMPORT-02 | Phase 2 | Pending |
-| IMPORT-03 | Phase 2 | Pending |
+| IMPORT-02 | Phase 2 | Complete |
+| IMPORT-03 | Phase 2 | Complete |
 | PIPE-01 | Phase 3 | Complete |
 | PIPE-02 | Phase 3 | Complete |
 | PIPE-03 | Phase 3 | Complete |
