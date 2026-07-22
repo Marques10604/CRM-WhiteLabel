@@ -113,6 +113,11 @@ export async function updateLead(
       .update(leads)
       .set({
         ...parsed.data,
+        // WR-02: quando a etapa submetida não é "perdido", o campo
+        // "Motivo da perda" nem chega a ser renderizado no form (some do
+        // DOM), então não vem em parsed.data — sem isto, o valor antigo
+        // ficaria preso no banco indefinidamente ao reativar um lead.
+        motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
         ...(stageChanged ? { stageChangedAt: new Date() } : {}),
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
@@ -160,9 +165,11 @@ export async function updateLeadStage(
     .update(leads)
     .set({
       stage: parsed.data.stage,
-      ...(parsed.data.motivoPerda !== undefined
-        ? { motivoPerda: parsed.data.motivoPerda }
-        : {}),
+      // WR-02: limpa motivoPerda sempre que o destino não é "perdido" —
+      // antes só era sobrescrito quando o chamador passava um valor
+      // explicitamente, então mover um lead de volta para "Perdido" para
+      // outra etapa via drag nunca limpava o motivo antigo.
+      motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
       ...(stageChanged ? { stageChangedAt: new Date() } : {}),
     })
     .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
