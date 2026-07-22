@@ -29,7 +29,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Lembretes de Follow-up
 
-- [ ] **REMIND-01**: Tela inicial do CRM mostra painel de follow-ups vencidos/próximos como visão padrão ao abrir o sistema (não um filtro que precisa ser aplicado)
+- [x] **REMIND-01**: Tela inicial do CRM mostra painel de follow-ups vencidos/próximos como visão padrão ao abrir o sistema (não um filtro que precisa ser aplicado)
 - [x] **REMIND-02**: Admin pode ver lista de todos os leads, filtrável e ordenável por sub-nicho, etapa e data de follow-up
 
 ### Templates de WhatsApp
@@ -90,7 +90,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PIPE-01 | Phase 3 | Complete |
 | PIPE-02 | Phase 3 | Complete |
 | PIPE-03 | Phase 3 | Complete |
-| REMIND-01 | Phase 4 | Pending |
+| REMIND-01 | Phase 4 | Complete |
 | REMIND-02 | Phase 1 | Complete |
 | WA-01 | Phase 4 | Pending |
 | WA-02 | Phase 4 | Pending |

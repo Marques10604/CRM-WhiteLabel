@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-21T21:57:43.529Z"
-last_activity: 2026-07-21 -- Phase 04 planning complete
+last_updated: "2026-07-22T01:49:02.112Z"
+last_activity: 2026-07-22
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
   percent: 25
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 4 — follow up dashboard & whatsapp outreach
+**Current focus:** Phase 04 — follow-up-dashboard-whatsapp-outreach
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (follow-up-dashboard-whatsapp-outreach) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-21 -- Phase 04 planning complete
+Last activity: 2026-07-22
 
-Progress: [████████░░] 75%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [████████░░] 75%
 | Phase 01 P01 | 70min | 4 tasks | 46 files |
 | Phase 01 P02 | 45min | 3 tasks | 13 files |
 | Phase 01-lead-sub-nicho-foundation P03 | 25min | 2 tasks | 5 files |
+| Phase 04 P01 | 45min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [Phase 01-lead-sub-nicho-foundation]: npx shadcn add popover falhou por falta de memoria neste host; popover.tsx foi escrito a mao seguindo o padrao de dialog.tsx/select.tsx (Base UI Popover)
 - [Phase 01-lead-sub-nicho-foundation]: Filtro de sub-nicho na lead-table compara por subnichoId (numero), nao por subnichoNome (texto exibido)
 - [Phase 01-lead-sub-nicho-foundation]: DEFAULT_SORTING e FollowUpDateRange centralizados em lead-table-columns.tsx para evitar import circular entre lead-table.tsx e lead-table-toolbar.tsx
+- [Phase ?]: Dashboard scope excludes fechado/perdido leads via notInArray centralized in getActiveDashboardLeads() to avoid duplicating the exclusion filter across future queries (D-04)
+- [Phase ?]: Empty urgency sections are omitted entirely (no header/body) rather than showing a per-section empty message
+- [Phase ?]: 'Novo lead' on the dashboard opens LeadFormDialog in create mode locally (DialogState union) instead of navigating to /leads, per D-03 -- this surface is reused by 04-04's auto-trigger (WA-04)
 
 ### Pending Todos
 
@@ -102,9 +106,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T21:21:05.934Z
-Stopped at: Phase 04 UI-SPEC approved
-Resume file: .planning/phases/04-follow-up-dashboard-whatsapp-outreach/04-UI-SPEC.md
+Last session: 2026-07-22T01:49:02.083Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
 
 ### 01-02 progress
 
