@@ -130,7 +130,7 @@ Paleta dominante/secundária/accent/destructive reaproveitada **sem nenhuma alte
 | Combobox inline de sub-nicho em linha bloqueada (D-12) | Placeholder: "Selecione um sub-nicho" (mesmo placeholder do `SubnichoCombobox` já existente, reaproveitado sem alteração) |
 | Resumo de sub-nichos novos (D-10, acima da tabela ou em aviso destacado) | "{N} sub-nichos novos serão criados: {lista separada por vírgula}" — dá ao admin a chance de perceber um quase-duplicado (ex. "nutri" vs "nutricionista") antes de confirmar, per D-10 |
 | Primary CTA (passo 3 — confirmar) | "Confirmar importação" — `disabled` enquanto existir ao menos 1 linha bloqueada (D-12) sem sub-nicho selecionado; `title` no botão desabilitado: "Selecione um sub-nicho para todas as linhas bloqueadas" |
-| Secondary CTA (passo 3) | "Voltar" (outline, volta ao passo 2 de mapeamento) |
+| Secondary CTA (passo 3) | "Voltar ao mapeamento" (outline, volta ao passo 2 de mapeamento) |
 | Sucesso ao confirmar importação (toast) | "{N} leads importados com sucesso." |
 | Erro ao confirmar importação (toast) | "Não foi possível importar os leads. Tente novamente." |
 | Título da tela pós-importação (D-14) | "Importação concluída" |
