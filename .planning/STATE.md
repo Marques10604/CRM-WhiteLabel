@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-24 -- Phase 02 plan 02-02 recovered from interrupted worktree and completed
+last_activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 14
-  percent: 93
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -20,16 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 02 — csv-bulk-import
+**Current focus:** Todas as 4 fases do milestone v1.0 têm os 15 planos completos — pendente decisão sobre fechar o milestone
 
 ## Current Position
 
-Phase: 02 (csv-bulk-import) — EXECUTING
-Plan: 3 of 3 (02-01 e 02-02 completos; 02-03 pendente)
-Status: Executing Phase 02
-Last activity: 2026-07-24 -- 02-02 (wizard de import) recuperado de worktree interrompido e completo
+Phase: 02 (csv-bulk-import) — COMPLETE (3 of 3 plans)
+Status: All 4 phases of milestone v1.0 have all plans complete; milestone closeout not yet run
+Last activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
 
-Progress: [██████████] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -120,8 +119,18 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-24
-Stopped at: Phase 2, plan 02-02 complete (recovered from an interrupted executor worktree)
-Resume file: .planning/phases/02-csv-bulk-import/02-03-PLAN.md
+Stopped at: Phase 2 fully complete (02-01, 02-02, 02-03 all shipped) — all 4 phases of milestone v1.0 now have every plan complete
+Resume file: none — next decision is whether to run milestone closeout (/gsd-complete-milestone) or first do a real browser click-through of Phase 2 (never done in any headless session of this project)
+
+### 02-03 (last plan of Phase 2)
+
+- Task 1: created `src/app/importar/[batchId]/page.tsx` (dynamic route, filters by importBatchId + isNull(deletedAt)) and `src/components/post-import-lead-list.tsx` (WhatsAppSendButton/WhatsAppPreviewDialog reused unmodified, defaultTipo="primeiro_contato", no useFirstContactTrigger per D-13). Committed `87a01fb`.
+- Task 2: wizard now redirects to the batch page instead of resetting to upload. Deviation: the plan assumed the confirm handler lived in csv-import-wizard.tsx, but 02-02 put it in csv-import-preview-table.tsx — adapted by changing `onImported` to carry `batchId` instead of `count`. Committed `5e19fbf`.
+- `02-03-SUMMARY.md` written and committed (`72e8bf2`). `npx tsc --noEmit` and `npm run build` clean throughout; `<human-check>` browser click-through not run (no browser access this session — same caveat as every prior plan).
+
+### Known stale item (pre-existing, not touched this session)
+
+- ROADMAP.md's top-level Phase 3 summary line still says "gap closure 03-04 pending — verifier found 2 blockers", but the Phase Details section shows 03-04 as `[x]` complete and an earlier STATE.md entry documents this as a resolved false-positive (Decision Coverage Gate pattern-matching bug, overridden after manual confirmation all 14 decisions were shipped). Worth a one-line ROADMAP.md cleanup whenever convenient, not blocking anything.
 
 ### 02-02 recovery + completion
 
