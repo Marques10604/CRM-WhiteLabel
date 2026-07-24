@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-22T16:07:21.931Z"
-last_activity: 2026-07-22 -- Phase 02 execution started
+last_updated: "2026-07-24T00:00:00.000Z"
+last_activity: 2026-07-24 -- Phase 02 plan 02-02 recovered from interrupted worktree and completed
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 12
-  percent: 75
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 02 (csv-bulk-import) — EXECUTING
-Plan: 1 of 3
+Plan: 3 of 3 (02-01 e 02-02 completos; 02-03 pendente)
 Status: Executing Phase 02
-Last activity: 2026-07-22 -- Phase 02 execution started
+Last activity: 2026-07-24 -- 02-02 (wizard de import) recuperado de worktree interrompido e completo
 
-Progress: [█████████░] 92%
+Progress: [██████████] 93%
 
 ## Performance Metrics
 
@@ -88,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 04-04]: ActionState.success carries optional lead? field (not a second variant) so updateLead stays type-compatible with createLead's returning()
 - [Phase 04-04]: WhatsAppPreviewDialog gained optional subtitulo prop with fallback to preserve the 04-03 manual-send subtitle unchanged while the auto-trigger flow injects the UI-SPEC-mandated copy
 - [Phase 04-04]: First custom hook in the project: src/hooks/use-first-contact-trigger.ts, designed for reuse by the future CSV import (Phase 2 backlog) per D-18
+- [Phase 02-02]: @types/papaparse Task 1 gate aprovado por checagem direta em registry.npmjs.org (repository DefinitelyTyped/DefinitelyTyped, mantenedor types team da Microsoft) após recuperar trabalho de um worktree executor interrompido (host derrubou o processo)
+- [Phase 02-02]: detectEncodingLabel() no csv-import-wizard.tsx duplica a heurística BOM+TextDecoder(fatal) de decodeCsvFile só para exibição do rótulo "Detectado: ..." — decodeCsvFile (02-01) não expõe qual branch escolheu
 
 ### Pending Todos
 
@@ -117,25 +119,19 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T14:45:08.343Z
-Stopped at: Phase 2 UI-SPEC approved
-Resume file: .planning/phases/02-csv-bulk-import/02-UI-SPEC.md
+Last session: 2026-07-24
+Stopped at: Phase 2, plan 02-02 complete (recovered from an interrupted executor worktree)
+Resume file: .planning/phases/02-csv-bulk-import/02-03-PLAN.md
 
-### 01-02 progress
+### 02-02 recovery + completion
 
-- Task 1 ("money/phone utils + leadSchema + Server Actions de lead + sub-nicho combobox"): ✅ committed `6093d39`. Verified directly (not by a subagent) after 2 executor subagents hit the monthly spend limit mid-task: `npx tsc --noEmit` clean, `test-money.cjs`/`test-phone.cjs`/`test-lead-actions.cjs` all pass (18+6+"all" assertions), grep checks for no-hard-delete / no-cmdk / pre-validation-regex all confirmed.
-- Task 2 ("Modal de lead 3 seções + discard-changes-dialog + etapa-badge"): ✅ committed `b2806b0`. `npx tsc --noEmit` clean, `npm run build` passes. Grep checks confirmed: no `useFormState`, `formatCentsToBRL` used on edit-mode prefill, `startOfDay` used to normalize follow-up date, discard dialog literal copy present, etapa-badge hex palette present with no green/red for fechado_perdido. `<human-check>` browser click-through NOT run by this headless executor (no browser access) — substituted by `tsc`+`build` automated verification per 01-01-SUMMARY.md precedent; a real `npm run dev` click-through is still recommended before considering the UI polished (flagged in 01-02-SUMMARY.md).
-- Task 3 ("Rota / com lista base de leads"): ✅ committed `c71fd7d`. `npx tsc --noEmit` clean, `npm run build` passes. Grep checks confirmed: `isNull(leads.deletedAt)`/`orderBy(asc(leads.followUpDate))` in page.tsx, empty-state literal copy in lead-table.tsx. `<human-check>` browser click-through NOT run (no browser) — substituted by a temporary `tsx` script that called `createLead` directly against the real `./data/crm.db` (create 2 leads, confirm ordering by soonest follow-up, confirm valor/telefone normalization, confirm sub-nicho name join), then deleted all test rows and the script itself. A real `npm run dev` click-through is still recommended before considering the UI polished (flagged in 01-02-SUMMARY.md).
+- Found this session's `/gsd-resume-work` init check reported no interrupted agent, but a manual worktree audit found `.claude/worktrees/agent-afc46b10fd2a29240` locked by a dead process (pid 4124, no longer running — likely OOM on this 4GB host) with Task 2/3 of 02-02 fully written but never committed.
+- Reviewed all 6 files line-by-line before touching anything, copied them into the main checkout, fixed 2 minor deviations (`@types/papaparse` was in `dependencies` instead of `devDependencies`; a comment containing the literal substring `useReducer` was tripping the plan's own naive-grep acceptance check), then verified: `npx tsc --noEmit` clean, `npm run build` clean (route `/importar` present), both plan `node -e` acceptance scripts pass.
+- Task 1's blocking human-verify gate (`@types/papaparse` supply-chain legitimacy) was satisfied this session via direct `registry.npmjs.org` lookup: repository = `DefinitelyTyped/DefinitelyTyped`, maintainer = Microsoft's types team, installed version matches latest (5.5.2).
+- Committed as `33e5715` (Task 2) and `dd690ed` (Task 3), docs in `016ced7`. Worktree unlocked, removed, and its branch deleted.
+- `<human-check>` (real browser click-through of upload → mapping → preview → confirm) still NOT run — no browser access in this headless session, same caveat as every prior plan in this project. Recommended before treating Phase 2 as ready for daily use.
+- Also found a second, unrelated orphaned worktree (`agent-ab2be3f82c3c9c30d`, uncommitted `etapa-badge.tsx`/`lead-form-dialog.tsx` changes from an old Phase 3 attempt, not merged into current history) — left untouched, flagged as cleanup candidate only.
 
-01-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3 all committed: `6093d39`, `b2806b0`, `c71fd7d`, docs commit `8f47672`).
+02-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3: gate satisfied, `33e5715`, `dd690ed`, docs `016ced7`).
 
-### 01-03 progress
-
-- Task 1 ("Sorting + paginação 25/página na lead-table"): ✅ committed `728163f`. `npx tsc --noEmit` clean, `npm run build` passes. `getSortedRowModel`/`getPaginationRowModel` added to `useReactTable`, `initialState.pagination.pageSize: 25`, `initialState`-equivalent default sort `followUpDate` asc via `useState` seed, sortable headers (Nome/Sub-nicho/Etapa/Follow-up) via `column.getToggleSortingHandler()`, Telefone `enableSorting: false`, Anterior/Próximo pagination controls. `<human-check>` browser click-through NOT run (no browser access) — substituted by a temporary headless `tsx` script using `@tanstack/react-table`'s `createTable` core API directly against the real `leadTableColumns` export (30 synthetic leads, asserted: page 1 = 25 rows sorted ascending by followUpDate, page 2 = remaining 5, prev/next boundary flags, Nome column asc/desc toggle produces different order, Telefone not sortable) — all assertions passed, then the script was deleted per project convention (01-01/01-02 precedent).
-- Task 2 ("Toolbar fixa de filtros sub-nicho/etapa/follow-up", REMIND-02): ✅ committed `82b18ae`. `npx tsc --noEmit` clean, `npm run build` passes. New `src/components/lead-table-toolbar.tsx` (D-11) with 3 controls (sub-nicho single-select by id, etapa single-select, follow-up date range via two `<Calendar>` in a new `src/components/ui/popover.tsx` built from `@base-ui/react/popover` — `npx shadcn add popover` OOM'd on this memory-constrained host, so it was hand-written following the existing dialog.tsx/select.tsx pattern). `followUpDate` filterFn uses date-fns `startOfDay`/`endOfDay`, inclusive both ends (Pitfall 6). Every filter change calls `table.setPageIndex(0)`. "Limpar filtros" calls `resetColumnFilters()` + `setSorting(DEFAULT_SORTING)` (moved to `lead-table-columns.tsx` to avoid a circular import with the toolbar). `STAGE_OPTIONS` exported from `etapa-badge.tsx` as single source of truth for stage labels. `<human-check>` browser click-through NOT run (no browser access) — substituted by a temporary headless `tsx` script using `createTable` core API against the real `leadTableColumns` (10 synthetic leads across 2 sub-nichos/4 stages/10 days): sub-nicho filter, etapa filter, combined AND, date range inclusive at both boundaries, late-hour-of-day resistance (endOfDay normalization), open-ended start-only range, and clear-filters restoring all 10 leads + default sort — all assertions passed, then the script was deleted. Grep acceptance checks (getFilteredRowModel, startOfDay/endOfDay, setPageIndex(0), resetColumnFilters/setSorting, 3 controls) all confirmed present.
-
-01-03-PLAN.md is now FULLY COMPLETE (Tasks 1-2 all committed: `728163f`, `82b18ae`). A real `npm run dev` click-through of sorting/filtering/pagination in the browser is still recommended before considering the UI polished (no browser access in this headless executor — same caveat as 01-02).
-
-01-03-SUMMARY.md written and self-checked; STATE.md/ROADMAP.md/REQUIREMENTS.md updated via gsd-sdk.
-
-Next action: resume with plan 01-04 (soft-delete/lixeira).
+Next action: plan/execute 02-03-PLAN.md (tela pós-importação com envio de WhatsApp por lote, D-13/D-14, LEAD-05) — the last plan of Phase 2.
