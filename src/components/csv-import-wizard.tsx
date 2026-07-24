@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 
 import { decodeCsvFile } from "@/lib/csv-encoding";
@@ -102,6 +103,7 @@ const DEFAULT_OVERRIDE: RowOverride = { importarMesmoAssim: false, subnichoOverr
 // rota `/importar/page.tsx` já passe o dado certo sem retrabalho depois.
 export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) {
   void templates;
+  const router = useRouter();
   const [state, setState] = useState<WizardState>({ step: "upload" });
   const [previewSupportData, setPreviewSupportData] = useState<PreviewSupportData | null>(null);
   const [overrides, setOverrides] = useState<Map<number, RowOverride>>(new Map());
@@ -268,12 +270,10 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
     });
   }
 
-  function handleImported() {
-    // D-14 (tela pós-importação com envio de WhatsApp por lead) é responsabilidade
-    // do plano 02-03 — por enquanto, reseta o wizard para o passo de upload.
-    setState({ step: "upload" });
-    setPreviewSupportData(null);
-    setOverrides(new Map());
+  function handleImported(batchId: string) {
+    // D-13/D-14: leva o admin direto para a tela pós-importação do lote,
+    // onde cada lead tem seu próprio botão de envio de WhatsApp.
+    router.push(`/importar/${batchId}`);
   }
 
   if (state.step === "upload") {

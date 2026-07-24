@@ -153,7 +153,7 @@ type CsvImportPreviewTableProps = {
   onToggleImportAnyway: (rowIndex: number) => void;
   onAssignSubnicho: (rowIndex: number, subnichoId: number | null) => void;
   unknownSubnichoNames: string[];
-  onImported: (count: number) => void;
+  onImported: (batchId: string) => void;
   onBack: () => void;
 };
 
@@ -234,7 +234,7 @@ export function CsvImportPreviewTable({
       const result = await bulkImportLeads(confirmedRows);
       if (result.success) {
         toast.success(`${result.count} leads importados com sucesso.`);
-        onImported(result.count);
+        onImported(result.batchId);
       } else {
         toast.error("Não foi possível importar os leads. Tente novamente.");
       }
