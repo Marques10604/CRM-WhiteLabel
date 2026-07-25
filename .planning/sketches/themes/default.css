@@ -1,0 +1,69 @@
+:root {
+  /* Colors — clean/minimal, neutro com accent azul (inspirado na referência Filllo),
+     accent verde reservado para a ação de WhatsApp (cor da marca, reforça a ação nº1) */
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f2f3f5;
+  --color-border: #e6e8eb;
+  --color-border-strong: #d8dbe0;
+  --color-text: #16181d;
+  --color-text-muted: #6b7280;
+  --color-text-faint: #9aa0a8;
+
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: #eef0fe;
+
+  --color-whatsapp: #22c55e;
+  --color-whatsapp-hover: #16a34a;
+  --color-whatsapp-soft: #eafbf1;
+
+  --color-accent: #f59e0b;
+  --color-danger: #ef4444;
+  --color-danger-soft: #fdecec;
+  --color-success: #22c55e;
+
+  /* Sidebar tokens (mantém a decisão existente de sidebar fixa) */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #eceef1;
+  --sidebar-text: #3a3f47;
+  --sidebar-text-muted: #8b909a;
+  --sidebar-active-bg: #eef0fe;
+  --sidebar-active-text: #4f46e5;
+  --sidebar-hover-bg: #f5f6f8;
+  --sidebar-width-expanded: 232px;
+  --sidebar-width-compact: 72px;
+
+  /* Typography — aproxima Geist Sans (fonte real do app, ver fix do bug font-sans) */
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Shapes — ecoa --radius: 0.625rem do app real */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-full: 9999px;
+
+  /* Shadows — bem sutis, característica "clean/minimal" */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 2px 8px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
