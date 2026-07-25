@@ -33,6 +33,7 @@ export type RowFlags = {
   duplicadoLote: boolean;
   subnichoNovo: boolean;
   subnichoBloqueado: boolean;
+  telefoneInvalido: boolean;
 };
 
 /** Override do admin por linha (D-05: skip por padrão; D-12: sem sub-nicho por padrão). */
@@ -90,6 +91,16 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
         >
           <CircleAlert className="size-3" />
           Sem sub-nicho
+        </Badge>
+      )}
+      {flags.telefoneInvalido && (
+        <Badge
+          variant="outline"
+          className="w-fit gap-1 border-transparent"
+          style={{ backgroundColor: "#FEE2E2", color: "#B91C1C" }}
+        >
+          <CircleAlert className="size-3" />
+          Telefone inválido — não será importado
         </Badge>
       )}
     </div>
@@ -203,11 +214,17 @@ export function CsvImportPreviewTable({
   const duplicateCount = rows.filter((r) => r.flags.duplicadoDb || r.flags.duplicadoLote).length;
   const blockedCount = rows.filter((r) => r.flags.subnichoBloqueado).length;
   const novoCount = unknownSubnichoNames.length;
+  const invalidPhoneRows = rows.filter((r) => r.flags.telefoneInvalido);
 
   function handleConfirm() {
     const confirmedRows: ConfirmedImportRow[] = [];
 
     for (const r of rows) {
+      // Telefone que não normaliza nunca pode virar lead (mesma regra do
+      // cadastro manual) — exclui do lote em vez de abortar a importação
+      // inteira; o admin corrige o telefone e adiciona esse lead depois.
+      if (r.flags.telefoneInvalido) continue;
+
       const override = overrides.get(r.rowIndex) ?? {
         importarMesmoAssim: false,
         subnichoOverrideId: null,
@@ -243,6 +260,13 @@ export function CsvImportPreviewTable({
       const result = await bulkImportLeads(confirmedRows);
       if (result.success) {
         toast.success(`${result.count} leads importados com sucesso.`);
+        if (invalidPhoneRows.length > 0) {
+          toast.warning(
+            `${invalidPhoneRows.length} pulados por telefone inválido: ${invalidPhoneRows
+              .map((r) => r.nome || "(sem nome)")
+              .join(", ")}. Corrija e adicione manualmente depois.`
+          );
+        }
         onImported(result.batchId);
       } else {
         toast.error(result.message || "Não foi possível importar os leads. Tente novamente.");
@@ -256,11 +280,18 @@ export function CsvImportPreviewTable({
         <h2 className="text-[20px] leading-tight font-semibold">Revise antes de importar</h2>
         <p className="text-sm text-muted-foreground">
           {rows.length} leads no arquivo · {duplicateCount} duplicados · {novoCount} sub-nichos
-          novos · {blockedCount} sem sub-nicho
+          novos · {blockedCount} sem sub-nicho · {invalidPhoneRows.length} telefone inválido
         </p>
         {novoCount > 0 && (
           <p className="text-sm text-muted-foreground">
             {novoCount} sub-nichos novos serão criados: {unknownSubnichoNames.join(", ")}
+          </p>
+        )}
+        {invalidPhoneRows.length > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {invalidPhoneRows.length} leads com telefone inválido NÃO serão importados:{" "}
+            {invalidPhoneRows.map((r) => r.nome || "(sem nome)").join(", ")} — corrija o telefone e
+            adicione depois manualmente.
           </p>
         )}
         {blockedCount > 0 && (

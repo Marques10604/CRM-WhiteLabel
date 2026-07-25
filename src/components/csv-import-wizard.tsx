@@ -157,6 +157,12 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
         subnichoNovo:
           row.subnichoNome.trim() !== "" && unknownSubnichoNamesSet.has(row.subnichoNome.trim()),
         subnichoBloqueado: row.subnichoNome.trim() === "",
+        // Telefone que não normaliza (ex: DDI estrangeiro, link opaco de
+        // WhatsApp Business) não pode virar lead válido — em vez de abortar
+        // o lote inteiro na validação do servidor (comportamento antigo),
+        // a linha é excluída da confirmação e reportada pro admin corrigir
+        // depois (à mão, editando a origem ou criando o lead manualmente).
+        telefoneInvalido: row.telefoneNormalizado === null,
       };
       return { ...row, flags };
     });
