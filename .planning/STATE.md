@@ -119,9 +119,14 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24
-Stopped at: Phase 2 fully complete (02-01, 02-02, 02-03 all shipped) — all 4 phases of milestone v1.0 now have every plan complete
-Resume file: none — next decision is whether to run milestone closeout (/gsd-complete-milestone) or first do a real browser click-through of Phase 2 (never done in any headless session of this project)
+Last session: 2026-07-25
+Stopped at: Bug de fonte corrigido e commitado (`fe9a546`); 4 sketches de redesign explorados e commitados (`.planning/sketches/001` a `004` — sidebar, formato de lista de leads, botão WhatsApp, brand header); apenas a decisão da sidebar (001+004) foi implementada no app real até agora, via quick task 260725-219 (`abaaba7`), confirmada visualmente pelo usuário no navegador.
+Resume file: none — usuário quer começar a prospectar de verdade com o CRM na segunda-feira (2026-07-27). Antes disso, ver com ele:
+  1. Implementar (ou decidir não implementar) as decisões dos sketches 002 (lista de leads em formato híbrido) e 003 (botão de WhatsApp verde nomeado) no app real — hoje só a sidebar foi portada dos sketches pra código.
+  2. Rodar `/gsd-sketch --wrap-up` se ele quiser empacotar as decisões de design numa skill reutilizável (oferecido, ainda não feito).
+  3. Confirmar que a base de leads está pronta pra uso real na segunda — hoje só há 2 leads de teste ("hion", nutricionista, Fechado) na tabela; ele vai precisar importar o CSV real do cowork antes de prospectar (fluxo de import em `/importar` já existe e foi testado no Phase 2, mas nunca com um CSV real do parceiro — ver blocker já registrado abaixo).
+  4. `<human-check>` de UAT completo (Phase 2 e o redesign da sidebar) ainda não foi feito em navegador real por mim — só pelo usuário pontualmente nesta sessão.
+Servidor de dev: parado ao fim desta sessão (RAM limitada da máquina) — rodar `npm run dev` de novo ao retomar.
 
 ### 02-03 (last plan of Phase 2)
 
