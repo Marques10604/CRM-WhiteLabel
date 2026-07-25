@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
+last_updated: "2026-07-25T04:45:00.000Z"
+last_activity: 2026-07-25 - Completed quick task 260725-219: sidebar real implementado com decisões dos sketches 001/004
 progress:
   total_phases: 4
   completed_phases: 4
@@ -107,6 +107,7 @@ Recent decisions affecting current work:
 |---|-------------|------|--------|-----------|
 | 260720-x41 | Corrigir dialog/modal de preenchimento maior que a tela - adicionar max-h e overflow-y-auto | 2026-07-21 | c00c8cb | [260720-x41-corrigir-dialog-modal-de-preenchimento-n](./quick/260720-x41-corrigir-dialog-modal-de-preenchimento-n/) |
 | 260721-0cl | Adicionar texto de ajuda/descrição abaixo do label de cada campo do formulário de lead | 2026-07-21 | 689b168 | [260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo](./quick/260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo/) |
+| 260725-219 | Implementar no sidebar real (app-sidebar.tsx) as decisões dos sketches 001/004: brand header selo discreto, rótulo "Principal", ícones lucide, espaçamento e fundo teal suave no item ativo | 2026-07-25 | abaaba7 | [260725-219-implementar-no-sidebar-real-do-app-src-c](./quick/260725-219-implementar-no-sidebar-real-do-app-src-c/) |
 
 ## Deferred Items
 
