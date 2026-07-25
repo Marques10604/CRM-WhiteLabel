@@ -40,6 +40,14 @@ export type RowOverride = { importarMesmoAssim: boolean; subnichoOverrideId: num
 
 type PreviewRow = MappedCsvRow & { flags: RowFlags };
 
+/** Nome do sub-nicho usado quando o arquivo não traz essa coluna (ou vem em
+ * branco) e o admin não escolhe nada no combobox inline — deixa de ser um
+ * bloqueio de importação (era D-12) e vira um valor padrão editável depois,
+ * a pedido do admin: a fonte de leads (scraping de Instagram) não tem como
+ * saber o sub-nicho, então ele prefere categorizar depois, olhando o perfil
+ * ou conversando com o lead. */
+const SEM_SUBNICHO_FALLBACK = "A categorizar";
+
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData> {
@@ -78,10 +86,10 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
         <Badge
           variant="outline"
           className="w-fit gap-1 border-transparent"
-          style={{ backgroundColor: "#FEE2E2", color: "#B91C1C" }}
+          style={{ backgroundColor: "#E4E4E7", color: "#3F3F46" }}
         >
           <CircleAlert className="size-3" />
-          Sub-nicho obrigatório
+          Sem sub-nicho
         </Badge>
       )}
     </div>
@@ -132,12 +140,15 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
             </label>
           )}
           {r.flags.subnichoBloqueado && (
-            <div className="max-w-[220px]">
+            <div className="flex max-w-[220px] flex-col gap-1">
               <SubnichoCombobox
                 subnichos={table.options.meta?.subnichos ?? []}
                 value={override.subnichoOverrideId}
                 onValueChange={(id) => table.options.meta?.onAssignSubnicho?.(r.rowIndex, id)}
               />
+              <p className="text-xs text-muted-foreground">
+                Opcional — sem escolha, vira &quot;{SEM_SUBNICHO_FALLBACK}&quot;.
+              </p>
             </div>
           )}
         </div>
@@ -158,11 +169,12 @@ type CsvImportPreviewTableProps = {
 };
 
 /**
- * Passo 3 do wizard (IMPORT-01/02, D-05/D-09/D-10/D-12) — tabela de prévia
- * com TODAS as linhas do arquivo (só `getCoreRowModel`, sem sort/filtro/
+ * Passo 3 do wizard (IMPORT-01/02, D-05/D-09/D-10) — tabela de prévia com
+ * TODAS as linhas do arquivo (só `getCoreRowModel`, sem sort/filtro/
  * paginação: o admin precisa ver e decidir sobre cada linha antes de
- * confirmar). "Confirmar importação" fica desabilitado enquanto existir
- * linha bloqueada sem sub-nicho resolvido (D-12).
+ * confirmar). Sub-nicho deixou de bloquear a confirmação (revisão de D-12):
+ * linha sem sub-nicho no arquivo importa com o fallback SEM_SUBNICHO_FALLBACK
+ * a menos que o admin escolha um no combobox inline.
  */
 export function CsvImportPreviewTable({
   rows,
@@ -192,12 +204,6 @@ export function CsvImportPreviewTable({
   const blockedCount = rows.filter((r) => r.flags.subnichoBloqueado).length;
   const novoCount = unknownSubnichoNames.length;
 
-  const hasUnresolvedBlockedRow = rows.some((r) => {
-    if (!r.flags.subnichoBloqueado) return false;
-    const override = overrides.get(r.rowIndex);
-    return (override?.subnichoOverrideId ?? null) === null;
-  });
-
   function handleConfirm() {
     const confirmedRows: ConfirmedImportRow[] = [];
 
@@ -212,11 +218,14 @@ export function CsvImportPreviewTable({
 
       let subnichoNome = r.subnichoNome.trim();
       if (r.flags.subnichoBloqueado) {
-        // D-12: linha bloqueada só entra com um sub-nicho resolvido pelo admin.
-        if (override.subnichoOverrideId === null) continue;
-        const resolved = subnichos.find((s) => s.id === override.subnichoOverrideId);
-        if (!resolved) continue;
-        subnichoNome = resolved.nome;
+        // Sub-nicho deixou de ser obrigatório na importação: se o admin
+        // escolheu um no combobox inline, usa esse; senão cai no fallback
+        // "A categorizar" (nunca pula a linha por falta de sub-nicho).
+        const resolved =
+          override.subnichoOverrideId !== null
+            ? subnichos.find((s) => s.id === override.subnichoOverrideId)
+            : undefined;
+        subnichoNome = resolved ? resolved.nome : SEM_SUBNICHO_FALLBACK;
       }
 
       confirmedRows.push({
@@ -247,11 +256,17 @@ export function CsvImportPreviewTable({
         <h2 className="text-[20px] leading-tight font-semibold">Revise antes de importar</h2>
         <p className="text-sm text-muted-foreground">
           {rows.length} leads no arquivo · {duplicateCount} duplicados · {novoCount} sub-nichos
-          novos · {blockedCount} bloqueados
+          novos · {blockedCount} sem sub-nicho
         </p>
         {novoCount > 0 && (
           <p className="text-sm text-muted-foreground">
             {novoCount} sub-nichos novos serão criados: {unknownSubnichoNames.join(", ")}
+          </p>
+        )}
+        {blockedCount > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {blockedCount} leads sem sub-nicho no arquivo serão importados como &quot;
+            {SEM_SUBNICHO_FALLBACK}&quot; — edite depois, um por um ou aos poucos.
           </p>
         )}
       </div>
@@ -272,14 +287,7 @@ export function CsvImportPreviewTable({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              className={
-                row.original.flags.subnichoBloqueado
-                  ? "border-l-4 border-l-[#DC2626]"
-                  : undefined
-              }
-            >
+            <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -297,12 +305,7 @@ export function CsvImportPreviewTable({
         <Button
           type="button"
           className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          disabled={hasUnresolvedBlockedRow || isPending}
-          title={
-            hasUnresolvedBlockedRow
-              ? "Selecione um sub-nicho para todas as linhas bloqueadas"
-              : undefined
-          }
+          disabled={isPending}
           onClick={handleConfirm}
         >
           {isPending ? "Importando..." : "Confirmar importação"}
