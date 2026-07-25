@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import {
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -12,22 +11,59 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { toast } from "sonner";
+import { Calendar, Pencil, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { DeleteLeadDialog } from "@/components/delete-lead-dialog";
 import { LeadTableToolbar } from "@/components/lead-table-toolbar";
-import { DEFAULT_SORTING, leadTableColumns, type LeadRow } from "@/components/lead-table-columns";
+import {
+  DEFAULT_SORTING,
+  SortableColumnHeader,
+  leadTableColumns,
+  type LeadRow,
+} from "@/components/lead-table-columns";
+import { EtapaBadge } from "@/components/etapa-badge";
 import { softDeleteLead } from "@/actions/lead-actions";
 import type { Lead, Subnicho, Template } from "@/types";
+
+/**
+ * Iniciais do avatar circular da linha (sketch 002-C): até 2 primeiras
+ * palavras do nome, primeira letra de cada, maiúsculas. "?" se vazio.
+ */
+function getInitials(nome: string): string {
+  const initials = nome
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  return initials || "?";
+}
+
+/**
+ * Larguras de coluna compartilhadas entre o cabeçalho manual e o corpo das
+ * linhas (sketch 002-C) — evita desalinhamento entre as duas camadas de
+ * markup, já que a lista não é mais renderizada via header groups do
+ * TanStack Table (sketch 002-C, camada de renderização customizada).
+ */
+const COL = {
+  nome: "flex-[2] min-w-0",
+  subnicho: "flex-1 min-w-0",
+  etapa: "flex-1 min-w-0",
+  followup: "flex-1 min-w-0",
+  telefone: "flex-1 min-w-0",
+  acoes: "w-[210px] shrink-0 justify-end",
+} as const;
+
+const SORTABLE_HEADERS: { id: "nome" | "subnichoNome" | "stage" | "followUpDate"; label: string; className: string }[] = [
+  { id: "nome", label: "Nome", className: COL.nome },
+  { id: "subnichoNome", label: "Sub-nicho", className: COL.subnicho },
+  { id: "stage", label: "Etapa", className: COL.etapa },
+  { id: "followUpDate", label: "Follow-up", className: COL.followup },
+];
 
 type LeadTableProps = {
   leads: Lead[];
@@ -133,47 +169,107 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
         <>
           <LeadTableToolbar table={table} subnichos={subnichos} />
 
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={leadTableColumns.length}
-                    className="py-8 text-center text-[14px] text-muted-foreground"
-                  >
-                    Nenhum lead encontrado com os filtros aplicados.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
+          <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+            <div className="flex items-center gap-3.5 border-b bg-[#F4F4F5] px-4 py-3">
+              {SORTABLE_HEADERS.map(({ id, label, className }) => {
+                const column = table.getColumn(id);
+                return (
+                  <div key={id} className={className}>
+                    {column ? <SortableColumnHeader column={column} label={label} /> : null}
+                  </div>
+                );
+              })}
+              <span className={`${COL.telefone} text-[14px] leading-normal font-normal text-foreground`}>
+                Telefone
+              </span>
+              <span className={`${COL.acoes} flex text-[14px] leading-normal font-normal text-foreground`}>
+                Ações
+              </span>
+            </div>
+
+            {table.getRowModel().rows.length === 0 ? (
+              <div className="px-4 py-8 text-center text-[14px] text-muted-foreground">
+                Nenhum lead encontrado com os filtros aplicados.
+              </div>
+            ) : (
+              table.getRowModel().rows.map((row) => {
+                const lead = row.original;
+                return (
+                  <div
                     key={row.id}
-                    className="cursor-pointer"
-                    onClick={() => setDialogState({ mode: "edit", lead: row.original })}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDialogState({ mode: "edit", lead })}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setDialogState({ mode: "edit", lead });
+                      }
+                    }}
+                    className="flex cursor-pointer items-center gap-3.5 border-b px-4 py-3.5 transition-colors last:border-b-0 hover:bg-[#F4F4F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488]"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    <div className={`flex items-center gap-2.5 ${COL.nome}`}>
+                      <div className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-[#0D9488]/10 text-[11px] font-bold text-[#0D9488]">
+                        {getInitials(lead.nome)}
+                      </div>
+                      <span className="truncate text-[14px] font-semibold text-foreground">
+                        {lead.nome}
+                      </span>
+                    </div>
+
+                    <span className={`truncate text-[14px] text-muted-foreground ${COL.subnicho}`}>
+                      {lead.subnichoNome}
+                    </span>
+
+                    <div className={COL.etapa}>
+                      <EtapaBadge stage={lead.stage} />
+                    </div>
+
+                    <div
+                      className={`flex items-center gap-1.5 text-[14px] text-muted-foreground ${COL.followup}`}
+                    >
+                      <Calendar className="size-3.5 shrink-0" />
+                      {format(lead.followUpDate, "dd/MM/yyyy")}
+                    </div>
+
+                    <span className={`truncate text-[14px] text-muted-foreground ${COL.telefone}`}>
+                      {lead.telefone}
+                    </span>
+
+                    <div
+                      className={`flex items-center gap-1 ${COL.acoes}`}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={`Editar ${lead.nome}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDialogState({ mode: "edit", lead });
+                        }}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={`Excluir ${lead.nome}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDeleteState({ open: true, lead });
+                        }}
+                      >
+                        <Trash2 className="size-4 text-[#DC2626]" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
 
           <div className="flex items-center justify-between text-[14px] leading-normal text-muted-foreground">
             <span>
