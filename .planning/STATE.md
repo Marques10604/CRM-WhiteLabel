@@ -108,6 +108,7 @@ Recent decisions affecting current work:
 | 260720-x41 | Corrigir dialog/modal de preenchimento maior que a tela - adicionar max-h e overflow-y-auto | 2026-07-21 | c00c8cb | [260720-x41-corrigir-dialog-modal-de-preenchimento-n](./quick/260720-x41-corrigir-dialog-modal-de-preenchimento-n/) |
 | 260721-0cl | Adicionar texto de ajuda/descrição abaixo do label de cada campo do formulário de lead | 2026-07-21 | 689b168 | [260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo](./quick/260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo/) |
 | 260725-219 | Implementar no sidebar real (app-sidebar.tsx) as decisões dos sketches 001/004: brand header selo discreto, rótulo "Principal", ícones lucide, espaçamento e fundo teal suave no item ativo | 2026-07-25 | abaaba7 | [260725-219-implementar-no-sidebar-real-do-app-src-c](./quick/260725-219-implementar-no-sidebar-real-do-app-src-c/) |
+| 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
 
 ## Deferred Items
 
@@ -120,13 +121,12 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-25
-Stopped at: Bug de fonte corrigido e commitado (`fe9a546`); 4 sketches de redesign explorados e commitados (`.planning/sketches/001` a `004` — sidebar, formato de lista de leads, botão WhatsApp, brand header); apenas a decisão da sidebar (001+004) foi implementada no app real até agora, via quick task 260725-219 (`abaaba7`), confirmada visualmente pelo usuário no navegador.
+Stopped at: Todos os 4 sketches de redesign (001-004) agora estão portados pro app real: sidebar via quick task 260725-219 (`abaaba7`), lista de leads híbrida + botão WhatsApp via quick task 260725-gzb (`dd82cc3`/`c8b314d`/`7deff3b`). Task 4 (checklist de 11 itens) do 260725-gzb foi executada nesta sessão via claude-in-chrome (Claude controlando o navegador real do usuário) — aprovada, só o item 5 (telefone inválido) ficou por confirmação de código (sem lead de teste malformado disponível). Usuário trouxe um arquivo de ideias novas pro CRM (`C:\Users\Vencedor\Desktop\ideia do crm.txt`) para discussão — comparação com o que já existe feita nesta sessão, ver mensagem do assistente; nenhuma dessas ideias foi implementada ainda, aguardando priorização do usuário.
 Resume file: none — usuário quer começar a prospectar de verdade com o CRM na segunda-feira (2026-07-27). Antes disso, ver com ele:
-  1. Implementar (ou decidir não implementar) as decisões dos sketches 002 (lista de leads em formato híbrido) e 003 (botão de WhatsApp verde nomeado) no app real — hoje só a sidebar foi portada dos sketches pra código.
+  1. Discutir e priorizar as ideias novas do arquivo `ideia do crm.txt` (gatilho de mudança de etapa ao enviar WhatsApp, contador de tentativas de contato, porta de entrada para IA/computer-use cadastrar leads, captura automática via formulário) — nenhuma delas está implementada ainda, decisão de escopo é do usuário.
   2. Rodar `/gsd-sketch --wrap-up` se ele quiser empacotar as decisões de design numa skill reutilizável (oferecido, ainda não feito).
-  3. Confirmar que a base de leads está pronta pra uso real na segunda — hoje só há 2 leads de teste ("hion", nutricionista, Fechado) na tabela; ele vai precisar importar o CSV real do cowork antes de prospectar (fluxo de import em `/importar` já existe e foi testado no Phase 2, mas nunca com um CSV real do parceiro — ver blocker já registrado abaixo).
-  4. `<human-check>` de UAT completo (Phase 2 e o redesign da sidebar) ainda não foi feito em navegador real por mim — só pelo usuário pontualmente nesta sessão.
-Servidor de dev: parado ao fim desta sessão (RAM limitada da máquina) — rodar `npm run dev` de novo ao retomar.
+  3. Confirmar que a base de leads está pronta pra uso real na segunda — hoje só há 1 lead de teste ("hion", nutricionista, Contatado) na tabela; ele vai precisar importar o CSV real do cowork antes de prospectar (fluxo de import em `/importar` já existe e foi testado no Phase 2, mas nunca com um CSV real do parceiro — ver blocker já registrado abaixo). Isso só o usuário pode fazer (precisa do arquivo do cowork).
+Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 02-03 (last plan of Phase 2)
 
