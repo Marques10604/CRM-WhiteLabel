@@ -121,11 +121,30 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-25
-Stopped at: Todos os 4 sketches de redesign (001-004) agora estão portados pro app real: sidebar via quick task 260725-219 (`abaaba7`), lista de leads híbrida + botão WhatsApp via quick task 260725-gzb (`dd82cc3`/`c8b314d`/`7deff3b`). Task 4 (checklist de 11 itens) do 260725-gzb foi executada nesta sessão via claude-in-chrome (Claude controlando o navegador real do usuário) — aprovada, só o item 5 (telefone inválido) ficou por confirmação de código (sem lead de teste malformado disponível). Usuário trouxe um arquivo de ideias novas pro CRM (`C:\Users\Vencedor\Desktop\ideia do crm.txt`) para discussão — comparação com o que já existe feita nesta sessão, ver mensagem do assistente; nenhuma dessas ideias foi implementada ainda, aguardando priorização do usuário.
-Resume file: none — usuário quer começar a prospectar de verdade com o CRM na segunda-feira (2026-07-27). Antes disso, ver com ele:
-  1. Discutir e priorizar as ideias novas do arquivo `ideia do crm.txt` (gatilho de mudança de etapa ao enviar WhatsApp, contador de tentativas de contato, porta de entrada para IA/computer-use cadastrar leads, captura automática via formulário) — nenhuma delas está implementada ainda, decisão de escopo é do usuário.
-  2. Rodar `/gsd-sketch --wrap-up` se ele quiser empacotar as decisões de design numa skill reutilizável (oferecido, ainda não feito).
-  3. Confirmar que a base de leads está pronta pra uso real na segunda — hoje só há 1 lead de teste ("hion", nutricionista, Contatado) na tabela; ele vai precisar importar o CSV real do cowork antes de prospectar (fluxo de import em `/importar` já existe e foi testado no Phase 2, mas nunca com um CSV real do parceiro — ver blocker já registrado abaixo). Isso só o usuário pode fazer (precisa do arquivo do cowork).
+Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Users\Vencedor\Desktop\ideia do crm.txt`). Usuário decidiu **parar por hoje sem executar nada** (tokens acabando) — tudo abaixo está **só planejado, nada construído ainda**, exceto o item 0 que já tem PLAN.md pronto.
+
+**Decisões já tomadas na discussão (não precisa perguntar de novo ao retomar):**
+- Gap 3 (porta de entrada pra IA cadastrar leads): **só local, sem deploy** — form em localhost, sem autenticação, pra um agente rodando na própria máquina do usuário preencher.
+- Gap 4 (captura automática via landing page): usuário **tem** uma landing page no Vercel, mas ainda não paga tráfego pra ela; hoje ela só manda a pessoa pro WhatsApp dele (sem webhook/API nenhuma configurada). Ele quer construir o endpoint agora mesmo assim. **Conflito não resolvido**: a landing (pública, Vercel) não alcança o CRM (local, localhost) — pra isso funcionar de verdade, o CRM precisaria de algum endereço público (ou ao menos essa uma rota), o que contradiz a escolha "local only" do Gap 3. Precisa decidir com o usuário antes de construir: (a) manter tudo local e a landing continua só mandando pro WhatsApp por enquanto, (b) expor só uma rota de captura pública (ex: Vercel + Turso só pra essa rota/DB), ou (c) revisitar o Gap 3 junto e publicar o CRM inteiro.
+- Gap 5 (lembretes de lead parado): usuário quer a versão completa — **tela de configuração com dias customizáveis por etapa**, não só generalizar o hardcoded de 5 dias.
+- Sub-nicho: usuário pediu (mensagem avulsa) um **botão de remoção de sub-nicho** na tela `/subnichos` — soft-delete, mesmo padrão de LEAD-04.
+- `/gsd-sketch --wrap-up`: aprovado, só falta rodar.
+- CSV real do cowork: **adiado de propósito** — "depois testamos".
+
+**Itens da lista de tarefas (TaskList desta sessão, todos voltam pra `pending` ao retomar):**
+0. **Botão de remoção de sub-nicho** — PLAN.md já existe e foi commitado (`0767c40`, quick task `260725-lai`): `.planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-PLAN.md` (3 tasks). Execução foi iniciada e interrompida (erro de ferramenta) — o executor chegou a editar `src/db/schema.ts` (coluna `deletedAt` em `subnichos`) mas **essa edição foi revertida** antes de parar, working tree limpo. Pra retomar: `/gsd-execute-plan .planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-PLAN.md` (ou re-rodar `/gsd-quick resume 260725-lai-adicionar-botao-de-remocao-soft-delete-d`).
+1. Gap 1: auto-avançar etapa Novo→Contatado ao clicar "Abrir WhatsApp" (envio real, não só abrir o preview). Não construído — só descrito.
+2. Gap 2: contador de tentativas de contato (`contactAttempts` + `lastContactedAt` em leads, incrementado a cada envio real de WhatsApp). Não construído.
+3. Gap 5: tela de configuração de dias-parado por etapa (versão completa, decisão acima). Não construído.
+4. Gap 3: porta de entrada local pra IA cadastrar leads (Nome/WhatsApp/Empresa/Nicho, sem auth, só localhost). Não construído.
+5. Rodar `/gsd-sketch --wrap-up`. Não executado.
+6. Gap 4: resolver o conflito de hospedagem (ver acima) antes de construir qualquer coisa.
+
+**Nota técnica desta sessão:** `workflow.use_worktrees` foi setado pra `false` em `.planning/config.json` (mudança não commitada ainda) — decisão deliberada porque esse host de 4GB já teve um executor isolado em worktree morto por OOM numa sessão anterior (ver "02-02 recovery" abaixo). Manter `false` ao retomar, não reverter.
+
+**Gaps já existentes que NÃO precisam ser re-analisados** (grep já feito, ver memória `project_crm_new_ideas_gap_analysis`): normalização de telefone, link wa.me, funil Kanban, botão de WhatsApp de um clique, templates com variáveis, campo de notas — tudo isso já está pronto no código.
+
+Resume file: none — usuário quer começar a prospectar de verdade com o CRM na segunda-feira (2026-07-27). Base de leads ainda só tem 1 lead de teste ("hion"); CSV real do cowork continua pendente (adiado de propósito nesta sessão).
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 02-03 (last plan of Phase 2)
