@@ -15,4 +15,4 @@ Clean/minimal, profissional — inspirado no CRM "Filllo Design" (referência do
 |---|------|----------------|--------|------|
 | 001 | sidebar-clean | Como a sidebar clean/minimal deve ficar (ícones só / compacta / espaçada estilo Filllo)? | C (espaçada, estilo Filllo) | [layout, navigation, sidebar] |
 | 002 | leads-list-format | Tabela restilizada vs. cards estilo Filllo para a lista de Leads? | C (híbrido — linha densa, sem grade de tabela) | [layout, leads, table, cards] |
-| 003 | whatsapp-affordance | Como o botão de WhatsApp deve chamar atenção na linha híbrida (ação nº1 do admin)? | null | [whatsapp, action, leads] |
+| 003 | whatsapp-affordance | Como o botão de WhatsApp deve chamar atenção na linha híbrida (ação nº1 do admin)? | C (botão verde nomeado "WhatsApp", sempre visível) | [whatsapp, action, leads] |

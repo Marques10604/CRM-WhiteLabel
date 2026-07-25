@@ -15,7 +15,7 @@
     padding-top: 48px;
     -webkit-font-smoothing: antialiased;
   }
-  svg { display: block; }
+  svg { display: block; width: 16px; height: 16px; flex-shrink: 0; }
 
   #variant-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9998;
@@ -289,7 +289,9 @@
     `;
   }
 
-  renderA(); renderB(); renderC();
+  document.addEventListener('DOMContentLoaded', function () {
+    renderA(); renderB(); renderC();
+  });
 
   function showVariant(id) {
     document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
