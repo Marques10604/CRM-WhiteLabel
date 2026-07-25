@@ -11,13 +11,14 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { Calendar, Pencil, Trash2 } from "lucide-react";
+import { Calendar, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { DeleteLeadDialog } from "@/components/delete-lead-dialog";
 import { LeadTableToolbar } from "@/components/lead-table-toolbar";
+import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import {
   DEFAULT_SORTING,
   SortableColumnHeader,
@@ -25,6 +26,7 @@ import {
   type LeadRow,
 } from "@/components/lead-table-columns";
 import { EtapaBadge } from "@/components/etapa-badge";
+import { normalizePhone } from "@/lib/phone";
 import { softDeleteLead } from "@/actions/lead-actions";
 import type { Lead, Subnicho, Template } from "@/types";
 
@@ -55,7 +57,7 @@ const COL = {
   etapa: "flex-1 min-w-0",
   followup: "flex-1 min-w-0",
   telefone: "flex-1 min-w-0",
-  acoes: "w-[210px] shrink-0 justify-end",
+  acoes: "w-[260px] shrink-0 justify-end",
 } as const;
 
 const SORTABLE_HEADERS: { id: "nome" | "subnichoNome" | "stage" | "followUpDate"; label: string; className: string }[] = [
@@ -80,6 +82,14 @@ type DialogState =
 type DeleteState = { open: false } | { open: true; lead: LeadRow };
 
 /**
+ * Estado do preview de mensagem WhatsApp (quick task 260725-gzb, sketch
+ * 003-C) — mesmo padrão de `followup-dashboard.tsx`, botão nomeado e local
+ * (o botão de ícone-apenas compartilhado com outras telas fica fora de
+ * escopo aqui, per decisão 4 do usuário).
+ */
+type PreviewState = { open: false } | { open: true; lead: Lead; subnichoNome: string };
+
+/**
  * Tabela de leads ativos (D-06) — sort/filtro/paginação entram no plano
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
  * `<LeadFormDialog>` pré-preenchido (D-07). Estado vazio com CTA (D-13).
@@ -87,6 +97,7 @@ type DeleteState = { open: false } | { open: true; lead: LeadRow };
 export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
+  const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [, startTransition] = useTransition();
@@ -242,6 +253,25 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
                     >
                       <Button
                         type="button"
+                        size="lg"
+                        className="gap-1.5 bg-[#22C55E] font-semibold text-white shadow-sm hover:bg-[#16A34A]"
+                        aria-label={`Enviar WhatsApp para ${lead.nome}`}
+                        disabled={normalizePhone(lead.telefone) === null}
+                        title={
+                          normalizePhone(lead.telefone) === null
+                            ? "Telefone inválido — edite o lead"
+                            : undefined
+                        }
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPreviewState({ open: true, lead, subnichoNome: lead.subnichoNome });
+                        }}
+                      >
+                        <MessageCircle className="size-4" />
+                        WhatsApp
+                      </Button>
+                      <Button
+                        type="button"
                         variant="ghost"
                         size="icon-lg"
                         aria-label={`Editar ${lead.nome}`}
@@ -317,6 +347,17 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
         }}
         leadNome={deleteState.open ? deleteState.lead.nome : ""}
         onConfirm={handleDeleteConfirm}
+      />
+
+      <WhatsAppPreviewDialog
+        open={previewState.open}
+        onOpenChange={(open) => {
+          if (!open) setPreviewState({ open: false });
+        }}
+        lead={previewState.open ? previewState.lead : undefined}
+        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        templates={templates}
+        defaultTipo="primeiro_contato"
       />
     </div>
   );
