@@ -245,7 +245,7 @@ export function CsvImportPreviewTable({
         toast.success(`${result.count} leads importados com sucesso.`);
         onImported(result.batchId);
       } else {
-        toast.error("Não foi possível importar os leads. Tente novamente.");
+        toast.error(result.message || "Não foi possível importar os leads. Tente novamente.");
       }
     });
   }

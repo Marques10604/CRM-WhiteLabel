@@ -83,10 +83,15 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
   // client-side, mesmo padrão de createLead. Se qualquer linha falhar,
   // aborta tudo (nenhum insert parcial).
   const validatedRows: CsvRowValues[] = [];
-  for (const row of rows) {
+  for (const [index, row] of rows.entries()) {
     const parsed = csvRowSchema.safeParse(row);
     if (!parsed.success) {
-      return { success: false, message: "Não foi possível importar os leads. Tente novamente." };
+      const firstIssue = parsed.error.issues[0];
+      const campo = firstIssue?.path?.[0] !== undefined ? String(firstIssue.path[0]) : "campo desconhecido";
+      return {
+        success: false,
+        message: `Linha ${index + 1} (${row.nome || "sem nome"}): ${firstIssue?.message ?? "valor inválido"} [${campo}]`,
+      };
     }
     validatedRows.push(parsed.data);
   }
