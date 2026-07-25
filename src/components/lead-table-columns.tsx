@@ -35,8 +35,10 @@ export const DEFAULT_SORTING: SortingState = [{ id: "followUpDate", desc: false 
 /**
  * Cabeçalho de coluna clicável que alterna a direção do sort (asc/desc) via
  * `column.getToggleSortingHandler()` — padrão recomendado do TanStack Table.
+ * Exportado (quick task 260725-gzb) para ser reusado pelo cabeçalho manual em
+ * `lead-table.tsx` (linhas em `<div>` flex, sketch 002-C).
  */
-function SortableColumnHeader<TData>({
+export function SortableColumnHeader<TData>({
   column,
   label,
 }: {
@@ -71,6 +73,14 @@ function SortableColumnHeader<TData>({
  * inclusivo nas duas pontas, normalizando com `startOfDay`/`endOfDay`
  * (Pitfall 6 — evita bug de fuso na virada do dia). `followUpDate` é sempre
  * presente na Fase 1 (ver Nota de resolução em 01-03-PLAN.md).
+ *
+ * A partir da quick task 260725-gzb, o corpo da lista de `/leads` é
+ * renderizado por markup customizado em `lead-table.tsx` (linhas em `<div>`
+ * flex, sketch 002-C) — os campos `header`/`cell` abaixo NÃO são mais
+ * renderizados. Os column defs permanecem como a fonte de verdade de
+ * sort/filtro (`accessorKey`, `filterFn`, `enableSorting`, `sortUndefined`),
+ * consumida por `lead-table-toolbar.tsx` (`table.getColumn(...).setFilterValue`)
+ * e pelo `useReactTable` em `lead-table.tsx`.
  */
 export const leadTableColumns: ColumnDef<LeadRow>[] = [
   {
