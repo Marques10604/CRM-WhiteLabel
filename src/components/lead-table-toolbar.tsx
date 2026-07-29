@@ -99,11 +99,13 @@ export function LeadTableToolbar({ table, subnichos }: LeadTableToolbarProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL_VALUE}>Todos os sub-nichos</SelectItem>
-            {subnichos.map((subnicho) => (
-              <SelectItem key={subnicho.id} value={String(subnicho.id)}>
-                {subnicho.nome}
-              </SelectItem>
-            ))}
+            {subnichos
+              .filter((subnicho) => subnicho.deletedAt === null)
+              .map((subnicho) => (
+                <SelectItem key={subnicho.id} value={String(subnicho.id)}>
+                  {subnicho.nome}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>

@@ -36,9 +36,18 @@ export function SubnichoCombobox({
   disabled,
   invalid,
 }: SubnichoComboboxProps) {
+  // Sub-nichos removidos (soft-delete, quick task 260725-lai) somem da lista
+  // de seleção, EXCETO quando já são o valor atualmente selecionado — sem essa
+  // exceção, abrir o formulário de edição de um lead cujo sub-nicho foi
+  // removido mostraria o campo vazio e forçaria trocar de sub-nicho. Esta
+  // única mudança cobre as duas superfícies que consomem este componente
+  // (lead-form-dialog.tsx e csv-import-preview-table.tsx).
   const items = useMemo<SubnichoItem[]>(
-    () => subnichos.map((subnicho) => ({ value: subnicho.id, label: subnicho.nome })),
-    [subnichos]
+    () =>
+      subnichos
+        .filter((subnicho) => subnicho.deletedAt === null || subnicho.id === value)
+        .map((subnicho) => ({ value: subnicho.id, label: subnicho.nome })),
+    [subnichos, value]
   );
 
   const selectedItem = items.find((item) => item.value === value) ?? null;

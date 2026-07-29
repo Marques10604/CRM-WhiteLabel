@@ -17,6 +17,11 @@ export default async function LeadsPage() {
       .from(leads)
       .where(isNull(leads.deletedAt))
       .orderBy(asc(leads.followUpDate)),
+    // Sem filtro de deletedAt de propósito: este array serve de mapa
+    // id -> nome para exibir o sub-nicho de leads antigos (LeadTable), então
+    // filtrar removidos aqui quebraria o nome exibido para leads apontando
+    // para um sub-nicho removido. O filtro de seleção fica só no combobox e
+    // no dropdown da toolbar (quick task 260725-lai).
     db.select().from(subnichos),
     db.select().from(templates),
   ]);
