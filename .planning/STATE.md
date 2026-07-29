@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-07-25T04:45:00.000Z"
-last_activity: 2026-07-25 - Completed quick task 260725-219: sidebar real implementado com decisões dos sketches 001/004
+status: completed
+last_updated: "2026-07-29T15:00:00.661Z"
+last_activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 - [Phase 04-04]: First custom hook in the project: src/hooks/use-first-contact-trigger.ts, designed for reuse by the future CSV import (Phase 2 backlog) per D-18
 - [Phase 02-02]: @types/papaparse Task 1 gate aprovado por checagem direta em registry.npmjs.org (repository DefinitelyTyped/DefinitelyTyped, mantenedor types team da Microsoft) após recuperar trabalho de um worktree executor interrompido (host derrubou o processo)
 - [Phase 02-02]: detectEncodingLabel() no csv-import-wizard.tsx duplica a heurística BOM+TextDecoder(fatal) de decodeCsvFile só para exibição do rótulo "Detectado: ..." — decodeCsvFile (02-01) não expõe qual branch escolheu
+- [Phase ?]: [Quick 260725-lai]: Soft-delete de sub-nicho filtra deletedAt so nas superficies de selecao, nunca nas queries de listagem de leads (mapa id->nome)
 
 ### Pending Todos
 
@@ -109,6 +110,7 @@ Recent decisions affecting current work:
 | 260721-0cl | Adicionar texto de ajuda/descrição abaixo do label de cada campo do formulário de lead | 2026-07-21 | 689b168 | [260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo](./quick/260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo/) |
 | 260725-219 | Implementar no sidebar real (app-sidebar.tsx) as decisões dos sketches 001/004: brand header selo discreto, rótulo "Principal", ícones lucide, espaçamento e fundo teal suave no item ativo | 2026-07-25 | abaaba7 | [260725-219-implementar-no-sidebar-real-do-app-src-c](./quick/260725-219-implementar-no-sidebar-real-do-app-src-c/) |
 | 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
+| 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 
 ## Deferred Items
 
@@ -120,10 +122,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-25
+Last session: 2026-07-29T15:00:00.620Z
 Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Users\Vencedor\Desktop\ideia do crm.txt`). Usuário decidiu **parar por hoje sem executar nada** (tokens acabando) — tudo abaixo está **só planejado, nada construído ainda**, exceto o item 0 que já tem PLAN.md pronto.
 
 **Exceção — fixes pontuais construídos fora do plano nesta mesma sessão, todos direto (sem gsd-planner/gsd-executor, pra economizar tokens em mudanças pequenas e já bem entendidas):**
+
 - `cbfb1bc`: sub-nicho obrigatório travava "Confirmar importação" quando o CSV não tinha essa coluna (caso real dele — planilha do cowork via scraping de Instagram, sem essa info). Linha sem sub-nicho agora importa com fallback `"A categorizar"` em vez de bloquear. Combobox inline pra escolher o certo na hora continua disponível, só deixou de ser obrigatório.
 - `fc684c6`: erro genérico "Não foi possível importar os leads" não dizia qual linha/campo falhava. Agora a mensagem do servidor inclui número da linha, nome e campo (ex: "Linha 2 (dralizethwedeformed): Telefone inválido... [telefone]").
 - `0fb70fd`: usando o erro acima, achamos a causa real do bloqueio dele — telefone com DDI estrangeiro (colombiano) não normaliza, e isso abortava o LOTE INTEIRO (mesmo comportamento problemático do sub-nicho, só que pra telefone). Linha com telefone inválido agora é excluída automaticamente da importação (reportada por nome antes de confirmar e depois via toast), resto do lote segue normal.
@@ -131,6 +134,7 @@ Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de id
 - Nenhuma dessas mudanças substitui o Gap 5 (tela de configuração) nem a Task 1 pendente (botão de remoção de sub-nicho) do plano principal — só resolvem bloqueios reais de import descobertos ao vivo.
 
 **Decisões já tomadas na discussão (não precisa perguntar de novo ao retomar):**
+
 - Gap 3 (porta de entrada pra IA cadastrar leads): **só local, sem deploy** — form em localhost, sem autenticação, pra um agente rodando na própria máquina do usuário preencher.
 - Gap 4 (captura automática via landing page): usuário **tem** uma landing page no Vercel, mas ainda não paga tráfego pra ela; hoje ela só manda a pessoa pro WhatsApp dele (sem webhook/API nenhuma configurada). Ele quer construir o endpoint agora mesmo assim. **Conflito não resolvido**: a landing (pública, Vercel) não alcança o CRM (local, localhost) — pra isso funcionar de verdade, o CRM precisaria de algum endereço público (ou ao menos essa uma rota), o que contradiz a escolha "local only" do Gap 3. Precisa decidir com o usuário antes de construir: (a) manter tudo local e a landing continua só mandando pro WhatsApp por enquanto, (b) expor só uma rota de captura pública (ex: Vercel + Turso só pra essa rota/DB), ou (c) revisitar o Gap 3 junto e publicar o CRM inteiro.
 - Gap 5 (lembretes de lead parado): usuário quer a versão completa — **tela de configuração com dias customizáveis por etapa**, não só generalizar o hardcoded de 5 dias.
@@ -139,7 +143,8 @@ Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de id
 - CSV real do cowork: **adiado de propósito** — "depois testamos".
 
 **Itens da lista de tarefas (TaskList desta sessão, todos voltam pra `pending` ao retomar):**
-0. **Botão de remoção de sub-nicho** — PLAN.md já existe e foi commitado (`0767c40`, quick task `260725-lai`): `.planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-PLAN.md` (3 tasks). Execução foi iniciada e interrompida (erro de ferramenta) — o executor chegou a editar `src/db/schema.ts` (coluna `deletedAt` em `subnichos`) mas **essa edição foi revertida** antes de parar, working tree limpo. Pra retomar: `/gsd-execute-plan .planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-PLAN.md` (ou re-rodar `/gsd-quick resume 260725-lai-adicionar-botao-de-remocao-soft-delete-d`).
+
+0. **Botão de remoção de sub-nicho** — CONCLUÍDO em 2026-07-29 (quick task `260725-lai`, retomada da sessão anterior que havia parado antes da Task 1). Tasks 1-3 automatizadas commitadas (`59a27c6`, `2c7a1ba`, `fa7a778`), coluna `deleted_at` aplicada no banco vivo via `drizzle-kit push`, `guard:no-hard-delete`/`tsc`/`lint` (só erros pré-existentes fora do escopo, ver `deferred-items.md`)/`build` verificados. **Pendente:** `<human-check>` da Task 3 (smoke test no navegador em `/subnichos` e `/leads`) — ver checklist em `.planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-SUMMARY.md`.
 1. Gap 1: auto-avançar etapa Novo→Contatado ao clicar "Abrir WhatsApp" (envio real, não só abrir o preview). Não construído — só descrito.
 2. Gap 2: contador de tentativas de contato (`contactAttempts` + `lastContactedAt` em leads, incrementado a cada envio real de WhatsApp). Não construído.
 3. Gap 5: tela de configuração de dias-parado por etapa (versão completa, decisão acima). Não construído.
@@ -151,7 +156,7 @@ Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de id
 
 **Gaps já existentes que NÃO precisam ser re-analisados** (grep já feito, ver memória `project_crm_new_ideas_gap_analysis`): normalização de telefone, link wa.me, funil Kanban, botão de WhatsApp de um clique, templates com variáveis, campo de notas — tudo isso já está pronto no código.
 
-Resume file: none — usuário quer começar a prospectar de verdade com o CRM na segunda-feira (2026-07-27). Base de leads ainda só tem 1 lead de teste ("hion"); CSV real do cowork continua pendente (adiado de propósito nesta sessão).
+Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 02-03 (last plan of Phase 2)
