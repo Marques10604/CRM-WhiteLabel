@@ -32,6 +32,11 @@ function isForeignKeyViolation(err: unknown): boolean {
  * Checagem de existência real do subnichoId no banco — cobre sub-nicho
  * apagado/id forjado que passaria pela validação de forma (inteiro positivo)
  * do Zod, mas não existe de fato.
+ *
+ * Propositalmente indiferente a `deletedAt` (soft-delete de sub-nicho,
+ * quick task 260725-lai): se filtrasse por `isNull(deletedAt)`, editar e
+ * salvar um lead cujo sub-nicho foi removido passaria a falhar com
+ * "Selecione um sub-nicho.", mesmo sem o usuário trocar nada no formulário.
  */
 async function subnichoExists(subnichoId: number): Promise<boolean> {
   const existing = await db

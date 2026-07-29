@@ -6,10 +6,12 @@ export const subnichos = sqliteTable(
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
     nome: text("nome").notNull(),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
   },
   (table) => [
     uniqueIndex("subnicho_nome_unique_idx").on(sql`lower(trim(${table.nome}))`),
+    index("subnichos_deleted_at_idx").on(table.deletedAt),
   ]
 );
 

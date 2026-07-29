@@ -8,7 +8,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { and, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { leads, subnichos } from "@/db/schema";
@@ -48,6 +48,10 @@ export async function fetchPreviewSupportData(
 
   const unknownSubnichoNames: string[] = [];
   for (const nome of uniqueSubnichoNames) {
+    // Um nome que existe só como removido (deletedAt != null) NÃO entra em
+    // unknownSubnichoNames: ele não será criado, e sim reativado em
+    // bulkImportLeads abaixo — o comportamento atual (não listar) já cobre
+    // isso, pois existing.length > 0 independente de deletedAt.
     const existing = await db
       .select({ id: subnichos.id })
       .from(subnichos)
@@ -108,12 +112,18 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
       if (subnichoIdByNome.has(chave)) continue;
 
       const existing = tx
-        .select({ id: subnichos.id })
+        .select({ id: subnichos.id, deletedAt: subnichos.deletedAt })
         .from(subnichos)
         .where(subnichoLookupCondition(row.subnichoNome))
         .all()[0];
 
       if (existing) {
+        // O nome vindo do CSV é sinal claro de que o sub-nicho voltou a ser
+        // usado — reativa em vez de deixar o lead preso a um sub-nicho
+        // invisível (removido) na lista de seleção.
+        if (existing.deletedAt !== null) {
+          tx.update(subnichos).set({ deletedAt: null }).where(eq(subnichos.id, existing.id)).run();
+        }
         subnichoIdByNome.set(chave, existing.id);
       } else {
         const [created] = tx
