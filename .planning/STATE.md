@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Importação Inteligente
 status: planning
-last_updated: "2026-07-29T16:20:20.870Z"
+last_updated: "2026-07-29T16:45:00.000Z"
 last_activity: 2026-07-29
 progress:
-  total_phases: 0
+  total_phases: 1
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** v1.1 (Importação Inteligente) — definindo requisitos e roadmap
+**Current focus:** v1.1 (Importação Inteligente) — Phase 5 pronta para planejamento (`/gsd-plan-phase 5`)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-29 — Milestone v1.1 started
+Phase: 5 of 5 (Notas Enriquecidas na Importação CSV)
+Plan: TBD — roadmap acabou de ser criado, planos ainda não detalhados
+Status: Ready to plan
+Last activity: 2026-07-29 — Roadmap do milestone v1.1 criado: Phase 5 cobre IMPORT-04/IMPORT-05 com 100% de cobertura
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -64,6 +66,7 @@ Last activity: 2026-07-29 — Milestone v1.1 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- Roadmap v1.1: Phase 5 única (não múltiplas fases) — escopo de IMPORT-04/IMPORT-05 é pequeno e contido, um plano de goal único (dividido em tasks se necessário) é mais apropriado que fases artificiais
 - Roadmap: Templates fixos de WhatsApp (não IA generativa) no v1
 - Roadmap: Link wa.me pré-preenchido em vez de envio automático via API
 - Roadmap: Sub-nichos como lista extensível (não fixa), com governança desde o Phase 1
@@ -132,10 +135,16 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-29T15:00:00.620Z
-Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Users\Vencedor\Desktop\ideia do crm.txt`). Usuário decidiu **parar por hoje sem executar nada** (tokens acabando) — tudo abaixo está **só planejado, nada construído ainda**, exceto o item 0 que já tem PLAN.md pronto.
+Last session: 2026-07-29T16:45:00.000Z
+Stopped at: Roadmap do milestone v1.1 (Importação Inteligente) criado via `/gsd-new-project` (fluxo de roadmap). Phase 5 "Notas Enriquecidas na Importação CSV" cobre IMPORT-04 e IMPORT-05 com 100% de cobertura — fase única e contida (não múltiplas fases artificiais), plano(s) ainda TBD. Próximo passo: `/gsd-plan-phase 5`.
+Resume file: None
+Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
-**Exceção — fixes pontuais construídos fora do plano nesta mesma sessão, todos direto (sem gsd-planner/gsd-executor, pra economizar tokens em mudanças pequenas e já bem entendidas):**
+### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
+
+Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Users\Vencedor\Desktop\ideia do crm.txt`). Usuário decidiu **parar por hoje sem executar nada** naquela sessão (tokens acabando) — tudo abaixo estava **só planejado, nada construído**, exceto o item 0 que já tinha PLAN.md pronto (hoje concluído).
+
+**Exceção — fixes pontuais construídos fora do plano naquela sessão, todos direto (sem gsd-planner/gsd-executor, pra economizar tokens em mudanças pequenas e já bem entendidas):**
 
 - `cbfb1bc`: sub-nicho obrigatório travava "Confirmar importação" quando o CSV não tinha essa coluna (caso real dele — planilha do cowork via scraping de Instagram, sem essa info). Linha sem sub-nicho agora importa com fallback `"A categorizar"` em vez de bloquear. Combobox inline pra escolher o certo na hora continua disponível, só deixou de ser obrigatório.
 - `fc684c6`: erro genérico "Não foi possível importar os leads" não dizia qual linha/campo falhava. Agora a mensagem do servidor inclui número da linha, nome e campo (ex: "Linha 2 (dralizethwedeformed): Telefone inválido... [telefone]").
@@ -152,22 +161,19 @@ Stopped at: Sessão de planejamento de 6 novas tarefas a partir do arquivo de id
 - `/gsd-sketch --wrap-up`: aprovado, só falta rodar.
 - CSV real do cowork: **adiado de propósito** — "depois testamos".
 
-**Itens da lista de tarefas (TaskList desta sessão, todos voltam pra `pending` ao retomar):**
+**Itens da lista de tarefas daquela sessão (voltaram pra `pending`, todos ainda não construídos exceto o item 0):**
 
-0. **Botão de remoção de sub-nicho** — CONCLUÍDO em 2026-07-29 (quick task `260725-lai`, retomada da sessão anterior que havia parado antes da Task 1). Tasks 1-3 automatizadas commitadas (`59a27c6`, `2c7a1ba`, `fa7a778`), coluna `deleted_at` aplicada no banco vivo via `drizzle-kit push`, `guard:no-hard-delete`/`tsc`/`lint` (só erros pré-existentes fora do escopo, ver `deferred-items.md`)/`build` verificados. **Pendente:** `<human-check>` da Task 3 (smoke test no navegador em `/subnichos` e `/leads`) — ver checklist em `.planning/quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/260725-lai-SUMMARY.md`.
-1. Gap 1: auto-avançar etapa Novo→Contatado ao clicar "Abrir WhatsApp" (envio real, não só abrir o preview). Não construído — só descrito.
-2. Gap 2: contador de tentativas de contato (`contactAttempts` + `lastContactedAt` em leads, incrementado a cada envio real de WhatsApp). Não construído.
+0. **Botão de remoção de sub-nicho** — CONCLUÍDO em 2026-07-29 (quick task `260725-lai`).
+1. Gap 1: auto-avançar etapa Novo→Contatado ao clicar "Abrir WhatsApp" (envio real, não só abrir o preview). Não construído.
+2. Gap 2: contador de tentativas de contato (`contactAttempts` + `lastContactedAt`). Não construído.
 3. Gap 5: tela de configuração de dias-parado por etapa (versão completa, decisão acima). Não construído.
-4. Gap 3: porta de entrada local pra IA cadastrar leads (Nome/WhatsApp/Empresa/Nicho, sem auth, só localhost). Não construído.
+4. Gap 3: porta de entrada local pra IA cadastrar leads. Não construído.
 5. Rodar `/gsd-sketch --wrap-up`. Não executado.
 6. Gap 4: resolver o conflito de hospedagem (ver acima) antes de construir qualquer coisa.
 
-**Nota técnica desta sessão:** `workflow.use_worktrees` foi setado pra `false` em `.planning/config.json` (mudança não commitada ainda) — decisão deliberada porque esse host de 4GB já teve um executor isolado em worktree morto por OOM numa sessão anterior (ver "02-02 recovery" abaixo). Manter `false` ao retomar, não reverter.
+**Nota técnica:** `workflow.use_worktrees` foi setado pra `false` em `.planning/config.json` — decisão deliberada porque este host de 4GB já teve um executor isolado em worktree morto por OOM numa sessão anterior. Manter `false`, não reverter.
 
-**Gaps já existentes que NÃO precisam ser re-analisados** (grep já feito, ver memória `project_crm_new_ideas_gap_analysis`): normalização de telefone, link wa.me, funil Kanban, botão de WhatsApp de um clique, templates com variáveis, campo de notas — tudo isso já está pronto no código.
-
-Resume file: None
-Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
+**Gaps já existentes que NÃO precisam ser re-analisados** (ver memória `project_crm_new_ideas_gap_analysis`): normalização de telefone, link wa.me, funil Kanban, botão de WhatsApp de um clique, templates com variáveis, campo de notas — tudo isso já está pronto no código.
 
 ### 02-03 (last plan of Phase 2)
 
@@ -177,21 +183,19 @@ Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entr
 
 ### Known stale item (pre-existing, not touched this session)
 
-- ROADMAP.md's top-level Phase 3 summary line still says "gap closure 03-04 pending — verifier found 2 blockers", but the Phase Details section shows 03-04 as `[x]` complete and an earlier STATE.md entry documents this as a resolved false-positive (Decision Coverage Gate pattern-matching bug, overridden after manual confirmation all 14 decisions were shipped). Worth a one-line ROADMAP.md cleanup whenever convenient, not blocking anything.
+- ROADMAP.md's top-level Phase 3 summary line historically said "gap closure 03-04 pending — verifier found 2 blockers" while Phase Details showed 03-04 complete; documented as a resolved false-positive (Decision Coverage Gate pattern-matching bug). Now moot — v1.0 is archived in `.planning/milestones/v1.0-ROADMAP.md` with the correct `[x]` state.
 
 ### 02-02 recovery + completion
 
-- Found this session's `/gsd-resume-work` init check reported no interrupted agent, but a manual worktree audit found `.claude/worktrees/agent-afc46b10fd2a29240` locked by a dead process (pid 4124, no longer running — likely OOM on this 4GB host) with Task 2/3 of 02-02 fully written but never committed.
+- Found a session's `/gsd-resume-work` init check reported no interrupted agent, but a manual worktree audit found `.claude/worktrees/agent-afc46b10fd2a29240` locked by a dead process (pid 4124, no longer running — likely OOM on this 4GB host) with Task 2/3 of 02-02 fully written but never committed.
 - Reviewed all 6 files line-by-line before touching anything, copied them into the main checkout, fixed 2 minor deviations (`@types/papaparse` was in `dependencies` instead of `devDependencies`; a comment containing the literal substring `useReducer` was tripping the plan's own naive-grep acceptance check), then verified: `npx tsc --noEmit` clean, `npm run build` clean (route `/importar` present), both plan `node -e` acceptance scripts pass.
-- Task 1's blocking human-verify gate (`@types/papaparse` supply-chain legitimacy) was satisfied this session via direct `registry.npmjs.org` lookup: repository = `DefinitelyTyped/DefinitelyTyped`, maintainer = Microsoft's types team, installed version matches latest (5.5.2).
+- Task 1's blocking human-verify gate (`@types/papaparse` supply-chain legitimacy) was satisfied via direct `registry.npmjs.org` lookup: repository = `DefinitelyTyped/DefinitelyTyped`, maintainer = Microsoft's types team, installed version matches latest (5.5.2).
 - Committed as `33e5715` (Task 2) and `dd690ed` (Task 3), docs in `016ced7`. Worktree unlocked, removed, and its branch deleted.
 - `<human-check>` (real browser click-through of upload → mapping → preview → confirm) still NOT run — no browser access in this headless session, same caveat as every prior plan in this project. Recommended before treating Phase 2 as ready for daily use.
 - Also found a second, unrelated orphaned worktree (`agent-ab2be3f82c3c9c30d`, uncommitted `etapa-badge.tsx`/`lead-form-dialog.tsx` changes from an old Phase 3 attempt, not merged into current history) — left untouched, flagged as cleanup candidate only.
 
-02-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3: gate satisfied, `33e5715`, `dd690ed`, docs `016ced7`).
-
-Next action: plan/execute 02-03-PLAN.md (tela pós-importação com envio de WhatsApp por lote, D-13/D-14, LEAD-05) — the last plan of Phase 2.
+02-02-PLAN.md is FULLY COMPLETE (Tasks 1-3: gate satisfied, `33e5715`, `dd690ed`, docs `016ced7`).
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Rodar `/gsd-plan-phase 5` para detalhar o(s) plano(s) da Phase 5 (Notas Enriquecidas na Importação CSV) — IMPORT-04/IMPORT-05, escopo pequeno e contido.

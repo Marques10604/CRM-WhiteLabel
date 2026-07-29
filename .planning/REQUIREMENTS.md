@@ -36,14 +36,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMPORT-04 | TBD | Pending |
-| IMPORT-05 | TBD | Pending |
+| IMPORT-04 | Phase 5 | Pending |
+| IMPORT-05 | Phase 5 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 2 total
-- Mapped to phases: 0
-- Unmapped: 2 ⚠️ (roadmap not yet created)
+- Mapped to phases: 2
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-29*
-*Last updated: 2026-07-29 after initial v1.1 definition*
+*Last updated: 2026-07-29 after v1.1 roadmap creation (Phase 5 mapped, 100% coverage)*
