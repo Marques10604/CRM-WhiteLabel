@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
-import { Pencil } from "lucide-react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { createSubnicho, renameSubnicho } from "@/actions/subnicho-actions";
+import { createSubnicho, renameSubnicho, softDeleteSubnicho } from "@/actions/subnicho-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DeleteSubnichoDialog } from "@/components/delete-subnicho-dialog";
 import type { Subnicho } from "@/types";
 
 type ActionState =
@@ -15,6 +16,8 @@ type ActionState =
 
 function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     renameSubnicho,
     undefined
@@ -30,18 +33,43 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
   const fieldError =
     state && "errors" in state ? state.errors.nome?.[0] : undefined;
 
+  function handleDeleteConfirm() {
+    startTransition(async () => {
+      await softDeleteSubnicho(subnicho.id);
+      toast.success("Sub-nicho removido.");
+      setConfirmOpen(false);
+    });
+  }
+
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-[#F4F4F5]">
         <span className="text-sm">{subnicho.nome}</span>
-        <button
-          type="button"
-          aria-label={`Renomear ${subnicho.nome}`}
-          onClick={() => setIsEditing(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#0D9488]"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label={`Renomear ${subnicho.nome}`}
+            onClick={() => setIsEditing(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#0D9488]"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label={`Remover ${subnicho.nome}`}
+            disabled={isPending}
+            onClick={() => setConfirmOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#DC2626]"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+        <DeleteSubnichoDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          subnichoNome={subnicho.nome}
+          onConfirm={handleDeleteConfirm}
+        />
       </div>
     );
   }
@@ -102,9 +130,15 @@ export function SubnichoManager({ subnichos }: { subnichos: Subnicho[] }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1 rounded-md border border-[#F4F4F5]">
-        {subnichos.map((subnicho) => (
-          <SubnichoRow key={subnicho.id} subnicho={subnicho} />
-        ))}
+        {subnichos.length === 0 ? (
+          <span className="px-3 py-2 text-sm text-muted-foreground">
+            Nenhum sub-nicho cadastrado.
+          </span>
+        ) : (
+          subnichos.map((subnicho) => (
+            <SubnichoRow key={subnicho.id} subnicho={subnicho} />
+          ))
+        )}
       </div>
 
       {isAdding ? (

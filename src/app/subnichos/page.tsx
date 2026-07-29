@@ -1,10 +1,16 @@
-import { asc } from "drizzle-orm";
+import { asc, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
 import { subnichos } from "@/db/schema";
 import { SubnichoManager } from "@/components/subnicho-manager";
 
 export default async function SubnichosPage() {
-  const items = await db.select().from(subnichos).orderBy(asc(subnichos.nome));
+  // Esta página existe só para gerenciar/selecionar sub-nichos (não exibe
+  // leads), então aqui o filtro de deletedAt é feito no nível da query.
+  const items = await db
+    .select()
+    .from(subnichos)
+    .where(isNull(subnichos.deletedAt))
+    .orderBy(asc(subnichos.nome));
 
   return (
     <div className="flex flex-col gap-4">
