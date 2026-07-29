@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Awaiting next milestone
-last_updated: "2026-07-29T15:24:01.051Z"
-last_activity: 2026-07-29 — Milestone v1.0 completed and archived
+milestone: v1.1
+milestone_name: Importação Inteligente
+status: planning
+last_updated: "2026-07-29T16:20:20.870Z"
+last_activity: 2026-07-29
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** v1.0 shipado e arquivado — planejando o próximo milestone via `/gsd-new-milestone`
+**Current focus:** v1.1 (Importação Inteligente) — definindo requisitos e roadmap
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-29 — Milestone v1.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-29 — Milestone v1.1 started
 
 ## Performance Metrics
 
@@ -98,10 +98,12 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 Resolvidos no v1.0, limpos no fechamento do milestone:
+
 - ~~Phase 2 (CSV Import): no real cowork CSV sample available yet~~ — resolvido: um CSV real do cowork foi usado em prospecção ao vivo e revelou os bugs corrigidos em `cbfb1bc`/`fc684c6`/`0fb70fd` (telefone com DDI estrangeiro, sub-nicho ausente)
 - ~~[Phase 3 gap-closure] Decision Coverage Gate falso positivo~~ — resolvido e documentado no `RETROSPECTIVE.md` como padrão recorrente de falso-positivo em checkers baseados em grep
 
 Aberto, carregado para o próximo milestone:
+
 - Cross-cutting: continuar vigiando scope creep para auth/multi-usuário/mobile/WhatsApp Business API em toda fase nova — explicitamente fora de escopo por `PROJECT.md`.
 
 ### Quick Tasks Completed

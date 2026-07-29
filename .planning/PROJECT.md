@@ -1,5 +1,15 @@
 # CRM de Leads — Área da Saúde
 
+## Current Milestone: v1.1 Importação Inteligente
+
+**Goal:** O CSV de prospecção gerado pela skill que o admin roda no cowork desktop (com colunas de inteligência: score, sinal_dor, trecho_dor, observacao) entra no CRM sem perder o sinal de priorização, mantendo tudo local (sem hospedagem na nuvem).
+
+**Target features:**
+- Wizard de importação passa a aceitar mapear MÚLTIPLAS colunas de origem concatenadas automaticamente em notas (formatado e legível), além do mapeamento 1-pra-1 já existente
+- Mapeamento categoria→sub-nicho continua funcionando como hoje (sem mudança)
+
+**Fora de escopo neste milestone:** conectar a landing page pública (Vercel) ao CRM — adiado para quando houver tráfego pago e a migração planejada para VPS própria com domínio; demais itens do backlog (sequência de follow-up escalonada, contador de tentativas, tela de dias-parado configurável, porta de entrada local para IA) ficam para v1.2+.
+
 ## What This Is
 
 CRM pessoal para um único usuário (o admin) organizar leads da área da saúde, recebidos em lote via CSV de um cowork parceiro. Os leads são categorizados por sub-nicho (nutricionista, terapeuta, etc.) e avançam por um pipeline de vendas simples até o fechamento. O admin aborda os leads pelo Instagram e WhatsApp, usando templates de mensagem prontos para agilizar o contato.
@@ -29,14 +39,18 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — a formalizar via `/gsd-new-milestone`:
+Escopo do milestone v1.1 em andamento (ver `Current Milestone` acima):
 
-- [ ] Conectar a captura de leads da prospecção real ao CRM — hoje (prospecção já em andamento desde 2026-07-27) o cadastro é manual; conflito não resolvido entre landing page pública (Vercel) e CRM local
+- [ ] Wizard de importação aceita mapear múltiplas colunas de origem (score/sinal_dor/trecho_dor/observação) concatenadas em notas, sem perder a inteligência de priorização do CSV do cowork
+
+Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — ficam para v1.2+:
+
 - [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social
 - [ ] Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" de verdade (hoje é só preview)
 - [ ] Contador de tentativas de contato por lead (`contactAttempts`/`lastContactedAt`)
 - [ ] Tela de configuração de dias-parado por etapa (customizável, hoje é hardcoded)
 - [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente
+- [ ] Conectar a landing page pública (Vercel) ao CRM — adiado deliberadamente pelo usuário (2026-07-29) até haver tráfego pago; quando chegar a hora, será junto da migração de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada
 
 ### Out of Scope
 
@@ -89,4 +103,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-29 after v1.0 milestone completion*
+*Last updated: 2026-07-29 — v1.1 milestone started*
