@@ -2,8 +2,16 @@
 created: 2026-07-29T14:39:49.576Z
 title: Conectar captura de leads da prospecção ao CRM
 area: general
+resolves_phase: 5
 files: []
 ---
+
+**Atualização 2026-07-29:** conversa de discussão do milestone v1.1 revelou que a
+captura urgente de verdade não é a landing page — é o CSV que sai da skill de
+prospecção rodada no cowork desktop (colunas score/sinal_dor/trecho_dor/observacao).
+Isso vira a Phase 5 (Notas Enriquecidas na Importação CSV), que já resolve o
+gargalo real. A parte de landing page/Vercel permanece adiada — ver `PROJECT.md`
+Active e `REQUIREMENTS.md` IMPORT-V2-02.
 
 ## Problem
 
