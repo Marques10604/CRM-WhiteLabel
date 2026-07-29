@@ -17,10 +17,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-19)
+See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Todas as 4 fases do milestone v1.0 têm os 15 planos completos — pendente decisão sobre fechar o milestone
+**Current focus:** v1.0 shipado e arquivado — planejando o próximo milestone via `/gsd-new-milestone`
 
 ## Current Position
 
@@ -97,9 +97,12 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Phase 2 (CSV Import): no real cowork CSV sample available yet — Brazilian delimiter/encoding/phone-format assumptions must be validated against a real file as early as possible, per research SUMMARY.md gaps.
-- Cross-cutting: keep checking every phase for scope creep into auth/multi-user/mobile/WhatsApp Business API — explicitly out of scope per PROJECT.md.
-- [Phase 3 gap-closure planning, 2026-07-21]: Decision Coverage Gate reported 0/14 `03-CONTEXT.md` decisions (D-01..D-15) covered — false positive: manual grep confirms all 14 are cited inline in the already-executed 03-01/02/03-PLAN.md bodies (parenthetical form, e.g. `(D-05)`, not the `D-05:` colon form the checker's pattern matcher expects). All 14 decisions are shipped and were independently confirmed correct by the phase verifier. Overridden (proceed anyway) rather than re-planning already-verified work; 03-04-PLAN.md (gap closure) does not touch this decision scope.
+Resolvidos no v1.0, limpos no fechamento do milestone:
+- ~~Phase 2 (CSV Import): no real cowork CSV sample available yet~~ — resolvido: um CSV real do cowork foi usado em prospecção ao vivo e revelou os bugs corrigidos em `cbfb1bc`/`fc684c6`/`0fb70fd` (telefone com DDI estrangeiro, sub-nicho ausente)
+- ~~[Phase 3 gap-closure] Decision Coverage Gate falso positivo~~ — resolvido e documentado no `RETROSPECTIVE.md` como padrão recorrente de falso-positivo em checkers baseados em grep
+
+Aberto, carregado para o próximo milestone:
+- Cross-cutting: continuar vigiando scope creep para auth/multi-usuário/mobile/WhatsApp Business API em toda fase nova — explicitamente fora de escopo por `PROJECT.md`.
 
 ### Quick Tasks Completed
 
