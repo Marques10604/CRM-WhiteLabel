@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-07-29T15:00:00.661Z"
-last_activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
+status: Awaiting next milestone
+last_updated: "2026-07-29T15:24:01.051Z"
+last_activity: 2026-07-29 — Milestone v1.0 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -24,11 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 
 ## Current Position
 
-Phase: 02 (csv-bulk-import) — COMPLETE (3 of 3 plans)
-Status: All 4 phases of milestone v1.0 have all plans complete; milestone closeout not yet run
-Last activity: 2026-07-24 -- Phase 02 complete (02-03 post-import WhatsApp list shipped)
-
-Progress: [██████████] 100%
+Phase: Milestone v1.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-29 — Milestone v1.0 completed and archived
 
 ## Performance Metrics
 
@@ -118,7 +117,13 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes: dashboard 3 seções, CRUD de templates, botão WhatsApp (preview/link ao vivo/anti-conflito com drag), auto-trigger de 1º contato nas 3 superfícies, boundary de 7 dias, race condition de "Perdido" em sequência, stageChangedAt/motivoPerda | partial — nunca testado no navegador (sem acesso a browser em nenhuma sessão até agora) | 2026-07-29 (fechamento v1.0) |
+| verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo do uat_gap acima | 2026-07-29 (fechamento v1.0) |
+| todo | [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) | pending | 2026-07-29 (fechamento v1.0) |
+| todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4) não resolvido | 2026-07-29 (fechamento v1.0) |
+| verification_gap | Fases 1 e 2 **nunca tiveram `/gsd-verify-work` formal rodado** — nenhum `VERIFICATION.md` existe pra elas (só a Fase 3 tem, `passed`). Múltiplos `SUMMARY.md` (01-02, 01-03, 01-04, 02-02, 02-03) registram "sem acesso a navegador nesta sessão, clique real recomendado antes de considerar pronto pra uso real" | nunca verificado no navegador, apenas por leitura de código/`tsc`/`build` | 2026-07-29 (fechamento v1.0) |
+
+Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missing" — falso positivo verificado manualmente (todas as 5 pastas têm SUMMARY.md; o checker procura um campo `status:` no frontmatter que quick tasks fora do modo `--validate` não preenchem). Não são débito real, não listados acima.
 
 ## Session Continuity
 
@@ -181,3 +186,7 @@ Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entr
 02-02-PLAN.md is now FULLY COMPLETE (Tasks 1-3: gate satisfied, `33e5715`, `dd690ed`, docs `016ced7`).
 
 Next action: plan/execute 02-03-PLAN.md (tela pós-importação com envio de WhatsApp por lote, D-13/D-14, LEAD-05) — the last plan of Phase 2.
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

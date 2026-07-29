@@ -17,18 +17,26 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - Cada lead segue um pipeline com etapas: Novo → Contatado → Negociação → Fechado / Perdido (Validado na Fase 3 — etapa combinada desmembrada em Fechado e Perdido distintos, decisão D-01 em `03-CONTEXT.md`)
 - Admin pode mover um lead entre etapas do pipeline (Validado na Fase 3 — drag-and-drop com @dnd-kit e reversão automática em falha)
 - Admin visualiza o funil de vendas (quantos leads em cada etapa) de forma rápida (Validado na Fase 3 — board Kanban em `/pipeline`, contagem ao vivo por coluna)
+- ✓ Admin pode importar uma lista de leads via CSV do cowork, com mapeamento de colunas, preview e detecção automática de separador/codificação — v1.0 (Fase 2)
+- ✓ Cada lead tem um sub-nicho da área da saúde numa lista administrável e extensível, com remoção reversível (soft-delete) — v1.0 (Fase 1 + quick task 260725-lai)
+- ✓ Admin pode cadastrar novos sub-nichos livremente — v1.0 (Fase 1)
+- ✓ Admin pode filtrar/organizar leads por sub-nicho — v1.0 (Fase 1)
+- ✓ Cada lead registra notas, data de follow-up, canal, origem, valor estimado — v1.0 (Fase 1)
+- ✓ Admin recebe destaque visual de follow-up vencido/próximo, via dashboard agrupado por urgência como tela inicial — v1.0 (Fase 4)
+- ✓ Admin pode cadastrar templates de WhatsApp com variáveis — v1.0 (Fase 4)
+- ✓ Ao criar/importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido — v1.0 (Fase 4)
+- ✓ Dashboard e pipeline oferecem botão inline "Enviar WhatsApp" com preview editável, disparo sempre por clique manual — v1.0 (Fase 4)
 
 ### Active
 
-- [ ] Admin pode importar uma lista de leads via arquivo CSV (entregue pelo cowork)
-- [ ] Cada lead tem um sub-nicho da área da saúde (nutricionista, terapeuta, etc.)
-- [ ] Admin pode cadastrar novos sub-nichos livremente (lista cresce com o tempo, não é fixa)
-- [ ] Admin pode filtrar/organizar leads por sub-nicho
-- [ ] Cada lead registra: notas livres, data do próximo follow-up, canal de contato (Instagram/WhatsApp), origem, valor estimado do negócio
-- [ ] Admin recebe algum destaque/lembrete visual de leads com follow-up vencido ou próximo (nota: leads "esfriando" por etapa parada já implementado na Fase 3; alerta específico de follow-up vencido/próximo ainda pendente — Fase 4)
-- [ ] Admin pode cadastrar templates fixos de mensagem de WhatsApp com variáveis (ex: {nome}, sub-nicho/contexto)
-- [ ] Ao importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido (link pronto, envio manual — sem API de envio automático)
-- [ ] O dashboard de follow-ups lista os leads com follow-up vencido/próximo e oferece um botão inline "Enviar WhatsApp" que o admin clica para abrir o WhatsApp com o template de follow-up preenchido (link pronto, envio manual — dashboard mostra o que está pendente e o disparo é sempre por clique do admin, sem gatilho automático por data)
+Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — a formalizar via `/gsd-new-milestone`:
+
+- [ ] Conectar a captura de leads da prospecção real ao CRM — hoje (prospecção já em andamento desde 2026-07-27) o cadastro é manual; conflito não resolvido entre landing page pública (Vercel) e CRM local
+- [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social
+- [ ] Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" de verdade (hoje é só preview)
+- [ ] Contador de tentativas de contato por lead (`contactAttempts`/`lastContactedAt`)
+- [ ] Tela de configuração de dias-parado por etapa (customizável, hoje é hardcoded)
+- [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente
 
 ### Out of Scope
 
@@ -44,6 +52,7 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - Leads chegam em lote via CSV, entregues por um cowork parceiro
 - Abordagem dos leads acontece via Instagram e WhatsApp
 - Usuário quer aumentar produtividade substituindo a planilha por uma ferramenta dedicada
+- **Estado pós-v1.0 (2026-07-29):** app rodando localmente (`localhost:3000`), ~7.300 linhas TS/TSX em `src/`, Next.js 16 + Drizzle/SQLite + shadcn-on-Base-UI. Usuário já começou a prospectar de verdade a partir de 2026-07-27, mas a captura de leads ainda não conecta automaticamente ao CRM (cadastro manual por enquanto — ver Active acima). Débito conhecido: Fases 1 e 2 nunca tiveram checagem manual no navegador; Fase 4 tem 7 cenários de UAT ainda não confirmados no navegador (ver `STATE.md` Deferred Items).
 
 ## Constraints
 
@@ -55,10 +64,12 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Templates fixos de WhatsApp (não IA generativa) no v1 | Mais simples e rápido de construir; IA personalizada por lead considerada mas adiada para reduzir complexidade inicial | — Pending |
-| Link wa.me pré-preenchido em vez de envio automático via API | Evita custo e burocracia de conta WhatsApp Business API; usuário confirma e envia manualmente | — Pending |
-| Sub-nichos como lista extensível (não fixa) | Usuário atende diferentes sub-nichos da área da saúde e espera que a lista cresça com o tempo | — Pending |
+| Templates fixos de WhatsApp (não IA generativa) no v1 | Mais simples e rápido de construir; IA personalizada por lead considerada mas adiada para reduzir complexidade inicial | ✓ Good — shipado na Fase 4, IA segue em v2 |
+| Link wa.me pré-preenchido em vez de envio automático via API | Evita custo e burocracia de conta WhatsApp Business API; usuário confirma e envia manualmente | ✓ Good — shipado na Fase 4 |
+| Sub-nichos como lista extensível (não fixa) | Usuário atende diferentes sub-nichos da área da saúde e espera que a lista cresça com o tempo | ✓ Good — shipado na Fase 1, remoção soft-delete adicionada depois |
 | Instalação do GSD local por projeto (não global) | Preferência do usuário por manter cada projeto isolado e explícito | ✓ Good |
+| Nunca hard-delete — soft-delete (`deletedAt`) é o padrão do projeto para toda entidade removível | Recuperação sempre possível, guard automatizado (`npm run guard:no-hard-delete`) impede regressão | ✓ Good — aplicado a leads (LEAD-04) e sub-nichos (quick 260725-lai) |
+| Host de desenvolvimento com 4GB de RAM — comandos de verificação sempre sequenciais, nunca em paralelo/background | Builds/dev-server simultâneos já causaram OOM e crash de worktrees isolados mais de uma vez durante o v1.0 | ✓ Good — seguido à risca desde então |
 
 ## Evolution
 
@@ -78,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 after Phase 3 (Sales Pipeline & Funnel View) completion*
+*Last updated: 2026-07-29 after v1.0 milestone completion*
