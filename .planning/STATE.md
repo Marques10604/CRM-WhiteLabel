@@ -93,7 +93,7 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general
-- [Separar Fechado e Perdido em duas etapas distintas](.planning/todos/pending/2026-07-21-separar-fechado-perdido.md) — area: general — conflita com D-10 (01-CONTEXT.md), decidir antes/durante a Fase 3
+- [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) — area: general — mesmo Gap 4 da sessão 2026-07-25, conflito local vs. público não resolvido
 
 ### Blockers/Concerns
 
