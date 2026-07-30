@@ -1,166 +1,128 @@
 # Project Research Summary
 
-**Project:** crm-leads (solo-admin CRM / lead tracker)
-**Domain:** Solo-admin CRM for health-niche leads — CSV bulk import, sales pipeline (kanban), follow-up reminders, WhatsApp click-to-chat templates
-**Researched:** 2026-07-19
+**Project:** CRM de Leads — Área da Saúde
+**Domain:** Milestone v1.2 "Follow-up Automático" — automação incremental de um CRM solo Next.js/Drizzle/SQLite já em produção (auto-avanço de etapa por clique em WhatsApp, contador de tentativas, configuração de dias-parado por etapa)
+**Researched:** 2026-07-30
 **Confidence:** HIGH
+
+> Esta é uma síntese de pesquisa de milestone incremental, não de projeto novo. Os 4 arquivos de pesquisa (STACK/FEATURES/ARCHITECTURE/PITFALLS) foram lidos diretamente do código-fonte já existente (src/), não de um domínio genérico. Esta versão supersede o SUMMARY.md de 2026-07-19 (pesquisa do projeto original v1.0), preservado no histórico do git.
 
 ## Executive Summary
 
-This is a browser-based, single-admin CRM replacing a Google Sheets workflow for tracking health-niche leads. Experts building this class of tool (solo-user "mini-CRM," no multi-tenant auth, no background infrastructure) converge on a simple, well-understood shape: a full-stack Next.js app with Server Actions (no separate REST API), a real relational database (SQLite/Turso via Drizzle ORM — never localStorage), a thin service layer separating business logic from UI, and purely derived/computed state (overdue follow-ups, funnel counts) rather than stored flags or notification infrastructure. The three named core value props — CSV import to escape re-typing, a visual pipeline (Novo -> Contatado -> Negociacao -> Fechado/Perdido), and one-click WhatsApp outreach via `wa.me` template links — are all well-documented, low-risk patterns with verified, stable technical formats (wa.me URL structure, CSV parse-validate-dedupe-commit pipeline).
+O milestone v1.2 adiciona três capacidades pequenas e interligadas a um CRM solo que já está em produção real: auto-avanço de etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, um contador de tentativas de contato por lead, e uma tela /configuracoes para generalizar o "esfriando" hoje hardcoded (5 dias, só etapa Contatado) para as 3 primeiras etapas do funil. A pesquisa em stack, arquitetura e features convergem no mesmo veredito: zero pacotes novos, zero componentes novos de infraestrutura — tudo é resolvido com o que já está instalado (Next.js Server Actions, Drizzle/SQLite, react-hook-form + Zod, shadcn/ui, sonner), estendendo dois arquivos existentes (whatsapp-preview-dialog.tsx, pipeline/page.tsx) e criando uma pequena tabela relacional tipada (pipeline_stage_settings) em vez de um KV genérico.
 
-The recommended approach is Next.js 16 (App Router) + React 19 + TypeScript 5.9.x + Drizzle ORM + SQLite (local file, or Turso if hosted) + Tailwind/shadcn for UI, with PapaParse for CSV, Zod + react-hook-form for validation, and no auth system beyond an optional simple passcode gate if publicly hosted. Feature scope should center on the MVP defined in FEATURES.md: lead data model, extensible sub-niche field (with governance from day one), CSV import wizard, pipeline view (dropdown stage-change is sufficient for v1), overdue/due-soon dashboard, and WhatsApp template CRUD + link generation — explicitly deferring drag-and-drop, AI-personalized messages, analytics dashboards, and anything resembling multi-user auth or WhatsApp Business API integration.
+A pesquisa de arquitetura identificou um fato crítico sobre o código real que muda a forma do trabalho: existe apenas UM elemento de link wa.me em todo o app — vive dentro de WhatsAppPreviewDialog (whatsapp-preview-dialog.tsx:165-178) — mesmo havendo 5 pontos de montagem do diálogo (pipeline, dashboard, lista de leads, pós-importação, auto-trigger de criação). Isso é uma vantagem (a lógica nova vive num único arquivo, não duplicada 4x) mas também o maior risco: instrumentar o botão errado (o "Enviar WhatsApp" da superfície, que só abre o diálogo, versus o "Abrir WhatsApp" real dentro dele) é o pitfall nº1 e o mais fácil de cometer, dado que os nomes dos botões nas telas convidam a essa confusão.
 
-The key risks are almost entirely data-quality and "silent failure" risks rather than architectural ones: Brazilian Excel-exported CSVs use semicolon delimiters and Windows-1252/BOM encoding that will silently corrupt imports if not handled explicitly; Brazilian phone numbers have inconsistent 9th-digit/country-code formatting that will break `wa.me` links if not normalized at import time; and a reminder system that isn't the literal first thing the admin sees on load defeats the entire point of the tool (recreating the exact "forgotten follow-up" problem it's meant to solve). A secondary, easy-to-miss risk is architectural passivity: because this is the sole system of record once adopted, hard-deletes and import-without-batch-tracking have no recovery path — soft-delete and import-batch tagging must be designed in from the start, not retrofitted after a real data loss.
+Os riscos principais não são de stack nem de escopo de features — a pesquisa de features confirma que o escopo das 3 features já está corretamente cortado (auto-avanço unidirecional só novo→contatado, sem "dar baixa" em confirmação de entrega do WhatsApp, sem escalonamento de cor/notificações) — mas sim de implementação correta de um ponto de integração compartilhado e sensível a race condition: gate no estado vivo (tipo) e não em props obsoletas (defaultTipo), re-checagem server-side atômica do estágio atual (nunca confiar no lead.stage client-side), uma única Server Action/transação (não duas chamadas separadas), e uma tabela de configurações que já nasce populada com os valores hardcoded atuais (para não desligar silenciosamente o sinal "esfriando" no dia do deploy). Nenhum desses riscos é de infraestrutura ou performance — a escala é irrelevante aqui (admin único, SQLite, poucos milhares de leads).
 
 ## Key Findings
 
 ### Recommended Stack
 
-Next.js (App Router) with Server Actions is the clear choice over a separate frontend/backend split — there is exactly one consumer of the API (the admin's own browser), so a hand-rolled REST layer is pure overhead. Drizzle ORM over SQLite (local file for pure-local use, or Turso/libSQL if hosted on Vercel) gives transparent, debuggable SQL-shaped code — important since this codebase is AI-agent maintained — and both local and hosted variants share identical schema/query code, so the deployment story can change later without a rewrite. WhatsApp integration requires no library at all: it's a client-side `wa.me` URL built from a normalized phone number and a URL-encoded, variable-substituted message string.
+Nenhuma biblioteca nova é necessária. As três features usam exclusivamente pacotes já presentes em package.json, aplicados em pontos de integração literais e já existentes no código.
 
-**Core technologies:**
-- Next.js 16.2.10 (App Router, Server Actions) — full-stack framework, eliminates a separate API layer for a single-client internal tool
-- React 19.2.7 — required peer of Next.js 16, stable Server/Client Component model
-- TypeScript 5.9.x — stay off TS 7.0/7.1 until tooling (ESLint, editor integrations) catches up to the new native compiler
-- Drizzle ORM 0.45.2 + drizzle-kit 0.31.10 — type-safe, transparent SQL queries and migrations; avoids Prisma's opaque codegen layer
-- better-sqlite3 (local) / @libsql/client + Turso (hosted) — zero-config relational store sized correctly for a few thousand leads; same code either way
-- PapaParse 5.5.4 — standard browser CSV parser with delimiter-sniffing and streaming support, essential for messy real-world Excel exports
-- Zod 4.4.0 + react-hook-form 7.82.0 — Server Action input validation and form handling
-- Tailwind CSS 4.4.3 + shadcn/ui — fast, AI-agent-editable admin UI; shadcn components are copied into the repo, not an opaque dependency
-- @tanstack/react-table, @dnd-kit (optional kanban drag), date-fns, sonner — supporting libraries for table views, drag-and-drop, date math, and toasts
+**Tecnologias envolvidas (todas já instaladas):**
+- Next.js Server Actions (16.2.10) — nova Server Action registerWhatsAppContact chamada fire-and-forget a partir do onClick já existente do link de WhatsApp, sem preventDefault() nem rota de API nova
+- Drizzle ORM + drizzle-kit (0.45.2/0.31.10) — 2 colunas novas em leads (contact_attempts, last_contacted_at) + 1 tabela nova tipada (pipeline_stage_settings, PK por etapa) via migração custom, seguindo o padrão já documentado no schema para stageChangedAt
+- react-hook-form + Zod (7.82.0/4.4.x) — formulário de /configuracoes (3 campos numéricos), mesmo padrão de todo form existente no app
+- shadcn/ui + sonner — reuso direto de Input/Field/Button/Card e do padrão de toast já usado em outras confirmações
 
-**Explicitly avoid:** WhatsApp Business API/Twilio (out of scope, adds cost/bureaucracy for zero benefit), Moment.js (legacy), react-beautiful-dnd (archived), full auth providers (NextAuth/Clerk) for a single admin, and building a speculative REST API "for future-proofing."
+**Explicitamente descartado (over-engineering para o escopo):** lib de state management (Zustand/Redux/Context global — useState local + revalidatePath já resolve), SDK de analytics/click-tracking para contar cliques de WhatsApp, navigator.sendBeacon/Service Worker, tabela settings genérica tipo key-value/JSON blob, rota de API dedicada, e qualquer biblioteca de "detecção de app aberto" para tentar confirmar entrega da mensagem.
 
 ### Expected Features
 
-**Must have (table stakes) - v1/MVP:**
-- Lead data model: name, phone, sub-niche, channel, source, estimated value, notes, follow-up date, stage
-- Sub-niche as an extensible field **with a basic admin list from day one** (not pure free-text) — prevents tag-sprawl fragmentation
-- CSV import with column mapping, preview, and duplicate detection (by phone/email)
-- Pipeline/kanban view (4 fixed stages) with per-column counts; dropdown-based stage change is sufficient for v1
-- List view with filter (sub-niche, stage) and sort (follow-up date)
-- Follow-up date field + an overdue/due-soon dashboard that is the **default landing view**, not a filter the admin must apply
-- WhatsApp template CRUD with `{variable}` substitution + `wa.me` link generation
-- Post-import prompt to send the first-contact template (closes the loop between import and outreach)
+**Must have (escopo já definido em PROJECT.md, confirmado como table-stakes por CRMs comerciais — Pipedrive "Rotting", Zoho "Idle Deal Alert"):**
+- Auto-avanço Novo→Contatado só no clique com template primeiro_contato, em todas as telas, unidirecional (nunca regride/re-avança leads além de Contatado), com toast de confirmação
+- Contador contactAttempts — incrementa em qualquer clique de "Abrir WhatsApp" (qualquer template, qualquer etapa), badge simples no card do pipeline
+- /configuracoes com 3 campos numéricos (dias-parado por etapa: Novo/Contatado/Negociação), substituindo o literal hardcoded 5 hoje restrito só a Contatado
 
-**Should have (differentiators, v1.x):**
-- Inline `wa.me` button on the overdue/due-soon list itself (merge reminder + action)
-- Pipeline value roll-up per stage (sum of estimated value)
-- Multiple templates per purpose (first contact / follow-up / re-engagement)
-- Sub-niche merge/deactivate management
-- Template message preview/edit before opening WhatsApp
+**Should have:** nenhuma diferenciação é objetivo deste milestone — o próprio PROJECT.md o define como "alcançar a baseline" de CRM, não superá-la. A única diferenciação legítima de uma ferramenta solo é fazer as 3 coisas sem a cerimônia de configuração (rule builder, workflow engine) que Pipedrive/HubSpot/Zoho exigem para equipes.
 
-**Defer (v2+):** Kanban drag-and-drop (dropdown already satisfies the requirement), "days in stage"/stalled-lead indicator, timestamped note history, AI-personalized messages (explicitly deferred in PROJECT.md), any analytics/reporting beyond stage counts + value. **Never build:** multi-user auth/roles, native mobile app, WhatsApp Business API automation, generic multi-tag system, marketing-automation drip sequences.
+**Defer/Anti-features identificados (evitar mesmo que pareçam extensão natural):** auto-avanço em qualquer clique (não só primeiro_contato), tratar clique no wa.me como confirmação de mensagem enviada, contador com escalonamento de cor/lógica de "desistir", thresholds por sub-nicho, notificações/e-mail sobre lead esfriando, auto-avanço em etapas além de Contatado — todos já corretamente fora do escopo v1.2 segundo PROJECT.md.
 
 ### Architecture Approach
 
-The system is a thin client UI over a small framework-agnostic service layer (`leadService`, `importService`, `templateService`, `waLinkService`) sitting on a conventional relational schema (`leads`, `subniches`, `templates`, optional `activity_log`). There is no background infrastructure of any kind: "overdue," "due soon," and funnel counts are all derived queries re-run at render/load time, not stored flags or push notifications. Pipeline stages are a plain enum with a small allowed-transitions check — not a generic state-machine engine — while sub-niches and templates are true database tables with CRUD, since those are the pieces the requirements explicitly demand be extensible.
+As 3 features se anexam a um app Next.js já estruturado por convenção (actions/*-actions.ts por domínio, app/<rota>/page.tsx + form cliente, db/schema.ts como fonte única de verdade). O ponto de integração único e compartilhado para as Features 1+2 é WhatsAppPreviewDialog — as 5 superfícies que abrem o diálogo (pipeline board, dashboard de follow-up, lista de leads, lista pós-importação, auto-trigger de criação) nunca renderizam o link wa.me diretamente, só chamam setPreviewState. A Feature 3 (/configuracoes) é uma fatia vertical totalmente independente, sem arquivos ou migração compartilhados com as Features 1+2.
 
-**Major components:**
-1. **Lead Service** — CRUD, stage transitions, filters, funnel counts; the single source of truth every other feature depends on
-2. **Import Service** — three-step CSV pipeline (parse -> validate/dedupe -> commit as one transaction); isolated so it can be extended without touching pipeline logic
-3. **Template Service + waLinkService** — `{variable}` substitution and pure-function `wa.me` URL construction; this seam is where v2 AI-personalized messaging would later plug in
-4. **Reminder/Due-Date Query** — read-only derived query against `leads.follow_up_date`/`stage`, no separate reminder table, always consistent with source data
+**Componentes principais:**
+1. WhatsAppPreviewDialog (modificar) — ganha o onClick que chama a nova Server Action de forma fire-and-forget, usando o estado vivo tipo (não a prop defaultTipo)
+2. registerWhatsAppContact (nova Server Action, em lead-actions.ts) — uma única transação: incrementa contador sempre + avança etapa condicionalmente, com re-SELECT server-side do estágio atual imediatamente antes do UPDATE
+3. pipeline_stage_settings (nova tabela, 1 linha por etapa, PK tipada) + settings-actions.ts + configuracoes/page.tsx + stage-settings-form.tsx — fatia isolada, migração auto-seedada com os valores hardcoded atuais (evita desligar o sinal "esfriando" no deploy)
+4. pipeline/page.tsx (modificar) — troca o literal stage==="contatado" && dias>=5 por uma leitura de pipeline_stage_settings, generalizada para as 3 etapas
 
 ### Critical Pitfalls
 
-1. **Brazilian CSV delimiter/encoding mismatch** — Excel pt-BR exports use `;` delimiters and Windows-1252/BOM encoding, not comma/UTF-8; auto-detect delimiter, normalize encoding, and always show a preview before commit — must be solved in the CSV import phase before anything else is testable with real data.
-2. **Broken `wa.me` links from Brazilian phone formatting** — inconsistent 9th-digit, country-code, and leading-zero conventions; build one normalization function (strip non-digits, canonical `55` prefix), unit-test against real-shaped number fixtures, never silently guess.
-3. **Un-encoded message text corrupts the WhatsApp draft** — line breaks, accents, emoji, and special characters must go through proper URL-encoding after variable substitution, not string concatenation.
-4. **Invisible follow-up reminders defeat the core value prop** — since there's no push/notification channel, overdue/due-today items must be the literal first thing visible on app load, not a filter or a flat "has a date" badge.
-5. **The 4-stage pipeline hides "gone cold" leads** — most leads get stuck in "Contatado" with no forcing function to mark them "Perdido"; track last-activity-date independently of stage and surface a stale-lead signal, and make "Perdido" a one-click action.
-6. **No safety net for data loss** — once this replaces the spreadsheet, hard deletes and untracked imports are unrecoverable; build soft-delete and import-batch tagging in from the start.
+1. Instrumentar o botão errado — os botões de superfície ("Enviar WhatsApp") só abrem o diálogo, não enviam nada; a lógica nova deve viver exclusivamente no onClick do link real dentro de WhatsAppPreviewDialog, nunca nos 4 chamadores nem no auto-trigger de criação de lead.
+2. preventDefault() + await + window.open() — quebra o link nativo e aciona bloqueador de pop-up silenciosamente; manter a navegação síncrona do link intacta e disparar a Server Action como efeito não-bloqueante no mesmo handler.
+3. Gate na prop defaultTipo em vez do estado vivo tipo — o admin pode trocar o tipo de template antes de enviar; o gate de auto-avanço deve ler o estado tipo no momento do clique, nunca a prop de abertura do diálogo.
+4. Confiar no lead.stage client-side para o gate — o prop pode estar obsoleto (drag-and-drop pode ter movido o lead nos segundos entre abrir o diálogo e clicar enviar); a checagem "está em Novo?" deve ser um SELECT fresco dentro da própria Server Action, imediatamente antes do UPDATE condicional.
+5. Tabela de configurações sem seed — se pipeline_stage_settings nascer vazia (seed só ao primeiro salvamento do admin), a leitura retorna undefined e o sinal "esfriando" desliga silenciosamente para toda uma etapa, sem erro visível; a migração deve inserir as 3 linhas com os valores hardcoded atuais no mesmo arquivo que cria a tabela.
 
 ## Implications for Roadmap
 
-Based on combined research, suggested phase structure:
+Com base na pesquisa combinada, a estrutura de fases sugerida (a numerar como Fase 6+ na sequência já em .planning/ROADMAP.md, que está em Fase 5 completa):
 
-### Phase 1: Foundation - Data Model and Core CRUD
-**Rationale:** Every other feature (CSV import, pipeline, templates, reminders) depends on the lead/sub-niche/template schema existing first — this is a strict prerequisite, not parallel work (per FEATURES.md dependency graph).
-**Delivers:** Next.js + Drizzle + SQLite scaffold; `leads`, `subniches`, `templates` tables and migrations; lead list view with manual create/edit; sub-niche admin list (add/rename) shipped alongside the field, not deferred.
-**Addresses:** Lead data model, sub-niche extensible field + basic admin (FEATURES.md P1 items).
-**Avoids:** Anti-Pattern 2 (hardcoding sub-niches as constants) and Pitfall 6's near-duplicate sub-niche fragmentation, by building governance in from day one.
+### Fase 6: Auto-avanço de Etapa + Contador de Tentativas
+**Rationale:** ARCHITECTURE.md e PITFALLS.md concordam que estas duas features são "arquiteturalmente inseparáveis" — mesma migração (contact_attempts, last_contacted_at em leads), mesma Server Action nova (registerWhatsAppContact), mesma edição de onClick em whatsapp-preview-dialog.tsx, mesma mudança de exibição em pipeline-lead-card.tsx. Dividir em duas fases significaria tocar exatamente as mesmas linhas duas vezes, sem ganho de isolamento.
+**Delivers:** Migração com contact_attempts INTEGER NOT NULL DEFAULT 0 + last_contacted_at INTEGER (sem backfill necessário, ao contrário do precedente stageChangedAt); nova Server Action transacional registerWhatsAppContact(leadId, tipo) com re-SELECT server-side; onClick do link real estendido (fire-and-forget, sem preventDefault); badge de contador no card do pipeline; toast de confirmação no avanço.
+**Addresses:** As duas primeiras features Active de PROJECT.md (auto-avanço, contador).
+**Avoids:** Pitfalls 1-7 (botão errado, popup-blocker, gate na prop errada, gate client-side obsoleto, race com drag-and-drop, duas Server Actions separadas, contagem indevida no auto-trigger de criação) — todos mapeados para esta mesma fase em PITFALLS.md.
 
-### Phase 2: CSV Import Pipeline
-**Rationale:** This is the actual pain point driving the migration off Sheets and the highest-risk feature technically (Pitfall 1 delimiter/encoding, Pitfall 8 data-loss safety) — best tackled early with real fixture data before other features assume clean data exists.
-**Delivers:** Three-step import wizard (upload -> map/preview -> confirm/commit) with delimiter/encoding auto-detection, phone-number normalization at import time, duplicate detection by phone/email, and import-batch tagging for reversibility.
-**Uses:** PapaParse, Zod validation, Drizzle transactional insert.
-**Avoids:** Pitfall 1 (delimiter/encoding), Pitfall 6 (missing name fields), Pitfall 8 (no recovery path) — test fixtures must include a real Excel pt-BR export, not a hand-typed clean CSV.
-
-### Phase 3: Pipeline / Kanban View
-**Rationale:** Depends on the lead data model (Phase 1) and benefits from having real imported data (Phase 2) to validate against; the funnel view is one of the two named core value props.
-**Delivers:** Kanban board (4 fixed stages, dropdown-based stage change is sufficient for v1), per-column counts, a "stale lead" / no-recent-activity signal alongside the funnel (not deferred to later), one-click move-to-"Perdido."
-**Implements:** Lead Service stage-transition logic (plain enum, not a state-machine engine per Anti-Pattern 1).
-**Avoids:** Pitfall 5 (pipeline hiding cold leads) — build the stale signal in this phase, not as a v2 add-on.
-
-### Phase 4: Follow-Up Reminders and Dashboard
-**Rationale:** Depends on the follow-up date field existing (Phase 1) and is the second named core value prop; research strongly flags this as a design-quality risk, not just a data field, so it deserves a dedicated phase rather than being bundled as "just a column."
-**Delivers:** Derived overdue/due-today/due-soon query set as the default landing/home view (not a filter the admin must apply), with distinct visual urgency treatment.
-**Avoids:** Pitfall 4 (invisible reminders) — verify persistence across browser close/reopen and confirm this view, not a generic lead list, is what the admin sees first.
-
-### Phase 5: WhatsApp Templates and wa.me Link Generation
-**Rationale:** Depends on the full lead data model (variables to substitute) and benefits from reminders (Phase 4) and pipeline (Phase 3) existing so template links can be surfaced inline in those views, per FEATURES.md's dependency chain.
-**Delivers:** Template CRUD with `{variable}` placeholders, phone/message normalization + URL-encoding, "send first contact" prompt post-import (tie-in to Phase 2), inline wa.me buttons in the reminder list (tie-in to Phase 4) and lead detail view.
-**Uses:** waLinkService pure function (STACK.md's client-side `buildWhatsAppLink` pattern).
-**Avoids:** Pitfall 2 (phone format breakage), Pitfall 3 (encoding breakage) — unit test against fixture numbers/messages with accents, emoji, line breaks before considering this phase done.
+### Fase 7: Configuração de Dias-Parado por Etapa (/configuracoes)
+**Rationale:** Totalmente independente da Fase 6 — sem arquivos, migração ou Server Action compartilhados, pode ser construída antes, depois ou em paralelo sem risco de merge. Sugerida como segunda por ser menor urgência (tela de configuração vs. o caminho central "nunca mais esquecer um follow-up") e porque revisar o diff de esfriandoLeadIds fica mais limpo depois que as mudanças de schema/action da Fase 6 já estiverem mescladas.
+**Delivers:** Nova tabela pipeline_stage_settings (1 linha por etapa, migração auto-seedada com o valor 5 atual, preservando o comportamento de dia-um); nova rota /configuracoes com formulário react-hook-form + Zod (validação .int().min(1), rejeitando 0/negativo); nova Server Action updateStageSettings; pipeline/page.tsx generalizado para ler as 3 etapas em vez do literal hardcoded.
+**Uses:** Drizzle (tabela tipada, não JSON blob), react-hook-form + Zod, shadcn/ui — mesmo padrão de todo form existente.
+**Implements:** Pattern 3 de ARCHITECTURE.md (tabela tipada por chave em vez de settings genérico em JSON) e evita Anti-Pattern 3.
+**Avoids:** Pitfalls 8-9 (tabela sem seed desliga o sinal silenciosamente; threshold 0 inflama o board inteiro instantaneamente).
 
 ### Phase Ordering Rationale
 
-- Data model must exist before CSV import (column mapping is meaningless without target fields) and before pipeline/reminders/templates (all read from the same lead record) — this drives Phase 1 first, confirmed by FEATURES.md's explicit dependency graph.
-- CSV import is placed early (Phase 2) rather than last because it is both the primary migration driver and the highest-risk technical surface (delimiter/encoding/dedup) — better to surface and fix these risks with real data before building views on top of assumed-clean data.
-- Pipeline and reminders (Phases 3-4) are the two named core value props and are independent of each other technically, but reminders is placed after pipeline since the "stale lead" signal in Phase 3 reuses the same derived-query mechanism reminders will need in Phase 4 — building it once, reusing it, per ARCHITECTURE.md's Pattern 3.
-- WhatsApp templates go last (Phase 5) because the highest-value version of this feature is contextual (inline buttons in the pipeline and reminder views) — building the surfaces it plugs into first avoids rework.
-- Pitfall 7 (scope creep into auth/mobile/API-sending) and Pitfall 8 (data-loss safety) are cross-cutting and should be a standing checklist item across all phases, not a dedicated phase — every phase review should confirm no `users`/`roles`/`tenant_id` concept, no mobile-specific work, and no hard-delete-without-recovery has crept in.
+- A Fase 6 vem primeiro porque valida a superfície mais arriscada e mais compartilhada do app (os 5 pontos de montagem do diálogo de WhatsApp), e porque PROJECT.md já registra um débito conhecido de UAT de WhatsApp nunca confirmado no navegador na Fase 4 — testar esse caminho de novo, agora com mutação de estado, é prioridade.
+- A Fase 7 é isolada de propósito — ARCHITECTURE.md confirma zero sobreposição de arquivos/migração com a Fase 6, então a ordem entre elas é uma escolha de prioridade de produto, não uma dependência técnica.
+- Nenhuma fase adicional é necessária para este milestone: as 3 features do Active de PROJECT.md mapeiam exatamente para essas 2 fases, sem items órfãos.
+- Um item de risco aceito e não resolvido nesta rodada (Pitfall 5 — corrida entre o drag-and-drop otimista do pipeline board e o auto-avanço disparado pelo clique de WhatsApp) deve ser documentado explicitamente no CONTEXT/plan da Fase 6, ao lado da já conhecida "race condition de Perdido em sequência" registrada em STATE.md — não deve ser resolvido silenciosamente nem ignorado silenciosamente.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 2 (CSV Import):** Needs a `--research-phase` pass specifically on Brazilian phone-number normalization edge cases and Excel pt-BR encoding fixtures — the general pattern is well-documented, but the specific fixture set (real-shaped numbers/CSVs) should be validated against actual sample data from the cowork partner if available.
-- **Phase 5 (WhatsApp Templates):** Confirm current `wa.me` URL length/behavior limits across WhatsApp Web/Desktop/mobile handoff before finalizing template length constraints — sources note "no hard documented limit" but flag it as a smell worth re-checking.
+Fases que provavelmente não precisam de pesquisa adicional durante o planejamento (--research-phase):
+- Fase 6: Padrões bem documentados e verificados diretamente no código-fonte (idioma SELECT-then-conditional-write já usado em updateLeadStage/updateLead; ponto de integração único já identificado com número de linha exato). PITFALLS.md já mapeia pitfall→fase→verificação em detalhe suficiente para virar critério de sucesso do plano.
+- Fase 7: Padrão de tabela tipada + form react-hook-form/Zod é uma repetição direta de convenções já em uso 3+ vezes no repo (subnicho-actions.ts, template-actions.ts).
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Foundation):** Standard Next.js + Drizzle + SQLite scaffold, extensively documented, HIGH confidence.
-- **Phase 3 (Pipeline):** Kanban/pipeline patterns are well-established across CRM research; dropdown-based stage change is a simple CRUD operation.
-- **Phase 4 (Reminders):** Derived-query reminder pattern is simple and well-documented; the risk here is UX/design discipline, not technical complexity.
+Nenhuma fase deste milestone foi sinalizada como precisando de pesquisa mais profunda — a pesquisa de arquitetura e pitfalls já leu o código real linha a linha, o que é o nível de detalhe que normalmente um --research-phase produziria.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Core versions verified live against npm registry (2026-07-19); only TypeScript 7.x tooling-maturity timing is a soft judgment call, clearly flagged with a safe fallback (stay on 5.9.x) |
-| Features | MEDIUM-HIGH | Cross-verified across multiple independent CRM vendors, CSV-import tooling vendors, and WhatsApp click-to-chat documentation; no single-source claims used for core recommendations |
-| Architecture | HIGH | Patterns are well-established for this app class; wa.me link format and CSV pipeline conventions verified against current external sources; some small-app architecture conventions are training-data-derived (flagged MEDIUM within the doc) but low-risk given domain simplicity |
-| Pitfalls | MEDIUM-HIGH | wa.me formatting and CSV encoding issues verified against current external sources (GitHub issues, telecom docs, Microsoft community); pipeline/UX/scope-creep pitfalls verified across multiple independent sources; some domain-specific judgment applied for this project's unusual shape (single-user, no API, growing taxonomy) |
+| Stack | HIGH | Nenhuma versão nova a verificar — confirmação direta de que os pacotes já instalados (package.json) bastam, sem inferência externa |
+| Features | MEDIUM | Escopo e sizing são julgamento específico do projeto, ancorado no código existente (HIGH); os padrões de CRM comercial equivalentes (Pipedrive Rotting, Zoho Idle Deal Alert) vêm de doc oficial (HIGH) e buscas convergentes (MEDIUM) |
+| Architecture | HIGH | Todos os achados verificados lendo o código-fonte real listado nas fontes, não inferidos da descrição do milestone |
+| Pitfalls | HIGH | Todos os 9 pitfalls verificados diretamente contra o código do projeto (whatsapp-preview-dialog.tsx, pipeline-board.tsx, lead-actions.ts, schema.ts, pipeline/page.tsx), não conselho genérico de web-dev |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Real cowork CSV sample not yet available:** All CSV-format risk mitigations (delimiter, encoding, phone formats) are based on well-documented general Brazilian/Excel patterns, not an actual sample file from the project's specific data source — validate assumptions against a real file as early as possible in Phase 2, and adjust the import wizard's auto-detection/preview if the actual data shape differs.
-- **Hosting decision (local-only vs. Vercel+Turso) not yet finalized:** STACK.md presents both as viable with identical Drizzle code; this should be an explicit early decision (likely during Phase 1 setup) since it affects whether a passcode gate is needed, not a blocker to starting.
-- **TypeScript 7.x migration timing:** Recommendation is to stay on 5.9.x for now and revisit 7.1 once stable — no action needed now, but worth a periodic check during longer-running phases since it's a "drop-in bump," not an architecture change.
+- Race entre drag-and-drop otimista e auto-avanço via WhatsApp (Pitfall 5): não é um gap de pesquisa, é uma limitação aceita e documentada — deve ser registrada explicitamente no CONTEXT da Fase 6 (não silenciosamente ignorada), ao lado do item já existente "race condition de Perdido em sequência" em STATE.md.
+- Restrição sync/async da transação better-sqlite3: a Server Action combinada (contador + avanço) deve usar db.transaction(fn) com callback síncrono no driver local atual (better-sqlite3); se o projeto migrar para Turso/@libsql/client no futuro (caminho já documentado no STACK.md original), esse trecho precisa reauditoria — não é um bloqueio agora, só um lembrete a registrar no código (comentário) para o futuro.
+- Valor-piso do threshold de /configuracoes: PITFALLS.md sugere .min(1) mas nota que mesmo 1 tem um caso de borda perceptível ("criado de manhã, marcado como parado à noite") — decisão de UX final (qual piso exato e a cópia de texto ao redor) fica para o plano da Fase 7, não é uma lacuna de pesquisa técnica.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- npm registry live queries (2026-07-19) for all core package versions (next, react, typescript, drizzle-orm, drizzle-kit, better-sqlite3, papaparse, zod, react-hook-form, tailwindcss, shadcn, etc.)
-- devblogs.microsoft.com/typescript/announcing-typescript-7-0 — TypeScript 7.0 GA and tooling-gap confirmation
-- WhatsApp `wa.me` click-to-chat URL format — cross-verified across Qualimero, Whatsform, SendApp, Gowalink, Quadlayers guides, matching WhatsApp's own documented convention
-- GitHub: Brazilian phone number 9th-digit WhatsApp inconsistency (openclaw/openclaw#20187); Gupshup support article on Brazil/Mexico number normalization
-- Microsoft Community Hub — Excel CSV semicolon delimiter export behavior
+- Leitura direta do código-fonte do projeto (src/db/schema.ts, src/actions/lead-actions.ts, src/components/whatsapp-preview-dialog.tsx, src/components/pipeline-board.tsx, src/app/pipeline/page.tsx, src/hooks/use-first-contact-trigger.ts, src/components/lead-form-dialog.tsx, src/app/importar/[batchId]/page.tsx, src/db/migrations/0002_backfill-fechado-perdido-split.sql) — base de todas as 4 pesquisas
+- .planning/PROJECT.md — escopo textual exato do milestone v1.2 e requisitos Active
+- .planning/STATE.md — item deferred "race condition de Perdido em sequência", usado como precedente de enquadramento para o Pitfall 5
+- support.pipedrive.com — The Rotting Feature — doc oficial, confirma padrão comercial equivalente à Feature 3
 
 ### Secondary (MEDIUM confidence)
-- OnePageCRM, Systeme.io, monday.com, Capsule CRM — pipeline/kanban and follow-up reminder UI patterns across CRM vendors
-- CSVBox, ImportCSV, Dromo, Flatfile — CSV import UX (map -> preview -> validate -> commit) pattern, consistent across specialized import-tooling vendors
-- AccessAlly — CRM tag-sprawl failure pattern; Supportbench — taxonomy design categories vs tags
-- RxDB — localStorage/IndexedDB limits article — supports anti-pattern against localStorage as primary store
-- Leadfeeder — sales pipeline mistakes; Prospeo — CRM funnel stage benchmarks
+- WebSearch convergente sobre "deal rotting"/"stale deal" configurável por etapa (Zoho Idle Deal Alert, Freshworks staling age)
+- WebSearch sobre auto-avanço de etapa por atividade em CRMs comerciais (sempre via regra explícita configurada, nunca implícito)
+- WebSearch sobre contadores de tentativa em ferramentas de cadência de vendas (Outreach, Salesloft, Apollo)
 
 ### Tertiary (LOW confidence)
-- Turso pricing/free-tier limits (turso.tech/pricing) — pricing pages change over time, verify at signup
-- Training-data-derived small-app architecture conventions (service-layer separation, derived-state reminders) — not independently web-verified but low-risk given domain simplicity
+- WebSearch sobre "false positive" de automação de CRM ao marcar contato por clique — resultados adjacentes (phishing/simulação), não um precedente específico de WhatsApp, mas o princípio (clique != entrega confirmada) é bem estabelecido e usado para justificar a decisão de anti-feature já validada em PROJECT.md
 
 ---
-*Research completed: 2026-07-19*
+*Research completed: 2026-07-30*
 *Ready for roadmap: yes*

@@ -1,141 +1,158 @@
 # Stack Research
 
-**Domain:** Solo-admin CRM / lead-tracker web app (health-niche leads, CSV import, sales pipeline, WhatsApp deep-links)
-**Researched:** 2026-07-19
-**Confidence:** HIGH (core framework/DB/CSV choices verified against live npm registry + current ecosystem consensus) / MEDIUM (bleeding-edge items flagged individually)
+**Domain:** Adição de 3 capacidades a um CRM Next.js/Drizzle/SQLite já em produção (solo, local-first) — auto-avanço de etapa por clique em WhatsApp, contador de tentativas de contato, e uma tela de configuração por etapa (milestone v1.2 "Follow-up Automático")
+**Researched:** 2026-07-30
+**Confidence:** HIGH
+
+## Recommendation em uma frase
+
+**Zero pacotes novos.** As três features do v1.2 (auto-avanço Novo→Contatado, `contactAttempts`, `/configuracoes` de dias-parado) são resolvidas inteiramente com o que já está instalado: um `onClick` de `<a>` já existente chamando uma Server Action, duas colunas/uma tabela novas no schema Drizzle já existente, e o mesmo trio shadcn/ui + react-hook-form + Zod já usado em todo formulário do app. Isso não é uma simplificação forçada — é o que a investigação do código atual mostra ser suficiente.
 
 ## Recommended Stack
 
-### Core Technologies
+### Core Technologies (já instaladas — nenhuma mudança)
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Next.js (App Router) | 16.2.10 | Full-stack framework: UI, routing, server-side data layer | One framework does frontend + backend, eliminates the need for a separate Express/Fastify API. Server Actions give you type-safe form/mutation handling directly from React components — for a solo internal tool with a single consumer (your own UI), this is the current (2026) community consensus over hand-rolled REST API routes: less boilerplate, no fetch/JSON-serialization layer, no API client to maintain. Reserve API routes only for things outside your own UI (there are none here — no webhooks, no external clients). |
-| React | 19.2.7 | UI library (ships with Next.js) | Required peer of Next.js 16; Server/Client Component model is stable and is what Claude Code and most current tutorials target. |
-| TypeScript | 5.9.x (see note) | Type safety across schema, server actions, forms | TypeScript 7.0 reached GA on 2026-07-08 (native Go compiler, "Project Corsa", ~10x faster builds) but shipped **without a stable programmatic API**; full editor/tooling support (ESLint plugins, some framework integrations) is still catching up in 7.1 (in daily dev builds as of this research). For a project built and maintained by an AI coding agent, tooling compatibility matters more than raw compile speed at this scale (a CRM, not a monorepo). **Recommendation: start on TypeScript 5.9.x** (the last fully-tooled classic-compiler release) and revisit TS 7.1 once it's stable — the migration is a drop-in version bump later, not an architecture decision now. |
-| Drizzle ORM | 0.45.2 (+ drizzle-kit 0.31.10) | Database schema + type-safe queries + migrations | SQL-shaped queries (no custom query DSL to learn), schema defined in plain TypeScript, migrations are just generated SQL files you can read and review. This matters specifically because your code is written by Claude Code: Drizzle's output is transparent and debuggable, versus Prisma's generated client (a build step + opaque binary engine) which adds a layer Claude Code has to reason around. Works identically against local SQLite and hosted libSQL/Turso — same code, easy to change deployment story later. |
-| SQLite (via `better-sqlite3` for local, or Turso/libSQL for hosted) | better-sqlite3 12.11.1 / @libsql/client 0.17.4 | Database engine | A CRM for one admin with a few thousand leads, notes, and a growing category list is a textbook SQLite use case: zero-config, a single file, no separate DB server/process to run or pay for, trivial backups (copy the file). This directly serves "low-maintenance" and "solo, not enterprise." See Stack Patterns by Variant below for local-file vs. hosted-serverless tradeoffs — the schema and Drizzle code are identical either way. |
+| Technology | Version | Purpose nas 3 features novas | Por que é suficiente |
+|------------|---------|-------------------------------|------------------------|
+| Next.js Server Actions | 16.2.10 (já instalado) | Trigger de auto-avanço de etapa, incremento de `contactAttempts`, CRUD de `/configuracoes` | O clique que precisa ser "detectado" já é um `onClick` de React num `<a>` real em `whatsapp-preview-dialog.tsx` (linha 166-178). Chamar uma Server Action a partir desse `onClick` (fire-and-forget, sem `preventDefault`) é o padrão idiomático de Server Actions chamadas fora de `<form>` — não precisa de rota de API, fetch manual, nem beacon. |
+| Drizzle ORM + drizzle-kit | 0.45.2 / 0.31.10 (já instalado) | Nova coluna `contactAttempts` em `leads`, nova tabela `stageSettings` (ou equivalente) para dias-parado por etapa | Mesmo padrão já usado para `stageChangedAt`: migração custom em `src/db/migrations` com backfill explícito (o schema.ts já documenta esse padrão no comentário da linha 48). Não há necessidade de KV genérico — 3-5 etapas com um inteiro cada é uma tabela relacional trivial, não um caso de uso para um "settings store" separado. |
+| better-sqlite3 (SQLite local) | 12.11.1 (já instalado) | Persistência de ambas as mudanças de schema | Sem mudança de driver — tudo síncrono e local, como hoje. |
+| react-hook-form + Zod + `@hookform/resolvers` | 7.82.0 / 4.4.3 / 5.4.0 (já instalado) | Formulário de `/configuracoes` (N campos numéricos, um por etapa) | Mesmo padrão do form de lead/template/sub-nicho já existente — não é um caso especial que justifique outra lib de formulário. |
+| shadcn/ui (Base UI) | CLI 4.13.1 (já instalado) | Layout da nova página `/configuracoes`, badges de etapa, campos numéricos | Reutiliza `Field`/`Input`/`Button`/`Card` já presentes no repo; não precisa de novos componentes shadcn além dos já gerados (confirmar com `npx shadcn add` apenas se faltar algum primitivo específico, mas `input`/`field`/`button`/`card` já existem no projeto). |
+| sonner | 2.0.7 (já instalado) | Toast "Etapa avançada para Contatado" / "Configurações salvas" | Já é o padrão de toast do app (spec do milestone pede explicitamente "toast de confirmação"). |
+| date-fns | 4.4.0 (já instalado) | Cálculo de "dias parado" generalizado por etapa (substituindo `differenceInDays(...) >= 5` hardcoded) | Mesma função `differenceInDays` já usada em `src/app/pipeline/page.tsx`; só passa a comparar contra um valor vindo da nova tabela de configurações em vez da constante `5`. |
 
 ### Supporting Libraries
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| PapaParse | 5.5.4 | CSV import parsing | The de facto standard for CSV in JavaScript, browser-first with streaming/worker support for large files, auto-detects delimiters, tolerant of messy real-world CSVs from a partner (cowork). Parse client-side (drag-and-drop file, preview rows, map columns) before submitting to a Server Action — gives the admin a preview/confirm step before 500 leads land in the DB. |
-| Zod | 4.4.0 | Schema validation for lead forms, CSV row validation, and Server Action input | Validate parsed CSV rows (catch bad phone numbers/emails before insert) and validate/sanitize all Server Action inputs. Pairs natively with react-hook-form via `@hookform/resolvers`. |
-| react-hook-form | 7.82.0 | Lead detail form, template editor form, category creation form | Minimal re-renders, works cleanly with Server Actions and Zod resolvers; standard choice for any non-trivial form (lead edit form has ~7 fields: notes, follow-up date, channel, source, value, stage, sub-niche). |
-| @tanstack/react-table | 8.21.3 | Leads list view: sortable/filterable table by sub-niche, stage, follow-up date | Headless — pairs with shadcn/ui's `<Table>` primitives for a fast, good-looking data table without pulling in a heavy grid component (e.g. AG Grid, overkill here). |
-| @dnd-kit/core + @dnd-kit/sortable | 6.3.1 / 10.0.0 | Drag-and-drop pipeline board (Novo → Contatado → Negociação → Fechado/Perdido) | Optional but high-value: a Kanban-style board where dragging a lead card between columns updates its stage is the natural UI for "ver o funil de relance." dnd-kit is the current maintained standard for React drag-and-drop (react-beautiful-dnd is dead/archived). |
-| date-fns | 4.4.0 | Follow-up date math (overdue/due-soon highlighting), display formatting | Tree-shakeable, no timezone footguns like legacy Moment.js (Moment is in maintenance-only/legacy mode — see What NOT to Use). Use `isBefore`, `differenceInDays`, `formatDistanceToNow` for the "overdue/upcoming follow-up" visual flags. |
-| Tailwind CSS | 4.4.3 | Styling | Fastest way for an AI coding agent to produce a clean admin UI without hand-writing CSS files; v4's CSS-first config (no `tailwind.config.js` needed for basics) simplifies setup further. |
-| shadcn/ui (via `shadcn` CLI) | CLI 4.13.1 | Pre-built accessible UI primitives (table, dialog, dropdown, badge, form, calendar/date-picker, toast) | Components are copied into your repo as plain editable code (not an npm dependency black box) — ideal when Claude Code is the one maintaining the codebase, since it can read and modify every component directly. This is the dominant 2025/2026 choice for exactly this kind of internally-used admin/CRM UI. |
-| lucide-react | 1.25.0 | Icons | Standard icon set paired with shadcn/ui; tree-shakeable. |
-| sonner | 2.0.7 | Toast notifications ("Lead imported", "Follow-up saved") | Standard shadcn/ui-recommended toast library, replaces the older `react-hot-toast`/`react-toastify` pattern in current shadcn projects. |
+Nenhuma nova. As bibliotecas de suporte que a milestone poderia sugerir (state management, analytics, tracking de clique) são todas desnecessárias — ver "What NOT to Use" abaixo.
 
 ### Development Tools
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| ESLint + `eslint-config-next` | Linting | Ships with `create-next-app`; keep default config, don't over-customize for a solo project. |
-| Drizzle Studio (`npx drizzle-kit studio`) | Visual DB browser | Lets the non-technical founder actually look at/edit raw lead data in a GUI without writing SQL — valuable for a solo admin who isn't a developer. |
-| Git + GitHub | Version control | Needed regardless of hosting choice; also enables Vercel's git-push-to-deploy if hosted (see variants below). |
+| Drizzle Kit (`drizzle-kit generate` + migração manual de backfill) | Gerar e revisar a migração SQL para `contactAttempts` e a nova tabela de configurações | Seguir o mesmo padrão já registrado no projeto para `stageChangedAt` (coluna nullable sem default + migração custom de backfill), documentado no comentário de `src/db/schema.ts:48`. Não usar `db push` para essa mudança — o projeto já usa migrações versionadas em `src/db/migrations`. |
+| `npm run guard:no-hard-delete` | Verificação existente | Não afeta a nova tabela de configurações diretamente (ela não é uma entidade "removível" no sentido do LEAD-04), mas rodar o guard depois da migração é boa prática de qualquer forma. |
 
 ## Installation
 
 ```bash
-# Scaffold
-npx create-next-app@latest crm-leads --typescript --tailwind --app --eslint
-
-cd crm-leads
-
-# Core data layer
-npm install drizzle-orm better-sqlite3
-npm install -D drizzle-kit @types/better-sqlite3
-
-# CSV import + validation
-npm install papaparse zod react-hook-form @hookform/resolvers
-npm install -D @types/papaparse
-
-# UI
-npx shadcn@latest init
-npm install @tanstack/react-table lucide-react sonner date-fns
-
-# Optional: drag-and-drop pipeline board
-npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
-
-# If hosting on Turso instead of a local SQLite file:
-npm install @libsql/client
+# Nenhuma instalação necessária.
+# As três features usam exclusivamente pacotes já presentes em package.json.
 ```
 
-No install needed for WhatsApp integration — it's a plain URL you construct client-side:
+## Integração com o código existente
 
-```typescript
-function buildWhatsAppLink(phone: string, message: string): string {
-  // phone: digits only, international format, no + / spaces / dashes
-  const cleanPhone = phone.replace(/\D/g, "");
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-}
+### 1. Auto-avanço de etapa ao clicar em "Abrir WhatsApp"
+
+O ponto de integração é literal, não hipotético: `src/components/whatsapp-preview-dialog.tsx` já renderiza
+
+```tsx
+<a
+  href={waHref}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={() => onOpenChange(false)}
+  ...
+>
+  <MessageCircle />
+  Abrir WhatsApp
+</a>
 ```
-This opens WhatsApp Web (desktop) or the app (mobile) with the message pre-filled and unsent — matching the explicit requirement of manual send, no Business API. Always run the template string through variable substitution ({nome}, etc.) *before* `encodeURIComponent`, never after.
+
+Esse `onClick` já dispara em todo clique real do usuário no link `wa.me`, em **todas as telas** que usam o modal (dashboard, pipeline, lista de leads, pós-importação) — porque `WhatsAppPreviewDialog` é o componente único e compartilhado (ver comentário do próprio arquivo: "compartilhado entre o dashboard... e o pipeline"). Isso resolve de saída o requisito "todas as telas" sem duplicar lógica.
+
+**Padrão recomendado:** estender esse `onClick` para também chamar uma nova Server Action (ex.: `registerWhatsAppContact(leadId, tipo)` em `src/actions/lead-actions.ts`), sem `await` bloqueando a UI e sem `event.preventDefault()` — a navegação do `<a href>` para `wa.me` é uma navegação de browser nativa, independente da Promise da Server Action; não há corrida entre elas porque o clique de um link com `target="_blank"` não é cancelado por trabalho JS assíncrono não-bloqueante disparado no mesmo handler.
+
+```tsx
+onClick={() => {
+  onOpenChange(false);
+  void registerWhatsAppContact(lead.id, tipo); // fire-and-forget
+}}
+```
+
+Dentro da Server Action, a lógica de "não regredir/re-avançar leads já além de Contatado" e "só conta tentativa, sempre" são dois efeitos deliberadamente separados:
+- `contactAttempts` incrementa sempre (qualquer `tipo` de template, qualquer etapa) — um `UPDATE ... SET contact_attempts = contact_attempts + 1`.
+- O avanço de etapa só roda quando `tipo === "primeiro_contato"` E a etapa atual é `"novo"` — mesmo padrão de guard condicional já usado em `updateLeadStage`/`updateLead` (comparar `current.stage` antes de escrever, exatamente como já é feito para decidir se `stageChangedAt` é tocado).
+
+Não existe "sinal confiável de mensagem enviada" e a milestone não pede isso — pede "clique em Abrir WhatsApp", que é exatamente o que esse handler já observa. Não há necessidade de detectar foco de janela, `visibilitychange`, ou qualquer heurística de "o WhatsApp realmente abriu" — isso seria engenharia excedente para um requisito que já é "clique no botão", não "confirmação de entrega".
+
+### 2. Contador `contactAttempts`
+
+Nova coluna em `leads` (schema.ts):
+
+```ts
+contactAttempts: integer("contact_attempts").notNull().default(0),
+```
+
+Sem tabela separada de "eventos de contato" — a milestone pede um contador simples exibido no card, não um histórico auditável por tentativa (isso seria over-engineering para o requisito descrito; se um histórico granular vier a ser pedido depois, uma tabela `contact_events` pode ser adicionada então, sem migração retroativa quebrada, porque o contador em `leads` continua válido independentemente). Exibição no card: adicionar um `<span>` em `pipeline-lead-card.tsx` ao lado do já existente indicador de "Esfriando" — mesmo padrão visual (ícone lucide-react + texto), sem novo componente de UI.
+
+### 3. Configuração de dias-parado por etapa (`/configuracoes`)
+
+Nova tabela relacional, não um KV genérico:
+
+```ts
+export const stageSettings = sqliteTable("stage_settings", {
+  stage: text("stage", { enum: ["novo", "contatado", "negociacao"] }).primaryKey(),
+  diasParaEsfriar: integer("dias_para_esfriar").notNull(),
+});
+```
+
+Justificativa de tabela dedicada em vez de KV genérico (`key TEXT, value TEXT`): o domínio é fechado e conhecido (3 etapas fixas: Novo/Contatado/Negociação — "Fechado"/"Perdido" não esfriam, são estados terminais), o valor é sempre um inteiro (dias), e uma PK textual por etapa dá integridade referencial e type-safety do Drizzle de graça (`stage` como enum, igual ao já usado em `leads.stage`). Um KV genérico (`settings(key, value)` com value como string livre) jogaria fora essa validação de tipo e exigiria parsing manual — solução mais genérica, porém pior, para um requisito que não é genérico.
+
+Seed inicial: migração de backfill insere as 3 linhas com o valor hoje hardcoded (5 dias para "contatado"; escolher um valor razoável para "novo"/"negociacao" ou deixar o admin definir no primeiro acesso — decisão de produto, não de stack).
+
+`src/app/pipeline/page.tsx` troca a constante `5` por uma leitura de `stageSettings` (uma query a mais no `Promise.all` já existente) e generaliza o filtro de `esfriandoLeadIds` para as 3 etapas em vez de só `"contatado"`.
+
+A página `/configuracoes` em si: uma rota nova (`src/app/configuracoes/page.tsx`) com um form react-hook-form + Zod (mesmo padrão de `template-form-dialog.tsx`/`lead-form-dialog.tsx`), N campos numéricos (um por etapa), submetido a uma Server Action que faz upsert nas 3 linhas. Nenhum componente shadcn novo é necessário além do que já existe (`Input type="number"`, `Field`, `Button`).
 
 ## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|--------------------------|
-| Next.js (Server Actions, no separate API) | Separate backend (Express/Fastify/NestJS) + separate frontend (Vite/React) | Only if you anticipate a second client consuming the same API (mobile app, third-party integration). Explicitly out of scope here — adding this split would be pure overhead for a solo browser tool. |
-| Drizzle ORM | Prisma | If the founder later hires a developer more familiar with Prisma's ecosystem/docs, or wants Prisma's more polished migration UI. Prisma is fine technically, but its generated-client build step and larger abstraction surface add friction when an AI agent is the primary maintainer reading/writing the code directly. |
-| SQLite (local file or Turso) | Postgres (Neon/Supabase) | If you expect >1 concurrent writer, need advanced relational features (window functions, full-text search at scale), or multi-user later. None apply to a solo CRM with a few thousand leads. |
-| PapaParse | `csv-parse` (Node) | If CSV parsing must happen server-side only on very large files (>50MB) with strict RFC4180 edge-case handling. Your CSVs come in irregular batches from a cowork partner and are best previewed in-browser before import — PapaParse is built for exactly that. |
-| date-fns | Day.js | Day.js is a fine, smaller alternative (2KB, Moment-like chainable API) — pick it if you prefer that API style. Functionally equivalent for this project's needs (date comparisons, "days until follow-up"). |
-| @dnd-kit | react-beautiful-dnd | Never — react-beautiful-dnd is archived/unmaintained (see What NOT to Use). |
+| `onClick` do `<a>` existente + Server Action fire-and-forget | `navigator.sendBeacon()` ou API Route dedicada para o "beacon" de clique | Só faria sentido se a milestone exigisse rastrear cliques mesmo quando o usuário fecha a aba imediatamente antes da Promise resolver — não é o caso aqui (é uma Server Action local rodando no mesmo processo Next.js, latência de milissegundos, sem risco real de perda em uso solo/local). `sendBeacon` resolve um problema de navegação cross-origin/unload que este app não tem. |
+| Coluna `stage_settings(stage, dias_para_esfriar)` relacional | Tabela KV genérica `settings(key TEXT, value TEXT)` | Se a v1.3+ trouxer muitas outras configurações heterogêneas do app (não só "dias por etapa") e a soma delas justificar um único mecanismo de settings — nesse momento reavaliar; hoje seriam 3 linhas de um domínio fechado, não vale o parsing manual de tipos que um KV genérico exige. |
+| `contactAttempts` como coluna inteira em `leads` | Tabela `contact_events(lead_id, tipo, created_at)` com contagem derivada | Se o produto pedir depois "ver histórico de quando cada tentativa aconteceu" (não só o total) — aí sim vale a tabela de eventos, com `contactAttempts` podendo inclusive continuar existindo como coluna desnormalizada para performance da leitura no card. Não implementar isso agora é evitar escopo que a milestone explicitamente não pediu. |
+| Server Action chamada direto do `onClick` do `<a>` | `<form action={serverAction}>` envolvendo o link | O elemento é um link de navegação real (`href` + `target="_blank"`), não um formulário; envolver um `<a>` em `<form>` para usar a sintaxe `action=` de Server Actions é possível mas desnecessariamente indireto quando o `onClick` já existe e já faz outra coisa (`onOpenChange(false)`) no mesmo componente. |
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| WhatsApp Business API / Twilio WhatsApp integration | Explicitly out of scope per project requirements — introduces per-message cost, Meta Business verification bureaucracy, and template-approval workflows that solve a problem this project doesn't have (no automated sending). | `wa.me` link construction, client-side, as shown above. |
-| Moment.js | In official maintenance mode (legacy), large bundle, mutable-date footguns. Its own docs recommend migrating away. | date-fns or Day.js |
-| react-beautiful-dnd | Archived by Atlassian, no longer maintained, incompatible with React 18/19 strict mode in places. | @dnd-kit |
-| Prisma (as default) | Not "wrong," but adds a codegen step and an opaque query engine binary — extra layer of indirection when Claude Code is generating/debugging the data layer directly. Reasonable if you have a specific reason (see Alternatives). | Drizzle ORM |
-| Full auth system (NextAuth/Clerk/Auth0) for a single admin | Explicit non-requirement — this is a solo tool, and pulling in a full auth provider (OAuth config, session management, user tables) is pure over-engineering for "only I use this." | If the app is hosted publicly (see Variants below) and needs any gate at all, use a single shared-passcode check in Next.js middleware (one env var, one cookie) — a few lines of code, no library. |
-| Building a REST API layer "for future-proofing" | Speculative generality the requirements don't ask for; adds fetch/serialization boilerplate for zero present benefit. | Server Actions now; add a route handler later only if/when an actual second client appears. |
-| A generic no-code CRM (Airtable, Notion, Google Sheets formulas) as the "real" build | The user is explicitly moving away from a spreadsheet because it doesn't model a pipeline/follow-up workflow well and this is a custom-code project with Claude Code as the builder — a no-code tool would fight the exact requirements (extensible category list, wa.me deep-link generation with template variables) rather than support them. | The custom stack above. |
+|-------|-----|--------------|
+| Qualquer state management library (Zustand, Redux, Jotai, Context global) | Nenhuma das 3 features introduz estado compartilhado entre componentes distantes que `useState` local + Server Actions + `revalidatePath` não resolvam — é exatamente o padrão que todo o resto do app já usa (`use-first-contact-trigger.ts` é a prova: um hook local simples, sem lib de estado). Adicionar uma lib de estado agora seria puramente especulativo. | `useState` local (já usado no dialog) + Server Actions + `revalidatePath("/pipeline")` (já é o padrão de toda mutação no repo) |
+| SDK de analytics/click-tracking (PostHog, Mixpanel, Segment, GA) para contar cliques em WhatsApp | O requisito é um contador simples e local no card do pipeline (dado de negócio, não telemetria de produto) — puxar uma ferramenta de analytics externa para persistir um número que já mora no seu próprio banco SQLite seria over-engineering, custo desnecessário (a maioria tem free tier limitado) e um vazamento de dado de lead (nome, contato) para um serviço de terceiros sem necessidade, o que é especialmente sensível tratando-se de dados pessoais de leads de saúde. | Coluna `contactAttempts` no próprio `leads`, incrementada pela Server Action já descrita |
+| `navigator.sendBeacon` / Service Worker para "garantir" que o clique é registrado mesmo com navegação | Resolve um problema (perda de request em unload de página) que não existe aqui: a Server Action roda no mesmo processo do Next.js local, sem cross-origin, sem beforeunload real (o link abre em nova aba/app, a aba do CRM continua viva) | `onClick` simples, fire-and-forget, como descrito acima |
+| Nova tabela `settings` genérica tipo "key-value config store" | Domínio fechado (3 etapas fixas conhecidas em tempo de desenvolvimento) não precisa de um mecanismo de configuração arbitrário e schema-less; isso tira o type-safety que o Drizzle dá de graça com um enum | Tabela `stage_settings` tipada, como descrito acima |
+| Rota de API (`route.ts`) para registrar o clique ou salvar configurações | Nenhum consumidor externo a esta UI existe (mesma razão documentada no `CLAUDE.md` do projeto para preferir Server Actions em vez de API — decisão já tomada para o app inteiro, não deve ser revertida numa milestone incremental) | Server Actions em `src/actions/lead-actions.ts` (contador/avanço) e um novo `src/actions/settings-actions.ts` (configurações) |
+| Biblioteca de detecção de "app aberto"/deep-link status (ex.: bibliotecas que tentam detectar se o WhatsApp app abriu via `visibilitychange`/timeout) | A milestone e o `wa.me` explicitamente não prometem confirmação de envio — só "link foi clicado" (ver `<question>` do research: "não há sinal confiável de 'mensagem realmente enviada'"). Tentar simular essa confirmação é uma heurística frágil (falsos positivos/negativos entre desktop web WhatsApp, app mobile, diferentes navegadores) que a spec do produto não pede e que criaria falsa confiança no dado. | Contar o clique como o evento em si — é o que o CRM consegue observar de forma confiável, e é o que foi pedido. |
 
 ## Stack Patterns by Variant
 
-**If running strictly on the admin's own computer, never needing access from elsewhere:**
-- Use `better-sqlite3` with a single local `.db` file (e.g., `./data/crm.db`), run the Next.js app in production mode locally (`npm run build && npm start`) or even just `npm run dev`.
-- Zero hosting cost, zero external accounts, zero network dependency. Backup = copy one file.
-- Tradeoff: the admin must have the app running (a terminal open, or a simple double-click start script) to use it, and it's only reachable from that one machine.
+**Se o app permanecer local-only (variante atual, `better-sqlite3` + arquivo local):**
+- Migração de schema roda com `npx drizzle-kit generate` seguido de `npx drizzle-kit migrate` (ou execução manual do arquivo gerado), como já documentado no padrão existente do projeto para `stageChangedAt`.
+- Nenhuma mudança de infraestrutura necessária para estas 3 features.
 
-**If the admin wants it reachable from any browser without keeping a local process running (recommended default):**
-- Deploy to Vercel (free tier is sufficient for one user) and use Turso (libSQL) instead of a local file — Turso's free tier (5GB storage, 500M row reads/month as of mid-2026) is far beyond what a solo lead CRM needs, and it's SQLite-compatible so the Drizzle schema/queries do not change.
-- Add a lightweight passcode gate (Next.js middleware checking a cookie against an env-var secret) since the data is personal lead/PII data and a public Vercel URL is otherwise unauthenticated. This is a ~20-line middleware file, not a library — do not reach for NextAuth/Clerk for this.
-- This is the recommended default: it removes the daily friction of "remember to start the server" for a non-technical founder, at the cost of one extra free-tier account (Turso) beyond Vercel/GitHub.
-
-**If the lead list grows far beyond expectations (tens of thousands of leads, heavy reporting):**
-- Migrate from SQLite/Turso to Postgres (Neon or Supabase) — Drizzle's schema layer makes this a driver swap, not a rewrite, provided you avoid SQLite-only SQL features up front.
+**Se e quando o app migrar para Turso/hosted (variante descrita no STACK.md do v1 original, ainda não adotada por decisão do usuário em 2026-07-29):**
+- O mesmo schema Drizzle (`contactAttempts`, `stageSettings`) funciona sem alteração — só a string de conexão muda (`drizzle-orm/libsql` em vez de `drizzle-orm/better-sqlite3`), confirmando que essa decisão de stack não precisa ser revisitada agora.
 
 ## Version Compatibility
 
 | Package A | Compatible With | Notes |
 |-----------|-----------------|-------|
-| next@16.2.10 | react@19.2.7, react-dom@19.2.7 | Next.js 16 requires React 19; `create-next-app@latest` wires this up automatically. |
-| drizzle-orm@0.45.2 | drizzle-kit@0.31.10 | Keep these two in lockstep (minor version bumps together) to avoid migration-generation mismatches. |
-| drizzle-orm | better-sqlite3@12.x (local) OR @libsql/client@0.17.x (Turso) | Same Drizzle schema code works against either driver — only the `drizzle-orm/better-sqlite3` vs `drizzle-orm/libsql` import and connection setup differ. Decide local-vs-hosted per the Variants section above; switching later only touches the DB connection file. |
-| tailwindcss@4.4.3 | shadcn CLI@4.13.1 | shadcn's current CLI generates Tailwind v4-compatible components by default; do not mix a Tailwind v3 project with the current shadcn CLI output without checking its v3 compat flag. |
-| typescript@5.9.x | next@16.2.10, eslint-config-next | Fully supported today. TypeScript 7.0 (GA July 2026) is compatible with plain Next.js builds but some auxiliary tooling (certain ESLint/TS-language-service integrations) is still catching up pending 7.1's restored programmatic API — stay on 5.9.x until 7.1 stabilizes, then upgrade freely (it's a low-risk version bump, not a rewrite). |
-| zod@4.4.0 | @hookform/resolvers (latest) | Confirm resolver package version supports Zod v4's changed error format if you pin an older `@hookform/resolvers` — use current `latest` to avoid mismatch. |
+| drizzle-orm@0.45.2 | drizzle-kit@0.31.10 (já em uso) | Nenhuma mudança de versão necessária para adicionar coluna/tabela nova — é uso normal do ORM já instalado, sem features novas do Drizzle sendo requisitadas. |
+| next@16.2.10 (Server Actions) | react@19.2.7 | Chamar uma Server Action a partir de um `onClick` de elemento nativo (`<a>`), fora de um `<form>`, é um padrão suportado desde Server Actions estáveis (Next 14+) e continua válido em 16.2.10 — não é um uso experimental. |
 
 ## Sources
 
-- npm registry (`npm view <pkg> version`), queried live 2026-07-19 — HIGH confidence for all version numbers above (next, react, typescript, drizzle-orm, drizzle-kit, better-sqlite3, @libsql/client, papaparse, zod, react-hook-form, @tanstack/react-table, date-fns, tailwindcss, shadcn, lucide-react, sonner, @dnd-kit/core, @dnd-kit/sortable)
-- [devblogs.microsoft.com/typescript/announcing-typescript-7-0](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/) — TypeScript 7.0 GA confirmation (2026-07-08), programmatic API gap — HIGH confidence
-- [turso.tech/pricing](https://turso.tech/pricing) and related 2026 coverage — Turso free tier limits (5GB storage, 500M row reads/month) — MEDIUM confidence (pricing pages change; verify at signup time)
-- WebSearch: "Next.js 16 Server Actions vs API Routes 2026" (multiple 2026-dated articles, cross-referenced) — Server Actions as default for internal CRUD, API routes only for external/third-party consumers — MEDIUM-HIGH confidence (consistent across independent sources)
-- WebSearch: "best CSV parsing library JavaScript 2026" (npm-compare.com, leanylabs.com benchmarks, oneschema.co) — PapaParse as browser-parsing standard — HIGH confidence (converging sources + it's the only major browser-oriented CSV parser)
-- WebSearch: wa.me link construction pattern (whatsform.com, fullpress.it, multiple 2026 guides) — URL format and encodeURIComponent requirement — HIGH confidence (WhatsApp's own documented `wa.me`/`api.whatsapp.com/send` format, corroborated by every source)
-- General ecosystem knowledge: react-beautiful-dnd archived status, Moment.js legacy status — HIGH confidence (well-established, long-standing facts, not time-sensitive)
+- Leitura direta do código-fonte do projeto (HIGH confidence, é a fonte de verdade sobre o que já existe):
+  - `src/db/schema.ts` — schema atual de `leads`/`templates`/`subnichos`, padrão de coluna nullable + comentário de migração custom (`stageChangedAt`)
+  - `src/actions/lead-actions.ts` — padrão de Server Action com guard "só grava se a etapa mudou" (`updateLead`, `updateLeadStage`), já reaproveitável para o guard de auto-avanço
+  - `src/components/whatsapp-preview-dialog.tsx` — o `<a href={waHref}>` real com `onClick` já existente, ponto de integração exato para o auto-avanço e o contador
+  - `src/components/whatsapp-send-button.tsx`, `src/components/pipeline-lead-card.tsx` — padrão de ícone + `onClick` prop-drilled, reutilizável para exibir `contactAttempts` no card
+  - `src/app/pipeline/page.tsx` — cálculo hardcoded de "esfriando" (`stage === "contatado"` + `differenceInDays >= 5`) a ser generalizado
+  - `package.json` — confirma todas as versões acima como já instaladas, nenhuma desatualizada para o uso proposto
+- `.planning/PROJECT.md` — escopo exato da milestone v1.2 e requisitos textuais das 3 features
+- Conhecimento geral de Server Actions do Next.js (invocação fora de `<form>`, semântica fire-and-forget de handlers assíncronos não-bloqueantes em `onClick`) — MEDIUM-HIGH confidence, comportamento estável e documentado da própria API de Server Actions desde sua introdução, não dependente de mudanças recentes de versão
 
 ---
-*Stack research for: Solo-admin health-lead CRM (browser-based, CSV import, sales pipeline, WhatsApp deep-link templates)*
-*Researched: 2026-07-19*
+*Stack research for: adição de auto-avanço de pipeline por clique em WhatsApp, contador de tentativas de contato, e tela de configuração de dias-parado por etapa*
+*Researched: 2026-07-30*

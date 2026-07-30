@@ -1,205 +1,129 @@
 # Feature Research
 
-**Domain:** Solo-admin lead-tracking CRM (health-niche leads, CSV import, WhatsApp click-to-chat)
-**Researched:** 2026-07-19
-**Confidence:** MEDIUM-HIGH (patterns cross-verified across multiple CRM vendors, CSV-import tooling vendors, and WhatsApp click-to-chat documentation; no single-source claims used for core recommendations)
+**Domain:** CRM pipeline automation — auto-advance on outreach, contact-attempt counters, configurable stale-in-stage alerts (v1.2 milestone, solo lead-tracking CRM)
+**Researched:** 2026-07-30
+**Confidence:** MEDIUM (commercial CRM patterns verified across multiple sources; scope/sizing judgment is project-specific and grounded in the existing codebase, not externally sourced)
+
+> Scope note: this file covers ONLY the three v1.2 milestone features (auto-advance on WhatsApp contact, contact-attempt counter, configurable stale-in-stage settings). It supersedes the v1.0 FEATURES.md (2026-07-19), which covered the full original app scope (CSV import, pipeline, templates, etc.) — those features are now shipped and validated; see `.planning/PROJECT.md` "Validated" section.
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features a solo user migrating off Google Sheets will assume exist. Missing these makes the tool feel like a downgrade from the spreadsheet.
+Features expected once a pipeline board with WhatsApp outreach already exists — without these, the board still requires the exact manual bookkeeping this milestone exists to remove.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| CSV import with column mapping | Leads arrive in bulk from the cowork partner; re-typing them is a non-starter — this is the #1 reason to abandon Sheets | MEDIUM | Needs: file select → header preview → map columns to fields → validate → confirm. Don't require exact header names; auto-match common variants (nome/name, telefone/phone, email) and let user fix mismatches. |
-| Duplicate detection on import | Same cowork batch or re-import of an updated list will otherwise create dupes silently, which is exactly the mess Sheets already has | MEDIUM | Match on phone number and/or email (best unique keys available in this domain). Show count of "N new / M possible duplicates" before committing, don't silently skip or silently overwrite. |
-| Import preview before commit | Users need to catch a wrong delimiter/encoding/mis-mapped column before hundreds of bad rows land in the database | LOW-MEDIUM | Show first 3-5 rows mapped to fields; require explicit "Confirm import" step. |
-| List view of all leads with sort/filter | Baseline replacement for scrolling a spreadsheet | LOW | Sort by name, stage, follow-up date, value. Filter by sub-niche, stage, channel. |
-| Pipeline/kanban board view (Novo → Contatado → Negociação → Fechado/Perdido) | This is the core value prop stated in PROJECT.md — "see the funnel at a glance" | MEDIUM | Drag-and-drop card between columns, or simpler click/dropdown to change stage (drag-and-drop is nicer but not mandatory for v1 — a stage-select dropdown on the card is a legitimate lower-complexity substitute). Column headers show count per stage. |
-| Free-text notes per lead | Directly named in requirements; every simple CRM has this, it's the substitute for scattered spreadsheet comment cells | LOW | Single growing text field is enough; timestamped note history is a differentiator, not table stakes, for a solo user. |
-| Follow-up date field per lead | Directly named in requirements — this is the #2 core value prop ("never lose track of a follow-up") | LOW | Just a date field is table stakes; the reminder/highlight behavior (below) is what makes it valuable. |
-| Visual overdue/due-soon follow-up highlighting | Users expect the system to surface what Sheets couldn't — a color-coded overdue list is the pattern used across CRMs from OnePageCRM to Capsule | MEDIUM | Simplest correct version: a "Follow-ups" view or dashboard widget listing leads with follow-up date <= today (overdue, red) and next 1-3 days (due soon, yellow). No push notifications/email needed for solo browser-only use — a glanceable list on load is sufficient. |
-| Contact channel field (Instagram/WhatsApp) | Named in requirements; needed to know how to reach out and for the wa.me flow to apply only when relevant | LOW | Simple select field. |
-| Lead source field | Named in requirements — track that leads came from "cowork" vs future sources | LOW | Free text or select; keep extensible like sub-niche. |
-| Estimated deal value field | Named in requirements, standard CRM field, needed for "funil de vendas" to be meaningful (not just counts but pipeline value) | LOW | Numeric field; sum-per-stage display is a natural, cheap enhancement (see differentiators). |
-| Editable lead detail view | Users need to correct/update any field post-import (phone typos, notes, stage) | LOW | Standard form-based edit. |
-| Sub-niche as an extensible list (not hardcoded) | Named explicitly in requirements — user's business already has a growing set of niches, and hardcoding forces a code deploy to add "psicólogo" next month | LOW-MEDIUM | This is really a tagging/category system — see dedicated dependency note below. Must support "type new value" not just "pick from dropdown of fixed options." |
-| Filter/segment leads by sub-niche | Named in requirements; needed once >1 sub-niche exists, which is immediate | LOW | Standard filter control once sub-niche exists as a field. |
-| WhatsApp template with variable substitution | Named in requirements as the mechanism to speed up outreach — core to the "aumentar produtividade" value prop | MEDIUM | Store templates with placeholders (`{nome}`, `{subnicho}`, etc.); render by substituting from lead fields before building the wa.me link. |
-| One-click "open WhatsApp with pre-filled message" (wa.me link) | Named in requirements as the delivery mechanism; this is the entire point of having templates | LOW-MEDIUM | `https://wa.me/<countrycode+number, digits only>?text=<url-encoded message>`. No API, no auth, just link construction + `window.open`. Verified pattern, HIGH confidence — this is the standard, documented WhatsApp click-to-chat mechanism (used by every "WhatsApp link generator" tool and widely documented). |
+| Auto-advance stage on first-outreach action | Mainstream pipeline CRMs (Pipedrive, HubSpot, Zoho) treat a genuine first-contact activity as a stage-advancing signal, via native activity sync or a one-click workflow rule — manually dragging a card after every WhatsApp click is exactly the "esquecimento" friction this milestone targets | LOW–MEDIUM | Already scoped tightly in PROJECT.md: only `novo`→`contatado`, only on `templates.tipo === "primeiro_contato"` clicks, never regresses/re-advances leads already past `contatado`. This one-directional, single-transition scope is a smart cut versus general "any activity moves any stage" automation, which is genuinely harder to get right (see Anti-Features) |
+| Per-stage "days stuck" / stale badge | Pipedrive's "Rotting" feature (per-stage configurable day threshold, red-tinted card, timer resets on activity) is the direct commercial analogue and is considered baseline pipeline hygiene in 2026 CRMs — Freshworks ("staling age") and Zoho ("Idle Deal Alert") ship equivalent concepts | LOW | The project already has this at v1.0 scale: a hardcoded 5-day, `contatado`-only "esfriando" badge computed server-side in `src/app/pipeline/page.tsx`. This milestone's job is to *generalize* the threshold to 3 stages and move the constant into admin-editable settings — not invent new visual language |
+| Visible attempt/touch count on the card | Outbound sales tooling (Outreach.io, Salesloft, Apollo cadences) universally exposes a "touch N of M" or attempt count per contact — reps rely on it to answer "have I already tried enough." For a solo admin manually clicking WhatsApp, a simple integer badge answers "did I already try this lead, and how many times" without opening the lead detail | LOW | A plain numeric badge (e.g. "3x") on the pipeline card is sufficient — see Anti-Features for what NOT to build around it (no color escalation, no auto "give up" logic, no channel breakdown) |
+| Settings surface to edit thresholds without a code change | Every CRM offering a rotting/staleness feature (Pipedrive, Zoho, Freshworks) exposes the threshold as an admin-configurable number, not a hardcoded constant, because "what counts as stuck" is domain- and admin-specific | LOW | Matches what's already scoped: one `/configuracoes` page, one row per stage (Novo/Contatado/Negociação), one integer input each. No need for per-lead overrides, multiple thresholds per stage, or per-subnicho variants — that granularity targets teams, not a solo admin |
 
-### Differentiators (Competitive Advantage / High-Value Nice-to-Haves)
+### Differentiators (Competitive Advantage)
 
-Not required to feel "complete," but directly reinforce the stated Core Value (never miss a follow-up, see the funnel at a glance) and are cheap enough to be worth doing given the small scope.
+None of these three features are meant to differentiate this milestone — PROJECT.md frames them explicitly as catching the app up to CRM baseline ("o sistema acompanha... sozinho, avisando... em vez de depender só da memória do admin"). The one place a solo tool legitimately differs from enterprise CRMs — and where this project should keep differing — is doing all three with near-zero configuration ceremony (no workflow-builder UI, no rule engine), unlike Pipedrive/HubSpot/Zoho's heavier automation-builder UX built for teams.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Auto-trigger "send first-contact template" prompt right after CSV import | Turns import from a passive data-entry event into an action queue — directly named in requirements ("system suggests opening WhatsApp with first-contact template") | MEDIUM | E.g., after import, land on a "leads awaiting first contact" list, each row with a one-click wa.me button pre-filled. |
-| Auto-surface "send follow-up template" prompt on the follow-up date | Same mechanism as above applied to the follow-up date — this closes the loop between "reminder" and "action," which most generic CRMs treat as two separate disconnected features (a reminder, and separately a click-to-chat button) | MEDIUM | The dashboard's "due today/overdue" list should have the wa.me button inline, not just a bare reminder — removes a navigation step. |
-| Pipeline value roll-up per stage (sum of estimated value) | Turns the "kanban" from a count-only funnel into a real sales-forecast view; trivial to add given value field already exists | LOW | Sum + count in each column header, e.g. "Negociação (4) — R$ 12.400". |
-| Multiple templates per stage/purpose (first contact, follow-up 1, follow-up 2, re-engagement, closing) | Sheets forces one canned message copy-pasted from a note; a small library of purpose-specific templates is a real productivity multiplier with low added cost once the template+substitution engine exists | LOW-MEDIUM | Simple: templates list with a "type/purpose" label; user manually picks the right one contextually (no need for automatic selection logic). |
-| Template variable preview before sending | Reduces the "oops sent {nome} literally" failure mode | LOW | Show rendered message text before generating the link, ideally editable at the last second (user may want to tweak per-lead before opening WhatsApp). |
-| Manage sub-niche list explicitly (rename, merge, deactivate) | Prevents the classic tag-sprawl problem ("nutricionista" vs "Nutricionista" vs "nutri") that plagues freeform tagging systems in every CRM researched | LOW-MEDIUM | A small admin screen listing existing sub-niches with rename/merge; still simpler than a generic tag system since this is single-select-per-lead, not multi-tag. |
-| Kanban drag-and-drop (vs. dropdown-only stage change) | Nicer, faster interaction once a board view is being built anyway; purely a UX polish over the table-stakes dropdown approach | MEDIUM | Optional upgrade after MVP validates the flow — the dropdown/select version already satisfies the core requirement. |
-| "Days in current stage" / stalled-lead indicator | Natural extension of pipeline visibility — surfaces leads stuck in "Negociação" for weeks, a common blind spot in spreadsheets | LOW | Just a computed field from stage-change timestamp; needs stage-change history to be timestamped (minor addition when moving leads). |
-| Notes as a timestamped log (not a single blob) | More useful than one free-text field for reconstructing "what happened when" with a lead over months | LOW-MEDIUM | Append-only list of dated notes vs. overwritten single field. |
-| Simple full-text search across leads | Faster than filters when the list grows into the hundreds | LOW | Search name/phone/notes. |
+| Toast confirmation on auto-advance ("Lead movido para Contatado") | Silent background stage changes erode trust in the board and push users back to manually re-checking everything — defeating the automation's purpose. Already named in PROJECT.md Active requirements | LOW | Reuses the existing `sonner` toast pattern already used elsewhere in the app (e.g. import confirmations) — no new library or pattern needed |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Things that look appealing but would add disproportionate complexity or actively work against this project's explicit constraints (solo, browser-only, no API sending).
+Extensions that look like natural next steps for these three features but would be over-engineering for a 1-person tool.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|------------------|-------------|
-| WhatsApp Business API / automated sending | "Wouldn't it be nice if it sent automatically?" | Explicitly out of scope per PROJECT.md — requires official WhatsApp Business API account, Meta approval/verification, per-message cost, webhook infrastructure; total mismatch for a solo, zero-budget internal tool | wa.me link + manual click-to-send (already the chosen approach) |
-| AI-generated personalized messages per lead | Feels "smarter" than fixed templates | Explicitly deferred in PROJECT.md; requires an LLM API integration, cost per generation, and prompt/quality management — disproportionate for v1 when fixed templates with variable substitution already solve 90% of the "customize per lead" need | Fixed templates with `{variable}` substitution (already the v1 plan); revisit AI as v2 once template approach is validated |
-| Multi-user accounts / roles / permissions | "Might add an assistant later" | Explicitly out of scope; adds auth, session management, permission checks, and audit-trail complexity with no current user | Single implicit admin session (or even no login at all if locally hosted/single deployment) — revisit only if a second person actually joins |
-| Native mobile app | "Nice to check leads on the go" | Explicitly out of scope; browser-on-computer is the stated usage pattern — building/maintaining a separate mobile client is pure overhead | Responsive web layout is enough if occasional phone browser access happens; no dedicated app |
-| Free-form multi-tag system (arbitrary tags per lead, tag clouds, tag analytics) | Tags feel more "flexible" than a single sub-niche field | Research shows freeform tagging without governance reliably fragments into near-duplicate variants ("nutricionista"/"Nutri"/"NUTRICIONISTA") within months, especially with only one person maintaining it inconsistently over time — the requirement is a single categorical field (sub-niche) per lead, not open multi-tagging | A single, extensible (but centrally managed) sub-niche field with an admin list (add/rename/merge) — governance without the multi-tag complexity |
-| Full marketing-automation follow-up sequences (auto-scheduled multi-step drip cadences) | Common in "grown-up" CRMs (HubSpot-style workflows) | Way beyond a solo user's needs and beyond "manual click-to-send" constraint — automation implies scheduled/triggered sending, which conflicts with the explicit manual-send requirement | Manual follow-up date + one click to open the pre-filled wa.me link when the user chooses to act |
-| Email/calendar sync, call logging, VOIP integration | Standard "grown-up" CRM feature bundle (Pipedrive/Salesforce-style) | Not part of the stated workflow (Instagram/WhatsApp contact only); adds OAuth integrations, sync jobs, and UI surface for channels not used | Keep the channel field simple (Instagram/WhatsApp) with no live integration to either |
-| Reporting/analytics dashboards with charts, forecasting, conversion-rate trends | Feels "complete" like enterprise CRMs | Disproportionate for a single admin who can eyeball a kanban board with 4 stages; adds significant build cost for a vanity feature at this scale | The per-stage count + value roll-up (a differentiator above) already gives 90% of the insight a solo user needs |
-| Import from other sources (API integrations, form connectors, Zapier) | "Future-proofing" | Only one input source exists today (CSV from cowork) — building generic import infrastructure now is speculative work with no current requirement | CSV import only; revisit if the source channel changes |
+| Auto-advance on *any* WhatsApp click (not just `primeiro_contato`), or on *any* lead activity (notes, edits, calls) | "Why only the first-contact template? Any contact is progress" — mirrors how Pipedrive/HubSpot reset rotting timers on almost any activity | Broadens the trigger surface exactly where false positives matter most: a `follow_up` or `prova_valor` template click on a lead already in `negociacao` should not silently move it sideways or backward into `contatado`. PROJECT.md already correctly scopes this out ("sem regredir/re-avançar leads já além de Contatado") — keep it that way | Keep auto-advance scoped to `novo`→`contatado` on `primeiro_contato` clicks only, exactly as decided |
+| Treating "wa.me link clicked" as proof the message was actually sent (e.g. auto-logging a confirmed "contact made" fact, or auto-completing the lead's follow-up) | Feels like "the system already knows I clicked, why ask again" | This is the classic CRM automation false-positive: a link click is not delivery, not read, not reply. `wa.me` opens WhatsApp Web/app with the message pre-filled — the admin can still close the tab, edit the message into nonsense, or never actually hit send inside WhatsApp. Because there is no WhatsApp Business API integration (explicitly out of scope per CLAUDE.md), the CRM has zero delivery confirmation and never will in this architecture | Auto-advance the pipeline *stage* only — a soft, reversible signal the admin can drag back if it fired wrongly. Never auto-write irreversible facts (e.g. a "contacted = true" log, or auto-clearing the follow-up date) off a click alone |
+| Contact-attempt counter that escalates color (e.g. turns red after 3 attempts) or implies a "give up" threshold | Cadence tools (Outreach, Salesloft) use attempt counts to trigger "remove from sequence" logic, so escalation feels like the natural next step | For a solo admin with no automated cadence engine behind it, an escalating counter invents a decision nobody asked for ("should I stop trying?") without any real logic backing the color change — it becomes noise. Auto-resetting it on stage change would also silently destroy history the admin may want later ("I called this lead 6 times over 2 months before they went cold") | Keep it a simple, permanent, monotonically increasing integer badge — no color escalation, no reset on stage change. It's a memory aid, not a workflow trigger |
+| Per-lead or per-subnicho override of stale-in-stage thresholds | "Different sub-nichos convert at different speeds, so thresholds should vary per subnicho too" — enterprise tools like Zoho's Idle Deal Alert support multiple timeout tiers | Multiplies the config surface (3 stages × N subnichos) for a tool with one admin and a still-growing subnicho list — the milestone scope explicitly says "cada [etapa] com seu N configurável," not per-subnicho | Ship per-stage-only thresholds (3 rows on `/configuracoes`); revisit per-subnicho only if real usage shows the single threshold is wrong for a specific niche |
+| Notification/email/push alert when a lead goes stale | Pipedrive, Zoho, Freshworks all layer notification/digest systems on top of the visual badge | New infrastructure (delivery, digest scheduling, unsubscribe) for a single user who already opens the app daily by design — redundant with the follow-up dashboard-as-homepage pattern already validated in v1.0 | Extend the existing dashboard/badge visual pattern to reflect the new per-stage thresholds; no new notification channel |
+| Auto-advance on WhatsApp click for leads already past `contatado` (e.g. jump `negociacao`→`fechado` on some hypothetical "closing" template) | Natural-feeling extension once `novo`→`contatado` works — "why not automate the whole pipeline" | Later stages represent business *outcomes* (a deal won or lost), not contact-attempt facts. Collapsing "I clicked a WhatsApp template" into "I closed the deal" is a much higher-stakes false positive than a stage nudge into `contatado`. The project's own decision (D-01 in `03-CONTEXT.md`, splitting Fechado/Perdido as distinct, deliberate outcomes) reinforces treating later transitions as admin-confirmed, not inferred | Auto-advance stays confined to the single `novo`→`contatado` transition; all later transitions remain manual drag-and-drop |
 
 ## Feature Dependencies
 
 ```
-CSV Import (with column mapping + duplicate detection)
-    └──requires──> Lead data model (name, phone, sub-niche, channel, source, value, stage, follow-up date, notes)
-                       └──requires──> Sub-niche field defined (extensible list)
+Auto-advance Novo→Contatado on WhatsApp click
+    └──requires──> Existing WhatsApp send trigger points (WhatsAppSendButton/WhatsAppPreviewDialog,
+                    used on dashboard, pipeline cards, lead list, post-import list)
+    └──requires──> templates.tipo === "primeiro_contato" (already in schema)
+    └──requires──> leads.stage + leads.stageChangedAt (already in schema, already written by the
+                    drag-and-drop stage-change path)
+    └──requires──> Toast pattern (sonner, already used elsewhere in the app)
 
-Pipeline / Kanban View
-    └──requires──> Lead data model (stage field)
-    └──enhances──> Pipeline value roll-up per stage (needs value field too)
+Contact-attempt counter
+    └──requires──> NEW leads.contactAttempts column (not in current schema — needs a migration)
+    └──requires──> Same WhatsApp send trigger points as auto-advance, but fires for ANY template
+                    (not gated to primeiro_contato or to stage===novo)
+    └──enhances──> Pipeline card UI (pipeline-lead-card.tsx already renders the stage +
+                    "esfriando" badge; counter is an additional badge alongside it)
 
-Sub-niche filter/segmentation
-    └──requires──> Sub-niche field on lead
-    └──requires──> Sub-niche admin list (add/rename/merge) [differentiator, but should exist before sub-niche count grows past a handful]
+Configurable stale-in-stage settings (/configuracoes)
+    └──requires──> NEW settings storage (today's threshold is a hardcoded literal `5` in
+                    src/app/pipeline/page.tsx — no settings table/row exists yet)
+    └──replaces──> Hardcoded esfriandoLeadIds logic in src/app/pipeline/page.tsx
+                    (currently: stage === "contatado" && diff >= 5, single stage only)
+    └──enhances──> PipelineBoard / pipeline-lead-card badge rendering (extends "esfriando"
+                    from 1 stage to 3: Novo / Contatado / Negociação)
 
-WhatsApp template + variable substitution
-    └──requires──> Lead data model (fields to substitute: {nome}, {subnicho}, etc.)
-    └──requires──> Template storage (CRUD for templates)
-                       └──enables──> wa.me link generation (click-to-chat)
-                                          └──enables──> Auto-prompt "send first contact" after import
-                                          └──enables──> Auto-prompt "send follow-up" on due date
-
-Follow-up date field
-    └──enables──> Overdue/due-soon dashboard highlighting
-                       └──enhances──> Auto-prompt "send follow-up" template (wa.me button inline in the reminder list)
-
-Stage-change tracking (timestamp on stage transition)
-    └──enables──> "Days in current stage" / stalled-lead indicator [differentiator]
-
-Freeform multi-tag system ──conflicts──> Single-select sub-niche field
-    (the project explicitly wants one categorical, extensible sub-niche per lead — not open multi-tagging;
-     these are two different data models and should not both be built)
+Auto-advance ──shares-trigger-surface-with──> Contact-attempt counter
+    (both fire off the same physical action — clicking "Abrir WhatsApp" — but with different
+     scope: auto-advance only fires for primeiro_contato + stage===novo; the counter increments
+     for ANY template click regardless of current stage)
 ```
 
 ### Dependency Notes
 
-- **CSV Import requires the full lead data model to exist first:** column mapping is meaningless without target fields defined (sub-niche, channel, source, value, stage, follow-up date, notes) — the data model is a prerequisite phase, not parallel work.
-- **Sub-niche as extensible list requires an admin list, not just a free-text field, once past 2-3 values:** a pure free-text input on every lead-edit screen will fragment into typos/casing variants (the exact anti-pattern research surfaced repeatedly for freeform tagging). A small "manage sub-niches" screen (even just add/rename) should ship alongside the field, not be deferred — this is cheap and prevents the single biggest classic mistake in this feature area.
-- **wa.me link generation requires the template + variable system, which requires the lead data model:** the whole click-to-chat flow is downstream of having lead fields to substitute into a stored template string.
-- **Auto-prompt behaviors (post-import first-contact, follow-up-due) enhance but do not require anything beyond the base wa.me mechanism** — they're a UI/flow layer (which list you land on, whether the button is inline) on top of the already-required primitives. Cheap to add once the primitives exist, so bias toward including them in an early phase rather than treating them as a distant v2.
-- **Freeform multi-tag system conflicts with the sub-niche field:** don't build both a generic tagging engine and a dedicated sub-niche select — pick the single-field extensible-list approach (matches the actual requirement and avoids duplicate/competing categorization UIs).
-- **Kanban drag-and-drop enhances but does not require the base pipeline view:** a dropdown-based stage-change control is a legitimate, much lower-complexity substitute that satisfies "move a lead between stages" — drag-and-drop is a nice upgrade, not a blocker for the funnel view.
+- **Auto-advance requires centralizing the existing WhatsApp trigger points, not adding new ones.** The milestone requires this to work on "todas as telas" — dashboard, pipeline cards, lead list, post-import list all currently render `WhatsAppSendButton`/`WhatsAppPreviewDialog` independently. The advance (and the counter increment) logic must live in one shared place — e.g. the Server Action invoked by the send/confirm flow — rather than being duplicated per screen, or some screens will silently be missed. The existing "first contact auto-trigger" (auto-opens the WhatsApp dialog right after lead creation/import) is a UX precedent for the app acting on a WhatsApp-related event without an extra click, but it is a *different* trigger (creation-time, not click-time) — do not conflate the two code paths.
+- **Contact-attempt counter requires a new schema column.** Nothing in `src/db/schema.ts`'s `leads` table currently tracks attempt count — this is new persisted state requiring a Drizzle migration, not a UI-only feature.
+- **Configurable stale-in-stage requires new settings persistence before `/configuracoes` can read/write anything.** Today's 5-day/`contatado`-only threshold is a literal `5` in `src/app/pipeline/page.tsx` (~line 32), not a database value. This milestone must introduce some persistence for 3 admin-editable integers (a small `configuracoes`/settings table, or a reused key-value pattern) as a prerequisite.
+- **Configurable stale-in-stage replaces, not duplicates, existing logic.** The `esfriandoLeadIds` computation in `pipeline/page.tsx` is the single place that generalizes from (1 stage, fixed 5) to (3 stages, each with its own configurable N) — treat this as a refactor of existing server-side logic, not new logic added alongside the old.
+- **Auto-advance and the counter share a trigger surface but must stay decoupled in scope.** Both listen to the same "open WhatsApp" click, but the counter increments unconditionally (any template, any stage) while auto-advance only fires under narrow conditions (`primeiro_contato` + `stage===novo`). Implementing them as one handler with two independent effects (rather than one feature gating the other) avoids a bug class where fixing one condition accidentally breaks the other's.
 
 ## MVP Definition
 
-### Launch With (v1)
+### Launch With (v1.2 — this milestone, per PROJECT.md Active)
 
-Minimum viable product — enough to fully replace the Google Sheets workflow and validate the core value prop (never lose a follow-up, see the funnel at a glance).
-
-- [ ] Lead data model: name, phone, sub-niche, channel, source, estimated value, notes, follow-up date, stage — the foundation every other feature depends on
-- [ ] Sub-niche as an extensible field with a basic admin list (add new value inline or via a small management screen) — required immediately since 2+ sub-niches exist from day one
-- [ ] CSV import with column mapping, preview, and duplicate detection (by phone/email) — this is the actual pain point being solved; without it users keep using Sheets to receive the batch and manually re-enter
-- [ ] Pipeline view (columns = Novo/Contatado/Negociação/Fechado/Perdido) with per-column counts, and a way to move a lead between stages (dropdown is sufficient for v1)
-- [ ] List view with filter by sub-niche/stage and sort by follow-up date — needed to actually work the list, not just look at the board
-- [ ] Follow-up date field + a dashboard/list of overdue and due-soon leads — this is the second named core value prop, must ship in v1
-- [ ] WhatsApp template CRUD with `{variable}` substitution + wa.me link generation, usable from the lead detail view — the third named core requirement
-- [ ] Post-import prompt to send the first-contact template (even as simple as a "pending first contact" filtered view with an inline wa.me button) — closes the loop between import and outreach, explicitly requested
+- [ ] Auto-advance Novo→Contatado on `primeiro_contato` WhatsApp click, all screens, one-directional (never regresses/re-advances leads past Contatado), toast confirmation — core "system remembers so I don't have to" value prop for this milestone
+- [ ] Contact-attempt counter (increments on any WhatsApp click, any template), visible on the pipeline card as a plain badge — cheap (one column, one increment, one badge) and directly answers "have I already tried this lead"
+- [ ] `/configuracoes` page with 3 integer inputs (days-stuck threshold per stage: Novo/Contatado/Negociação), replacing the hardcoded 5-day/`contatado`-only constant
 
 ### Add After Validation (v1.x)
 
-Add once the core loop (import → work pipeline → follow up → send message) is in daily use and proven.
-
-- [ ] Follow-up-due inline wa.me button (merge the reminder list and the send-action into one click) — trigger: user finds themselves navigating reminder → lead detail → template every time
-- [ ] Pipeline value roll-up per stage — trigger: user starts asking "what's my pipeline worth" manually
-- [ ] Multiple templates per purpose (first contact / follow-up N / re-engagement) — trigger: user finds one template insufficient for different situations
-- [ ] Sub-niche management upgrades (merge/deactivate, not just add) — trigger: sub-niche list actually starts accumulating duplicates/unused entries
-- [ ] Template message preview/edit before opening WhatsApp — trigger: user reports sending mis-substituted or awkward messages
+- [ ] Escalated/staged stale badge treatment (e.g. lighter warning at N days, stronger red past 2N) — only if the admin reports the single-threshold badge doesn't give enough early warning in real use
+- [ ] Attempt counter broken down by channel (WhatsApp vs Instagram) — only relevant once Instagram-side tracking exists at all (currently the app only tracks WhatsApp send actions, not Instagram outreach)
 
 ### Future Consideration (v2+)
 
-Defer until the core tool has been used long enough to know if these are actually wanted.
-
-- [ ] Kanban drag-and-drop — defer because the dropdown-based stage change already satisfies the requirement; drag-and-drop is pure polish
-- [ ] "Days in stage" / stalled-lead indicator — defer until stage-change history exists and the user reports leads going stale unnoticed
-- [ ] Timestamped note history (vs. single note blob) — defer until single-note-field is reported as insufficient
-- [ ] AI-personalized messages — explicitly deferred in PROJECT.md pending template-based approach validation
-- [ ] Any reporting/analytics beyond stage counts + value — defer indefinitely unless a specific decision need arises
+- [ ] Escalated follow-up sequencing tied to attempt count — already flagged in PROJECT.md as "sequência de follow-up escalonada," explicitly deferred to v1.3+
+- [ ] Any notification/email/push layer on top of staleness — the dashboard-as-homepage pattern already serves this need; defer indefinitely unless the admin stops checking the dashboard daily
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|----------------------|----------|
-| Lead data model (all fields) | HIGH | MEDIUM | P1 |
-| CSV import (map, preview, dedupe) | HIGH | MEDIUM | P1 |
-| Sub-niche extensible field + basic admin | HIGH | LOW | P1 |
-| Pipeline/kanban view (dropdown stage-change) | HIGH | MEDIUM | P1 |
-| List view with filter/sort | MEDIUM | LOW | P1 |
-| Follow-up date + overdue/due-soon dashboard | HIGH | MEDIUM | P1 |
-| WhatsApp template CRUD + variable substitution | HIGH | MEDIUM | P1 |
-| wa.me link generation | HIGH | LOW | P1 |
-| Post-import "send first contact" prompt | MEDIUM | LOW | P1 |
-| Follow-up-due inline wa.me button | MEDIUM | LOW | P2 |
-| Pipeline value roll-up per stage | MEDIUM | LOW | P2 |
-| Multiple templates per purpose | MEDIUM | LOW | P2 |
-| Sub-niche merge/deactivate management | LOW-MEDIUM | LOW | P2 |
-| Template preview/edit before send | MEDIUM | LOW | P2 |
-| Kanban drag-and-drop | LOW-MEDIUM | MEDIUM | P3 |
-| Stalled-lead / days-in-stage indicator | LOW | LOW | P3 |
-| Timestamped note log | LOW | LOW | P3 |
-| Full-text search | LOW | LOW | P3 |
-| AI-generated personalized messages | MEDIUM | HIGH | P3 (explicitly deferred) |
-
-**Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
-- P3: Nice to have, future consideration
+| Auto-advance Novo→Contatado on first-contact WhatsApp click | HIGH | MEDIUM (centralizing the trigger across 4 screens + toast + guarding against regressing later stages is the fiddly part, not the DB write) | P1 |
+| Contact-attempt counter (plain badge, any template click) | MEDIUM | LOW (one column, one increment on the existing click handler, one badge render) | P1 |
+| Configurable stale-in-stage thresholds (`/configuracoes`, 3 stages) | HIGH | LOW–MEDIUM (new settings persistence + refactor of the existing hardcoded `esfriandoLeadIds` logic to read 3 configurable values instead of 1 constant) | P1 |
+| Escalating counter/badge colors, per-subnicho thresholds, notifications | LOW (for a solo user checking the app daily) | MEDIUM–HIGH | P3 |
 
 ## Competitor Feature Analysis
 
-| Feature | Generic full CRM (Pipedrive/OnePageCRM/Nutshell) | Google Sheets (current state) | Our Approach |
-|---------|---------------------------------------------------|-------------------------------|--------------|
-| Pipeline view | Kanban with drag-and-drop, WIP-limit styling, automation rules | None — manual row grouping/color coding, no visual funnel | Simple kanban with stage counts; dropdown-based stage change (drag-and-drop optional later) |
-| CSV import | Wizard-style mapping, often with API import too | N/A (data is typed/pasted directly, no structured import step) | Wizard-style mapping + duplicate detection, CSV-only (no API import needed) |
-| Categorization | Flexible custom fields + tags + smart lists, often overbuilt for one user | An extra spreadsheet column, freely (and inconsistently) typed | Single extensible sub-niche field with a lightweight admin list — enough structure to avoid typos, not so much it becomes tag-sprawl |
-| Follow-up reminders | Task/activity system integrated with calendar, email nudges, sometimes AI "best time to follow up" | A "next contact" column the user must remember to check manually | An overdue/due-soon list surfaced on load — no email/push needed since it's a solo, browser-only tool used daily |
-| WhatsApp outreach | Often full Business API integration with auto-send, chatbots, campaign attribution | Copy-paste message from a doc into WhatsApp Web manually, retype phone number each time | Stored templates with variable substitution + one-click wa.me link (pre-filled, phone auto-inserted) — same manual-send safety as Sheets copy-paste, but far less friction |
-| Multi-user/permissions | Standard in nearly all commercial CRMs | N/A (shared spreadsheet, no real permission model) | Explicitly out of scope — single implicit admin |
+| Feature | Pipedrive | Zoho CRM | Our Approach |
+|---------|-----------|----------|--------------|
+| Stage auto-advance on activity | Advances via workflow-automation rules tied to activity/email sync (requires configuring a rule) | Similar rule-builder requirement via workflow rules | No rule builder — hardcode the single narrow rule (primeiro_contato click → novo→contatado) directly in application code; a solo admin doesn't need a general-purpose rule engine for one rule |
+| Stale/rotting deal indicator | "Rotting" feature: per-stage configurable days, red-tinted card, timer resets on almost any activity (notes, emails, edits) | "Idle Deal Alert": configurable timeout durations, can alert at multiple day-milestones per stage (e.g. 5th/10th/15th day) | Simpler than both: per-stage single threshold (no multi-milestone alerts), badge resets only when the admin manually advances the stage — matches the project's existing `esfriando` semantics (tied to `stageChangedAt`, not "last touched anything") |
+| Attempt/touch counter | Not a native single-field concept (tracked implicitly via activity history) | Not a native single-field concept either | Purpose-built simple integer field — right-sized for this project rather than an ill-fitting enterprise activity-log pattern |
 
 ## Sources
 
-- [OnePageCRM — Lead Management](https://www.onepagecrm.com/crm-solution/lead-management/) — kanban stage tracking pattern for lead management, MEDIUM confidence (vendor marketing content, cross-checked against other CRMs)
-- [OnePageCRM — Best lead tracking tools 2026](https://www.onepagecrm.com/blog/lead-tracking-tools/)
-- [Systeme.io — CRM Pipelines](https://systeme.io/crm-pipelines) — kanban drag-and-drop card pattern, confirms standard pipeline UI
-- [monday.com — Lead Tracking Software](https://monday.com/blog/crm-and-sales/lead-tracking-software/)
-- [CSVBox Blog — Handle duplicate rows in uploaded spreadsheets](https://blog.csvbox.io/csv-handle-duplicates/) — duplicate detection via unique identifier requirement, MEDIUM-HIGH confidence (specialized CSV-import tooling vendor, consistent with other sources)
-- [CSVBox Blog — CSV import column mapping UI](https://appmaster.io/blog/csv-import-column-mapping-ui)
-- [ImportCSV — Data import UX: designing spreadsheet imports users don't hate](https://www.importcsv.com/blog/data-import-ux) — File → Map → Validate → Submit flow pattern, confirmed across multiple import-tooling vendors (MEDIUM-HIGH confidence)
-- [Dromo — 5 Best Practices to Streamline Your CSV Import Process](https://dromo.io/blog/5-best-practices-to-streamline-your-csv-import-process)
-- [WhatsForm — How to Create a WhatsApp Link with Pre-Filled Message](https://whatsform.com/blog/whatsapp-link-pre-filled-message/) — wa.me URL structure (`https://wa.me/<number>?text=<encoded message>`), HIGH confidence, matches WhatsApp's own documented click-to-chat mechanism, cross-verified across multiple independent sources
-- [Qualimero — How to Create a WhatsApp Link (wa.me Guide)](https://qualimero.com/en/blog/create-whatsapp-link)
-- [Chatarmin — Click to Chat for WhatsApp](https://chatarmin.com/en/blog/click-to-chat-for-whatsapp) — source-tracking-via-distinct-prefilled-message pattern
-- [Capsule CRM — How to follow up on leads more effectively](https://capsulecrm.com/blog/how-to-follow-up-more-effectively-in-capsule-crm/) — overdue/color-coded follow-up list pattern
-- [Chrysale — Automated follow-up reminders in simple CRM inbox](https://www.chrysales.com/post/automated-follow-up-reminders-simple-crm)
-- [Supportbench — Portal taxonomy design: categories vs tags vs custom fields](https://www.supportbench.com/portal-taxonomy-design-categories-vs-tags-vs-custom-fields/) — tags-vs-structured-field distinction, informs the "single extensible field over freeform tags" recommendation
-- [AccessAlly — The Ultimate Guide to CRM Tags](https://accessally.com/blog/ultimate-guide-crm-tags/) — documents the tag-sprawl failure mode ("hot lead"/"HOT"/"Hot-VIP" duplication) used to justify the anti-feature recommendation, MEDIUM confidence (vendor content, but the failure pattern is widely corroborated)
-- [Fluid CRM — Excel CRM Alternatives for Sales Teams](https://fluidcrm.io/blog/excel-crm-alternatives-sales-teams/) — spreadsheet-CRM pain points (manual maintenance, no reminders/automation) that motivate this project's core value prop
-- [Ungrind — Excel as CRM Alternative for Solopreneurs](https://ungrind.ai/compare/excel-crm/)
+- [Pipedrive — The Rotting Feature (support.pipedrive.com)](https://support.pipedrive.com/en/article/the-rotting-feature) — HIGH confidence, official docs (fetched directly); confirms per-stage config via a "Rotting in (days)" toggle per stage, red-tile visual, timer reset on activities/notes/emails/edits, next-activity-date explicitly excluded from resetting the timer
+- WebSearch: "CRM 'deal rotting' OR 'stale deal' alert kanban days in stage configurable per stage" — MEDIUM confidence; corroborates Pipedrive Rotting, and surfaces Zoho CRM's "Idle Deal Alert" (multi-tier per-stage timeout alerts) and Freshworks' "staling age" concept as parallel commercial patterns
+- WebSearch: "CRM pipeline auto advance deal stage when email sent OR call logged automation trigger" — MEDIUM confidence, converging pattern across multiple 2026 CRM-automation articles that activity-triggered stage advancement is standard practice, but always via an explicit configured rule/trigger, never fully implicit
+- WebSearch: "sales cadence tool call attempts counter increments automatically" (Outreach, Salesloft, Apollo territory) — MEDIUM confidence; confirms the general convention of visible attempt/touch counts in outbound cadence tooling, though no single source details exact visual/reset treatment
+- WebSearch: "CRM automation 'mark as contacted' automatically when link clicked false positive risk" — LOW-MEDIUM confidence; results were adjacent (phishing-simulation false-click literature, general CRM automation-mistake write-ups) rather than a WhatsApp-specific precedent, but the underlying principle (a link click is not confirmed delivery/action) is well established and directly informed the Anti-Features conclusion that auto-advance must stay a soft/reversible stage nudge, never an irreversible "contacted" fact
+- Internal source (read directly): `src/db/schema.ts`, `src/app/pipeline/page.tsx`, `src/components/whatsapp-send-button.tsx` — HIGH confidence; grounds all "requires new column / requires refactor" dependency claims in the actual current codebase rather than assumption. Confirms: `leads` has no `contactAttempts` field; `templates.tipo` enum includes `primeiro_contato`; the "esfriando" threshold is a hardcoded literal `5` scoped to `stage === "contatado"` only, computed in `pipeline/page.tsx`, not stored anywhere
 
 ---
-*Feature research for: solo-admin health-niche lead CRM*
-*Researched: 2026-07-19*
+*Feature research for: CRM pipeline automation (solo lead-tracking tool) — v1.2 milestone*
+*Researched: 2026-07-30*
