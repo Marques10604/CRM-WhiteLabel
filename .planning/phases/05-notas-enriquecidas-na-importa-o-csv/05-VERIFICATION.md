@@ -2,15 +2,12 @@
 phase: 05-notas-enriquecidas-na-importa-o-csv
 verified: 2026-07-30T00:00:00Z
 status: human_needed
-score: 15/15 must-haves verified (WR-01 corrigido em c64d568 e CR-01 em 01586cd após esta verificação, ambos re-checados por tsc/eslint/build/harness)
+score: 15/15 must-haves verified + 1 achado novo (renderização de quebra de linha) encontrado e corrigido via teste real de navegador (gsd-browser) nesta sessão
 overrides_applied: 0
 human_verification:
-  - test: "Percurso completo do wizard /importar com o CSV real do cowork (nome, score, telefone, sinal_dor, trecho_dor, observacao): passo 'Mapeie as colunas' mostra a seção 'Colunas extras para notas (opcional)' listando score/sinal_dor/trecho_dor/observacao; marcar score e trecho_dor fora de ordem mostra 'Serão concatenadas: score → trecho_dor'; 'Ver prévia' mostra a coluna Notas com 'score: N' e 'trecho_dor: ...' em linhas separadas, sem 'Importado via CSV.' misturado; 'Voltar ao mapeamento' preserva os checkboxes marcados; mapear Notas 1-pra-1 para observacao remove observacao da lista de checkboxes e a prévia mostra o texto de observacao sem rótulo na primeira linha; CSV simples (nome+telefone+observacao mapeada, nenhuma extra) importa sem interação nova; seção some quando todas as colunas do CSV estão mapeadas em campos fixos."
-    expected: "Todos os 7 passos do <human-check> de 05-02-PLAN.md Task 2 passam exatamente como descrito (SC #1-4 do ROADMAP + D-03 + persistência do 'Voltar')."
-    why_human: "Requer clique real no navegador (upload de arquivo, interação com Select/checkbox, navegação entre passos do wizard). Nenhuma sessão deste projeto teve acesso a browser até agora (mesmo caveat documentado em STATE.md para Fases 2 e 4) — o dev server está rodando em localhost:3000 pronto para este teste, mas o teste em si nunca foi executado."
-  - test: "Confirmar visualmente a correção do WR-01 (commit c64d568): no passo de mapeamento, marcar uma coluna extra (ex: score) como checkbox, depois mudar o Select de um campo fixo (ex: Origem) para apontar para essa MESMA coluna (score)."
-    expected: "O checkbox de score some da lista (já se comportava assim antes) E o resumo ao vivo 'Serão concatenadas: ...' também para de citar score no mesmo instante — agora `visibleExtraColumns` filtra por `mappedHeaders` antes de renderizar (fix aplicado, verificado por leitura de código + tsc/eslint/build, mas não clicado no navegador ainda)."
-    why_human: "Fix já aplicado e re-verificado estaticamente nesta sessão; falta só a confirmação visual final no navegador antes de considerar a fase pronta para uso diário com o CSV real (19 colunas, várias sobreposições possíveis entre Select e checkbox)."
+  - test: "Restante do percurso do wizard /importar não coberto pelo teste automatizado desta sessão: mapear Notas 1-pra-1 para observacao (deve sumir da lista de checkboxes e a prévia mostrar o texto sem rótulo na primeira linha); repetir com um CSV simples (nome+telefone+observacao mapeada, nenhuma extra) e confirmar que importa sem interação nova; confirmar que a seção 'Colunas extras' some quando todas as colunas do CSV estão mapeadas em campos fixos."
+    expected: "Os 3 sub-cenários restantes da Task 2 do 05-02-PLAN.md passam como especificado (o restante dos 7 passos originais já foi confirmado por teste real de navegador nesta sessão — ver Addendum)."
+    why_human: "gsd-browser testou upload, mapeamento de Nome/Telefone, seção de colunas extras, resumo ao vivo fora-de-ordem, prévia com linhas separadas, persistência do 'Voltar', e o fix do WR-01 — todos confirmados nesta sessão (ver Addendum). Faltam só estes 3 sub-cenários específicos, que exigem outro CSV de teste (sem colunas extras) e mais alguns cliques."
 gaps: []
 deferred: []
 ---
@@ -148,3 +145,18 @@ A fase segue `human_needed`: o `<human-check>` de 7 passos (item 1 da Human Veri
 
 _Verified: 2026-07-30_
 _Verifier: Claude (gsd-verifier)_
+
+## Addendum 2: teste real de navegador com gsd-browser (2026-07-30)
+
+A pedido do admin, rodei `gsd-browser` contra o dev server real (`localhost:3000/importar`) com um CSV de teste (`nome,telefone,score,sinal_dor,trecho_dor,observacao`, 2 linhas). Cobertura:
+
+- ✓ Upload do CSV → wizard avança para "Mapeie as colunas"
+- ✓ Seção "Colunas extras para notas (opcional)" lista score/sinal_dor/trecho_dor/observacao antes de mapear Nome/Telefone; some da lista assim que uma coluna é mapeada em campo fixo
+- ✓ Marcar `trecho_dor` e depois `score` (fora de ordem) → resumo mostra `"Serão concatenadas: score → trecho_dor"` — ordem do arquivo, não ordem de clique (D-08)
+- ✓ "Voltar ao mapeamento" preserva os checkboxes marcados (`eval` confirmou `score:true, trecho_dor:true` após voltar)
+- ✓ **WR-01 confirmado corrigido em produção real**: remapear "Origem" para a coluna `score` (já marcada como extra) faz o checkbox de `score` sumir E o resumo atualizar para `"Serão concatenadas: trecho_dor"` no mesmo instante — sem defasagem.
+- ⚠️ → ✓ **Achado novo, corrigido nesta sessão**: a prévia (`csv-import-preview-table.tsx`) renderizava o texto concatenado em uma única linha corrida (`"score: 4 trecho_dor: cansada de..."`) em vez de linhas separadas, porque o `<td>` padrão do design system usa `whitespace-nowrap` e a coluna Notas não tinha override. Isso contrariava diretamente a garantia "em linhas separadas" do SC #2/#4 e do `<human-check>` original — não foi pego nem pelo code review nem pela verificação estática, só apareceu ao renderizar de verdade no navegador. Corrigido com um `cell` renderer usando `whitespace-pre-line` (commit `5dcfba6`), confirmado por screenshot antes/depois.
+
+Não coberto nesta sessão (fica para o clique final do admin, ver `human_verification` no frontmatter): mapear Notas 1-pra-1 para uma coluna e confirmar que ela some da lista de extras; CSV totalmente simples (sem nenhuma coluna extra) importando sem interação nova; seção "Colunas extras" sumindo por completo quando todas as colunas do arquivo já estão mapeadas em campos fixos. Nenhum desses 3 tem indício de risco pela leitura do código (mesma lógica já provada nos cenários testados), mas não foram clicados de verdade.
+
+Screenshots salvos em `C:\Users\Vencedor\AppData\Local\Temp\claude\...\scratchpad\preview-notas.png` (antes) e `preview-notas-fixed.png` (depois) — arquivos temporários da sessão, não commitados ao repositório.
