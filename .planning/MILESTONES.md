@@ -17,3 +17,15 @@
 - Ao criar manualmente um lead em qualquer superfície (`/`, `/leads`, `/pipeline`), `createLead` agora retorna o lead inserido via `.returning()` e um novo hook compartilhado `useFirstContactTrigger` abre automaticamente o modal de preview de WhatsApp com o template padrão de 1º contato e o subtítulo mandatório da UI-SPEC, sem bloquear a criação nem exigir opt-in — fechando o loop WA-04.
 
 ---
+
+## v1.1 Importação Inteligente (Shipped: 2026-07-30)
+
+**Phases completed:** 1 fase (Fase 5), 2 planos
+
+**Key accomplishments:**
+
+- `buildNotasText`/`mapCsvRows` estendidos em `src/lib/csv-import.ts` para concatenar múltiplas colunas de origem do CSV do cowork (score/sinal_dor/trecho_dor/observacao) num único campo `notas` formatado e legível, com o fallback padrão aplicado sobre o resultado final concatenado — corrigindo a regressão em que o texto genérico "Importado via CSV." podia se misturar com colunas reais.
+- Wizard de importação ganhou a seção "Colunas extras para notas (opcional)" em `csv-column-mapper.tsx`, com checkboxes das colunas ainda não mapeadas e resumo ao vivo da ordem de concatenação (ordem do arquivo, não de clique) — totalmente compatível com o mapeamento 1-pra-1 já existente (IMPORT-04/IMPORT-05).
+- Todos os 7 passos do `<human-check>` originalmente planejado foram confirmados por teste real de navegador (`gsd-browser`) nesta sessão de fechamento — algo inédito no projeto até aqui (fases anteriores nunca tiveram acesso a navegador). O próprio teste revelou e corrigiu 3 problemas reais: WR-01 (resumo ao vivo desatualizado após remapear coluna), CR-01 (prévia travava indefinidamente se a busca de dados de apoio falhasse) e um achado novo (quebra de linha na coluna Notas da prévia colapsada pelo CSS padrão da tabela).
+
+---

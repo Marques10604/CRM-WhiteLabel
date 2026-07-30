@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Importação Inteligente
-status: milestone_complete
-last_updated: 2026-07-30T02:36:23.707Z
+milestone: v1.2
+milestone_name: Follow-up Automático
+status: planning
+last_updated: "2026-07-30T02:50:13.262Z"
 last_activity: 2026-07-30
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 17
-  percent: 100
-stopped_at: Milestone complete (Phase 05 was final phase)
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,12 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-30
-
-Progress: [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-30 — Milestone v1.2 started
 
 ## Performance Metrics
 

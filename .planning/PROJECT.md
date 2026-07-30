@@ -1,14 +1,17 @@
 # CRM de Leads — Área da Saúde
 
-## Current Milestone: v1.1 Importação Inteligente — Concluído (Fase 5, 2026-07-30)
+## Current Milestone: v1.2 Follow-up Automático
 
-**Goal:** O CSV de prospecção gerado pela skill que o admin roda no cowork desktop (com colunas de inteligência: score, sinal_dor, trecho_dor, observacao) entra no CRM sem perder o sinal de priorização, mantendo tudo local (sem hospedagem na nuvem).
+**Goal:** Reduzir a manutenção manual do pipeline — o sistema acompanha contato e tempo parado sozinho, avisando quando algo precisa de atenção, em vez de depender só da memória do admin.
 
 **Target features:**
-- Wizard de importação passa a aceitar mapear MÚLTIPLAS colunas de origem concatenadas automaticamente em notas (formatado e legível), além do mapeamento 1-pra-1 já existente
-- Mapeamento categoria→sub-nicho continua funcionando como hoje (sem mudança)
+- Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato (todas as telas, toast de confirmação, sem regredir/re-avançar leads já além de Contatado)
+- Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), visível no card do pipeline
+- Configuração de dias-parado por etapa numa nova página `/configuracoes` — generaliza o "esfriando" hoje hardcoded (só Contatado, 5 dias fixo) para Novo/Contatado/Negociação, cada uma com seu N configurável
 
-**Fora de escopo neste milestone:** conectar a landing page pública (Vercel) ao CRM — adiado para quando houver tráfego pago e a migração planejada para VPS própria com domínio; demais itens do backlog (sequência de follow-up escalonada, contador de tentativas, tela de dias-parado configurável, porta de entrada local para IA) ficam para v1.2+.
+**Fora de escopo neste milestone:** sequência de follow-up escalonada, porta de entrada local para IA cadastrar leads, e conectar a landing page pública ao CRM — ficam para v1.3+ (ver Active abaixo).
+
+**Milestone anterior (v1.1 Importação Inteligente):** concluído em 2026-07-30, Fase 5 — wizard de importação passou a concatenar múltiplas colunas de origem do CSV do cowork em notas formatadas (IMPORT-04/IMPORT-05).
 
 ## What This Is
 
@@ -40,14 +43,15 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-Nenhum item ativo no momento — v1.1 (Importação Inteligente) foi concluído na Fase 5 (única fase do milestone). Ver `Evolution` abaixo para o próximo passo.
+Escopo do milestone v1.2 em andamento (ver `Current Milestone` acima):
 
-Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — ficam para v1.2+:
+- [ ] Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, em todas as telas com o botão, sem regredir/re-avançar leads já além de Contatado, com toast de confirmação
+- [ ] Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), exibido no card do pipeline
+- [ ] Tela `/configuracoes` para definir dias-parado por etapa (Novo/Contatado/Negociação), generalizando o "esfriando" hardcoded hoje (só Contatado, 5 dias fixo) em `src/app/pipeline/page.tsx`
+
+Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — ficam para v1.3+:
 
 - [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social
-- [ ] Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" de verdade (hoje é só preview)
-- [ ] Contador de tentativas de contato por lead (`contactAttempts`/`lastContactedAt`)
-- [ ] Tela de configuração de dias-parado por etapa (customizável, hoje é hardcoded)
 - [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente
 - [ ] Conectar a landing page pública (Vercel) ao CRM — adiado deliberadamente pelo usuário (2026-07-29) até haver tráfego pago; quando chegar a hora, será junto da migração de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada
 
@@ -102,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-30 — Fase 5 concluída, v1.1 milestone finalizado*
+*Last updated: 2026-07-30 — v1.2 milestone iniciado*
