@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Papa from "papaparse";
+import { toast } from "sonner";
 
 import { decodeCsvFile } from "@/lib/csv-encoding";
 import {
@@ -129,9 +130,22 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
       .map((row) => row.subnichoNome.trim())
       .filter((nome) => nome !== "");
 
-    fetchPreviewSupportData(normalizedPhones, subnichoNamesTrimmed).then((data) => {
-      if (!cancelled) setPreviewSupportData(data);
-    });
+    fetchPreviewSupportData(normalizedPhones, subnichoNamesTrimmed)
+      .then((data) => {
+        if (!cancelled) setPreviewSupportData(data);
+      })
+      .catch(() => {
+        // CR-01 (05-REVIEW.md): sem isso, uma falha aqui (rede/banco) deixava
+        // previewSupportData null pra sempre e a prévia travava em "Carregando
+        // prévia..." sem saída. Cai pra "sem duplicatas/sub-nichos novos
+        // conhecidos" — o admin ainda revisa a prévia, só perde os avisos de
+        // duplicata/sub-nicho novo até tentar de novo.
+        if (cancelled) return;
+        toast.error(
+          "Não foi possível carregar os avisos de duplicata/sub-nicho novo. A prévia segue sem esses avisos — volte ao mapeamento e tente de novo se precisar deles."
+        );
+        setPreviewSupportData({ duplicatePhones: [], unknownSubnichoNames: [] });
+      });
 
     return () => {
       cancelled = true;
