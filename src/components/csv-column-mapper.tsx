@@ -66,6 +66,13 @@ export function CsvColumnMapper({
   // hora (Pitfall 4).
   const mappedHeaders = new Set(Object.values(mapping).filter((v): v is string => v !== null));
   const unmappedHeaders = headers.filter((h) => !mappedHeaders.has(h));
+  // WR-01 (05-REVIEW.md): uma coluna marcada como extra pode depois ser
+  // remapeada para um campo fixo via Select — sem este filtro, o resumo
+  // "Serão concatenadas" continuaria citando essa coluna mesmo ela não
+  // sendo mais concatenada de fato (buildNotasText já a exclui via
+  // fixedHeaders). Deriva a lista visível a partir de mappedHeaders para
+  // que o resumo nunca prometa uma coluna que não vai ser concatenada.
+  const visibleExtraColumns = extraNotasColumns.filter((h) => !mappedHeaders.has(h));
 
   function handleToggleExtraColumn(header: string) {
     if (extraNotasColumns.includes(header)) {
@@ -145,9 +152,9 @@ export function CsvColumnMapper({
               </label>
             ))}
           </div>
-          {extraNotasColumns.length > 0 && (
+          {visibleExtraColumns.length > 0 && (
             <p className="text-sm text-muted-foreground">
-              Serão concatenadas: {headers.filter((h) => extraNotasColumns.includes(h)).join(" → ")}
+              Serão concatenadas: {headers.filter((h) => visibleExtraColumns.includes(h)).join(" → ")}
             </p>
           )}
         </div>
