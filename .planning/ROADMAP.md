@@ -37,7 +37,11 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
   2. Ao confirmar a importação, o lead criado tem um campo de notas formatado e legível contendo todas as colunas mapeadas, sem perder nenhuma coluna selecionada
   3. Um CSV simples que mapeia só uma coluna de notas continua sendo importado exatamente como hoje, sem exigir nenhuma configuração extra do admin
   4. O passo de mapeamento mostra ao admin, antes de confirmar, quais colunas serão concatenadas e em que ordem, para conferência
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Motor de concatenação em csv-import.ts (CsvExtraNotasColumns, buildNotasText, fallback sobre o resultado final) + harness de 10 cenários
+- [ ] 05-02-PLAN.md — Seção de checkboxes "Colunas extras para notas (opcional)" + resumo ao vivo no wizard, estado extraNotasColumns até mapCsvRows
 **UI hint**: yes
 
 ## Progress
@@ -51,4 +55,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. CSV Bulk Import | v1.0 | 3/3 | Complete | 2026-07-24 |
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
-| 5. Notas Enriquecidas na Importação CSV | v1.1 | 0/TBD | Not started | - |
+| 5. Notas Enriquecidas na Importação CSV | v1.1 | 0/2 | Not started | - |
