@@ -1,6 +1,6 @@
 # CRM de Leads — Área da Saúde
 
-## Current Milestone: v1.1 Importação Inteligente
+## Current Milestone: v1.1 Importação Inteligente — Concluído (Fase 5, 2026-07-30)
 
 **Goal:** O CSV de prospecção gerado pela skill que o admin roda no cowork desktop (com colunas de inteligência: score, sinal_dor, trecho_dor, observacao) entra no CRM sem perder o sinal de priorização, mantendo tudo local (sem hospedagem na nuvem).
 
@@ -36,12 +36,11 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Admin pode cadastrar templates de WhatsApp com variáveis — v1.0 (Fase 4)
 - ✓ Ao criar/importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido — v1.0 (Fase 4)
 - ✓ Dashboard e pipeline oferecem botão inline "Enviar WhatsApp" com preview editável, disparo sempre por clique manual — v1.0 (Fase 4)
+- ✓ Wizard de importação aceita mapear múltiplas colunas de origem (score/sinal_dor/trecho_dor/observação) concatenadas em notas, sem perder a inteligência de priorização do CSV do cowork — v1.1 (Fase 5), IMPORT-04/IMPORT-05, confirmado por teste real de navegador (todos os 7 passos do human-check)
 
 ### Active
 
-Escopo do milestone v1.1 em andamento (ver `Current Milestone` acima):
-
-- [ ] Wizard de importação aceita mapear múltiplas colunas de origem (score/sinal_dor/trecho_dor/observação) concatenadas em notas, sem perder a inteligência de priorização do CSV do cowork
+Nenhum item ativo no momento — v1.1 (Importação Inteligente) foi concluído na Fase 5 (única fase do milestone). Ver `Evolution` abaixo para o próximo passo.
 
 Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — ficam para v1.2+:
 
@@ -103,4 +102,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-29 — v1.1 milestone started*
+*Last updated: 2026-07-30 — Fase 5 concluída, v1.1 milestone finalizado*
