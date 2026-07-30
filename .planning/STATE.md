@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Importação Inteligente
 status: executing
-last_updated: "2026-07-30T00:54:08.841Z"
-last_activity: 2026-07-30 -- Phase 05 planning complete
+last_updated: "2026-07-30T01:15:49.033Z"
+last_activity: 2026-07-30
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** v1.1 (Importação Inteligente) — Phase 5 pronta para planejamento (`/gsd-plan-phase 5`)
+**Current focus:** Phase 05 — notas-enriquecidas-na-importa-o-csv
 
 ## Current Position
 
-Phase: 5 of 5 (Notas Enriquecidas na Importação CSV)
-Plan: TBD — roadmap acabou de ser criado, planos ainda não detalhados
+Phase: 05 (notas-enriquecidas-na-importa-o-csv) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-07-30 -- Phase 05 planning complete
+Last activity: 2026-07-30
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P02 | 50min | 3 tasks | 8 files |
 | Phase 04-follow-up-dashboard-whatsapp-outreach P03 | 40min | 3 tasks | 8 files |
 | Phase 04-follow-up-dashboard-whatsapp-outreach P04 | 35min | 2 tasks | 8 files |
+| Phase 05 P01 | 35min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Recent decisions affecting current work:
 - [Phase 02-02]: @types/papaparse Task 1 gate aprovado por checagem direta em registry.npmjs.org (repository DefinitelyTyped/DefinitelyTyped, mantenedor types team da Microsoft) após recuperar trabalho de um worktree executor interrompido (host derrubou o processo)
 - [Phase 02-02]: detectEncodingLabel() no csv-import-wizard.tsx duplica a heurística BOM+TextDecoder(fatal) de decodeCsvFile só para exibição do rótulo "Detectado: ..." — decodeCsvFile (02-01) não expõe qual branch escolheu
 - [Phase ?]: [Quick 260725-lai]: Soft-delete de sub-nicho filtra deletedAt so nas superficies de selecao, nunca nas queries de listagem de leads (mapa id->nome)
+- [Phase 05-01]: Fallback CSV_DEFAULTS.notas aplicado sobre o resultado FINAL de buildNotasText, nunca sobre o valor bruto da coluna Notas isolada (corrige Pitfall 1)
+- [Phase 05-01]: csvHeaderOrder derivado internamente de Object.keys(rows[0] ?? {}) dentro de mapCsvRows, nunca recebido como parametro externo (evita Pitfall 3)
 
 ### Pending Todos
 
@@ -135,9 +138,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T00:34:17.847Z
-Stopped at: Phase 5 UI-SPEC approved
-Resume file: .planning/phases/05-notas-enriquecidas-na-importa-o-csv/05-UI-SPEC.md
+Last session: 2026-07-30T01:15:49.006Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import

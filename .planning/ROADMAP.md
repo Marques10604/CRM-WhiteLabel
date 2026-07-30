@@ -40,12 +40,12 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
   3. Um CSV simples que mapeia só uma coluna de notas continua sendo importado exatamente como hoje, sem exigir nenhuma configuração extra do admin
   4. O passo de mapeamento mostra ao admin, antes de confirmar, quais colunas serão concatenadas e em que ordem, para conferência
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Motor de concatenação em csv-import.ts (CsvExtraNotasColumns, buildNotasText, fallback sobre o resultado final) + harness de 10 cenários
+- [x] 05-01-PLAN.md — Motor de concatenação em csv-import.ts (CsvExtraNotasColumns, buildNotasText, fallback sobre o resultado final) + harness de 10 cenários
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -64,4 +64,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. CSV Bulk Import | v1.0 | 3/3 | Complete | 2026-07-24 |
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
-| 5. Notas Enriquecidas na Importação CSV | v1.1 | 0/2 | Not started | - |
+| 5. Notas Enriquecidas na Importação CSV | v1.1 | 1/2 | In Progress|  |
