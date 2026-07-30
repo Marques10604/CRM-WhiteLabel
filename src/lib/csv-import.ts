@@ -22,6 +22,10 @@ export type CsvFieldKey =
 /** Valor = nome do header do CSV mapeado para esse campo; null = não mapeado. */
 export type CsvColumnMapping = Record<CsvFieldKey, string | null>;
 
+/** Nomes de header do CSV marcados como "coluna extra para notas" (D-01/D-02).
+ * Vazio por padrão — nenhuma mudança de comportamento sem ação do admin (D-11). */
+export type CsvExtraNotasColumns = string[];
+
 /** Saída crua do Papa.parse({ header: true }). */
 export type ParsedCsvRow = Record<string, string>;
 
@@ -51,7 +55,57 @@ export const CSV_DEFAULTS = {
   valorEstimado: "0",
 } as const;
 
-export function mapCsvRows(rows: ParsedCsvRow[], mapping: CsvColumnMapping): MappedCsvRow[] {
+/**
+ * Concatena a coluna "Notas" mapeada 1-pra-1 (sem rótulo — D-10) com as
+ * colunas extras marcadas (rótulo neutro = header exato, D-05), separadas por
+ * quebra de linha simples (D-06), na ORDEM DO ARQUIVO CSV (`csvHeaderOrder`),
+ * nunca na ordem em que o admin marcou os checkboxes (D-08). Célula vazia
+ * numa coluna extra omite a linha inteira daquela coluna, nunca "header: "
+ * vazio (D-07). Uma coluna já usada em QUALQUER campo fixo do mapping nunca é
+ * concatenada de novo como extra (Pitfall 4). Retorna "" quando não há nada —
+ * retorno válido e esperado; o fallback `CSV_DEFAULTS.notas` (D-11) é
+ * responsabilidade de `mapCsvRows`, aplicado sobre o RESULTADO FINAL desta
+ * função, nunca sobre o valor bruto da coluna "Notas" isolada (Pitfall 1).
+ */
+export function buildNotasText(
+  row: ParsedCsvRow,
+  mapping: CsvColumnMapping,
+  extraColumns: CsvExtraNotasColumns,
+  csvHeaderOrder: string[]
+): string {
+  const parts: string[] = [];
+
+  // 1) Notas 1-pra-1 mapeada, sem rótulo (D-10) — vai primeiro.
+  const notasHeader = mapping.notas;
+  if (notasHeader !== null && notasHeader in row) {
+    const value = (row[notasHeader] ?? "").trim();
+    if (value !== "") parts.push(value);
+  }
+
+  // 2) Colunas extras, na ordem do CSV (D-08) — nunca na ordem de `extraColumns`.
+  //    Exclui qualquer header já usado em algum campo fixo (Pitfall 4).
+  const fixedHeaders = new Set(Object.values(mapping).filter((v): v is string => v !== null));
+  const extraSet = new Set(extraColumns.filter((h) => !fixedHeaders.has(h)));
+  for (const header of csvHeaderOrder) {
+    if (!extraSet.has(header)) continue;
+    const value = (row[header] ?? "").trim();
+    if (value === "") continue; // D-07: omite a linha inteira, nunca "header: " vazio
+    parts.push(`${header}: ${value}`); // D-05: rótulo neutro = header exato do CSV
+  }
+
+  return parts.join("\n"); // D-06: quebra de linha simples, sem separador final
+}
+
+export function mapCsvRows(
+  rows: ParsedCsvRow[],
+  mapping: CsvColumnMapping,
+  extraNotasColumns: CsvExtraNotasColumns = []
+): MappedCsvRow[] {
+  // Fonte ÚNICA de ordem de colunas (Pitfall 3) — mesma derivação usada pelo
+  // wizard para os headers (Object.keys(parsedRows[0] ?? {})), calculada aqui
+  // a partir do próprio parâmetro `rows`, nunca recebida de fora.
+  const csvHeaderOrder = Object.keys(rows[0] ?? {});
+
   function readMapped(row: ParsedCsvRow, field: CsvFieldKey): string {
     const header = mapping[field];
     if (header === null || !(header in row)) return "";
@@ -65,7 +119,8 @@ export function mapCsvRows(rows: ParsedCsvRow[], mapping: CsvColumnMapping): Map
 
     const canal = (readMapped(row, "canal") || CSV_DEFAULTS.canal) as "instagram" | "whatsapp";
     const origem = readMapped(row, "origem") || CSV_DEFAULTS.origem;
-    const notas = readMapped(row, "notas") || CSV_DEFAULTS.notas;
+    const concatenatedNotas = buildNotasText(row, mapping, extraNotasColumns, csvHeaderOrder);
+    const notas = concatenatedNotas || CSV_DEFAULTS.notas; // fallback D-11 sobre o resultado FINAL
     const valorEstimado = readMapped(row, "valorEstimado") || CSV_DEFAULTS.valorEstimado;
 
     return {
