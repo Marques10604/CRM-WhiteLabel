@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
-import { Clock } from "lucide-react";
+import { Clock, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
@@ -84,6 +84,15 @@ export function PipelineLeadCard({
         {isEsfriando ? (
           <span className="flex items-center gap-1 text-[#B45309]">
             <Clock className="size-3.5" /> Esfriando
+          </span>
+        ) : null}
+        {lead.contactAttempts > 0 ? (
+          <span
+            className="flex items-center gap-1"
+            aria-label={`${lead.contactAttempts} tentativas de contato`}
+          >
+            <MessageCircle className="size-3.5" />
+            {lead.contactAttempts}x
           </span>
         ) : null}
       </div>
