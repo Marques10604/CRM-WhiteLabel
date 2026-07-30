@@ -381,17 +381,19 @@ Não aplicável — não há "abordagem antiga vs. nova" de mercado aqui, é uma
 
 **Se esta tabela estiver vazia:** não está — A1 e A2 acima precisam de atenção do planner, mas nenhuma é bloqueante (ambas têm mitigação de baixo risco já embutida no design recomendado).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Nome exato do tipo/campo `extraNotasColumns` (Claude's Discretion no CONTEXT.md)**
+1. **Nome exato do tipo/campo `extraNotasColumns` (Claude's Discretion no CONTEXT.md) — RESOLVED**
    - What we know: CONTEXT.md deixa explicitamente como "Claude's Discretion" o nome/estrutura exata — só o comportamento (D-01 a D-11) é travado.
    - What's unclear: se o planner prefere `extraNotasColumns: string[]` (nome usado nesta pesquisa) ou outro nome (`notasExtraColumns`, `extraColumnsForNotas`, etc.) — puramente estético, sem impacto funcional.
    - Recommendation: manter `extraNotasColumns` (ou equivalente) como `string[]` simples (não `Set<string>`, para compatibilidade direta com `useState`/serialização JSON caso o wizard precise persistir estado no futuro) — decisão de nomenclatura do planner, sem necessidade de validação adicional.
+   - Resolution: 05-01-PLAN.md adotou `CsvExtraNotasColumns` (alias de `string[]`) e o campo `extraNotasColumns`, exatamente a recomendação acima.
 
-2. **Checkbox "select all" / "desmarcar todas" nas colunas extras**
+2. **Checkbox "select all" / "desmarcar todas" nas colunas extras — RESOLVED**
    - What we know: D-01 a D-04 especificam apenas checkboxes individuais, sem menção a um controle de "marcar todas".
    - What's unclear: se o CSV real do cowork (19 colunas) deixar ~5+ colunas "extras" não mapeadas por padrão (as 4 de inteligência + outras não usadas em campos fixos, ex: `tipo_url`, `link_whatsapp`, `endereco`, `website`, `instagram`, `nome_decisor`, etc. — muitas colunas do schema real de 19 não têm campo fixo correspondente), marcar uma por uma pode ser repetitivo toda vez que o admin importa um novo lote.
    - Recommendation: fora de escopo desta fase (não pedido, não travado por D-01 a D-11) — mas o planner pode considerar registrar como ideia de fase futura (v1.2+) se quiser, sem construir agora. Não incluir na Fase 5 sem confirmação do admin.
+   - Resolution: 05-02-PLAN.md não inclui controle de "marcar todas" — segue a recomendação de ficar fora do escopo desta fase.
 
 ## Environment Availability
 
