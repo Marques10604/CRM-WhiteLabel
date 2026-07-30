@@ -24,7 +24,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 **Meta do milestone:** O CSV de prospecção gerado pela skill que o admin roda no cowork desktop (com colunas de inteligência: score, sinal_dor, trecho_dor, observacao) entra no CRM sem perder o sinal de priorização, mantendo tudo local (sem hospedagem na nuvem).
 
-- [ ] **Phase 5: Notas Enriquecidas na Importação CSV** - Wizard de importação passa a aceitar mapear múltiplas colunas de inteligência do CSV do cowork, concatenadas automaticamente em um campo de notas formatado e legível, mantendo total compatibilidade com o mapeamento simples já existente
+- [x] **Phase 5: Notas Enriquecidas na Importação CSV** - Wizard de importação passa a aceitar mapear múltiplas colunas de inteligência do CSV do cowork, concatenadas automaticamente em um campo de notas formatado e legível, mantendo total compatibilidade com o mapeamento simples já existente (completed 2026-07-30)
 
 ## Phase Details
 
@@ -40,7 +40,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
   3. Um CSV simples que mapeia só uma coluna de notas continua sendo importado exatamente como hoje, sem exigir nenhuma configuração extra do admin
   4. O passo de mapeamento mostra ao admin, antes de confirmar, quais colunas serão concatenadas e em que ordem, para conferência
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -64,4 +64,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. CSV Bulk Import | v1.0 | 3/3 | Complete | 2026-07-24 |
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
-| 5. Notas Enriquecidas na Importação CSV | v1.1 | 1/2 | In Progress|  |
+| 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete    | 2026-07-30 |
