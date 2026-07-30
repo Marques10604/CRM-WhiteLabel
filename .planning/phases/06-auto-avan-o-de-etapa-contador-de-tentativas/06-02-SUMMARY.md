@@ -115,3 +115,7 @@ Recomendação: rodar este click-through real antes de tratar a Fase 6 (WA-06/WA
 ---
 *Phase: 06-auto-avan-o-de-etapa-contador-de-tentativas*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+Arquivos confirmados presentes em disco: `src/components/whatsapp-preview-dialog.tsx`, `src/components/pipeline-lead-card.tsx`, `06-02-SUMMARY.md`. Todos os 3 hashes de commit (`0421b1a`, `a3e6045`, `84b67a8`) confirmados presentes em `git log --oneline --all`.
