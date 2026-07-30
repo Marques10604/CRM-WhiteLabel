@@ -1,13 +1,10 @@
 ---
 phase: 05-notas-enriquecidas-na-importa-o-csv
 verified: 2026-07-30T00:00:00Z
-status: human_needed
-score: 15/15 must-haves verified + 1 achado novo (renderização de quebra de linha) encontrado e corrigido via teste real de navegador (gsd-browser) nesta sessão
+status: passed
+score: 15/15 must-haves verified + 1 achado novo (renderização de quebra de linha) encontrado e corrigido, todos os 7 passos do <human-check> original confirmados por teste real de navegador (gsd-browser) nesta sessão
 overrides_applied: 0
-human_verification:
-  - test: "Restante do percurso do wizard /importar não coberto pelo teste automatizado desta sessão: mapear Notas 1-pra-1 para observacao (deve sumir da lista de checkboxes e a prévia mostrar o texto sem rótulo na primeira linha); repetir com um CSV simples (nome+telefone+observacao mapeada, nenhuma extra) e confirmar que importa sem interação nova; confirmar que a seção 'Colunas extras' some quando todas as colunas do CSV estão mapeadas em campos fixos."
-    expected: "Os 3 sub-cenários restantes da Task 2 do 05-02-PLAN.md passam como especificado (o restante dos 7 passos originais já foi confirmado por teste real de navegador nesta sessão — ver Addendum)."
-    why_human: "gsd-browser testou upload, mapeamento de Nome/Telefone, seção de colunas extras, resumo ao vivo fora-de-ordem, prévia com linhas separadas, persistência do 'Voltar', e o fix do WR-01 — todos confirmados nesta sessão (ver Addendum). Faltam só estes 3 sub-cenários específicos, que exigem outro CSV de teste (sem colunas extras) e mais alguns cliques."
+human_verification: []
 gaps: []
 deferred: []
 ---
@@ -16,7 +13,7 @@ deferred: []
 
 **Phase Goal:** Admin importa o CSV de prospecção do cowork (com colunas de inteligência score/sinal_dor/trecho_dor/observacao) sem perder o sinal de priorização — essas colunas passam a ser concatenadas automaticamente em um único campo de notas formatado e legível no lead importado, sem exigir nada extra quando o CSV é simples
 **Verified:** 2026-07-30
-**Status:** human_needed
+**Status:** passed (ver Addendum 3 — todos os 7 passos do `<human-check>` original confirmados por teste real de navegador)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -160,3 +157,13 @@ A pedido do admin, rodei `gsd-browser` contra o dev server real (`localhost:3000
 Não coberto nesta sessão (fica para o clique final do admin, ver `human_verification` no frontmatter): mapear Notas 1-pra-1 para uma coluna e confirmar que ela some da lista de extras; CSV totalmente simples (sem nenhuma coluna extra) importando sem interação nova; seção "Colunas extras" sumindo por completo quando todas as colunas do arquivo já estão mapeadas em campos fixos. Nenhum desses 3 tem indício de risco pela leitura do código (mesma lógica já provada nos cenários testados), mas não foram clicados de verdade.
 
 Screenshots salvos em `C:\Users\Vencedor\AppData\Local\Temp\claude\...\scratchpad\preview-notas.png` (antes) e `preview-notas-fixed.png` (depois) — arquivos temporários da sessão, não commitados ao repositório.
+
+## Addendum 3: os 3 sub-cenários restantes, também confirmados (2026-07-30)
+
+A pedido do admin, continuei o teste de navegador para os 3 sub-cenários que faltavam do `<human-check>` original de 7 passos:
+
+- ✓ **Notas 1-pra-1 remove da lista de extras**: marquei `observacao` como coluna extra, depois mapeei o campo fixo "Notas" para essa mesma coluna — `observacao` sumiu da lista de checkboxes imediatamente (mesmo mecanismo do fix WR-01).
+- ✓ **Seção some quando tudo está mapeado**: mapeei as 6 colunas do CSV de teste (nome→Nome, telefone→Telefone, score→Sub-nicho, sinal_dor→Canal, observacao→Notas, trecho_dor→Origem) uma a uma; a cada passo o número de checkboxes caiu (4→3→2→1→0) e, com 0 colunas restantes, a seção inteira — nem só os checkboxes, o cabeçalho "Colunas extras para notas (opcional)" também — sumiu da página (`document.body.textContent.includes('Colunas extras')` → `false`).
+- ✓ **Prévia com mapeamento 1-pra-1 puro, sem rótulo**: com nenhuma coluna extra marcada, a linha com `observacao = "contato via instagram"` mostrou exatamente esse texto na coluna Notas, sem prefixo `observacao:` (D-10/D-11) — e a linha com `observacao` vazia mostrou corretamente o fallback `"Importado via CSV."` (Pitfall 5).
+
+Com isso, os 7 passos originais do `<human-check>` de `05-02-PLAN.md` Task 2 estão todos confirmados por teste real de navegador (não só leitura de código), incluindo os dois fixes aplicados nesta sessão (WR-01, CR-01) e o achado extra (quebra de linha na prévia). Status alterado de `human_needed` para `passed`. Nenhum lead de teste foi confirmado/salvo no banco em nenhum momento — todos os testes pararam na tela de prévia, sem clicar em "Confirmar importação".
