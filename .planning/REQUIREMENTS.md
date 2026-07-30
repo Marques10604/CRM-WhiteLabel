@@ -48,16 +48,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WA-06 | TBD | Pending |
-| WA-07 | TBD | Pending |
-| WA-08 | TBD | Pending |
-| CONFIG-01 | TBD | Pending |
-| CONFIG-02 | TBD | Pending |
+| WA-06 | Phase 6 | Pending |
+| WA-07 | Phase 6 | Pending |
+| WA-08 | Phase 6 | Pending |
+| CONFIG-01 | Phase 7 | Pending |
+| CONFIG-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5 ⚠️ (roadmap creation pending)
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-30*

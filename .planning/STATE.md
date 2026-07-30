@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
 status: planning
-last_updated: "2026-07-30T02:50:13.262Z"
+last_updated: "2026-07-30T03:21:16.116Z"
 last_activity: 2026-07-30
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone complete
+**Current focus:** Phase 6 (Auto-avanço de Etapa + Contador de Tentativas)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-30 — Milestone v1.2 started
+Phase: 6 of 7 (Auto-avanço de Etapa + Contador de Tentativas)
+Plan: — (roadmap created, plans not yet broken down)
+Status: Ready to plan
+Last activity: 2026-07-30 — ROADMAP.md criado (Fases 6-7), WA-06/WA-07/WA-08/CONFIG-01/CONFIG-02 mapeados, cobertura 5/5
 
 ## Performance Metrics
 
@@ -202,4 +202,5 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 ## Operator Next Steps
 
-- Rodar `/gsd-plan-phase 5` para detalhar o(s) plano(s) da Phase 5 (Notas Enriquecidas na Importação CSV) — IMPORT-04/IMPORT-05, escopo pequeno e contido.
+- Rodar `/gsd-plan-phase 6` para detalhar o(s) plano(s) da Phase 6 (Auto-avanço de Etapa + Contador de Tentativas) — WA-06/WA-07/WA-08, ponto de integração único em `whatsapp-preview-dialog.tsx`.
+- Phase 7 (Configuração de Dias-Parado por Etapa — CONFIG-01/CONFIG-02) é independente de Phase 6 (sem arquivos/migração compartilhados) e pode ser planejada antes, depois ou em paralelo.
