@@ -63,6 +63,16 @@ export const stageUpdateSchema = z.object({
   motivoPerda: z.string().trim().optional(),
 });
 
+/**
+ * Contrato de registerWhatsAppContact (WA-06/07/08) — toda Server Action é
+ * um endpoint HTTP interno, valida em runtime mesmo com o TypeScript do
+ * client já garantindo a forma (Pitfall 8 do RESEARCH).
+ */
+export const whatsappContactSchema = z.object({
+  leadId: z.coerce.number().int().positive(),
+  tipo: z.enum(["primeiro_contato", "follow_up", "prova_valor"]),
+});
+
 export const templateSchema = z.object({
   tipo: z.enum(["primeiro_contato", "follow_up", "prova_valor"], {
     error: "Selecione um tipo.",

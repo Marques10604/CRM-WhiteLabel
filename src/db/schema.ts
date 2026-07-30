@@ -46,6 +46,7 @@ export const leads = sqliteTable(
       .default("novo"),
     motivoPerda: text("motivo_perda"), // nullable, D-03 (preenchido opcionalmente ao mover para "perdido")
     stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
+    contactAttempts: integer("contact_attempts").notNull().default(0), // WA-08/D-04: acumula pela vida do lead, nunca zera ao mudar de etapa
     importBatchId: text("import_batch_id"), // nullable = lead criado manualmente (LEAD-05)
     deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
