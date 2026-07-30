@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: verifying
-last_updated: "2026-07-30T13:11:24.023Z"
+status: ready_to_plan
+last_updated: 2026-07-30T13:38:11.672Z
 last_activity: 2026-07-30
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 4
-  completed_plans: 4
+  completed_plans: 19
   percent: 67
+stopped_at: Phase 06 complete (2/2) — ready to discuss Phase 7
 ---
 
 # Project State
@@ -20,20 +21,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 06 — auto-avan-o-de-etapa-contador-de-tentativas
+**Current focus:** Phase 7 — configuração de dias parado por etapa
 
 ## Current Position
 
-Phase: 06 (auto-avan-o-de-etapa-contador-de-tentativas) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 7
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-07-30
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 8
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -43,6 +44,7 @@ Last activity: 2026-07-30
 |-------|-------|-------|----------|
 | 03 | 4 | - | - |
 | 05 | 2 | - | - |
+| 06 | 2 | - | - |
 
 **Recent Trend:**
 

@@ -112,5 +112,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
-| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete   | 2026-07-30 |
+| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 0/? | Not started | - |
