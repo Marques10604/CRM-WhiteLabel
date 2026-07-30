@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: executing
-last_updated: "2026-07-30T12:54:05.649Z"
+status: verifying
+last_updated: "2026-07-30T13:11:24.023Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 33
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 
 Phase: 06 (auto-avan-o-de-etapa-contador-de-tentativas) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-30
 
 ## Performance Metrics
@@ -60,6 +60,7 @@ Last activity: 2026-07-30
 | Phase 05 P01 | 35min | 2 tasks | 2 files |
 | Phase 05-notas-enriquecidas-na-importa-o-csv P02 | 25 min | 2 tasks | 2 files |
 | Phase 06-auto-avan-o-de-etapa-contador-de-tentativas P01 | 15min | 3 tasks | 4 files |
+| Phase 06 P02 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [Phase 05-notas-enriquecidas-na-importa-o-csv]: handleToggleExtraColumn espelha handleFieldChange (nenhum useState interno) e resumo ao vivo deriva sempre de headers.filter(...), nunca de extraNotasColumns.join/map — Mantém csv-column-mapper.tsx 100% controlado pelo wizard e garante que a ordem de concatenação segue sempre a ordem do arquivo CSV (D-08), mesmo se o admin marcar checkboxes fora de ordem
 - [Phase 06-01]: npx drizzle-kit push nao pode ser usado para adicionar coluna com default 0 -- bug de falsy-check trata DEFAULT 0 como ausente e prepara DELETE FROM antes do ADD COLUMN; ALTER TABLE aplicado diretamente via better-sqlite3 com a mesma DDL que o proprio conversor do drizzle-kit geraria
 - [Phase 06-01]: registerWhatsAppContact e funcao dedicada (nao extensao de updateLeadStage) -- auto-avanco e unidirecional/condicional, guarda pertence ao servidor via SELECT fresco
+- [Phase 06-02]: onClick do anchor Abrir WhatsApp dispara registerWhatsAppContact fire-and-forget (sem preventDefault/await/window.open); toast de auto-avanco usa nome do lead (D-07)
+- [Phase 06-02]: Contador de tentativas no card do pipeline usa MessageCircle + {n}x em cor neutra (text-muted-foreground), so quando contactAttempts > 0 (D-05/D-06)
 
 ### Pending Todos
 
@@ -142,8 +145,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T12:54:05.605Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-07-30T13:11:23.934Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 

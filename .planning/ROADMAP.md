@@ -31,7 +31,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 **Meta do milestone:** Reduzir a manutenção manual do pipeline — o sistema acompanha contato e tempo parado sozinho, avisando quando algo precisa de atenção, em vez de depender só da memória do admin.
 
-- [ ] **Phase 6: Auto-avanço de Etapa + Contador de Tentativas** - Clicar em "Abrir WhatsApp" com o template de primeiro contato avança automaticamente um lead "Novo" para "Contatado" (com toast de confirmação), e todo clique de WhatsApp incrementa um contador de tentativas de contato visível no pipeline
+- [x] **Phase 6: Auto-avanço de Etapa + Contador de Tentativas** - Clicar em "Abrir WhatsApp" com o template de primeiro contato avança automaticamente um lead "Novo" para "Contatado" (com toast de confirmação), e todo clique de WhatsApp incrementa um contador de tentativas de contato visível no pipeline (completed 2026-07-30)
 - [ ] **Phase 7: Configuração de Dias-Parado por Etapa** - Tela `/configuracoes` generaliza o "esfriando" hoje hardcoded (5 dias, só Contatado) para as 3 primeiras etapas do funil, cada uma com seu próprio limite configurável
 
 ## Phase Details
@@ -73,7 +73,7 @@ Plans:
   3. Todo clique em "Abrir WhatsApp" — qualquer template, em qualquer etapa do lead — incrementa um contador de tentativas de contato daquele lead, visível no card do pipeline
   4. O auto-avanço e o contador continuam corretos mesmo se o lead foi movido de etapa via drag-and-drop no board pouco antes do clique em WhatsApp (checagem sempre re-lida no servidor, nunca confiando em estado desatualizado do cliente)
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -82,7 +82,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — Disparo fire-and-forget da mutação no anchor "Abrir WhatsApp" com toast de auto-avanço + indicador do contador no card do pipeline
+- [x] 06-02-PLAN.md — Disparo fire-and-forget da mutação no anchor "Abrir WhatsApp" com toast de auto-avanço + indicador do contador no card do pipeline
 
 **UI hint**: yes
 
@@ -112,5 +112,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
-| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 1/2 | In Progress|  |
+| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete   | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 0/? | Not started | - |
