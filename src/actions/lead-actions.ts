@@ -11,8 +11,8 @@ import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { leads, subnichos } from "@/db/schema";
-import { leadSchema, stageUpdateSchema } from "@/lib/validations";
-import type { Lead } from "@/types";
+import { leadSchema, stageUpdateSchema, whatsappContactSchema } from "@/lib/validations";
+import type { Lead, Template } from "@/types";
 
 type ActionState =
   | { success: true; lead?: Lead }
@@ -189,6 +189,62 @@ export async function updateLeadStage(
   revalidatePath("/pipeline");
   revalidatePath("/");
   return { success: true };
+}
+
+/**
+ * Registra um clique real em "Abrir WhatsApp" (WA-08) e, condicionalmente,
+ * avança a etapa novo → contatado (WA-06/WA-07). Função dedicada — não uma
+ * extensão de updateLeadStage — porque essa recebe uma etapa-alvo explícita
+ * do chamador e carrega semântica de motivoPerda amarrada a movimentos
+ * arbitrários, enquanto este avanço é estritamente unidirecional e
+ * condicional, com a guarda pertencendo ao servidor.
+ *
+ * Retorna { advanced } em vez de ActionState porque o chamador é
+ * fire-and-forget (a aba do WhatsApp já abriu antes da resposta chegar) e só
+ * precisa saber se deve exibir o toast de auto-avanço — erros nunca são
+ * exibidos ao admin nesse fluxo.
+ *
+ * O SELECT fresco abaixo é o que satisfaz SC#4 do ROADMAP: o lead pode ter
+ * sido arrastado para outra coluna do board segundos antes deste clique, e a
+ * decisão de avançar nunca pode confiar em estado vindo do cliente.
+ *
+ * Limitação aceita (Pitfall 5 do RESEARCH): esta mutação não participa do
+ * useOptimistic/startTransition do board — uma corrida rara entre um drag e
+ * um clique quase simultâneos no mesmo lead pode perder uma escrita, mas
+ * nunca sobrescreve negociacao/fechado/perdido definidos manualmente,
+ * porque o gate exige etapa atual "novo".
+ */
+export async function registerWhatsAppContact(
+  leadId: number,
+  tipo: Template["tipo"]
+): Promise<{ advanced: boolean }> {
+  const parsed = whatsappContactSchema.safeParse({ leadId, tipo });
+  if (!parsed.success) {
+    return { advanced: false };
+  }
+
+  const [current] = await db
+    .select({ stage: leads.stage })
+    .from(leads)
+    .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+  if (!current) {
+    return { advanced: false };
+  }
+
+  const advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
+
+  await db
+    .update(leads)
+    .set({
+      contactAttempts: sql`${leads.contactAttempts} + 1`,
+      ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
+    })
+    .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+
+  revalidatePath("/");
+  revalidatePath("/pipeline");
+  revalidatePath("/leads");
+  return { advanced };
 }
 
 /**
