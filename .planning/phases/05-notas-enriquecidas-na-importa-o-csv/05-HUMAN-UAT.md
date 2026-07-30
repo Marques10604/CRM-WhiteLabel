@@ -16,8 +16,8 @@ updated: 2026-07-30T00:54:00Z
 expected: Abrir `http://localhost:3000/importar`, subir um CSV com colunas `nome, score, telefone, sinal_dor, trecho_dor, observacao`, mapear só Nome/Telefone, marcar `score` e `trecho_dor` fora de ordem, conferir o resumo ao vivo "Serão concatenadas: score → trecho_dor", avançar para a prévia e conferir a coluna Notas (com "score: N" e "trecho_dor: ..." em linhas separadas, sem "Importado via CSV." misturado), voltar ao mapeamento e conferir que os checkboxes continuam marcados, mapear Notas 1-pra-1 para `observacao` e conferir que ele some da lista de checkboxes, repetir com um CSV simples (nome+telefone+observacao, sem extras) e confirmar que importa sem interação nova, e confirmar que a seção some quando todas as colunas do CSV estão mapeadas em campos fixos.
 result: [pending]
 
-### 2. Confirmar o impacto real do gap WR-01 (resumo ao vivo desatualizado)
-expected: No passo de mapeamento, marcar uma coluna extra (ex: `score`) e depois mudar o Select de outro campo fixo (ex: "Origem") para apontar para essa mesma coluna `score`. O checkbox de `score` deve sumir da lista (já confirmado por leitura de código), mas o texto "Serão concatenadas: ..." hoje continua citando `score` mesmo assim — confirmar visualmente e decidir se isso bloqueia a fase ou pode ser corrigido depois.
+### 2. Confirmar visualmente a correção do WR-01 (commit c64d568)
+expected: No passo de mapeamento, marcar uma coluna extra (ex: `score`) e depois mudar o Select de outro campo fixo (ex: "Origem") para apontar para essa mesma coluna `score`. O checkbox de `score` deve sumir da lista E o texto "Serão concatenadas: ..." deve parar de citar `score` no mesmo instante — fix já aplicado e verificado estaticamente (tsc/eslint/build/harness), falta só confirmação visual.
 result: [pending]
 
 ## Summary

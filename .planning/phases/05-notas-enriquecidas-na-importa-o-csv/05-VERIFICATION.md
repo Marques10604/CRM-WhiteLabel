@@ -2,25 +2,16 @@
 phase: 05-notas-enriquecidas-na-importa-o-csv
 verified: 2026-07-30T00:00:00Z
 status: human_needed
-score: 14/15 must-haves verified (1 open quality warning documented, not truth-blocking)
+score: 15/15 must-haves verified (WR-01 corrigido em c64d568 e CR-01 em 01586cd após esta verificação, ambos re-checados por tsc/eslint/build/harness)
 overrides_applied: 0
 human_verification:
   - test: "Percurso completo do wizard /importar com o CSV real do cowork (nome, score, telefone, sinal_dor, trecho_dor, observacao): passo 'Mapeie as colunas' mostra a seção 'Colunas extras para notas (opcional)' listando score/sinal_dor/trecho_dor/observacao; marcar score e trecho_dor fora de ordem mostra 'Serão concatenadas: score → trecho_dor'; 'Ver prévia' mostra a coluna Notas com 'score: N' e 'trecho_dor: ...' em linhas separadas, sem 'Importado via CSV.' misturado; 'Voltar ao mapeamento' preserva os checkboxes marcados; mapear Notas 1-pra-1 para observacao remove observacao da lista de checkboxes e a prévia mostra o texto de observacao sem rótulo na primeira linha; CSV simples (nome+telefone+observacao mapeada, nenhuma extra) importa sem interação nova; seção some quando todas as colunas do CSV estão mapeadas em campos fixos."
     expected: "Todos os 7 passos do <human-check> de 05-02-PLAN.md Task 2 passam exatamente como descrito (SC #1-4 do ROADMAP + D-03 + persistência do 'Voltar')."
     why_human: "Requer clique real no navegador (upload de arquivo, interação com Select/checkbox, navegação entre passos do wizard). Nenhuma sessão deste projeto teve acesso a browser até agora (mesmo caveat documentado em STATE.md para Fases 2 e 4) — o dev server está rodando em localhost:3000 pronto para este teste, mas o teste em si nunca foi executado."
-  - test: "Reproduzir o cenário WR-01 do 05-REVIEW.md: no passo de mapeamento, marcar uma coluna extra (ex: score) como checkbox, depois mudar o Select de um campo fixo (ex: Origem) para apontar para essa MESMA coluna (score)."
-    expected: "O resumo ao vivo 'Serão concatenadas: ...' deve parar de mostrar 'score' assim que ele vira um campo fixo — hoje, por código lido nesta verificação, o resumo continua mostrando 'score' porque `extraNotasColumns` não é filtrado por `mappedHeaders` antes de renderizar o texto (só o checkbox some da lista, o resumo textual não é corrigido)."
-    why_human: "É um bug de UI confirmado por leitura estática de código (não uma incerteza), mas a confirmação visual final e a decisão de bloquear/aceitar como está cabem ao admin antes de considerar a fase pronta para uso diário com o CSV real (19 colunas, várias sobreposições possíveis entre Select e checkbox)."
-gaps:
-  - truth: "Resumo ao vivo 'Serão concatenadas: ...' sempre concorda com o texto final que buildNotasText vai gravar (Pitfall 4 do 05-RESEARCH.md: 'os dois precisam concordar')"
-    status: partial
-    reason: "src/components/csv-column-mapper.tsx linha 150 filtra a ORDEM pelo arquivo (headers.filter(...), D-08 correto) mas NÃO exclui headers que passaram a ser usados em um campo fixo depois de já estarem marcados como extra — extraNotasColumns não é limpo por handleFieldChange. buildNotasText (csv-import.ts) tem o filtro fixedHeaders/extraSet correto e produz o resultado FINAL certo (o dado salvo no lead está correto), mas o texto exibido ANTES de confirmar pode mentir sobre uma coluna que na verdade não vai ser concatenada — viola a garantia de 'para conferência' do SC #4 do ROADMAP nesse cenário específico. Documentado como WR-01 em 05-REVIEW.md, não corrigido no código atual (confirmado por leitura direta do arquivo nesta verificação)."
-    artifacts:
-      - path: "src/components/csv-column-mapper.tsx"
-        issue: "Linha 148-152: `extraNotasColumns.length > 0` e `headers.filter((h) => extraNotasColumns.includes(h))` usam o array de estado bruto, sem excluir headers que hoje aparecem em `mappedHeaders` (calculado na linha 67 mas não reaproveitado no resumo)."
-    missing:
-      - "Derivar `visibleExtraColumns = extraNotasColumns.filter((h) => !mappedHeaders.has(h))` e usar essa variável tanto na condição de exibição quanto no `headers.filter(...)` do resumo (fix sugerido em 05-REVIEW.md WR-01, não aplicado)."
-      - "Idealmente também limpar `extraNotasColumns` em `handleFieldChange` quando o valor escolhido já está marcado como extra, para não deixar estado órfão acumulando."
+  - test: "Confirmar visualmente a correção do WR-01 (commit c64d568): no passo de mapeamento, marcar uma coluna extra (ex: score) como checkbox, depois mudar o Select de um campo fixo (ex: Origem) para apontar para essa MESMA coluna (score)."
+    expected: "O checkbox de score some da lista (já se comportava assim antes) E o resumo ao vivo 'Serão concatenadas: ...' também para de citar score no mesmo instante — agora `visibleExtraColumns` filtra por `mappedHeaders` antes de renderizar (fix aplicado, verificado por leitura de código + tsc/eslint/build, mas não clicado no navegador ainda)."
+    why_human: "Fix já aplicado e re-verificado estaticamente nesta sessão; falta só a confirmação visual final no navegador antes de considerar a fase pronta para uso diário com o CSV real (19 colunas, várias sobreposições possíveis entre Select e checkbox)."
+gaps: []
 deferred: []
 ---
 
@@ -143,6 +134,17 @@ Adicionalmente, o `<human-check>` de 7 passos que a própria Task 2 do 05-02-PLA
 Por pedido explícito da tarefa de verificação, também está documentado aqui — mesmo sendo pré-existente e fora do escopo desta fase — o achado crítico CR-01 do code review (`fetchPreviewSupportData` sem `.catch`, que pode travar a prévia indefinidamente em caso de falha de rede/banco). Confirmado por `git show` que esse trecho já existia antes dos commits desta fase (desde o commit `33e5715`, Fase 2). Não é um gap de IMPORT-04/IMPORT-05, mas é um fator de risco relevante para a robustez do mesmo fluxo de prévia que sustenta SC #2/#4 — vale corrigir antes ou logo depois de considerar a Fase 5 pronta para uso diário com o CSV real do cowork.
 
 ---
+
+## Addendum: correções pós-verificação (2026-07-30)
+
+Após esta verificação, o admin pediu correção direta (sem ciclo formal de gap-closure, mesmo padrão de commits rápidos já usado neste projeto para bugs pequenos e bem entendidos) dos dois achados de `05-REVIEW.md` registrados acima:
+
+- **WR-01 corrigido** — commit `c64d568`. `src/components/csv-column-mapper.tsx` agora deriva `visibleExtraColumns = extraNotasColumns.filter((h) => !mappedHeaders.has(h))` e usa essa variável tanto na condição de exibição quanto no resumo "Serão concatenadas: ...", eliminando a divergência com `buildNotasText`. Truth #11 passa a ser `✓ VERIFIED` em vez de `⚠️ PARTIAL`.
+- **CR-01 corrigido** — commit `01586cd`. `fetchPreviewSupportData(...)` em `csv-import-wizard.tsx` ganhou `.catch`: em caso de falha, mostra `toast.error` e cai para `{ duplicatePhones: [], unknownSubnichoNames: [] }` em vez de deixar `previewSupportData` `null` para sempre — a prévia não trava mais indefinidamente em "Carregando prévia...".
+
+Verificação estática pós-fix: `npx tsc --noEmit` limpo, `npx eslint` nos 2 arquivos sem erros novos (só os 2 warnings pré-existentes já documentados), `node scripts/verify-notas-concat.cjs` → `OK: 10 cenarios de concatenacao de notas`, `npm run build` limpo (dev server parado durante o build e religado depois, host de 4GB). Score revisado para 15/15.
+
+A fase segue `human_needed`: o `<human-check>` de 7 passos (item 1 da Human Verification acima) nunca foi executado por falta de acesso a navegador nesta ou em qualquer sessão anterior do projeto — não é uma regressão desta correção, é o mesmo caveat recorrente de todas as fases. O item 2 da Human Verification foi reescrito para pedir confirmação visual do fix (não mais reprodução do bug).
 
 _Verified: 2026-07-30_
 _Verifier: Claude (gsd-verifier)_
