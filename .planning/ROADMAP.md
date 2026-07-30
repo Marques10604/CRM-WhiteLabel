@@ -29,19 +29,28 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 ## Phase Details
 
 ### Phase 5: Notas Enriquecidas na Importação CSV
+
 **Goal**: Admin importa o CSV de prospecção do cowork (com colunas de inteligência score/sinal_dor/trecho_dor/observacao) sem perder o sinal de priorização — essas colunas passam a ser concatenadas automaticamente em um único campo de notas formatado e legível no lead importado, sem exigir nada extra quando o CSV é simples
 **Depends on**: Phase 2 (CSV Bulk Import — estende o motor de mapeamento e o wizard já existentes em `src/lib/csv-import.ts` e `src/components/csv-import-wizard.tsx`)
 **Requirements**: IMPORT-04, IMPORT-05
 **Success Criteria** (o que precisa ser verdade):
+
   1. No passo de mapeamento do wizard, o admin consegue marcar múltiplas colunas de origem do CSV (ex: `score`, `sinal_dor`, `trecho_dor`, `observacao`) para irem juntas para notas, além do mapeamento 1-pra-1 de uma única coluna de notas já existente
   2. Ao confirmar a importação, o lead criado tem um campo de notas formatado e legível contendo todas as colunas mapeadas, sem perder nenhuma coluna selecionada
   3. Um CSV simples que mapeia só uma coluna de notas continua sendo importado exatamente como hoje, sem exigir nenhuma configuração extra do admin
   4. O passo de mapeamento mostra ao admin, antes de confirmar, quais colunas serão concatenadas e em que ordem, para conferência
+
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 05-01-PLAN.md — Motor de concatenação em csv-import.ts (CsvExtraNotasColumns, buildNotasText, fallback sobre o resultado final) + harness de 10 cenários
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 05-02-PLAN.md — Seção de checkboxes "Colunas extras para notas (opcional)" + resumo ao vivo no wizard, estado extraNotasColumns até mapCsvRows
+
 **UI hint**: yes
 
 ## Progress
