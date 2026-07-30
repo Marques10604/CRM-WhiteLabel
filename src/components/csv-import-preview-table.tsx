@@ -118,7 +118,18 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
   { accessorKey: "canal", header: "Canal" },
   { accessorKey: "origem", header: "Origem" },
   { accessorKey: "valorEstimado", header: "Valor estimado" },
-  { accessorKey: "notas", header: "Notas" },
+  {
+    accessorKey: "notas",
+    header: "Notas",
+    // buildNotasText (05-01) separa colunas extras com \n real, mas o <td>
+    // padrão do design system usa whitespace-nowrap (table.tsx) — sem este
+    // wrapper, a concatenação vira um único texto corrido na prévia,
+    // contrariando a garantia "em linhas separadas" do SC #2/#4 do ROADMAP.
+    // Achado em teste real de navegador (gsd-browser) após a Fase 5.
+    cell: ({ row }) => (
+      <span className="block max-w-xs whitespace-pre-line">{row.original.notas}</span>
+    ),
+  },
   {
     id: "status",
     header: "Status",
