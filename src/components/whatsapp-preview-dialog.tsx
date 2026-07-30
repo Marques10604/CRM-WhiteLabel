@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
 import { buildWaLink, renderTemplate } from "@/lib/whatsapp";
+import { registerWhatsAppContact } from "@/actions/lead-actions";
 import type { Lead, Template } from "@/types";
 
 type WhatsAppPreviewDialogProps = {
@@ -162,12 +164,35 @@ export function WhatsAppPreviewDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
+              {/* WA-06/WA-08: registra a tentativa de contato (e o possível
+                  auto-avanço Novo→Contatado) de forma fire-and-forget — a
+                  aba do wa.me já abre pelo `href` nativo do anchor, sem
+                  interceptar a navegação nem esperar a resposta do servidor
+                  (Pitfall 2). O gate de avanço é decidido inteiramente no
+                  servidor a partir de um SELECT fresco; o cliente só envia
+                  o tipo vivo do Select e exibe o toast se o retorno indicar
+                  avanço. */}
               {waHref ? (
                 <a
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => onOpenChange(false)}
+                  onClick={() => {
+                    onOpenChange(false);
+                    if (!lead) return;
+                    const leadId = lead.id;
+                    const nome = lead.nome;
+                    registerWhatsAppContact(leadId, tipo)
+                      .then((result) => {
+                        if (result.advanced) {
+                          toast.success(`${nome} avançou para Contatado.`);
+                        }
+                      })
+                      .catch(() => {
+                        // Silencioso por design: a aba do WhatsApp já abriu,
+                        // exibir erro sobre ela confundiria o admin.
+                      });
+                  }}
                   className={cn(
                     buttonVariants(),
                     "gap-1.5 bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
