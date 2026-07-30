@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
 status: planning
-last_updated: "2026-07-30T03:21:16.116Z"
-last_activity: 2026-07-30
+last_updated: "2026-07-30T11:08:50.679Z"
+last_activity: 2026-07-30 — ROADMAP.md criado (Fases 6-7), WA-06/WA-07/WA-08/CONFIG-01/CONFIG-02 mapeados, cobertura 5/5
 progress:
-  total_phases: 2
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 3
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 33
 ---
 
 # Project State
@@ -139,9 +139,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T01:28:23.560Z
-Stopped at: Completed 05-02-PLAN.md — Fase 5 completa (motor + UI), IMPORT-04/IMPORT-05 concluidos; human-check pendente de browser
-Resume file: None
+Last session: 2026-07-30T11:08:50.621Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-auto-avan-o-de-etapa-contador-de-tentativas/06-CONTEXT.md
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
