@@ -73,12 +73,12 @@ Plans:
   3. Todo clique em "Abrir WhatsApp" — qualquer template, em qualquer etapa do lead — incrementa um contador de tentativas de contato daquele lead, visível no card do pipeline
   4. O auto-avanço e o contador continuam corretos mesmo se o lead foi movido de etapa via drag-and-drop no board pouco antes do clique em WhatsApp (checagem sempre re-lida no servidor, nunca confiando em estado desatualizado do cliente)
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 06-01-PLAN.md — Coluna `contact_attempts`, `whatsappContactSchema` e a Server Action `registerWhatsAppContact` (gate server-side de auto-avanço + incremento atômico), aplicação no banco real e guarda automatizada do invariante
+- [x] 06-01-PLAN.md — Coluna `contact_attempts`, `whatsappContactSchema` e a Server Action `registerWhatsAppContact` (gate server-side de auto-avanço + incremento atômico), aplicação no banco real e guarda automatizada do invariante
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -112,5 +112,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Sales Pipeline & Funnel View | v1.0 | 4/4 | Complete | 2026-07-21 |
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
-| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 0/2 | Planned | - |
+| 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 1/2 | In Progress|  |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 0/? | Not started | - |

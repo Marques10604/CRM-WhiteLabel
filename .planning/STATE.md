@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
 status: executing
-last_updated: "2026-07-30T12:23:35.652Z"
-last_activity: 2026-07-30 -- Phase 06 planning complete
+last_updated: "2026-07-30T12:54:05.649Z"
+last_activity: 2026-07-30
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 33
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 6 (Auto-avanço de Etapa + Contador de Tentativas)
+**Current focus:** Phase 06 — auto-avan-o-de-etapa-contador-de-tentativas
 
 ## Current Position
 
-Phase: 6 of 7 (Auto-avanço de Etapa + Contador de Tentativas)
-Plan: — (roadmap created, plans not yet broken down)
+Phase: 06 (auto-avan-o-de-etapa-contador-de-tentativas) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-07-30 -- Phase 06 planning complete
+Last activity: 2026-07-30
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Last activity: 2026-07-30 -- Phase 06 planning complete
 | Phase 04-follow-up-dashboard-whatsapp-outreach P04 | 35min | 2 tasks | 8 files |
 | Phase 05 P01 | 35min | 2 tasks | 2 files |
 | Phase 05-notas-enriquecidas-na-importa-o-csv P02 | 25 min | 2 tasks | 2 files |
+| Phase 06-auto-avan-o-de-etapa-contador-de-tentativas P01 | 15min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 05-01]: Fallback CSV_DEFAULTS.notas aplicado sobre o resultado FINAL de buildNotasText, nunca sobre o valor bruto da coluna Notas isolada (corrige Pitfall 1)
 - [Phase 05-01]: csvHeaderOrder derivado internamente de Object.keys(rows[0] ?? {}) dentro de mapCsvRows, nunca recebido como parametro externo (evita Pitfall 3)
 - [Phase 05-notas-enriquecidas-na-importa-o-csv]: handleToggleExtraColumn espelha handleFieldChange (nenhum useState interno) e resumo ao vivo deriva sempre de headers.filter(...), nunca de extraNotasColumns.join/map — Mantém csv-column-mapper.tsx 100% controlado pelo wizard e garante que a ordem de concatenação segue sempre a ordem do arquivo CSV (D-08), mesmo se o admin marcar checkboxes fora de ordem
+- [Phase 06-01]: npx drizzle-kit push nao pode ser usado para adicionar coluna com default 0 -- bug de falsy-check trata DEFAULT 0 como ausente e prepara DELETE FROM antes do ADD COLUMN; ALTER TABLE aplicado diretamente via better-sqlite3 com a mesma DDL que o proprio conversor do drizzle-kit geraria
+- [Phase 06-01]: registerWhatsAppContact e funcao dedicada (nao extensao de updateLeadStage) -- auto-avanco e unidirecional/condicional, guarda pertence ao servidor via SELECT fresco
 
 ### Pending Todos
 
@@ -139,9 +142,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T11:55:14.079Z
-Stopped at: Phase 06 UI-SPEC approved
-Resume file: .planning/phases/06-auto-avan-o-de-etapa-contador-de-tentativas/06-UI-SPEC.md
+Last session: 2026-07-30T12:54:05.605Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import

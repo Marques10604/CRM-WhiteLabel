@@ -9,9 +9,9 @@ Requisitos para o milestone v1.2 (Follow-up Automático). Cada um mapeia para um
 
 ### WhatsApp / Contato
 
-- [ ] **WA-06**: Ao clicar em "Abrir WhatsApp" com o template de primeiro contato, um lead na etapa "Novo" avança automaticamente para "Contatado", com toast de confirmação — vale em todas as telas onde o botão de WhatsApp aparece (dashboard, pipeline, lista de leads, pós-importação)
-- [ ] **WA-07**: O auto-avanço nunca regride nem re-avança um lead que já passou de "Contatado" — só dispara a partir da etapa "Novo"
-- [ ] **WA-08**: Todo clique em "Abrir WhatsApp" (qualquer template, em qualquer etapa do lead) incrementa um contador de tentativas de contato por lead, visível no card do pipeline
+- [x] **WA-06**: Ao clicar em "Abrir WhatsApp" com o template de primeiro contato, um lead na etapa "Novo" avança automaticamente para "Contatado", com toast de confirmação — vale em todas as telas onde o botão de WhatsApp aparece (dashboard, pipeline, lista de leads, pós-importação)
+- [x] **WA-07**: O auto-avanço nunca regride nem re-avança um lead que já passou de "Contatado" — só dispara a partir da etapa "Novo"
+- [x] **WA-08**: Todo clique em "Abrir WhatsApp" (qualquer template, em qualquer etapa do lead) incrementa um contador de tentativas de contato por lead, visível no card do pipeline
 
 ### Configurações
 
@@ -48,9 +48,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WA-06 | Phase 6 | Pending |
-| WA-07 | Phase 6 | Pending |
-| WA-08 | Phase 6 | Pending |
+| WA-06 | Phase 6 | Complete |
+| WA-07 | Phase 6 | Complete |
+| WA-08 | Phase 6 | Complete |
 | CONFIG-01 | Phase 7 | Pending |
 | CONFIG-02 | Phase 7 | Pending |
 
