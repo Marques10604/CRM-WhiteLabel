@@ -151,3 +151,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 06-auto-avan-o-de-etapa-contador-de-tentativas*
 *Completed: 2026-07-30*
+
+## Self-Check: PASSED
+
+Todos os arquivos criados/modificados confirmados presentes em disco (`src/db/schema.ts`, `src/lib/validations.ts`, `src/actions/lead-actions.ts`, `scripts/verify-wa-contact-invariant.cjs`, `06-01-SUMMARY.md`). Todos os 4 hashes de commit (`6ac3c35`, `b5c5fdc`, `373009b`, `5c4fac6`) confirmados presentes em `git log --oneline --all`.
