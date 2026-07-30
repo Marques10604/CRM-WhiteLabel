@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Importação Inteligente
 status: planning
-last_updated: "2026-07-29T23:58:28.486Z"
+last_updated: "2026-07-30T00:34:17.884Z"
 last_activity: "2026-07-29 — Roadmap do milestone v1.1 criado: Phase 5 cobre IMPORT-04/IMPORT-05 com 100% de cobertura"
 progress:
   total_phases: 1
@@ -135,9 +135,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-29T23:58:28.453Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-notas-enriquecidas-na-importa-o-csv/05-CONTEXT.md
+Last session: 2026-07-30T00:34:17.847Z
+Stopped at: Phase 5 UI-SPEC approved
+Resume file: .planning/phases/05-notas-enriquecidas-na-importa-o-csv/05-UI-SPEC.md
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
