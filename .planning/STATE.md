@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: planning
-last_updated: "2026-07-30T11:08:50.679Z"
-last_activity: 2026-07-30 — ROADMAP.md criado (Fases 6-7), WA-06/WA-07/WA-08/CONFIG-01/CONFIG-02 mapeados, cobertura 5/5
+status: executing
+last_updated: "2026-07-30T12:23:35.652Z"
+last_activity: 2026-07-30 -- Phase 06 planning complete
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
+  total_plans: 4
   completed_plans: 2
   percent: 33
 ---
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 
 Phase: 6 of 7 (Auto-avanço de Etapa + Contador de Tentativas)
 Plan: — (roadmap created, plans not yet broken down)
-Status: Ready to plan
-Last activity: 2026-07-30 — ROADMAP.md criado (Fases 6-7), WA-06/WA-07/WA-08/CONFIG-01/CONFIG-02 mapeados, cobertura 5/5
+Status: Ready to execute
+Last activity: 2026-07-30 -- Phase 06 planning complete
 
 ## Performance Metrics
 
@@ -139,9 +139,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T11:08:50.621Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-auto-avan-o-de-etapa-contador-de-tentativas/06-CONTEXT.md
+Last session: 2026-07-30T11:55:14.079Z
+Stopped at: Phase 06 UI-SPEC approved
+Resume file: .planning/phases/06-auto-avan-o-de-etapa-contador-de-tentativas/06-UI-SPEC.md
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
