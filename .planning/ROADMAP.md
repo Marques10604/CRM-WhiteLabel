@@ -49,7 +49,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — Seção de checkboxes "Colunas extras para notas (opcional)" + resumo ao vivo no wizard, estado extraNotasColumns até mapCsvRows
+- [x] 05-02-PLAN.md — Seção de checkboxes "Colunas extras para notas (opcional)" + resumo ao vivo no wizard, estado extraNotasColumns até mapCsvRows
 
 **UI hint**: yes
 

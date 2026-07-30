@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Importação Inteligente
-status: executing
-last_updated: "2026-07-30T01:15:49.033Z"
+status: verifying
+last_updated: "2026-07-30T01:28:23.584Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 
 Phase: 05 (notas-enriquecidas-na-importa-o-csv) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-30
 
-Progress: [█████░░░░░] 50%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04-follow-up-dashboard-whatsapp-outreach P03 | 40min | 3 tasks | 8 files |
 | Phase 04-follow-up-dashboard-whatsapp-outreach P04 | 35min | 2 tasks | 8 files |
 | Phase 05 P01 | 35min | 2 tasks | 2 files |
+| Phase 05-notas-enriquecidas-na-importa-o-csv P02 | 25 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Quick 260725-lai]: Soft-delete de sub-nicho filtra deletedAt so nas superficies de selecao, nunca nas queries de listagem de leads (mapa id->nome)
 - [Phase 05-01]: Fallback CSV_DEFAULTS.notas aplicado sobre o resultado FINAL de buildNotasText, nunca sobre o valor bruto da coluna Notas isolada (corrige Pitfall 1)
 - [Phase 05-01]: csvHeaderOrder derivado internamente de Object.keys(rows[0] ?? {}) dentro de mapCsvRows, nunca recebido como parametro externo (evita Pitfall 3)
+- [Phase 05-notas-enriquecidas-na-importa-o-csv]: handleToggleExtraColumn espelha handleFieldChange (nenhum useState interno) e resumo ao vivo deriva sempre de headers.filter(...), nunca de extraNotasColumns.join/map — Mantém csv-column-mapper.tsx 100% controlado pelo wizard e garante que a ordem de concatenação segue sempre a ordem do arquivo CSV (D-08), mesmo se o admin marcar checkboxes fora de ordem
 
 ### Pending Todos
 
@@ -138,8 +140,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T01:15:49.006Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-07-30T01:28:23.560Z
+Stopped at: Completed 05-02-PLAN.md — Fase 5 completa (motor + UI), IMPORT-04/IMPORT-05 concluidos; human-check pendente de browser
 Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 

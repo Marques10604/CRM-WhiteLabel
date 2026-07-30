@@ -9,8 +9,8 @@ Requisitos para o milestone v1.1 (Importação Inteligente). Cada um mapeia para
 
 ### Importação CSV
 
-- [ ] **IMPORT-04**: Admin pode mapear múltiplas colunas de origem do CSV (ex: `score`, `sinal_dor`, `trecho_dor`, `observacao` — colunas de inteligência geradas pela skill de prospecção do cowork) para serem concatenadas automaticamente em um único campo de notas formatado e legível no lead importado, sem perder nenhuma coluna mapeada
-- [ ] **IMPORT-05**: O mapeamento de colunas múltiplas para notas é opcional e compatível com o mapeamento 1-pra-1 já existente — CSVs simples (uma coluna de notas só) continuam funcionando exatamente como hoje
+- [x] **IMPORT-04**: Admin pode mapear múltiplas colunas de origem do CSV (ex: `score`, `sinal_dor`, `trecho_dor`, `observacao` — colunas de inteligência geradas pela skill de prospecção do cowork) para serem concatenadas automaticamente em um único campo de notas formatado e legível no lead importado, sem perder nenhuma coluna mapeada
+- [x] **IMPORT-05**: O mapeamento de colunas múltiplas para notas é opcional e compatível com o mapeamento 1-pra-1 já existente — CSVs simples (uma coluna de notas só) continuam funcionando exatamente como hoje
 
 ## v2 Requirements
 
@@ -36,8 +36,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMPORT-04 | Phase 5 | Pending |
-| IMPORT-05 | Phase 5 | Pending |
+| IMPORT-04 | Phase 5 | Complete |
+| IMPORT-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 2 total
