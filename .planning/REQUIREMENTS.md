@@ -1,25 +1,33 @@
 # Requirements: CRM de Leads — Área da Saúde
 
-**Defined:** 2026-07-29
+**Defined:** 2026-07-30
 **Core Value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
 
-## v1.1 Requirements
+## v1.2 Requirements
 
-Requisitos para o milestone v1.1 (Importação Inteligente). Cada um mapeia para uma fase do roadmap.
+Requisitos para o milestone v1.2 (Follow-up Automático). Cada um mapeia para uma fase do roadmap.
 
-### Importação CSV
+### WhatsApp / Contato
 
-- [x] **IMPORT-04**: Admin pode mapear múltiplas colunas de origem do CSV (ex: `score`, `sinal_dor`, `trecho_dor`, `observacao` — colunas de inteligência geradas pela skill de prospecção do cowork) para serem concatenadas automaticamente em um único campo de notas formatado e legível no lead importado, sem perder nenhuma coluna mapeada
-- [x] **IMPORT-05**: O mapeamento de colunas múltiplas para notas é opcional e compatível com o mapeamento 1-pra-1 já existente — CSVs simples (uma coluna de notas só) continuam funcionando exatamente como hoje
+- [ ] **WA-06**: Ao clicar em "Abrir WhatsApp" com o template de primeiro contato, um lead na etapa "Novo" avança automaticamente para "Contatado", com toast de confirmação — vale em todas as telas onde o botão de WhatsApp aparece (dashboard, pipeline, lista de leads, pós-importação)
+- [ ] **WA-07**: O auto-avanço nunca regride nem re-avança um lead que já passou de "Contatado" — só dispara a partir da etapa "Novo"
+- [ ] **WA-08**: Todo clique em "Abrir WhatsApp" (qualquer template, em qualquer etapa do lead) incrementa um contador de tentativas de contato por lead, visível no card do pipeline
+
+### Configurações
+
+- [ ] **CONFIG-01**: Admin acessa uma tela `/configuracoes` para definir quantos dias um lead pode ficar parado em cada etapa (Novo, Contatado, Negociação) antes de ser destacado como "esfriando"
+- [ ] **CONFIG-02**: A configuração substitui o valor hardcoded atual (5 dias, só etapa Contatado) sem mudar o comportamento no dia do deploy — o valor de Contatado nasce pré-preenchido com 5
 
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
 
-### Importação / Prospecção
+### Backlog (sessão de ideias 2026-07-25)
 
-- **IMPORT-V2-01**: Campo de prioridade/score dedicado no lead (visível na lista e no pipeline), não apenas texto solto em notas
+- **FOLLOWUP-01**: Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social
+- **LEAD-05**: Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente
 - **IMPORT-V2-02**: Conectar a landing page pública (Vercel) ao CRM via uma rota de captura — depende da migração futura do usuário para uma VPS própria com domínio
+- **IMPORT-V2-01**: Campo de prioridade/score dedicado no lead (visível na lista e no pipeline), não apenas texto solto em notas
 
 ## Out of Scope
 
@@ -27,8 +35,12 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Hospedagem na nuvem / rota pública de captura para a landing page | Adiado deliberadamente pelo usuário (2026-07-29) até haver tráfego pago; será parte da migração futura de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada agora — mantém a restrição "sem hospedagem na nuvem" do `PROJECT.md` |
-| Sequência de follow-up escalonada, contador de tentativas de contato, tela de dias-parado configurável, porta de entrada local para IA cadastrar leads | Candidatos válidos da sessão de ideias de 2026-07-25, mas fora do escopo deste milestone por decisão explícita do usuário — ficam para v1.2+ |
+| Auto-avanço em qualquer clique de template (não só primeiro_contato) | Decisão explícita do usuário (2026-07-30) — só o primeiro contato representa "contatar" o lead pela primeira vez |
+| Tratar clique no link wa.me como confirmação de mensagem enviada | Não há integração com WhatsApp Business API (fora de escopo do projeto todo) — clique só prova que o link foi aberto, nunca que a mensagem foi enviada. Pesquisa (PITFALLS.md) confirma: gate deve ficar restrito a Novo→Contatado, nunca tratado como fato irreversível |
+| Escalonamento visual/lógico do contador de tentativas (cores, "desistir automaticamente") | Anti-feature identificado em FEATURES.md — um admin solo não precisa que o contador tome decisões por ele, só que mostre o número |
+| Thresholds de dias-parado por sub-nicho | Fora do escopo — configuração é só por etapa do pipeline, não por sub-nicho |
+| Notificações/e-mail sobre lead esfriando | Fora do escopo — o destaque visual no pipeline já é o mecanismo de aviso |
+| Auto-avanço além da etapa Contatado (Negociação→Fechado, etc.) | Fora do escopo — só o gargalo Novo→Contatado (primeiro contato) foi endereçado neste milestone |
 
 ## Traceability
 
@@ -36,14 +48,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMPORT-04 | Phase 5 | Complete |
-| IMPORT-05 | Phase 5 | Complete |
+| WA-06 | TBD | Pending |
+| WA-07 | TBD | Pending |
+| WA-08 | TBD | Pending |
+| CONFIG-01 | TBD | Pending |
+| CONFIG-02 | TBD | Pending |
 
 **Coverage:**
-- v1.1 requirements: 2 total
-- Mapped to phases: 2
-- Unmapped: 0 ✓
+- v1.2 requirements: 5 total
+- Mapped to phases: 0
+- Unmapped: 5 ⚠️ (roadmap creation pending)
 
 ---
-*Requirements defined: 2026-07-29*
-*Last updated: 2026-07-29 after v1.1 roadmap creation (Phase 5 mapped, 100% coverage)*
+*Requirements defined: 2026-07-30*
+*Last updated: 2026-07-30 after v1.2 requirements definition*
