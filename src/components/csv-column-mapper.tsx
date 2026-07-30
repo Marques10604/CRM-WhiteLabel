@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { CsvColumnMapping, CsvFieldKey } from "@/lib/csv-import";
+import type { CsvColumnMapping, CsvExtraNotasColumns, CsvFieldKey } from "@/lib/csv-import";
 
 type FieldConfig = { key: CsvFieldKey; label: string; required: boolean };
 
@@ -34,6 +34,8 @@ type CsvColumnMapperProps = {
   detectedDelimiter: string;
   detectedEncoding: "UTF-8" | "Windows-1252";
   onContinue: () => void;
+  extraNotasColumns: CsvExtraNotasColumns;
+  onExtraNotasColumnsChange: (columns: CsvExtraNotasColumns) => void;
 };
 
 /**
@@ -48,12 +50,29 @@ export function CsvColumnMapper({
   detectedDelimiter,
   detectedEncoding,
   onContinue,
+  extraNotasColumns,
+  onExtraNotasColumnsChange,
 }: CsvColumnMapperProps) {
   const delimiterLabel = detectedDelimiter === ";" ? "ponto-e-vírgula" : "vírgula";
   const canContinue = Boolean(mapping.nome && mapping.telefone);
 
   function handleFieldChange(key: CsvFieldKey, value: string) {
     onMappingChange({ ...mapping, [key]: value === NONE_VALUE ? null : value });
+  }
+
+  // D-01/D-02/D-04: colunas ainda não usadas em nenhum dos 7 campos fixos —
+  // recalculado a cada render (sem useMemo/cache) para que um Select que
+  // passe a apontar pra uma coluna já marcada faça o checkbox dela sumir na
+  // hora (Pitfall 4).
+  const mappedHeaders = new Set(Object.values(mapping).filter((v): v is string => v !== null));
+  const unmappedHeaders = headers.filter((h) => !mappedHeaders.has(h));
+
+  function handleToggleExtraColumn(header: string) {
+    if (extraNotasColumns.includes(header)) {
+      onExtraNotasColumnsChange(extraNotasColumns.filter((h) => h !== header));
+    } else {
+      onExtraNotasColumnsChange([...extraNotasColumns, header]);
+    }
   }
 
   return (
@@ -105,6 +124,34 @@ export function CsvColumnMapper({
           );
         })}
       </div>
+
+      {/* D-01/D-02/D-03/D-04/D-08/D-09: seção opcional de colunas extras para
+          notas — só renderiza quando sobra alguma coluna não mapeada (D-03,
+          sem mensagem de vazio); resumo ao vivo deriva a ordem de `headers`
+          (ordem do arquivo CSV), nunca da ordem de clique (D-08). */}
+      {unmappedHeaders.length > 0 && (
+        <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+          <p className="text-sm font-semibold">Colunas extras para notas (opcional)</p>
+          <div className="flex flex-col gap-2">
+            {unmappedHeaders.map((header) => (
+              <label key={header} className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-[#0D9488]"
+                  checked={extraNotasColumns.includes(header)}
+                  onChange={() => handleToggleExtraColumn(header)}
+                />
+                {header}
+              </label>
+            ))}
+          </div>
+          {extraNotasColumns.length > 0 && (
+            <p className="text-sm text-muted-foreground">
+              Serão concatenadas: {headers.filter((h) => extraNotasColumns.includes(h)).join(" → ")}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end">
         <Button

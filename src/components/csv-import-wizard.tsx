@@ -9,6 +9,7 @@ import {
   detectWithinBatchDuplicatePhones,
   mapCsvRows,
   type CsvColumnMapping,
+  type CsvExtraNotasColumns,
   type MappedCsvRow,
   type ParsedCsvRow,
 } from "@/lib/csv-import";
@@ -34,6 +35,9 @@ const EMPTY_MAPPING: CsvColumnMapping = {
   valorEstimado: null,
   notas: null,
 };
+
+/** D-11: cada upload novo começa sem nenhuma coluna extra marcada. */
+const EMPTY_EXTRA_NOTAS_COLUMNS: CsvExtraNotasColumns = [];
 
 const ERROR_READ_FAILED: CsvUploadError = {
   heading: "Não foi possível ler este arquivo",
@@ -61,6 +65,7 @@ type WizardState =
       detectedDelimiter: string;
       detectedEncoding: "UTF-8" | "Windows-1252";
       mapping: CsvColumnMapping;
+      extraNotasColumns: CsvExtraNotasColumns;
     }
   | {
       step: "preview";
@@ -69,6 +74,7 @@ type WizardState =
       detectedDelimiter: string;
       detectedEncoding: "UTF-8" | "Windows-1252";
       mapping: CsvColumnMapping;
+      extraNotasColumns: CsvExtraNotasColumns;
       mappedRows: MappedCsvRow[];
     };
 
@@ -219,6 +225,7 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
       detectedDelimiter: result.meta.delimiter,
       detectedEncoding,
       mapping: { ...EMPTY_MAPPING },
+      extraNotasColumns: [...EMPTY_EXTRA_NOTAS_COLUMNS],
     });
   }
 
@@ -231,10 +238,15 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
     setState({ ...state, mapping });
   }
 
+  function handleExtraNotasColumnsChange(extraNotasColumns: CsvExtraNotasColumns) {
+    if (state.step !== "mapping") return;
+    setState({ ...state, extraNotasColumns });
+  }
+
   function handleContinueToPreview() {
     if (state.step !== "mapping") return;
 
-    const rows = mapCsvRows(state.parsedRows, state.mapping);
+    const rows = mapCsvRows(state.parsedRows, state.mapping, state.extraNotasColumns);
     const hasAnyValidRow = rows.some((row) => row.nome !== "" && row.telefone !== "");
     if (!hasAnyValidRow) {
       setState({ step: "upload", error: ERROR_NO_VALID_ROWS });
@@ -255,6 +267,7 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
       detectedDelimiter: state.detectedDelimiter,
       detectedEncoding: state.detectedEncoding,
       mapping: state.mapping,
+      extraNotasColumns: state.extraNotasColumns,
     });
   }
 
@@ -302,6 +315,8 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
         detectedDelimiter={state.detectedDelimiter}
         detectedEncoding={state.detectedEncoding}
         onContinue={handleContinueToPreview}
+        extraNotasColumns={state.extraNotasColumns}
+        onExtraNotasColumnsChange={handleExtraNotasColumnsChange}
       />
     );
   }
