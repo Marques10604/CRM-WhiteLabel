@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: ready_to_plan
-last_updated: 2026-07-30T13:38:11.672Z
+status: planning
+last_updated: "2026-07-31T15:15:21.143Z"
 last_activity: 2026-07-30
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 4
-  completed_plans: 19
+  completed_plans: 4
   percent: 67
-stopped_at: Phase 06 complete (2/2) — ready to discuss Phase 7
 ---
 
 # Project State
@@ -147,9 +146,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-30T13:11:23.934Z
-Stopped at: Completed 06-02-PLAN.md
-Resume file: None
+Last session: 2026-07-31T15:15:21.090Z
+Stopped at: Phase 7 context gathered
+Resume file: .planning/phases/07-configura-o-de-dias-parado-por-etapa/07-CONTEXT.md
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
