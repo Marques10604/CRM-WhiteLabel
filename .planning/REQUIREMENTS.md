@@ -15,8 +15,8 @@ Requisitos para o milestone v1.2 (Follow-up Automático). Cada um mapeia para um
 
 ### Configurações
 
-- [ ] **CONFIG-01**: Admin acessa uma tela `/configuracoes` para definir quantos dias um lead pode ficar parado em cada etapa (Novo, Contatado, Negociação) antes de ser destacado como "esfriando"
-- [ ] **CONFIG-02**: A configuração substitui o valor hardcoded atual (5 dias, só etapa Contatado) sem mudar o comportamento no dia do deploy — o valor de Contatado nasce pré-preenchido com 5
+- [x] **CONFIG-01**: Admin acessa uma tela `/configuracoes` para definir quantos dias um lead pode ficar parado em cada etapa (Novo, Contatado, Negociação) antes de ser destacado como "esfriando"
+- [x] **CONFIG-02**: A configuração substitui o valor hardcoded atual (5 dias, só etapa Contatado) sem mudar o comportamento no dia do deploy — o valor de Contatado nasce pré-preenchido com 5
 
 ## v2 Requirements
 
@@ -51,8 +51,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WA-06 | Phase 6 | Complete |
 | WA-07 | Phase 6 | Complete |
 | WA-08 | Phase 6 | Complete |
-| CONFIG-01 | Phase 7 | Pending |
-| CONFIG-02 | Phase 7 | Pending |
+| CONFIG-01 | Phase 7 | Complete |
+| CONFIG-02 | Phase 7 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 5 total

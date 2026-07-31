@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
 status: executing
-last_updated: "2026-07-31T16:18:33.736Z"
-last_activity: 2026-07-31 -- Phase 07 planning complete
+last_updated: "2026-07-31T21:59:10.990Z"
+last_activity: 2026-07-31
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 67
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 7 — configuração de dias parado por etapa
+**Current focus:** Phase 07 — configura-o-de-dias-parado-por-etapa
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 07 (configura-o-de-dias-parado-por-etapa) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-07-31 -- Phase 07 planning complete
+Last activity: 2026-07-31
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Last activity: 2026-07-31 -- Phase 07 planning complete
 | Phase 05-notas-enriquecidas-na-importa-o-csv P02 | 25 min | 2 tasks | 2 files |
 | Phase 06-auto-avan-o-de-etapa-contador-de-tentativas P01 | 15min | 3 tasks | 4 files |
 | Phase 06 P02 | 20min | 2 tasks | 2 files |
+| Phase 07 P01 | 25min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Recent decisions affecting current work:
 - [Phase 06-01]: registerWhatsAppContact e funcao dedicada (nao extensao de updateLeadStage) -- auto-avanco e unidirecional/condicional, guarda pertence ao servidor via SELECT fresco
 - [Phase 06-02]: onClick do anchor Abrir WhatsApp dispara registerWhatsAppContact fire-and-forget (sem preventDefault/await/window.open); toast de auto-avanco usa nome do lead (D-07)
 - [Phase 06-02]: Contador de tentativas no card do pipeline usa MessageCircle + {n}x em cor neutra (text-muted-foreground), so quando contactAttempts > 0 (D-05/D-06)
+- [Phase ?]: Defaults nao simetricos por D-04: dias_parado_contatado nasce com 5 (paridade com hardcode pre-fase), dias_parado_novo/dias_parado_negociacao nascem com 999999 (nunca esfriam ate o admin salvar)
+- [Phase ?]: saveConfiguracoes escreve via upsert (insert+onConflictDoUpdate), nunca update simples, para nunca reportar sucesso sem persistir quando a linha singleton nao foi semeada
+- [Phase ?]: drizzle-kit push (nao generate) usado no Plano 07-01 - snapshot de migracoes ja divergente do banco real desde Fase 4/6, debito tecnico pre-existente nao resolvido aqui
 
 ### Pending Todos
 
@@ -146,9 +150,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-31T15:25:05.065Z
-Stopped at: Phase 07 UI-SPEC approved
-Resume file: .planning/phases/07-configura-o-de-dias-parado-por-etapa/07-UI-SPEC.md
+Last session: 2026-07-31T21:59:10.963Z
+Stopped at: Completed 07-01-PLAN.md
+Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import

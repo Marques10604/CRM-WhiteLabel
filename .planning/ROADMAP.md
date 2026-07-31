@@ -97,12 +97,12 @@ Plans:
   2. Ao salvar novos valores, o board do pipeline passa a destacar leads "esfriando" usando os novos limites configurados, para as 3 etapas — não só Contatado
   3. No primeiro acesso à tela, antes de qualquer alteração do admin, o campo de Contatado já aparece pré-preenchido com 5, e o destaque de "esfriando" no pipeline se comporta exatamente como antes do deploy dessa fase
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Camada de dados: tabela singleton `configuracoes`, `configuracoesSchema` (mín. 1 dia), `getConfiguracoes()` com semeadura idempotente (Contatado=5) e Server Action `saveConfiguracoes`, aplicada ao banco vivo via `drizzle-kit push`
+- [x] 07-01-PLAN.md — Camada de dados: tabela singleton `configuracoes`, `configuracoesSchema` (mín. 1 dia), `getConfiguracoes()` com semeadura idempotente (Contatado=5) e Server Action `saveConfiguracoes`, aplicada ao banco vivo via `drizzle-kit push`
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -123,4 +123,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Follow-up Dashboard & WhatsApp Outreach | v1.0 | 4/4 | Complete | 2026-07-22 |
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
-| 7. Configuração de Dias-Parado por Etapa | v1.2 | 0/2 | Planned | - |
+| 7. Configuração de Dias-Parado por Etapa | v1.2 | 1/2 | In Progress|  |
