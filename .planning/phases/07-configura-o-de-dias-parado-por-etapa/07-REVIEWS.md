@@ -1,6 +1,6 @@
 ---
 phase: 7
-cycle: 2
+cycle: 3
 cycles_history:
   - cycle: 1
     reviewers: [codex]
@@ -13,9 +13,15 @@ cycles_history:
     plans_reviewed: [07-01-PLAN.md, 07-02-PLAN.md]
     high_count: 1
     note: "Replan entre ciclos (commit c9e3aeb) trocou saveConfiguracoes para upsert e reescreveu os scripts de verificação do 07-02 Task 3 como node -e autocontidos com try/finally, endereçando os 2 HIGHs do ciclo 1."
+  - cycle: 3
+    reviewers: [codex]
+    reviewed_at: 2026-07-31T18:12:53Z
+    plans_reviewed: [07-02-PLAN.md]
+    high_count: 0
+    note: "Revisão de confirmação (não um ciclo completo de review+replan), focada exclusivamente em validar se o fix cirúrgico do commit 3fe7a49 (handlers SIGINT/SIGTERM chamando a mesma limpar() idempotente do finally) resolveu o HIGH-2 'PARCIALMENTE RESOLVIDO' do ciclo 2. Codex confirmou RESOLVED. Sem novos achados HIGH."
 reviewers: [codex]
-reviewed_at: 2026-07-31T17:49:00Z
-plans_reviewed: [07-01-PLAN.md, 07-02-PLAN.md]
+reviewed_at: 2026-07-31T18:12:53Z
+plans_reviewed: [07-02-PLAN.md]
 reviewer_notes:
   agy_unavailable: "Reviewer 'agy'/'antigravity' foi solicitado originalmente, mas a instalação atual do GSD (.claude/get-shit-done, v1.50.0-canary.0) não reconhece esse slug em review-reviewer-selection.cjs (lista fechada: gemini, claude, codex, coderabbit, opencode, qwen, cursor, ollama, lm_studio, llama_cpp) e o passo detect_clis do workflow review.md não sonda o binário `agy`. Ambos os ciclos prosseguiram apenas com Codex."
   codex_model_substitution: "Ciclo 1: o comando foi montado com --model gpt-5.6-sol conforme instruído, mas a API rejeitou explicitamente esse modelo com HTTP 400: \"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account.\" (não foi fallback silencioso — foi um erro explícito, verificado no stderr). A instalação local do Codex está autenticada via ChatGPT (auth mode: chatgpt, confirmado via `codex doctor`) e o próprio config.toml da instalação (`C:\Users\Vencedor\.codex\config.toml`) já usa `model = \"gpt-5.5\"` como default real. O run foi refeito com `--model gpt-5.5 -c model_reasoning_effort=low`, e o banner do stderr confirma o modelo efetivamente usado. Ciclo 2 já foi montado direto com `--model gpt-5.5 -c model_reasoning_effort=low` (lição aprendida do ciclo 1), sem erro de modelo."
@@ -209,3 +215,63 @@ Todos os achados novos deste ciclo são MEDIUM ou LOW — nenhum bloqueia execu�
 
 ### Divergent Views
 N/A — só um revisor neste ciclo.
+
+---
+
+## Cycle 3 (revisão de confirmação — HIGH-2 apenas)
+
+**Modelo executado:** `gpt-5.5` · `reasoning effort: low` (banner de stderr confirmado, ver `codex_model_evidencia` no fechamento desta seção)
+
+**Contexto:** em vez de rodar um ciclo completo de replan (`gsd:plan-phase`), foi aplicado um FIX CIRÚRGICO direto no `07-02-PLAN.md` (commit `3fe7a49`, sem passar por `gsd:plan-phase`) para endereçar o HIGH-2 "PARCIALMENTE RESOLVIDO" do ciclo 2 — critério de materialidade: achado de tooling/verify de script dev-local, não de requisito/critério de aceite/segurança/código de produção. O fix: os dois scripts `node -e` que mutam o banco vivo (Task 3, dentro de `<verify><automated>`) agora registram `process.on('SIGINT', ...)` e `process.on('SIGTERM', ...)` chamando a mesma função de restauração idempotente `limpar()` (guardada por flag `limpo`) que o `finally` já chamava, para que um Ctrl+C do operador também restaure o lead/config, não só uma asserção que lança. `kill -9`, hang de dev server e sono do SO ficam documentados como fora de escopo (aceito) no texto do plano e na lista de `acceptance_criteria`.
+
+Este ciclo NÃO é um review completo — é uma revisão de confirmação estreita, pedindo ao mesmo revisor (Codex) que julgue explicitamente se o fix fechou o gap que ele próprio apontou no ciclo 2, sem caçar novos HIGHs fora do escopo já coberto pelos ciclos 1-2.
+
+## Codex — Verdict de Confirmação
+
+### HIGH-2 Resolution Verdict
+
+**Verdict: RESOLVED**
+
+Tradução: o fix cirúrgico resolve o achado HIGH-2 do ciclo 2 conforme originalmente formulado. Os scripts agora usam uma função `limpar()` idempotente compartilhada, chamada tanto pelo caminho `finally` quanto pelos handlers `SIGINT`/`SIGTERM`, cobrindo os casos práticos de interrupção que o Codex havia apontado: falha de asserção, Ctrl+C e sinais de término normais. A flag `limpo` é suficiente porque os handlers de sinal do Node e o caminho `finally` rodam na mesma thread do event loop, o que evita cleanup duplo na janela de corrida realista.
+
+### Residual Risk
+
+`kill -9`, sono do SO durante a janela de mutação, crash abrupto do processo, e hang do dev server permanecem como riscos residuais, mas o plano agora os documenta explicitamente em vez de reivindicar imunidade total a interrupção. Para um script de verificação dev-local numa ferramenta CRM interna solo, o Codex considera isso aceitável e proporcional.
+
+### New Findings
+
+Nenhum. O Codex não levantou nenhum achado novo, HIGH ou de qualquer severidade, nesta rodada de confirmação.
+
+---
+
+## Consensus Summary (Cycle 3)
+
+Apenas um revisor externo (Codex) rodou neste ciclo também — mesma limitação dos ciclos 1-2 (agy indisponível, ver `reviewer_notes.agy_unavailable`).
+
+### Resolução do HIGH-2 do Ciclo 2
+**HIGH-2 (verificação muta dados reais de lead/config, resta risco de kill externo) — RESOLVIDO.** O fix cirúrgico (commit `3fe7a49`) adicionou handlers `SIGINT`/`SIGTERM` chamando a mesma restauração idempotente do `finally`, fechando o cenário de interrupção manual (Ctrl+C) que mantinha o HIGH-2 como "parcialmente resolvido" no ciclo 2. `kill -9`, hang de dev server e sono do SO seguem documentados como residual aceito para ferramenta de verificação dev-local — o Codex concorda que isso é proporcional e não reabre o HIGH.
+
+### Novos achados
+Nenhum. Nenhum HIGH novo, nenhum MEDIUM novo, nenhum LOW novo nesta rodada — escopo estritamente de confirmação, conforme solicitado.
+
+### Divergent Views
+N/A — só um revisor neste ciclo.
+
+### Evidência de Execução
+
+```
+codex_model_evidencia (stderr banner, verbatim, head -8):
+OpenAI Codex v0.144.6
+--------
+workdir: C:\Users\Vencedor\Desktop\crm-leads
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: low
+```
+
+- Comando: `codex exec --model gpt-5.5 -c model_reasoning_effort=low --skip-git-repo-check -` (sem `--dangerously-bypass-hook-trust`)
+- Output: `/tmp/gsd-review-codex-07-c3-confirm.md` (mtime epoch `1785532373`, posterior ao disparo em `1785532346` — 27s de execução)
+- Stderr: `/tmp/gsd-review-codex-07-c3-confirm.err` (banner capturado acima)
+- Reviewers efetivos: `[codex]` — agy/antigravity permanece indisponível na instalação local do GSD (mesma limitação dos ciclos 1-2, `.claude/get-shit-done` somente-leitura, não editado)
