@@ -60,3 +60,30 @@ export const leads = sqliteTable(
     index("leads_import_batch_id_idx").on(table.importBatchId),
   ]
 );
+
+/**
+ * Tabela singleton (CONFIG-01/CONFIG-02) — sempre uma única linha, `id` fixo
+ * = 1, nunca autoIncrement. A invariante "uma linha" é garantida em código
+ * de aplicação (getConfiguracoes/saveConfiguracoes), mesmo precedente de
+ * `applyDefaultTemplate` — nenhuma tabela do projeto usa CHECK constraint.
+ *
+ * Defaults NÃO simétricos por decisão deliberada (D-04): o código pré-fase
+ * (`src/app/pipeline/page.tsx`) só flagava `stage === "contatado"` com >= 5
+ * dias como "esfriando" — Novo e Negociação nunca foram destacados, por mais
+ * tempo que ficassem parados. `dias_parado_contatado` nasce com 5 (paridade
+ * exata com o hardcode pré-fase). `dias_parado_novo`/`dias_parado_negociacao`
+ * nascem com 999999 (≈ nunca esfria) para que essas etapas continuem sem
+ * destaque até o admin salvar valores reais em `/configuracoes` — semear com
+ * um número baixo destacaria leads reais já existentes no dia do deploy.
+ *
+ * A semeadura da linha `id=1` acontece em `getConfiguracoes()`
+ * (`src/db/queries.ts`), não em SQL de migração — `drizzle-kit push` nunca
+ * executa INSERT.
+ */
+export const configuracoes = sqliteTable("configuracoes", {
+  id: integer("id").primaryKey(),
+  diasParadoNovo: integer("dias_parado_novo").notNull().default(999999),
+  diasParadoContatado: integer("dias_parado_contatado").notNull().default(5),
+  diasParadoNegociacao: integer("dias_parado_negociacao").notNull().default(999999),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+});

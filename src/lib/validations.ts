@@ -83,3 +83,17 @@ export const templateSchema = z.object({
 });
 
 export type TemplateFormValues = z.input<typeof templateSchema>;
+
+/**
+ * Contrato de saveConfiguracoes (CONFIG-01/CONFIG-02, T-07-01) — validação
+ * AUTORITATIVA server-side de D-03 (mínimo 1 dia por etapa, sem teto
+ * máximo). O `min={1}` do input HTML da UI (07-02) é só UX antecipada e
+ * nunca substitui este safeParse.
+ */
+export const configuracoesSchema = z.object({
+  diasParadoNovo: z.coerce.number().int().min(1, "Mínimo de 1 dia."),
+  diasParadoContatado: z.coerce.number().int().min(1, "Mínimo de 1 dia."),
+  diasParadoNegociacao: z.coerce.number().int().min(1, "Mínimo de 1 dia."),
+});
+
+export type ConfiguracoesFormValues = z.input<typeof configuracoesSchema>;
