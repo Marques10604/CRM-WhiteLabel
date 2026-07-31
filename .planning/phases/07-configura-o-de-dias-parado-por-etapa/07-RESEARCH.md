@@ -45,7 +45,7 @@ Esta fase não introduz nenhuma tecnologia nova ao stack — é 100% recombinaç
 
 A descoberta mais importante desta pesquisa é uma **divergência real e verificada entre o histórico de migrações versionadas (`src/db/migrations`) e o banco `./data/crm.db` de fato** — três objetos (`templates`, `leads.import_batch_id`, `leads.contact_attempts`) existem no banco vivo mas nunca foram capturados em nenhuma migração `.sql`, porque foram aplicados via `drizzle-kit push` em fases anteriores (04-02, 06-01) sem nunca reconciliar o snapshot. Isso significa que `npx drizzle-kit generate` (a convenção "travada" do projeto) **vai falhar** para esta fase se usado ingenuamente — ele tentaria recriar os 3 objetos já existentes e o `migrate` subsequente quebraria com `duplicate column name`. O precedente já estabelecido na Fase 6 (mesmo problema, mesma causa) é usar `npx drizzle-kit push` para a nova tabela, que diffa contra o banco real em vez do snapshot desatualizado, e documentar a reconciliação do snapshot como débito técnico separado — não resolvê-la nesta fase.
 
-**Primary recommendation:** Criar uma tabela `configuracoes` de linha única (singleton, `id` fixo = 1) com 3 colunas `integer NOT NULL` tipadas (`dias_parado_novo`, `dias_parado_contatado`, `dias_parado_negociacao`), aplicada via `npx drizzle-kit push` (não `generate`, pelo motivo acima). A semeadura da linha padrão (Contatado=5, conforme D-04) acontece de forma preguiçosa/idempotente dentro de uma função `getConfiguracoes()` em `src/db/queries.ts` — não via SQL de migração — porque `push` não executa `INSERT`s de dados. `src/app/pipeline/page.tsx` passa a ler essa config e construir um mapa etapa→limite, generalizando o filtro hardcoded atual sem tocar em nenhum componente de UI (o board/card já tratam "esfriando" como um `Set<number>` de ids agnóstico de etapa).
+**Primary recommendation:** Criar uma tabela `configuracoes` de linha única (singleton, `id` fixo = 1) com 3 colunas `integer NOT NULL` tipadas (`dias_parado_novo`, `dias_parado_contatado`, `dias_parado_negociacao`), aplicada via `npx drizzle-kit push` (não `generate`, pelo motivo acima). A semeadura da linha padrão (Contatado=5 conforme D-04; Novo/Negociação=999999, ou seja "nunca esfria", porque o código pré-deploy nunca flagava essas duas etapas) acontece de forma preguiçosa/idempotente dentro de uma função `getConfiguracoes()` em `src/db/queries.ts` — não via SQL de migração — porque `push` não executa `INSERT`s de dados. `src/app/pipeline/page.tsx` passa a ler essa config e construir um mapa etapa→limite, generalizando o filtro hardcoded atual sem tocar em nenhum componente de UI (o board/card já tratam "esfriando" como um `Set<number>` de ids agnóstico de etapa).
 
 ## Architectural Responsibility Map
 
@@ -116,8 +116,9 @@ Admin (browser)
    │                                    SELECT * FROM configuracoes LIMIT 1
    │                                                │
    │                             linha existe? ──NÃO──▶ INSERT linha padrão (id=1,
-   │                                    │                novo=5, contatado=5,     │
-   │                                   SIM              negociacao=5) ────────────┘
+   │                                    │                novo=999999,            │
+   │                                   SIM              contatado=5,               │
+   │                                    │               negociacao=999999) ────────┘
    │                                    │                        │
    │                                    ▼                        ▼
    │                          retorna { diasParadoNovo, diasParadoContatado, diasParadoNegociacao }
@@ -195,9 +196,14 @@ src/
 // applyDefaultTemplate() em template-actions.ts para "um default por tipo")
 export const configuracoes = sqliteTable("configuracoes", {
   id: integer("id").primaryKey(), // sempre 1 — não autoIncrement
-  diasParadoNovo: integer("dias_parado_novo").notNull().default(5),
+  // D-04 (paridade pré-deploy): o código pré-fase só flagava `contatado` com
+  // >= 5 dias — Novo/Negociação NUNCA esfriavam. Por isso só Contatado nasce
+  // com 5; Novo/Negociação nascem com 999999 (≈ nunca esfria), preservando o
+  // comportamento observado até o admin salvar valores reais. D-03 não impõe
+  // teto máximo, então 999999 é um valor válido.
+  diasParadoNovo: integer("dias_parado_novo").notNull().default(999999),
   diasParadoContatado: integer("dias_parado_contatado").notNull().default(5),
-  diasParadoNegociacao: integer("dias_parado_negociacao").notNull().default(5),
+  diasParadoNegociacao: integer("dias_parado_negociacao").notNull().default(999999),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 });
 ```
@@ -217,8 +223,9 @@ export type Configuracoes = typeof configuracoes.$inferSelect;
 /**
  * Satisfaz CONFIG-02/D-04: no primeiro acesso, antes de qualquer ação do
  * admin, a linha singleton (id=1) ainda não existe — é semeada aqui com os
- * mesmos padrões default do schema (Contatado=5, paridade com o hardcode
- * pré-fase). getOrCreate em vez de seed via migração porque `drizzle-kit
+ * mesmos defaults do schema (Contatado=5, paridade com o hardcode pré-fase;
+ * Novo/Negociação=999999, que é como essas etapas se comportavam antes desta
+ * fase — nunca esfriavam). getOrCreate em vez de seed via migração porque `drizzle-kit
  * push` (Pitfall 1) não executa INSERTs de dados.
  */
 export async function getConfiguracoes(): Promise<Configuracoes> {
@@ -227,7 +234,7 @@ export async function getConfiguracoes(): Promise<Configuracoes> {
 
   const [created] = await db
     .insert(configuracoes)
-    .values({ id: 1 }) // demais colunas usam os defaults do schema (5/5/5)
+    .values({ id: 1 }) // demais colunas usam os defaults do schema (999999/5/999999)
     .returning();
   return created;
 }
@@ -359,21 +366,21 @@ Não aplicável — nenhuma tecnologia externa mudou de versão ou de recomenda�
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|----------------|
-| A1 | Valor padrão de `diasParadoNovo`/`diasParadoNegociacao` = 5 (mesmo valor de Contatado) | Standard Stack / Pattern 1 | Baixo — D-04 só trava o valor de Contatado; se o admin preferir outro padrão para Novo/Negociação, é só editar o `.default()` no schema antes do primeiro `push`, sem impacto em dados já salvos (a linha só é semeada uma vez). O `07-UI-SPEC.md` já sugere esse mesmo valor ("sugestão de UI: mesmo valor 5 para os três") como não-vinculante |
+| A1 | ~~Valor padrão de `diasParadoNovo`/`diasParadoNegociacao` = 5~~ — **CORRIGIDO na revisão de plano (2026-07-31): o padrão é `999999`** | Standard Stack / Pattern 1 | Resolvido — semear 5 quebraria D-04 / Success Criteria #3: o código pré-deploy só flagava `contatado`, então leads parados em Novo/Negociação (existem hoje no banco vivo com 5+ dias) passariam a ser destacados como "esfriando" já no primeiro deploy, sem nenhuma ação do admin. Com `999999` (D-03 não impõe teto máximo) o comportamento pré-deploy é preservado até o primeiro save. A sugestão "mesmo valor 5 para os três" do `07-UI-SPEC.md` foi revogada |
 
 **Nenhuma outra claim desta pesquisa é `[ASSUMED]`** — todas as decisões técnicas (forma da tabela, ferramenta de aplicação de schema, ponto de generalização do cálculo) foram verificadas por leitura direta do código-fonte e consulta direta ao banco `./data/crm.db` deste repositório nesta sessão, não por conhecimento de treinamento ou busca externa.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Nome exato dos campos do `FormData`**
+1. **Nome exato dos campos do `FormData`** — RESOLVED
    - O que sabemos: `07-UI-SPEC.md` já sugere `diasParadoNovo`/`diasParadoContatado`/`diasParadoNegociacao` como exemplo, mas deixa a decisão final a critério do planner/executor.
    - O que é incerto: nenhuma ambiguidade real — a pesquisa recomenda usar exatamente esses nomes (consistência com os nomes de coluna em camelCase do Drizzle, mesmo padrão de `contactAttempts`/`isDefault`).
-   - Recommendation: planner fixa `diasParadoNovo`/`diasParadoContatado`/`diasParadoNegociacao` como nomes definitivos de campo (schema Zod + `name` dos inputs), sem reabrir a decisão.
+   - RESOLVED: planner fixou `diasParadoNovo`/`diasParadoContatado`/`diasParadoNegociacao` como nomes definitivos de campo (schema Zod + `name` dos inputs) nos planos 07-01 e 07-02; decisão fechada, não reabrir.
 
-2. **Reconciliação do snapshot de migrações (débito da Fase 6)**
+2. **Reconciliação do snapshot de migrações (débito da Fase 6)** — RESOLVED
    - O que sabemos: o drift entre `src/db/migrations` e `./data/crm.db` já existe há 2 fases e foi conscientemente adiado em ambas.
    - O que é incerto: quando (ou se) vale a pena reconciliar com uma migração `--custom` que apenas documenta o estado real, sem alterar dados.
-   - Recommendation: não resolver nesta fase (fora do escopo de CONFIG-01/CONFIG-02); apenas registrar no SUMMARY.md desta fase como débito técnico acumulado, mesmo tratamento dado na Fase 6.
+   - RESOLVED: não resolver nesta fase (fora do escopo de CONFIG-01/CONFIG-02); apenas registrar no SUMMARY.md desta fase como débito técnico acumulado, mesmo tratamento dado na Fase 6 — já refletido no 07-01 (Task 2 e seção `<output>`).
 
 ## Environment Availability
 
