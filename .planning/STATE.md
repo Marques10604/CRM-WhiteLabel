@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: executing
-last_updated: "2026-07-31T21:59:10.990Z"
+status: verifying
+last_updated: "2026-07-31T22:18:51.986Z"
 last_activity: 2026-07-31
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
-  percent: 67
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 
 Phase: 07 (configura-o-de-dias-parado-por-etapa) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-31
 
 ## Performance Metrics
@@ -63,6 +63,7 @@ Last activity: 2026-07-31
 | Phase 06-auto-avan-o-de-etapa-contador-de-tentativas P01 | 15min | 3 tasks | 4 files |
 | Phase 06 P02 | 20min | 2 tasks | 2 files |
 | Phase 07 P01 | 25min | 3 tasks | 4 files |
+| Phase 07-configura-o-de-dias-parado-por-etapa P02 | 20min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Defaults nao simetricos por D-04: dias_parado_contatado nasce com 5 (paridade com hardcode pre-fase), dias_parado_novo/dias_parado_negociacao nascem com 999999 (nunca esfriam ate o admin salvar)
 - [Phase ?]: saveConfiguracoes escreve via upsert (insert+onConflictDoUpdate), nunca update simples, para nunca reportar sucesso sem persistir quando a linha singleton nao foi semeada
 - [Phase ?]: drizzle-kit push (nao generate) usado no Plano 07-01 - snapshot de migracoes ja divergente do banco real desde Fase 4/6, debito tecnico pre-existente nao resolvido aqui
+- [Phase 07-02]: react-hooks/refs (eslint-config-next 16.2.10) sinaliza como erro o padrao onSubmit={form.handleSubmit(onSubmit)} + leitura de formRef.current, mesmo falso-positivo ja presente em template-form-dialog.tsx (analog mandatado); suprimido com eslint-disable-next-line documentado, sem mudar comportamento
+- [Phase 07-02]: limitesPorEtapa em pipeline/page.tsx omite fechado/perdido por construcao (ausencia no mapa, nao condicional extra) - paridade pre-save (D-04) confirmada em runtime com lead real forcado 10 dias em novo
 
 ### Pending Todos
 
@@ -150,8 +153,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-31T21:59:10.963Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-07-31T22:18:51.939Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
 
