@@ -1,15 +1,30 @@
 ---
 phase: 7
-cycle: 1
+cycle: 2
+cycles_history:
+  - cycle: 1
+    reviewers: [codex]
+    reviewed_at: 2026-07-31T17:03:34Z
+    plans_reviewed: [07-01-PLAN.md, 07-02-PLAN.md]
+    high_count: 2
+  - cycle: 2
+    reviewers: [codex]
+    reviewed_at: 2026-07-31T17:49:00Z
+    plans_reviewed: [07-01-PLAN.md, 07-02-PLAN.md]
+    high_count: 1
+    note: "Replan entre ciclos (commit c9e3aeb) trocou saveConfiguracoes para upsert e reescreveu os scripts de verificação do 07-02 Task 3 como node -e autocontidos com try/finally, endereçando os 2 HIGHs do ciclo 1."
 reviewers: [codex]
-reviewed_at: 2026-07-31T17:03:34Z
+reviewed_at: 2026-07-31T17:49:00Z
 plans_reviewed: [07-01-PLAN.md, 07-02-PLAN.md]
 reviewer_notes:
-  agy_unavailable: "Reviewer 'agy'/'antigravity' foi solicitado originalmente, mas a instalação atual do GSD (.claude/get-shit-done, v1.50.0-canary.0) não reconhece esse slug em review-reviewer-selection.cjs (lista fechada: gemini, claude, codex, coderabbit, opencode, qwen, cursor, ollama, lm_studio, llama_cpp) e o passo detect_clis do workflow review.md não sonda o binário `agy`. Este ciclo prosseguiu apenas com Codex."
-  codex_model_substitution: "O comando foi montado com --model gpt-5.6-sol conforme instruído, mas a API rejeitou explicitamente esse modelo com HTTP 400: \"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account.\" (não foi fallback silencioso — foi um erro explícito, verificado no stderr). A instalação local do Codex está autenticada via ChatGPT (auth mode: chatgpt, confirmado via `codex doctor`) e o próprio config.toml da instalação (`C:\Users\Vencedor\.codex\config.toml`) já usa `model = \"gpt-5.5\"` como default real. O run foi refeito com `--model gpt-5.5 -c model_reasoning_effort=low`, e o banner do stderr (capturado abaixo) confirma o modelo efetivamente usado.
+  agy_unavailable: "Reviewer 'agy'/'antigravity' foi solicitado originalmente, mas a instalação atual do GSD (.claude/get-shit-done, v1.50.0-canary.0) não reconhece esse slug em review-reviewer-selection.cjs (lista fechada: gemini, claude, codex, coderabbit, opencode, qwen, cursor, ollama, lm_studio, llama_cpp) e o passo detect_clis do workflow review.md não sonda o binário `agy`. Ambos os ciclos prosseguiram apenas com Codex."
+  codex_model_substitution: "Ciclo 1: o comando foi montado com --model gpt-5.6-sol conforme instruído, mas a API rejeitou explicitamente esse modelo com HTTP 400: \"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account.\" (não foi fallback silencioso — foi um erro explícito, verificado no stderr). A instalação local do Codex está autenticada via ChatGPT (auth mode: chatgpt, confirmado via `codex doctor`) e o próprio config.toml da instalação (`C:\Users\Vencedor\.codex\config.toml`) já usa `model = \"gpt-5.5\"` como default real. O run foi refeito com `--model gpt-5.5 -c model_reasoning_effort=low`, e o banner do stderr confirma o modelo efetivamente usado. Ciclo 2 já foi montado direto com `--model gpt-5.5 -c model_reasoning_effort=low` (lição aprendida do ciclo 1), sem erro de modelo."
+  cycle2_interruption: "A execução original do ciclo 2 foi interrompida por 'limite de gastos mensal da conta atingido' (ver 07-RUN-LOG.jsonl seq 3). Ao retomar a sessão, nenhum processo codex e nenhum arquivo de output do run anterior existiam mais em disco — a chamada `codex exec` foi refeita do zero (prompt reconstruído a partir do PLAN/CONTEXT/ROADMAP/REQUIREMENTS atuais + do REVIEWS.md do ciclo 1) e completou com sucesso (exit 0) na nova tentativa, sem repetir o erro de limite."
 ---
 
 # Cross-AI Plan Review — Phase 7
+
+## Cycle 1
 
 ## Codex Review
 
@@ -105,3 +120,92 @@ N/A — só um revisor neste ciclo.
 ### Achados do Codex a endereçar antes/durante a execução
 1. **HIGH** — `saveConfiguracoes` faz `UPDATE ... WHERE id = 1` sem garantir que a linha singleton já foi semeada; se chamada antes do primeiro `getConfiguracoes()`, o update afeta 0 linhas e retorna `{ success: true }` mesmo sem persistir nada. Sugestão do Codex: trocar por `insert(...).onConflictDoUpdate(...)` (upsert), eliminando a dependência de ordem entre leitura e escrita.
 2. **HIGH** — As verificações automatizadas do plano 07-02 (Task 3) mutam dados reais de lead/config no banco vivo (`stage`, `stage_changed_at`, linhas de `configuracoes`) e dependem de restauração manual em cadeia de comandos; uma falha no meio da cadeia pode deixar o CRM real em estado alterado. Sugestão do Codex: isolar em lead de teste dedicado ou envolver mutação/verificação/restauração num único script com `try/finally`.
+
+---
+
+## Cycle 2 (re-review after replanning)
+
+**Modelo executado:** `gpt-5.5` · `reasoning effort: low` (montado direto, sem erro de substituição — ver `reviewer_notes.codex_model_substitution`)
+
+**Contexto:** entre o ciclo 1 e este ciclo, o plano foi revisado (commit `c9e3aeb`) especificamente para endereçar os 2 HIGHs abaixo. Este ciclo revisa a versão ATUAL dos planos e verifica explicitamente se cada HIGH do ciclo 1 foi resolvido.
+
+## Codex Review — Cycle 2
+
+## Summary
+
+The revised plans materially address both Cycle 1 HIGH concerns. The `saveConfiguracoes` contract is now explicitly upsert-based, with verification that rejects `db.update`, so the zero-row update issue is resolved. The risky verification scripts were also substantially improved by moving mutation, assertions, fetches, and restoration into single `node -e` processes with `try/finally`, which closes the main brittleness from shell-command chains. Fresh review: the plan is still quite strong, but there are a few execution risks around dev-server preconditions, test restoration when the Node process itself is killed, and the UX/product oddity of exposing `999999` as a real editable value.
+
+## Strengths
+
+- The upsert fix is explicit, repeated in task action, acceptance criteria, verification, and threat model.
+- `getConfiguracoes()` and `saveConfiguracoes()` are now independent: read seeds defaults, write creates-or-updates singleton.
+- The defaults `999999/5/999999` correctly preserve pre-save behavior for Novo and Negociação.
+- Runtime verification for CONFIG-02 is much stronger: it checks actual HTTP behavior and DB seeding, not just source strings.
+- Pipeline generalization keeps the calculation server-side and leaves board/card components untouched.
+- The plan correctly avoids `drizzle-kit generate` given known migration drift.
+- The `try/finally` test scripts are a meaningful improvement over chained mutating commands.
+- The human-check sequence is concrete and directly maps to the phase success criteria.
+
+## Concerns
+
+- **MEDIUM: The revised mutation tests are safer but not fully fail-safe.**  
+  `try/finally` handles thrown assertions, but not process termination, terminal interruption, dev-server hang, machine sleep, or PowerShell/session kill. This is still acceptable for a local CRM, but the plan should not call the scripts fully “à prova de interrupção.”
+
+- **MEDIUM: `localhost:3000` dev-server dependency remains implicit in several automated checks.**  
+  The scripts now error with “dev server precisa estar rodando,” but the plan still does not explicitly start or validate the intended server before the checks. A stale process on port 3000 could produce misleading results.
+
+- **MEDIUM: Exposing `999999` in the UI is still a product compromise.**  
+  It preserves behavior, but the admin will see apparently absurd values on first access. The plan intentionally requires raw display, so this is not a correctness bug, but it is a UX risk.
+
+- **LOW: Source-string verification is brittle in places.**  
+  Checks like absence of `stage === "contatado"` and `>= 5` are useful guards, but they can fail or pass for incidental formatting/comment reasons. Runtime checks carry the real confidence.
+
+- **LOW: The first 07-01 verification deletes all rows from `configuracoes`.**  
+  In the intended flow the table is still empty, so this is fine. If re-run after manual admin configuration, it will wipe config values. The plan should label this as destructive and only safe before the UI phase or in a test DB.
+
+- **LOW: `updatedAt: new Date()` is constructed twice inside the upsert.**  
+  Insert and update timestamps may differ by milliseconds depending on generated SQL evaluation. Practically irrelevant, but using one `const now = new Date()` would be cleaner.
+
+## Suggestions
+
+- Add a small preflight before HTTP checks: confirm the intended Next dev server is running on `localhost:3000`, or start it on a known port and fail if the returned page is not this app.
+- Reword “à prova de interrupção” to “restaura em falhas por exceção/assertion dentro do processo”; it is safer but not immune to process kill.
+- Before destructive verification scripts, snapshot the exact rows being changed and print them, so manual recovery is possible if the process is externally killed.
+- Consider adding neutral helper copy near the `999999` fields, or record in the summary that raw sentinel display is an intentional parity tradeoff.
+- In `saveConfiguracoes`, use one timestamp variable for both insert and conflict update.
+- If feasible, run the more destructive DB mutation tests against a temporary copied SQLite database. If that is too much overhead, the current `try/finally` approach is acceptable for this local-only app.
+
+## Risk Assessment
+
+**Overall risk: MEDIUM-LOW.**
+
+The implementation design is low risk: small schema, one singleton row, server-side validation, server-side pipeline calculation, and no new dependencies. The residual risk comes from operating against the live local SQLite database, known migration drift, and HTTP verification depending on a correctly running dev server. The two original HIGH risks have been addressed well enough that they no longer dominate the phase.
+
+## Cycle 1 HIGH Resolution Verdict
+
+- **HIGH 1: `saveConfiguracoes` may silently update zero rows if the singleton row does not exist — RESOLVED.**  
+  The current plan requires `insert(...).onConflictDoUpdate(...)`, forbids `db.update`, and verifies the action contains upsert primitives, so saving no longer depends on prior seeding by `getConfiguracoes()`.
+
+- **HIGH 2: Verification mutates real lead/config data during tests — PARTIALLY RESOLVED.**  
+  The current plan fixes the brittle chained-command problem by using single-process `try/finally` scripts, but the tests still mutate the live CRM database and can still leave state altered if the Node process is externally killed or interrupted outside normal exception flow.
+
+---
+
+## Consensus Summary (Cycle 2)
+
+Apenas um revisor externo (Codex) rodou neste ciclo também — mesma limitação do ciclo 1 (agy indisponível, ver `reviewer_notes.agy_unavailable`).
+
+### Resolução dos HIGHs do Ciclo 1
+1. **HIGH 1 (update de 0 linhas em `saveConfiguracoes`) — RESOLVIDO.** O plano agora exige upsert (`insert(...).onConflictDoUpdate(...)`), proíbe `db.update(`, e a verificação automatizada do 07-01 checa ambas as coisas.
+2. **HIGH 2 (verificação muta dados reais de lead/config) — PARCIALMENTE RESOLVIDO.** Os scripts agora são `node -e` autocontidos com mutação + fetch + asserções em `try` e restauração incondicional em `finally`, o que fecha o problema original de cadeia de comandos de shell interrompível. Ainda resta risco residual: o `finally` não protege contra kill externo do processo Node, hang do dev server, ou sono da máquina — cenários que o Codex considera de baixa probabilidade neste app local, mas que tecnicamente deixam o HIGH como mitigado-porém-não-eliminado.
+
+### Novos achados (nenhum HIGH novo)
+Todos os achados novos deste ciclo são MEDIUM ou LOW — nenhum bloqueia execução:
+- MEDIUM: dependência implícita de um dev server já rodando em `localhost:3000` nos checks automatizados
+- MEDIUM: exposição de `999999` como valor cru na UI é uma escolha de produto válida, mas pode parecer "quebrado" ao admin
+- LOW: verificação por string (`stage === "contatado"`, `>= 5`) é frágil a mudanças incidentais de formatação
+- LOW: `07-01` Task 1 verify apaga todas as linhas de `configuracoes` — inofensivo no fluxo pretendido (tabela ainda vazia), mas destrutivo se rodado depois de configuração real do admin
+- LOW: `updatedAt: new Date()` construído duas vezes dentro do upsert (poderia ser uma única `const`)
+
+### Divergent Views
+N/A — só um revisor neste ciclo.

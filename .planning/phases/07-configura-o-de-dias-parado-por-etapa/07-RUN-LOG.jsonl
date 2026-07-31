@@ -1,0 +1,3 @@
+{"ts":"2026-07-31T13:56:04-03:00","seq":1,"sessao":"0107a119","evento":"run","etapa":"preparacao"}
+{"ts":"2026-07-31T13:56:53-03:00","seq":2,"sessao":"0107a119","evento":"checkpoint","etapa":"3.2 convergencia","limit":400000}
+{"ts":"2026-07-31T17:37:00-03:00","seq":3,"sessao":"0107a119","evento":"stop","etapa":"pausa","limit":400000,"motivo":"limite de gastos mensal da conta atingido durante a convergencia (ciclo 2)"}
