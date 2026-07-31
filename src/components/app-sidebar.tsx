@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Tag,
   Trash2,
+  Settings,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/templates", label: "Templates", icon: MessageSquare },
   { href: "/subnichos", label: "Sub-nichos", icon: Tag },
   { href: "/lixeira", label: "Lixeira", icon: Trash2 },
+  { href: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
 export function AppSidebar() {
