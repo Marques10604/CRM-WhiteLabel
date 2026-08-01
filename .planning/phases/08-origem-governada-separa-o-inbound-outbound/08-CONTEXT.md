@@ -99,6 +99,10 @@ No external specs/ADRs beyond the above — requisitos totalmente capturados no 
 - Migração manual via `better-sqlite3` (não `drizzle-kit push` direto) já é o padrão estabelecido nas Fases 06-01/07-01 para colunas `NOT NULL`/com regra de backfill não-trivial — repetir aqui.
 - `mapCsvRows()` (`src/lib/csv-import.ts`) é o único ponto de criação de lead que não passa pelo formulário — precisa do próprio default, não herda a obrigatoriedade do form.
 
+### Superfície compartilhada além do formulário/import (revisão adversarial, ciclo 1)
+- `leadSchema` (`src/lib/validations.ts`) é a base tanto do formulário quanto de `csvRowSchema` usado no import — adicionar `origemTipo` obrigatório quebra QUALQUER caller que monte um objeto de lead sem esse campo. `scripts/test-lead-actions.cjs` faz chamadas diretas a `createLead`/`updateLead` e precisa ser atualizado no mesmo commit, ou o script passa a falhar silenciosamente/com erro genérico de validação.
+- `Lead`/`NewLead` (tipos inferidos do schema Drizzle, `src/types/index.ts` ou equivalente) mudam de shape — qualquer fixture/mock de teste que construa um objeto `Lead` literal (não via factory) precisa do campo novo.
+
 ### Integration Points
 - `src/db/schema.ts` — nova coluna `origemTipo` na tabela `leads` (mesma seção de `canal`/`stage`).
 - `src/lib/validations.ts` — novo campo no schema Zod do formulário de lead.

@@ -50,7 +50,7 @@ Dois caminhos de criação de lead existem hoje e ambos precisam de um valor de 
 - Substituir `leads.origem` por uma tabela `origens` governada com FK — decisão já tomada e descartada (`REQUIREMENTS.md` Out of Scope), não reaberta nesta fase
 - Granularidade de origem além do binário Inbound/Outbound (ex.: "Instagram Ads" vs. "Inbound" genérico) — a decisão de schema já fixou um enum fechado de 2 valores; qualquer granularidade futura é feature nova, não desta fase
 - Governança/normalização de `motivoPerda` — mesma classe de problema do `origem`, mas explicitamente adiada para decisão na Phase 11 (`REQUIREMENTS.md` Out of Scope)
-- UI de reclassificação em lote (bulk edit) de `origemTipo` para leads já backfillados — reclassificação individual via o formulário de edição (Requirement 1) já cobre o caso de uso real; nenhuma automação depende de correção em massa
+- UI de reclassificação em lote (bulk edit) de `origemTipo` para leads já backfillados — reclassificação individual via o formulário de edição (Requirement 1) cobre o caso de uso real **para leads ativos**; nenhuma automação depende de correção em massa. **Correção factual (revisão adversarial, ciclo 1):** `updateLead` (`src/actions/lead-actions.ts`) filtra por `isNull(leads.deletedAt)` no `WHERE` — um lead soft-deletado não pode ser editado diretamente. Para os 11 leads soft-deletados do backfill, corrigir `origemTipo` exige primeiro restaurá-lo (fluxo já existente da Lixeira, 01-04) e só então editar — não é um gap novo desta fase, é o mesmo comportamento que já vale para qualquer campo de um lead soft-deletado hoje.
 - Porta de entrada local para IA cadastrar leads (LEAD-05) — item de backlog v1.2 não relacionado a esta fase, sem dependência técnica
 - Qualquer mudança em `canal` ou no comportamento de templates/`{origem}` — `origem` (texto livre) permanece exatamente como está, incluindo seu uso como variável de template
 
@@ -58,19 +58,21 @@ Dois caminhos de criação de lead existem hoje e ambos precisam de um valor de 
 
 - `data/crm.db` deve ser copiado (backup) antes de qualquer `drizzle-kit push` ou `ALTER TABLE` manual que altere a tabela `leads` — dado real de produção, sem migration history versionado (débito técnico pré-existente confirmado em `STATE.md`).
 - `drizzle-kit push` tem bug conhecido neste projeto (confirmado na Fase 06-01) ao adicionar coluna `NOT NULL` com valor não-trivial: pode gerar `DELETE FROM`/rebuild de tabela em vez de `ALTER TABLE ADD COLUMN`. A migração desta fase precisa ser verificada contra uma cópia do `.db` antes de tocar o banco real, ou aplicada via `ALTER TABLE` direto (mesmo padrão já usado nas Fases 06/07).
-- O enum `origemTipo` deve ser fechado (`"inbound" | "outbound"`, sem valor "outro"/nulo permitido após a migração) — nenhuma automação futura (Phase 10) pode lidar com um terceiro estado ambíguo.
+- O enum `origemTipo` deve ser fechado (`"inbound" | "outbound"`, sem valor "outro"/nulo permitido) **na camada de aplicação** (Zod + tipo TypeScript do Drizzle) — nenhuma automação futura (Phase 10) pode lidar com um terceiro estado ambíguo vindo do formulário/import CSV. **Correção factual (revisão adversarial, ciclo 1):** `text(..., { enum: [...] }).notNull()` do Drizzle é só uma anotação TypeScript — a migração SQL gerada é `text NOT NULL` puro, sem `CHECK` constraint (confirmado em `src/db/migrations/0000_gifted_slapstick.sql:5-9` para `canal`; mesmo padrão já vale para `stage`). `origemTipo` segue exatamente esse precedente já estabelecido no projeto — o enum fechado é garantido pela Server Action (Zod) em todo caminho de escrita da aplicação, não por um `CHECK` no banco. Um `INSERT` SQL direto fora da aplicação (fora de escopo desta fase) não é bloqueado pelo schema físico — mesma exposição que `canal`/`stage` já têm hoje, não uma regressão introduzida aqui.
 - Nenhuma mudança nesta fase pode alterar o comportamento do campo `origem` livre (usado como `{origem}` em templates de WhatsApp) — `origemTipo` é estritamente aditivo.
+- Script de backfill deve ser idempotente (rodar 2x não deve produzir erro nem sobrescrever um `origemTipo` já corrigido manualmente por um `UPDATE ... WHERE origem_tipo IS NULL`, nunca um `UPDATE` incondicional em toda a tabela) — item adicionado após revisão adversarial (ciclo 1, achado #5: acceptance criteria original não cobria reprodutibilidade/idempotência do script).
 
 ## Acceptance Criteria
 
 - [ ] Schema Drizzle tem `leads.origemTipo` (enum `"inbound" | "outbound"`, `NOT NULL`)
 - [ ] Formulário de lead (criação e edição) tem campo obrigatório para `origemTipo`, validado via Zod
 - [ ] Submeter o formulário de criação sem `origemTipo` bloqueia o submit com erro visível
-- [ ] Import CSV em lote atribui `origemTipo = "outbound"` a toda linha importada, sem passo de UI adicional no wizard
+- [ ] Import CSV em lote atribui `origemTipo` a toda linha importada, sem passo de UI adicional no wizard (valor exato — sempre `"outbound"` ou condicionado à origem do lote — depende da decisão do usuário registrada em `08-INTENT-REVIEW.md`)
 - [ ] `SELECT COUNT(*) FROM leads WHERE origem_tipo IS NULL` retorna 0 após o backfill
-- [ ] As 33 linhas existentes (22 ativas + 11 soft-deletadas) têm `origem_tipo = 'outbound'` após o backfill, confirmado por query direta
+- [ ] As 33 linhas existentes (22 ativas + 11 soft-deletadas) têm `origem_tipo` preenchido após o backfill, confirmado por query direta — valor exato por linha (se uniformemente `"outbound"` ou diferenciado para as linhas `origem IN ("Teste","insta")`) depende da decisão do usuário registrada em `08-INTENT-REVIEW.md`
 - [ ] Existe backup de `data/crm.db` datado de antes da migração, referenciado no commit/SUMMARY da fase
-- [ ] Abrir o modal de edição de um lead pré-existente (backfillado) mostra `origemTipo = Outbound` no controle do formulário
+- [ ] Abrir o modal de edição de um lead pré-existente ativo (backfillado) mostra o `origemTipo` correto no controle do formulário
+- [ ] Rodar o script de backfill uma segunda vez não altera nenhuma linha já classificada (idempotência verificada)
 
 ## Ambiguity Report
 
