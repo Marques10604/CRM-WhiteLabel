@@ -1,128 +1,168 @@
 # Project Research Summary
 
-**Project:** CRM de Leads — Área da Saúde
-**Domain:** Milestone v1.2 "Follow-up Automático" — automação incremental de um CRM solo Next.js/Drizzle/SQLite já em produção (auto-avanço de etapa por clique em WhatsApp, contador de tentativas, configuração de dias-parado por etapa)
-**Researched:** 2026-07-30
-**Confidence:** HIGH
-
-> Esta é uma síntese de pesquisa de milestone incremental, não de projeto novo. Os 4 arquivos de pesquisa (STACK/FEATURES/ARCHITECTURE/PITFALLS) foram lidos diretamente do código-fonte já existente (src/), não de um domínio genérico. Esta versão supersede o SUMMARY.md de 2026-07-19 (pesquisa do projeto original v1.0), preservado no histórico do git.
+**Project:** CRM de Leads — Área da Saúde (milestone v1.3 "Qualificação e Histórico de Leads")
+**Domain:** CRM solo (single-admin), integração de 6 features novas sobre app Next.js 16/Drizzle/SQLite já em produção
+**Researched:** 2026-08-01
+**Confidence:** HIGH (com uma divergência interna entre pesquisas que precisa de decisão explícita — ver Gaps)
 
 ## Executive Summary
 
-O milestone v1.2 adiciona três capacidades pequenas e interligadas a um CRM solo que já está em produção real: auto-avanço de etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, um contador de tentativas de contato por lead, e uma tela /configuracoes para generalizar o "esfriando" hoje hardcoded (5 dias, só etapa Contatado) para as 3 primeiras etapas do funil. A pesquisa em stack, arquitetura e features convergem no mesmo veredito: zero pacotes novos, zero componentes novos de infraestrutura — tudo é resolvido com o que já está instalado (Next.js Server Actions, Drizzle/SQLite, react-hook-form + Zod, shadcn/ui, sonner), estendendo dois arquivos existentes (whatsapp-preview-dialog.tsx, pipeline/page.tsx) e criando uma pequena tabela relacional tipada (pipeline_stage_settings) em vez de um KV genérico.
+Este milestone não é adoção de tecnologia nova — é integração de 6 features (governança de origem/Inbound×Outbound, timeline de interações, sequência de follow-up escalonada, painel de métricas, relatório de motivos de perda, agenda de tarefas soltas) sobre uma arquitetura já validada em produção (Next.js 16 + Server Actions + Drizzle + SQLite/WAL, um único admin, sem cron/scheduler, sem deploy público). A pesquisa de stack confirma que **quase nenhum pacote novo é necessário**: `Drizzle` já resolve `GROUP BY`/`COUNT` para as agregações, `react-hook-form` já tem `useFieldArray` para a sequência escalonada, e uma lib de gráfico (`recharts` via `shadcn add chart`) é opcional e adiável — tabela + barra de CSS já cobre o painel de métricas no volume deste projeto (alguns milhares de leads).
 
-A pesquisa de arquitetura identificou um fato crítico sobre o código real que muda a forma do trabalho: existe apenas UM elemento de link wa.me em todo o app — vive dentro de WhatsAppPreviewDialog (whatsapp-preview-dialog.tsx:165-178) — mesmo havendo 5 pontos de montagem do diálogo (pipeline, dashboard, lista de leads, pós-importação, auto-trigger de criação). Isso é uma vantagem (a lógica nova vive num único arquivo, não duplicada 4x) mas também o maior risco: instrumentar o botão errado (o "Enviar WhatsApp" da superfície, que só abre o diálogo, versus o "Abrir WhatsApp" real dentro dele) é o pitfall nº1 e o mais fácil de cometer, dado que os nomes dos botões nas telas convidam a essa confusão.
+A recomendação central, confirmada por três das quatro pesquisas (Features, Architecture, Pitfalls) e pela leitura direta dos dados reais em `data/crm.db`, é: **nenhuma automação nova pode inferir comportamento a partir de texto livre** (`origem`, `motivoPerda` hoje têm valores reais sujos e inconsistentes — `"Importação CSV"`, `"Teste"`, `"insta"`), e **nenhuma feature pode assumir um processo rodando em background** — o único padrão de "automação" já validado neste app é "computa na leitura, nunca agenda" (o mesmo usado pelo badge "esfriando" da Fase 7), e a sequência de follow-up escalonada deve copiar esse padrão, não inventar um scheduler. O risco técnico mais concreto é o retrofit de `origem`/`motivoPerda` contra dados reais existentes via `drizzle-kit push` (sem migration history versionado) — requer backfill explícito e backup do `.db` antes de rodar.
 
-Os riscos principais não são de stack nem de escopo de features — a pesquisa de features confirma que o escopo das 3 features já está corretamente cortado (auto-avanço unidirecional só novo→contatado, sem "dar baixa" em confirmação de entrega do WhatsApp, sem escalonamento de cor/notificações) — mas sim de implementação correta de um ponto de integração compartilhado e sensível a race condition: gate no estado vivo (tipo) e não em props obsoletas (defaultTipo), re-checagem server-side atômica do estágio atual (nunca confiar no lead.stage client-side), uma única Server Action/transação (não duas chamadas separadas), e uma tabela de configurações que já nasce populada com os valores hardcoded atuais (para não desligar silenciosamente o sinal "esfriando" no dia do deploy). Nenhum desses riscos é de infraestrutura ou performance — a escala é irrelevante aqui (admin único, SQLite, poucos milhares de leads).
+**Divergência importante entre pesquisas** (ver Gaps): STACK.md e FEATURES.md recomendam substituir `leads.origem` por uma tabela governada `origens` (nome + tipo inbound/outbound, FK em `leads`); ARCHITECTURE.md e PITFALLS.md recomendam manter `origem` como texto livre (usado como variável `{origem}` em templates) e adicionar uma coluna nova `origemTipo` (enum fechado) em paralelo. Este é o ponto de maior risco de retrabalho do milestone e deve ser resolvido como primeira decisão da Fase 1, antes de qualquer schema change.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Nenhuma biblioteca nova é necessária. As três features usam exclusivamente pacotes já presentes em package.json, aplicados em pontos de integração literais e já existentes no código.
+Stack já instalada é suficiente para as 6 features. Não há pacote novo obrigatório — cada feature é um novo padrão de schema (tabela ou coluna) + Server Action + query, reaproveitando Drizzle/Zod/RHF/date-fns/shadcn já em uso. A única dependência nova candidata é uma lib de gráfico, e a recomendação explícita é não instalá-la no MVP.
 
-**Tecnologias envolvidas (todas já instaladas):**
-- Next.js Server Actions (16.2.10) — nova Server Action registerWhatsAppContact chamada fire-and-forget a partir do onClick já existente do link de WhatsApp, sem preventDefault() nem rota de API nova
-- Drizzle ORM + drizzle-kit (0.45.2/0.31.10) — 2 colunas novas em leads (contact_attempts, last_contacted_at) + 1 tabela nova tipada (pipeline_stage_settings, PK por etapa) via migração custom, seguindo o padrão já documentado no schema para stageChangedAt
-- react-hook-form + Zod (7.82.0/4.4.x) — formulário de /configuracoes (3 campos numéricos), mesmo padrão de todo form existente no app
-- shadcn/ui + sonner — reuso direto de Input/Field/Button/Card e do padrão de toast já usado em outras confirmações
+**Core technologies (já instaladas, sem mudança):**
+- Drizzle ORM (`count()`, `.groupBy()`) — agregações do painel de métricas e relatório de motivos de perda, sem lib de "BI" separada
+- react-hook-form (`useFieldArray`) — editor de N passos da sequência de follow-up escalonada
+- Zod — validação de todos os novos formulários/Server Actions, mesmo padrão já usado
+- date-fns — cálculo de "próximo follow-up sugerido" e destaque de tarefa vencida
+- better-sqlite3 + WAL (já ativo) — suporta a nova tabela `interacoes` sem necessidade de mudança de engine ou configuração
 
-**Explicitamente descartado (over-engineering para o escopo):** lib de state management (Zustand/Redux/Context global — useState local + revalidatePath já resolve), SDK de analytics/click-tracking para contar cliques de WhatsApp, navigator.sendBeacon/Service Worker, tabela settings genérica tipo key-value/JSON blob, rota de API dedicada, e qualquer biblioteca de "detecção de app aberto" para tentar confirmar entrega da mensagem.
+**Opcional, adiável:** `recharts` via `npx shadcn add chart` (3.10.1) — só se o admin pedir explicitamente um gráfico de tendência temporal depois de usar o painel de métricas em tabela/barra por um tempo. Há ressalva de conflito de peer dependency com React 19 (via `react-is`) — confiança MÉDIA, confirmar no momento real da instalação.
 
 ### Expected Features
 
-**Must have (escopo já definido em PROJECT.md, confirmado como table-stakes por CRMs comerciais — Pipedrive "Rotting", Zoho "Idle Deal Alert"):**
-- Auto-avanço Novo→Contatado só no clique com template primeiro_contato, em todas as telas, unidirecional (nunca regride/re-avança leads além de Contatado), com toast de confirmação
-- Contador contactAttempts — incrementa em qualquer clique de "Abrir WhatsApp" (qualquer template, qualquer etapa), badge simples no card do pipeline
-- /configuracoes com 3 campos numéricos (dias-parado por etapa: Novo/Contatado/Negociação), substituindo o literal hardcoded 5 hoje restrito só a Contatado
+**Must have (table stakes, já ausentes e sentidas hoje):**
+- Campo de origem governado (dropdown, não texto livre)
+- Separação Inbound × Outbound
+- Timeline de interações (activity log) por lead
+- Relatório de motivo de perda (campo já existe, falta agregação)
+- Follow-up/tarefa avulsa com data, mesmo sem vínculo a lead
 
-**Should have:** nenhuma diferenciação é objetivo deste milestone — o próprio PROJECT.md o define como "alcançar a baseline" de CRM, não superá-la. A única diferenciação legítima de uma ferramenta solo é fazer as 3 coisas sem a cerimônia de configuração (rule builder, workflow engine) que Pipedrive/HubSpot/Zoho exigem para equipes.
+**Should have (diferenciadores, atacam o Core Value "nunca perder follow-up"):**
+- Sequência de follow-up escalonada com templates de prova social (cálculo assistido de próxima data, envio continua manual via `wa.me`)
+- Painel de métricas por origem × sub-nicho (taxa de conversão) — depende tecnicamente do item de origem governada
 
-**Defer/Anti-features identificados (evitar mesmo que pareçam extensão natural):** auto-avanço em qualquer clique (não só primeiro_contato), tratar clique no wa.me como confirmação de mensagem enviada, contador com escalonamento de cor/lógica de "desistir", thresholds por sub-nicho, notificações/e-mail sobre lead esfriando, auto-avanço em etapas além de Contatado — todos já corretamente fora do escopo v1.2 segundo PROJECT.md.
+**Defer (v1.4+):**
+- Temperatura derivada (quente/morno/frio) — regra determinística sobre origem+tempo parado+tentativas, sem tabela nova; adiada não por complexidade técnica, mas para validar em uso real primeiro
+- Override manual de temperatura — só se a regra derivada errar com frequência perceptível
+
+**Anti-features confirmadas para não construir:** lead scoring por IA/ML, envio automático real de sequência (sem clique), atribuição/leaderboard por vendedor (não há time), sistema de tarefas completo (subtarefas/prioridade/recorrência), cadência configurável por lead individual, dashboard de BI completo.
 
 ### Architecture Approach
 
-As 3 features se anexam a um app Next.js já estruturado por convenção (actions/*-actions.ts por domínio, app/<rota>/page.tsx + form cliente, db/schema.ts como fonte única de verdade). O ponto de integração único e compartilhado para as Features 1+2 é WhatsAppPreviewDialog — as 5 superfícies que abrem o diálogo (pipeline board, dashboard de follow-up, lista de leads, lista pós-importação, auto-trigger de criação) nunca renderizam o link wa.me diretamente, só chamam setPreviewState. A Feature 3 (/configuracoes) é uma fatia vertical totalmente independente, sem arquivos ou migração compartilhados com as Features 1+2.
+Toda feature nova segue a convenção já estabelecida: mutação = Server Action em `src/actions/*.ts` (retorno `ActionState`, validação Zod, `revalidatePath`); leitura agregada/pura = função em `src/db/queries.ts`, nunca inline. Nenhuma automação nova confia em estado do cliente (sempre SELECT fresco). `deletedAt` (soft-delete) é decisão explícita por tabela, não herança automática — tabelas novas (`interacoes`, `followUpSequenciaEtapas`, `tarefas`) não recebem `deletedAt` especulativamente.
 
-**Componentes principais:**
-1. WhatsAppPreviewDialog (modificar) — ganha o onClick que chama a nova Server Action de forma fire-and-forget, usando o estado vivo tipo (não a prop defaultTipo)
-2. registerWhatsAppContact (nova Server Action, em lead-actions.ts) — uma única transação: incrementa contador sempre + avança etapa condicionalmente, com re-SELECT server-side do estágio atual imediatamente antes do UPDATE
-3. pipeline_stage_settings (nova tabela, 1 linha por etapa, PK tipada) + settings-actions.ts + configuracoes/page.tsx + stage-settings-form.tsx — fatia isolada, migração auto-seedada com os valores hardcoded atuais (evita desligar o sinal "esfriando" no deploy)
-4. pipeline/page.tsx (modificar) — troca o literal stage==="contatado" && dias>=5 por uma leitura de pipeline_stage_settings, generalizada para as 3 etapas
+**Major components (schema novo):**
+1. `interacoes` (FK `leadId`, `onDelete: cascade`) — log imutável de eventos, índice composto `(leadId, createdAt)`, auto-populado a partir de `registerWhatsAppContact` já existente
+2. `followUpSequenciaEtapas` (lista ordenada global) + coluna `sequenciaPosicao` em `leads` (contador dedicado, **não** reaproveita `contactAttempts`) — cálculo síncrono de data sugerida, sem scheduler
+3. `tarefas` (tabela independente, sem FK) — generaliza `groupLeadsByUrgency` para uma função `groupByUrgency<T>` reutilizável por leads e tarefas
+4. Queries de agregação puras (`getMetricasPorOrigemESubnicho`, `getMotivoPerdaBreakdown`) em `src/db/queries.ts`, sem tabela materializada — `GROUP BY` direto é instantâneo nesta escala
+
+**Coluna/campo controverso:** `origemTipo` (enum) em `leads` vs. tabela `origens` governada — ver Gaps, decisão a tomar na Fase 1.
 
 ### Critical Pitfalls
 
-1. Instrumentar o botão errado — os botões de superfície ("Enviar WhatsApp") só abrem o diálogo, não enviam nada; a lógica nova deve viver exclusivamente no onClick do link real dentro de WhatsAppPreviewDialog, nunca nos 4 chamadores nem no auto-trigger de criação de lead.
-2. preventDefault() + await + window.open() — quebra o link nativo e aciona bloqueador de pop-up silenciosamente; manter a navegação síncrona do link intacta e disparar a Server Action como efeito não-bloqueante no mesmo handler.
-3. Gate na prop defaultTipo em vez do estado vivo tipo — o admin pode trocar o tipo de template antes de enviar; o gate de auto-avanço deve ler o estado tipo no momento do clique, nunca a prop de abertura do diálogo.
-4. Confiar no lead.stage client-side para o gate — o prop pode estar obsoleto (drag-and-drop pode ter movido o lead nos segundos entre abrir o diálogo e clicar enviar); a checagem "está em Novo?" deve ser um SELECT fresco dentro da própria Server Action, imediatamente antes do UPDATE condicional.
-5. Tabela de configurações sem seed — se pipeline_stage_settings nascer vazia (seed só ao primeiro salvamento do admin), a leitura retorna undefined e o sinal "esfriando" desliga silenciosamente para toda uma etapa, sem erro visível; a migração deve inserir as 3 linhas com os valores hardcoded atuais no mesmo arquivo que cria a tabela.
+1. **Retrofit de `origem`/`origemTipo` sem backfill explícito** — dados reais já existem (`"Importação CSV"`, `"Teste"`, `"insta"` — 33 leads). `drizzle-kit push` pode forçar reconstrução de tabela e falhar sem migration history versionado. Evitar: nunca reaproveitar `origem` livre para virar enum direto; adicionar coluna nova, rodar backfill explícito com regra documentada, testar `push` contra cópia do `.db` antes do banco real.
+2. **Inferir Inbound/Outbound por parsing de string** (`.includes()` sobre `origem`) em vez de campo explícito — frágil e quebra silenciosamente a cada nova variação de texto. Sempre campo governado com controle de UI explícito.
+3. **Tratar a sequência de follow-up escalonada como scheduler ativo** — este app não tem cron/job runner; nada "dispara sozinho". Copiar o padrão já validado do "esfriando" (compute-on-read, ação explícita do admin dispara o recálculo).
+4. **Reaproveitar `contactAttempts` como índice da sequência** — esse contador é um odômetro vitalício que nunca zera e conta qualquer clique de WhatsApp, não é semanticamente "posição na sequência de reabordagem". Precisa de campo dedicado novo.
+5. **Guard `no-hard-delete` não cobre tabelas novas automaticamente** — `interacoes` e `tarefas` precisam ser adicionadas manualmente ao `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, ou a proteção do projeto contra hard-delete fica furada sem ninguém perceber (guard passa verde mesmo com `DELETE` real no código).
 
 ## Implications for Roadmap
 
-Com base na pesquisa combinada, a estrutura de fases sugerida (a numerar como Fase 6+ na sequência já em .planning/ROADMAP.md, que está em Fase 5 completa):
+Estrutura de fases já sugerida pelo próprio `PROJECT.md` (ordem 1→6) é confirmada como tecnicamente razoável pela pesquisa de arquitetura, com dependências reais mapeadas abaixo.
 
-### Fase 6: Auto-avanço de Etapa + Contador de Tentativas
-**Rationale:** ARCHITECTURE.md e PITFALLS.md concordam que estas duas features são "arquiteturalmente inseparáveis" — mesma migração (contact_attempts, last_contacted_at em leads), mesma Server Action nova (registerWhatsAppContact), mesma edição de onClick em whatsapp-preview-dialog.tsx, mesma mudança de exibição em pipeline-lead-card.tsx. Dividir em duas fases significaria tocar exatamente as mesmas linhas duas vezes, sem ganho de isolamento.
-**Delivers:** Migração com contact_attempts INTEGER NOT NULL DEFAULT 0 + last_contacted_at INTEGER (sem backfill necessário, ao contrário do precedente stageChangedAt); nova Server Action transacional registerWhatsAppContact(leadId, tipo) com re-SELECT server-side; onClick do link real estendido (fire-and-forget, sem preventDefault); badge de contador no card do pipeline; toast de confirmação no avanço.
-**Addresses:** As duas primeiras features Active de PROJECT.md (auto-avanço, contador).
-**Avoids:** Pitfalls 1-7 (botão errado, popup-blocker, gate na prop errada, gate client-side obsoleto, race com drag-and-drop, duas Server Actions separadas, contagem indevida no auto-trigger de criação) — todos mapeados para esta mesma fase em PITFALLS.md.
+### Phase 1: Origem governada + Separação Inbound × Outbound
+**Rationale:** Fundação técnica — bloqueia o painel de métricas (item 4) e reduz retrabalho em toda automação condicional futura. Nenhuma feature depende dela tecnicamente ao contrário (é a raiz da árvore de dependências).
+**Delivers:** Campo de origem confiável e filtrável; classificação inbound/outbound explícita por lead.
+**Addresses:** "Campo de origem governado" e "Separação Inbound × Outbound" (table stakes, FEATURES.md).
+**Avoids:** Pitfall 1 (retrofit sem backfill) e Pitfall 2 (inferência por string) — exige decisão de schema explícita ANTES de tocar no banco (ver Gaps abaixo).
 
-### Fase 7: Configuração de Dias-Parado por Etapa (/configuracoes)
-**Rationale:** Totalmente independente da Fase 6 — sem arquivos, migração ou Server Action compartilhados, pode ser construída antes, depois ou em paralelo sem risco de merge. Sugerida como segunda por ser menor urgência (tela de configuração vs. o caminho central "nunca mais esquecer um follow-up") e porque revisar o diff de esfriandoLeadIds fica mais limpo depois que as mudanças de schema/action da Fase 6 já estiverem mescladas.
-**Delivers:** Nova tabela pipeline_stage_settings (1 linha por etapa, migração auto-seedada com o valor 5 atual, preservando o comportamento de dia-um); nova rota /configuracoes com formulário react-hook-form + Zod (validação .int().min(1), rejeitando 0/negativo); nova Server Action updateStageSettings; pipeline/page.tsx generalizado para ler as 3 etapas em vez do literal hardcoded.
-**Uses:** Drizzle (tabela tipada, não JSON blob), react-hook-form + Zod, shadcn/ui — mesmo padrão de todo form existente.
-**Implements:** Pattern 3 de ARCHITECTURE.md (tabela tipada por chave em vez de settings genérico em JSON) e evita Anti-Pattern 3.
-**Avoids:** Pitfalls 8-9 (tabela sem seed desliga o sinal silenciosamente; threshold 0 inflama o board inteiro instantaneamente).
+### Phase 2: Timeline de interações
+**Rationale:** Sem dependência técnica dura da Fase 1, mas toca a mesma superfície de código (`registerWhatsAppContact`, `LeadFormDialog`) — sequenciar logo após reduz conflito de merge/retrabalho.
+**Delivers:** Log de eventos por lead (`interacoes`), auto-populado no clique de WhatsApp já existente.
+**Uses:** Tabela relacional nova (nunca JSON — primeira coluna JSON quebraria a filosofia "SQL-shaped" do Drizzle já documentada no STACK.md do projeto).
+**Implements:** Índice composto `(leadId, createdAt)`; guard `no-hard-delete` atualizado no mesmo commit (Pitfall 6).
+
+### Phase 3: Sequência de follow-up escalonada
+**Rationale:** Sem dependência dura de 1 ou 2, mas reaproveita o mesmo ponto de extensão em `registerWhatsAppContact` já mexido na Fase 2 — mais barato fazer em sequência. Se depois precisar diferenciar intervalo por `origemTipo`, ter a Fase 1 pronta evita segunda migração.
+**Delivers:** Tabela `followUpSequenciaEtapas` (intervalos configuráveis, não hardcoded) + campo `sequenciaPosicao` dedicado em `leads` + cálculo de data sugerida em `registerWhatsAppContact`.
+**Addresses:** "Sequência de follow-up escalonada com templates de prova social" (diferenciador, FEATURES.md) — `templates.tipo` já inclui `"prova_valor"`, infraestrutura parcial pronta.
+**Avoids:** Pitfall 3 (tratar como scheduler ativo) e Pitfall 4 (reaproveitar `contactAttempts`).
+
+### Phase 4: Painel de métricas por origem e sub-nicho
+**Rationale:** Depende tecnicamente da Fase 1 (precisa da coluna/campo de classificação existir e populado). Depende "de confiança do dado" (não tecnicamente) da Fase 2.
+**Delivers:** Queries de agregação puras (`GROUP BY`) + página `/relatorios` com tabela/barras CSS, sem lib de gráfico no MVP.
+**Uses:** `Drizzle count()`/`.groupBy()` já instalado; nenhuma tabela materializada.
+**Avoids:** Pitfall 7 (N+1 por loop em vez de `GROUP BY` único; esquecer filtro `isNull(deletedAt)`).
+
+### Phase 5: Relatório de motivos de perda
+**Rationale:** Sem dependência técnica de nada novo (`motivoPerda` existe desde a Fase 3 do produto) — sequenciado junto da Fase 4 por reuso de infraestrutura de página/rota (`/relatorios`), não por bloqueio de dado.
+**Delivers:** Agregação por `motivoPerda`, com decisão explícita de governança do campo (mesma classe de problema do `origem` — texto livre já fragmentado).
+**Addresses:** "Relatório de motivo de perda" (table stakes, FEATURES.md).
+**Avoids:** Pitfall 3 alternativo — relatório sobre campo ainda texto livre; decidir governar (enum + "Outro") ou pelo menos normalizar (`trim`+`lower`) antes de considerar a fase concluída.
+
+### Phase 6: Agenda / tarefas soltas
+**Rationale:** Totalmente desacoplada das outras 5 (tabela nova sem FK para `leads`) — poderia ser adiantada para qualquer posição sem risco técnico. Mantida por último por ser a prioridade de negócio mais baixa declarada, não por dependência.
+**Delivers:** Tabela `tarefas` independente + generalização de `groupLeadsByUrgency` em `groupByUrgency<T>` reutilizável + nova seção no dashboard de follow-up.
+**Addresses:** "Follow-up/tarefa com data e lembrete" (table stakes, FEATURES.md).
+**Avoids:** Pitfall 6 (guard não cobrindo tabela nova) — mesmo cuidado da Fase 2.
 
 ### Phase Ordering Rationale
 
-- A Fase 6 vem primeiro porque valida a superfície mais arriscada e mais compartilhada do app (os 5 pontos de montagem do diálogo de WhatsApp), e porque PROJECT.md já registra um débito conhecido de UAT de WhatsApp nunca confirmado no navegador na Fase 4 — testar esse caminho de novo, agora com mutação de estado, é prioridade.
-- A Fase 7 é isolada de propósito — ARCHITECTURE.md confirma zero sobreposição de arquivos/migração com a Fase 6, então a ordem entre elas é uma escolha de prioridade de produto, não uma dependência técnica.
-- Nenhuma fase adicional é necessária para este milestone: as 3 features do Active de PROJECT.md mapeiam exatamente para essas 2 fases, sem items órfãos.
-- Um item de risco aceito e não resolvido nesta rodada (Pitfall 5 — corrida entre o drag-and-drop otimista do pipeline board e o auto-avanço disparado pelo clique de WhatsApp) deve ser documentado explicitamente no CONTEXT/plan da Fase 6, ao lado da já conhecida "race condition de Perdido em sequência" registrada em STATE.md — não deve ser resolvido silenciosamente nem ignorado silenciosamente.
+- Ordem 1→6 já definida no `PROJECT.md` é confirmada pela análise de dependência técnica em ARCHITECTURE.md: só a Fase 4 tem bloqueio técnico duro (da Fase 1); as demais são sequenciadas por reuso de código/infraestrutura, não por dependência de dado.
+- Fases 2 e 3 compartilham o mesmo ponto de extensão (`registerWhatsAppContact`) — fazer em sequência evita duas rodadas de edição no mesmo arquivo.
+- Fases 4 e 5 compartilham infraestrutura de página (`/relatorios`) — mesmo lote evita dois shells de página separados.
+- Fase 6 é a única verdadeiramente independente e poderia ser um "quick win" isolado em qualquer ponto do roadmap, se o usuário preferir.
+- Todas as fases que tocam texto livre existente (`origem` na Fase 1, `motivoPerda` na Fase 5) exigem backup do `data/crm.db` antes de qualquer `drizzle-kit push` que altere a tabela `leads`.
 
 ### Research Flags
 
-Fases que provavelmente não precisam de pesquisa adicional durante o planejamento (--research-phase):
-- Fase 6: Padrões bem documentados e verificados diretamente no código-fonte (idioma SELECT-then-conditional-write já usado em updateLeadStage/updateLead; ponto de integração único já identificado com número de linha exato). PITFALLS.md já mapeia pitfall→fase→verificação em detalhe suficiente para virar critério de sucesso do plano.
-- Fase 7: Padrão de tabela tipada + form react-hook-form/Zod é uma repetição direta de convenções já em uso 3+ vezes no repo (subnicho-actions.ts, template-actions.ts).
+Phases likely needing deeper research/discussão durante o planejamento:
+- **Phase 1:** Precisa resolver a divergência de schema entre pesquisas (tabela `origens` governada vs. coluna `origemTipo` + `origem` mantido livre) antes de qualquer código — ver Gaps. Recomenda-se `/gsd-discuss-phase` nesta fase especificamente para essa decisão.
+- **Phase 3:** Decisão de produto em aberto sobre quando resetar `sequenciaPosicao` (ao fechar/perder lead é óbvio; ao voltar para "novo" é discutível) — sinalizado por ARCHITECTURE.md como pergunta a resolver em discussão de fase, não travar em pesquisa.
+- **Phase 5:** Decisão de governar (enum) ou apenas normalizar `motivoPerda` — mesma classe de problema da Fase 1, mas de menor risco técnico (campo nullable, sem uso em template).
 
-Nenhuma fase deste milestone foi sinalizada como precisando de pesquisa mais profunda — a pesquisa de arquitetura e pitfalls já leu o código real linha a linha, o que é o nível de detalhe que normalmente um --research-phase produziria.
+Phases with standard patterns (skip research-phase):
+- **Phase 2:** Padrão de tabela relacional com FK + índice composto já usado em todo o schema do projeto — bem documentado em ARCHITECTURE.md.
+- **Phase 4:** `GROUP BY`/`count()` do Drizzle é uso padrão do query builder já instalado — sem incerteza técnica.
+- **Phase 6:** Tabela independente sem FK, mesmo padrão de `configuracoes`/`templates` — trivial.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Nenhuma versão nova a verificar — confirmação direta de que os pacotes já instalados (package.json) bastam, sem inferência externa |
-| Features | MEDIUM | Escopo e sizing são julgamento específico do projeto, ancorado no código existente (HIGH); os padrões de CRM comercial equivalentes (Pipedrive Rotting, Zoho Idle Deal Alert) vêm de doc oficial (HIGH) e buscas convergentes (MEDIUM) |
-| Architecture | HIGH | Todos os achados verificados lendo o código-fonte real listado nas fontes, não inferidos da descrição do milestone |
-| Pitfalls | HIGH | Todos os 9 pitfalls verificados diretamente contra o código do projeto (whatsapp-preview-dialog.tsx, pipeline-board.tsx, lead-actions.ts, schema.ts, pipeline/page.tsx), não conselho genérico de web-dev |
+| Stack | HIGH | Baseado em leitura direta do código-fonte do projeto + npm registry ao vivo; nenhuma tecnologia nova sendo adotada, apenas uso estendido do que já está instalado |
+| Features | MEDIUM-HIGH | Padrões de mercado de CRM bem estabelecidos e convergentes entre múltiplas fontes (WebSearch); nenhuma feature é exótica, a decisão real é dimensionamento para 1 usuário |
+| Architecture | HIGH (com ressalva) | Leitura direta do código-fonte atual — mas ver Gaps: conflito interno com STACK.md sobre a abordagem de `origem`/Inbound×Outbound não foi resolvido, precisa de decisão explícita antes da Fase 1 |
+| Pitfalls | HIGH | Achados verificados diretamente no código-fonte E nos dados reais de `data/crm.db` (não pesquisa genérica) — inclui query real confirmando os 3 valores sujos de `origem` |
 
-**Overall confidence:** HIGH
+**Overall confidence:** HIGH, condicionado à resolução do gap de schema abaixo antes do início da Fase 1.
 
 ### Gaps to Address
 
-- Race entre drag-and-drop otimista e auto-avanço via WhatsApp (Pitfall 5): não é um gap de pesquisa, é uma limitação aceita e documentada — deve ser registrada explicitamente no CONTEXT da Fase 6 (não silenciosamente ignorada), ao lado do item já existente "race condition de Perdido em sequência" em STATE.md.
-- Restrição sync/async da transação better-sqlite3: a Server Action combinada (contador + avanço) deve usar db.transaction(fn) com callback síncrono no driver local atual (better-sqlite3); se o projeto migrar para Turso/@libsql/client no futuro (caminho já documentado no STACK.md original), esse trecho precisa reauditoria — não é um bloqueio agora, só um lembrete a registrar no código (comentário) para o futuro.
-- Valor-piso do threshold de /configuracoes: PITFALLS.md sugere .min(1) mas nota que mesmo 1 tem um caso de borda perceptível ("criado de manhã, marcado como parado à noite") — decisão de UX final (qual piso exato e a cópia de texto ao redor) fica para o plano da Fase 7, não é uma lacuna de pesquisa técnica.
+- **Conflito STACK/FEATURES vs. ARCHITECTURE/PITFALLS sobre modelagem de origem/Inbound×Outbound:** STACK.md e FEATURES.md recomendam uma tabela governada `origens` (nome + tipo inbound/outbound), substituindo `leads.origem` por uma FK (`origemId`). ARCHITECTURE.md e PITFALLS.md recomendam manter `leads.origem` como texto livre (preserva a variável de personalização `{origem}` em templates, já em uso) e adicionar uma coluna paralela `origemTipo` (enum fechado, dicotomia de negócio, não lista aberta). **Como tratar:** resolver explicitamente no início da Fase 1, antes de qualquer schema change — a leitura de ARCHITECTURE.md é mais recente e considera um ponto técnico concreto (personalização de template) que STACK.md/FEATURES.md não abordaram; recomenda-se usar essa decisão como ponto de partida da discussão de fase, mas validar com o usuário se a granularidade de origem específica (ex. "Instagram Ads" vs. apenas "inbound") é um requisito real antes de descartar a tabela `origens`.
+- **Governança de `motivoPerda`:** ambas STACK.md e FEATURES.md sugerem promover para tabela governada "se o texto livre mostrar fragmentação real" — decisão adiável, mas deve ser tomada explicitamente na Fase 5, não assumida.
+- **Compatibilidade `recharts` 3.x com React 19:** relatos de conflito de peer dependency via `react-is` (confiança MÉDIA-BAIXA, fontes de comunidade não oficiais) — só relevante se/quando o painel de métricas evoluir para gráfico visual; confirmar com instalação real, não travar decisão agora.
+- **Reset de `sequenciaPosicao`:** comportamento em aberto (fechar/perder lead vs. voltar para "novo") — resolver em discussão de fase 3, não pesquisa adicional.
+- **Decisão de soft-delete por tabela nova** (`interacoes`, `followUpSequenciaEtapas`, `tarefas`): ARCHITECTURE.md recomenda não adicionar `deletedAt` especulativamente (YAGNI); PITFALLS.md reforça que essa decisão precisa ser explícita e documentada (tipo D-XX) por tabela, com guard `no-hard-delete` atualizado no mesmo commit — tratar como checklist obrigatório em cada fase que cria tabela nova.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Leitura direta do código-fonte do projeto (src/db/schema.ts, src/actions/lead-actions.ts, src/components/whatsapp-preview-dialog.tsx, src/components/pipeline-board.tsx, src/app/pipeline/page.tsx, src/hooks/use-first-contact-trigger.ts, src/components/lead-form-dialog.tsx, src/app/importar/[batchId]/page.tsx, src/db/migrations/0002_backfill-fechado-perdido-split.sql) — base de todas as 4 pesquisas
-- .planning/PROJECT.md — escopo textual exato do milestone v1.2 e requisitos Active
-- .planning/STATE.md — item deferred "race condition de Perdido em sequência", usado como precedente de enquadramento para o Pitfall 5
-- support.pipedrive.com — The Rotting Feature — doc oficial, confirma padrão comercial equivalente à Feature 3
+- Leitura direta do código-fonte do projeto: `src/db/schema.ts`, `src/db/client.ts`, `src/db/queries.ts`, `src/actions/lead-actions.ts`, `src/lib/validations.ts`, `src/lib/csv-import.ts`, `src/lib/whatsapp.ts`, `src/components/*`, `scripts/guard-no-hard-delete.cjs`
+- Query direta contra `data/crm.db` via `better-sqlite3` (`SELECT origem, COUNT(*) FROM leads GROUP BY origem`) — dado real, não hipotético
+- `.planning/PROJECT.md` e `.planning/todos/pending/*.md` — requisitos e decisões já validadas pelo usuário
+- npm registry (versões ao vivo) — HIGH confidence para todas as versões citadas no STACK.md
+- [ui.shadcn.com/docs/components/chart](https://ui.shadcn.com/docs/components/chart) — confirma Recharts sob o `shadcn add chart`
 
 ### Secondary (MEDIUM confidence)
-- WebSearch convergente sobre "deal rotting"/"stale deal" configurável por etapa (Zoho Idle Deal Alert, Freshworks staling age)
-- WebSearch sobre auto-avanço de etapa por atividade em CRMs comerciais (sempre via regra explícita configurada, nunca implícito)
-- WebSearch sobre contadores de tentativa em ferramentas de cadência de vendas (Outreach, Salesloft, Apollo)
+- WebSearch convergente sobre "Lead Source field deve ser dropdown, não texto livre" e "Loss Reason field controlled picklist" (nimble.com, default.com, onepagecrm.com, capsulecrm.com) — base da recomendação de governar `origem`/`motivoPerda`
+- WebSearch sobre modelo de dados de Activity/Timeline em CRM (geeksforgeeks.org, mriacrm.com) — consenso amplo, não tendência recente
+- WebSearch "solo founder CRM avoid automation/AI complexity" — base das anti-features recomendadas
 
 ### Tertiary (LOW confidence)
-- WebSearch sobre "false positive" de automação de CRM ao marcar contato por clique — resultados adjacentes (phishing/simulação), não um precedente específico de WhatsApp, mas o princípio (clique != entrega confirmada) é bem estabelecido e usado para justificar a decisão de anti-feature já validada em PROJECT.md
+- Relatos de GitHub issues sobre conflito de peer dependency `recharts@3.x` + `react-is` + React 19 — não é changelog oficial, reconfirmar na instalação real se/quando adotado
 
 ---
-*Research completed: 2026-07-30*
-*Ready for roadmap: yes*
+*Research completed: 2026-08-01*
+*Ready for roadmap: yes (condicionado à resolução do gap de schema da Fase 1 documentado acima)*

@@ -1,268 +1,255 @@
 # Pitfalls Research
 
-**Domain:** Adding stage-mutating side effects to an existing `<a href="wa.me/...">` outreach flow (auto-advance, attempt counter, per-stage stale-config) in a solo-admin Next.js/Drizzle/SQLite CRM
-**Researched:** 2026-07-30
-**Confidence:** HIGH (all findings verified directly against this project's own source — `src/components/whatsapp-preview-dialog.tsx`, `src/components/pipeline-board.tsx`, `src/actions/lead-actions.ts`, `src/db/schema.ts`, `src/app/pipeline/page.tsx` — not generic web-dev advice)
+**Domain:** Adicionar 6 features (Inbound×Outbound, timeline de interações, sequência de follow-up escalonada, painel de métricas, relatório de motivos de perda, agenda/tarefas soltas) a um CRM solo Next.js 16 + Drizzle/SQLite já em produção real, sem cron/job runner, host de 4GB RAM, `drizzle-kit push` (não `generate`) contra um arquivo `.db` local com dados reais
+**Researched:** 2026-08-01
+**Confidence:** HIGH (achados verificados diretamente no código-fonte e nos dados reais do `data/crm.db` deste projeto — não é pesquisa genérica de CRM)
 
-## Codebase Facts That Change the Shape of This Work
+## Fatos do Código/Dados Que Mudam o Formato Deste Trabalho
 
-Before the pitfalls: two facts from reading the actual code correct assumptions implicit in the milestone brief and should drive how the roadmap phases this work.
+Antes dos pitfalls: fatos coletados direto do repositório e do banco local que corrigem suposições implícitas no milestone e devem orientar como as fases são desenhadas.
 
-1. **There is only ONE "Abrir WhatsApp" anchor in the whole app**, not four. `pipeline-board.tsx`, `followup-dashboard.tsx`, `lead-table.tsx`, and `post-import-lead-list.tsx` each keep their own local `PreviewState` (which lead/which subnicho is being previewed), but all four render the *same* `<WhatsAppPreviewDialog>` component, and the actual `<a href={waHref}>` element with the `onClick` that fires when the message is actually sent lives in exactly one place: `src/components/whatsapp-preview-dialog.tsx` lines 165-178. This is good news — the auto-advance/counter logic belongs in that one file, not duplicated four times — but it is also the single biggest risk: if an implementer instruments the wrong click handler (see Pitfall 1 below), the bug is instantly system-wide across all four surfaces.
-
-2. **The CSV batch-import flow does NOT auto-open the WhatsApp dialog.** `src/app/importar/[batchId]/page.tsx` and `post-import-lead-list.tsx` explicitly say "nunca dispara modais automaticamente em sequência" (D-13) — every send after a bulk import is a manual click. Only the **single manual lead-creation flow** (`LeadFormDialog` → `useFirstContactTrigger`) auto-opens the dialog, and only after `createLead` returns success (`lead-form-dialog.tsx` lines 121-134). The milestone brief's "auto-opens right after lead creation/import" conflates these two flows — plan and test them as two distinct cases, not one.
+1. **`origem` já tem dados reais inconsistentes.** Query direta em `data/crm.db` (`SELECT origem, COUNT(*) FROM leads GROUP BY origem`) retorna hoje: `"Importação CSV"` (28 linhas — default do wizard de import, `CSV_DEFAULTS.origem` em `src/lib/csv-import.ts:53`), `"Teste"` (3 linhas) e `"insta"` (2 linhas, digitado à mão, minúsculo). O campo é um `<Input>` de texto livre (`lead-form-dialog.tsx:247`) validado só por `z.string().trim().min(1)` (`validations.ts:29`) — não há governança nenhuma hoje. Qualquer plano de "virar enum" precisa lidar com essas 3 variantes reais, não com um schema limpo hipotético.
+2. **`motivoPerda` tem o mesmo problema, adormecido.** É `text("motivo_perda")` nullable, preenchido opcionalmente ao mover lead para "Perdido" (D-03), sem nenhum controle de vocabulário — exatamente o mesmo padrão "free text sem governança" do `origem`, só que ninguém percebeu ainda porque não existe relatório que agregue por ele. Feature #5 (relatório de motivos de perda) vai expor esse problema no primeiro dia.
+3. **O padrão "computa na leitura, nunca agenda" já existe e funciona.** O "esfriando" (Fase 6/7) não é um job, não é um trigger, não é um valor armazenado: `src/app/pipeline/page.tsx` lê `stageChangedAt` + `getConfiguracoes()` a cada request e calcula `differenceInDays(new Date(), lead.stageChangedAt) >= limite` na hora. Nada "dispara sozinho" — o cálculo só acontece quando alguém abre `/pipeline`. Esse é o único padrão de "automação" que este app já validou em produção, e a sequência escalonada (feature #3) deve copiá-lo, não inventar um scheduler novo.
+4. **`contactAttempts` conta cliques de QUALQUER template, nunca zera.** Comentário no schema é explícito: "acumula pela vida do lead, nunca zera ao mudar de etapa" (WA-08/D-04). Não é um índice de "em qual tentativa da sequência de follow-up este lead está" — é um odômetro vitalício, incrementado em `lead-actions.ts:239` em todo clique de "Abrir WhatsApp", inclusive o primeiro contato.
+5. **O guard automatizado anti-hard-delete só conhece `leads` e `subnichos`.** `scripts/guard-no-hard-delete.cjs` tem os padrões `CODE_PATTERNS`/`CODE_SQL_PATTERNS` hardcoded para essas duas tabelas (linhas 49 e 55-60), por decisão deliberada de escopo (comentário linha 45-48: "NÃO um bloqueio genérico"). A regra do projeto ("nunca hard-delete, toda entidade removível") é uma convenção documentada no `PROJECT.md`, mas o *enforcement automatizado* não se estende sozinho a tabelas novas — `interacoes` e `tarefas` (features #2 e #6) precisam ser adicionadas manualmente ao guard, ou ficam sem essa proteção apesar de a regra do projeto dizer que se aplica a elas.
+6. **WAL mode e foreign keys já estão ligados** (`src/db/client.ts:6,9`) — a base técnica para consultas concorrentes leitura/escrita e integridade referencial já existe; não é algo a configurar do zero nestas features.
 
 ## Critical Pitfalls
 
-### Pitfall 1: Instrumenting the wrong click handler — the per-surface "send" button only *opens* the dialog, it doesn't send anything
+### Pitfall 1: Retrofit de `origem` para enum sem plano de backfill explícito
 
 **What goes wrong:**
-Every surface has its own onClick that opens the preview dialog — `onSendWhatsApp` in `pipeline-board.tsx`, the icon-button `onClick` in `followup-dashboard.tsx`/`post-import-lead-list.tsx` (via `WhatsAppSendButton`), and the named button in `lead-table.tsx`. It's natural, when told "increment on every click of the WhatsApp button" or "auto-advance when the admin contacts via WhatsApp," to hook these four `onClick`s. That's wrong: clicking these only opens the editable preview textarea — no message has been sent, no WhatsApp tab has opened, and the admin can still change the template type or cancel. The actual "the admin contacted this lead" moment is a single anchor click deeper inside `WhatsAppPreviewDialog`, at `whatsapp-preview-dialog.tsx:165-178`.
+Tentar transformar a coluna `origem` (ou adicionar uma nova coluna governada, ex. `origemTipo` enum `inbound`/`outbound`) direto via `drizzle-kit push`, assumindo que os dados existentes vão "simplesmente" se encaixar. Em SQLite, adicionar um `CHECK`/enum simulado numa tabela com linhas existentes força o Drizzle a reconstruir a tabela inteira (criar nova, copiar dados, apagar antiga, renomear). Se qualquer linha existente violar o novo `CHECK`, o passo de cópia falha e o `push` aborta no meio — e como o projeto já usa `push` (não `generate`), não existe um arquivo de migração versionado para revisar antes de rodar, nem uma migration anterior "limpa" para reverter para (o snapshot de migração já está divergente, per contexto do milestone).
 
 **Why it happens:**
-The four surface-level handlers are literally named `onSendWhatsApp` / labelled "Enviar WhatsApp" / "WhatsApp" — the naming in the existing codebase itself invites confusion between "open the compose dialog" and "send." Cross-referencing spec language ("a todo clique em Abrir WhatsApp") against the actual button labels ("Enviar WhatsApp") makes it easy to instrument the outer button by mistake.
+O schema atual (`src/db/schema.ts`) não tem nenhuma coluna de enum com dados pré-existentes desalinhados — `stage`, `canal`, `tipo` (templates) nasceram todos já como enum, sem retrofit. Este é o primeiro enum retrofit do projeto; não existe precedente local para copiar, e é fácil escrever a migração pensando só no schema-alvo, esquecendo que o `data/crm.db` já tem `"Importação CSV"`, `"Teste"` e `"insta"` — nenhuma das três é claramente "inbound" ou "outbound" sem uma regra de mapeamento explícita.
 
 **How to avoid:**
-Add the mutation call (stage-advance + counter) exclusively inside `WhatsAppPreviewDialog`'s existing `<a href={waHref} onClick={...}>` (the branch that renders when `waHref` is truthy), never in the four callers. This is also why fact #1 above matters for phase-sizing: this is a one-file change to the shared dialog, not four parallel changes.
+1. Antes de tocar no schema, rodar a query de distinct values contra `data/crm.db` (feito nesta pesquisa: 3 valores, 33 linhas) e decidir explicitamente o mapeamento de cada um.
+2. Não reaproveitar a coluna `origem` free-text para virar o enum. Adicionar uma coluna nova (`origemTipo` ou nome equivalente), nullable ou com `.default()` explícito, mantendo `origem` como está (rótulo livre continua útil para o cowork/CSV). Isso elimina o risco de `push` falhar por violação de `CHECK` em dado existente, porque a coluna nova nasce sem constraint quebrada — o enum se aplica só a valores novos.
+3. Rodar um script de backfill explícito (não confiar em default silencioso) que classifica as 33 linhas atuais com uma regra documentada (ex.: tudo que veio de `importBatchId` não-nulo = outbound, porque é lead do cowork que o admin aborda por iniciativa própria; entradas manuais tipo "insta" ficam pendentes de revisão humana, não adivinhadas).
+4. Como não há migration history confiável, testar o `push` primeiro contra uma cópia do arquivo (`copy data\crm.db data\crm.db.bak` no PowerShell) antes de rodar contra o banco que o admin usa de verdade.
 
 **Warning signs:**
-Counter increments the moment the dialog opens (before the admin ever sees the message text); a lead auto-advances to "Contatado" the instant `LeadFormDialog`'s auto-trigger opens the dialog on creation, even if the admin immediately hits Cancel.
+`drizzle-kit push` reportar um passo de "recreate table" para `leads` sem que isso tenha sido esperado; qualquer linha após a migração com `origemTipo` null quando a UI assume não-null; total de leads na Kanban divergindo do total antes da migração (sinal de que a reconstrução de tabela perdeu linhas).
 
 **Phase to address:**
-The phase implementing auto-advance + counter (single task: modify `whatsapp-preview-dialog.tsx` only).
+Feature #1 (Separação Inbound × Outbound).
 
 ---
 
-### Pitfall 2: `preventDefault()` + await-then-`window.open()` breaks the anchor and triggers popup blockers
+### Pitfall 2: Derivar Inbound/Outbound fazendo parsing do texto livre existente em vez de um campo explícito
 
 **What goes wrong:**
-The current "Abrir WhatsApp" element is a real `<a href={waHref} target="_blank">` — `waHref` is already computed synchronously on every render from the live `texto` state (see the component's own doc comment, line 56-57: "o `href`... nunca memoizado do texto original"). The natural-looking way to "run a server mutation before sending" is `onClick={async (e) => { e.preventDefault(); await advanceStage(...); window.open(waHref) }}`. This breaks silently for the admin: because `window.open()` is no longer inside the synchronous call stack of the click event (there's an `await` in between), browsers treat it as a non-user-initiated popup and block it — the admin clicks the button and nothing happens, with no error surfaced anywhere in this app (there's no popup-blocked toast today).
+Uma tentação natural, dado que `origem` já existe, é "inferir" inbound/outbound automaticamente checando se a string contém `"insta"`, `"anúncio"`, `"tráfego"`, etc. Isso parece economizar uma migração, mas é frágil: quebra silenciosamente assim que o cowork mandar um CSV com uma coluna de origem escrita diferente, ou o admin digitar algo novo no formulário manual — e ninguém percebe, porque não há erro, só uma classificação errada (exatamente o "bug silencioso, sem erro, só oportunidade perdida" que o próprio problem statement da feature #1 descreve para o cenário sem separação nenhuma).
 
 **Why it happens:**
-It feels safer to "confirm the mutation succeeded before opening WhatsApp," but that safety assumption is backwards for this feature: the anchor's `href` navigation and the server mutation are independent outcomes, and the app cannot know or control whether the admin actually sends the WhatsApp message anyway (per the milestone framing — "no way to know whether the admin actually sent the message in WhatsApp afterward"). Blocking navigation on the mutation buys no real correctness, only breaks the working link.
+`origem` já existe e "parece" carregar essa informação, então classificar por string matching parece um atalho razoável para não adicionar coluna nova. Mas o campo foi desenhado (e usado até hoje) como rótulo livre de exibição, não como fonte de verdade de uma decisão de comportamento do sistema.
 
 **How to avoid:**
-Keep the anchor a real `<a href>` with no `preventDefault()`. Fire the Server Action as a non-blocking side effect in the *same* `onClick` (`startTransition(() => { void advanceContact(...) })` or equivalent), and let the browser's native anchor navigation proceed on its own synchronous path exactly as it does today (the dialog already closes via `onOpenChange(false)` in the same handler without blocking navigation — follow that existing precedent). If the mutation fails, surface it via a toast *after* the tab has already opened, don't gate the open on it.
+Inbound/Outbound deve ser um campo explícito, com um controle de UI explícito (dropdown/toggle no formulário, não inferido), e um default deliberado e documentado por ponto de entrada: import CSV do cowork = outbound por padrão (é lista que o admin aborda por iniciativa própria); criação manual = admin escolhe explicitamente, sem default "adivinhado" a partir do texto de `origem`. Nunca escrever um `if (origem.includes(...))` como lógica de negócio.
 
 **Warning signs:**
-"Abrir WhatsApp" silently does nothing on some clicks but works on others (classic popup-blocker symptom); works when devtools/network throttling is off but fails under slow network (mutation takes longer, exceeding the browser's synchronous-gesture window).
+Qualquer `.includes()`/regex sobre `leads.origem` em código de automação (auto-avanço, esfriando, sequência escalonada) — isso é sinal de que a classificação está sendo inferida em vez de lida de um campo governado.
 
 **Phase to address:**
-The phase implementing auto-advance + counter — mark as an explicit non-goal in the plan ("no preventDefault, no await-before-open") so the plan-checker/reviewer catches an implementation that violates it.
+Feature #1 (Separação Inbound × Outbound).
 
 ---
 
-### Pitfall 3: Gating on the wrong "template type" — `defaultTipo` prop vs. live `tipo` state
+### Pitfall 3: Relatório de motivos de perda sobre um campo que ainda é texto livre
 
 **What goes wrong:**
-`WhatsAppPreviewDialog` receives a `defaultTipo` prop from its caller (`"primeiro_contato"` from pipeline/lead-table/post-import, `"follow_up"` from the dashboard) but the admin can change the actual type via the "Tipo de mensagem" `<Select>` before clicking send — `tipo` is separate `useState`, reinitialized from `defaultTipo` only on open (lines 68, 75-87). Gating auto-advance on the `defaultTipo` *prop* rather than the live `tipo` *state* produces two wrong behaviors: (a) a lead opened from the dashboard (`defaultTipo="follow_up"`) where the admin manually switches to "1º contato" and sends would NOT auto-advance, even though the spec gates on template type alone, surface-agnostic ("todas as telas onde o botão aparece"); (b) a lead opened from the pipeline (`defaultTipo="primeiro_contato"`) where the admin switches to "Follow-up" before sending WOULD incorrectly auto-advance, because the prop still says primeiro_contato even though the rendered/sent message is a follow-up.
+`motivoPerda` é `text` nullable, preenchido à mão desde a Fase 3, sem nenhum controle de vocabulário — o mesmo problema do `origem`, só que ainda não descoberto porque nunca foi agregado. Construir o relatório da feature #5 direto em cima dele, agrupando por igualdade de string exata, vai produzir uma cauda longa de "motivos" quase-duplicados ("sem verba", "Sem orçamento", "não tinha dinheiro") em vez de categorias úteis — um relatório que parece pronto mas não serve para identificar padrão nenhum, o problema exato que a feature #5 existe para resolver.
 
 **Why it happens:**
-`defaultTipo` is the value available at the call site (easy to read from the parent component's own state), while `tipo` only exists inside the dialog's internals — a developer wiring the gate from outside the dialog (e.g., in the parent's `onOpenChange` or based on the prop passed in) will reach for the more visible value.
+O campo foi implementado na Fase 3 como um campo de nota opcional, sem que houvesse (ainda) um consumidor que dependesse de agregação — só virou um problema quando outro item do backlog (o relatório) tenta consumi-lo de um jeito que o campo nunca foi desenhado para suportar.
 
 **How to avoid:**
-Gate exclusively on the dialog's own live `tipo` state, read at the moment of the "Abrir WhatsApp" click (`tipo === "primeiro_contato"`), never on the `defaultTipo` prop. This resolves the milestone's open question directly: **click-time selected type, not dialog-open-time default.**
+Antes de construir o relatório, decidir se `motivoPerda` vira um enum governado com opção "Outro" + texto livre complementar (mesmo padrão de retrofit do Pitfall 1 — nova coluna, backfill explícito das linhas antigas, sem tentar auto-classificar o texto livre já existente) ou, no mínimo, se o relatório normaliza (trim + lowercase) e agrupa "não especificado" separadamente das entradas reais. Não construir o relatório assumindo que a string já está limpa.
 
 **Warning signs:**
-A lead contacted with a "1º contato" message from the dashboard doesn't advance; a lead contacted with a "Follow-up" message from the pipeline board advances anyway.
+Relatório com dezenas de linhas de contagem = 1; nenhuma categoria representando mais de ~20% dos leads perdidos (sinal de fragmentação, não de motivos genuinamente diversos).
 
 **Phase to address:**
-Same phase — this is a one-line condition inside the same `onClick`, but needs an explicit test case covering "type switched away from surface default" in both directions.
+Feature #5 (Relatório de motivos de perda) — mas a decisão de governar ou não o campo deveria ser tomada antes, idealmente perto da feature #1 (mesma classe de problema).
 
 ---
 
-### Pitfall 4: Auto-advance gate must be re-checked server-side, atomically, immediately before the write — never trust the client's `lead.stage`
+### Pitfall 4: Tratar a "sequência de follow-up escalonada" como se fosse um scheduler ativo
 
 **What goes wrong:**
-The dialog receives `lead: Lead` as a prop, captured at the moment `setPreviewState({ lead, ... })` ran in the parent. If the gate check ("only advance when currently in Novo") is done client-side against this prop (`lead.stage === "novo"`), it can be stale: the lead could have been dragged to a different column (via the pipeline board's optimistic drag-and-drop) in the seconds between the dialog opening and the admin clicking send, or another browser tab/window could have changed it. A stale-read gate could incorrectly auto-advance a lead that's actually already in Negociação, or skip advancing one that raced back into Novo.
+O nome "sequência escalonada" convida a pensar em termos de "o sistema detecta automaticamente que não houve resposta e reagenda sozinho" — mas este é um app request-driven, sem cron, sem job runner, sem deploy público (decisão já tomada: só local, sem deploy). Nada roda a menos que uma página seja carregada ou o admin clique em algo. Se o design assumir que o "próximo follow-up" vai "avançar sozinho" com o tempo, ele nunca vai avançar — porque não existe processo nenhum rodando em background para perceber que o prazo passou.
 
 **Why it happens:**
-The `lead` prop looks authoritative because it came from the server-rendered page originally, but by click time it's just cached client state — exactly the same class of bug the project already hit and fixed once for `updateLeadStage` (SELECT-then-compare pattern, `lead-actions.ts` lines 113-121, explicitly commented "PIPE-03, gap #2").
+"Sequência escalonada" e "reagendar automaticamente" soam como comportamento passivo/temporal, quando na prática a única coisa que este app pode fazer é *recalcular*, no momento em que alguém olha a tela ou confirma uma ação, o que o próximo intervalo deveria ser — exatamente como o "esfriando" já funciona (Fato #3 acima). É fácil desenhar a feature nova sem notar que ela está pedindo implicitamente um comportamento que o app inteiro não tem em nenhum outro lugar.
 
 **How to avoid:**
-Do the "is this lead currently in Novo" check inside the new Server Action itself, via a fresh `SELECT stage FROM leads WHERE id = ? AND deletedAt IS NULL` immediately before the conditional `UPDATE` — reuse the exact SELECT-then-compare shape already established in `updateLeadStage`. Never gate on the client-held `lead.stage`.
+Copiar o padrão já validado do "esfriando": a data de próximo follow-up é sempre um campo armazenado e editável (`followUpDate`, já existe), e a "escalada" só decide *qual valor escrever nele* — calculado de forma síncrona dentro de uma Server Action, disparada por uma ação explícita do admin (ex.: botão "sem resposta, agendar próximo contato" na tela do lead), nunca por um timer. O painel de follow-up vencidos/hoje/próximos-7-dias que já existe (`groupLeadsByUrgency`) continua sendo o único mecanismo de "lembrete" — a feature nova decide a data, não decide *quando notificar* (isso já é resolvido pelo dashboard existente).
 
 **Warning signs:**
-A lead dragged to Negociação seconds before the admin sends a queued-up "1º contato" message gets silently bounced back toward Contatado logic, or a stage regression/re-advance the milestone explicitly forbids ("sem regredir/re-avançar leads já além de Contatado") slips through under race timing.
+Qualquer menção em spec/código a "detectar automaticamente falta de resposta", "disparar reagendamento no dia N", ou expectativa de que um badge mude de estado sem o admin ter aberto o app naquele dia.
 
 **Phase to address:**
-The phase implementing the new Server Action — success criteria should include "gate check reads current DB state, not a prop," verifiable by code review of the action, not just UI testing.
+Feature #3 (Sequência de follow-up escalonada).
 
 ---
 
-### Pitfall 5: Same-lead race between the new WhatsApp-triggered stage mutation and the existing drag-and-drop optimistic-update-with-revert path
+### Pitfall 5: Reaproveitar `contactAttempts` como índice da sequência escalonada
 
 **What goes wrong:**
-`PipelineBoard` already has one documented, still-open race in this project's own deferred UAT ("race condition de 'Perdido' em sequência"). Adding a *second* independent path that can call a stage-mutating Server Action for the same lead (the WhatsApp dialog's auto-advance, which is NOT wired into `useOptimistic`/`startTransition` in `pipeline-board.tsx` at all) creates a second, structurally similar race: if the admin drags a card to a new column and, within the same window, also opens that card's WhatsApp dialog and clicks send (or vice versa — the auto-triggered post-creation dialog fires while the admin is mid-drag), two independent `SELECT-then-UPDATE` calls race against the same row with no locking. Whichever `UPDATE` commits last wins outright, silently discarding the other mutation's intent — and because the drag path is *optimistic* (the card already visually moved before the server confirms), the admin has no way to tell afterward which mutation "won."
+`contactAttempts` parece, à primeira vista, o campo natural para saber "em qual passo da sequência escalonada este lead está" (tentativa 1 → intervalo A, tentativa 2 → intervalo B...). Mas ele conta *todo* clique de "Abrir WhatsApp" na vida do lead — inclusive o primeiro contato, inclusive re-envios do mesmo template, inclusive cliques que nada têm a ver com a lógica de reabordagem por falta de resposta (Fato #4 acima). Usar esse número para indexar os intervalos da sequência faz um lead "pular" passos da escalada sempre que o admin reenviar qualquer mensagem por qualquer motivo, e nunca reflete de fato "quantas vezes tentei reabordar sem resposta".
 
 **Why it happens:**
-The WhatsApp-triggered mutation is a brand-new, separate code path that has no reason to know about `PipelineBoard`'s `useOptimistic` state — they're different components entirely (the dialog is shared/global, the board is one specific surface) — so there's no natural place where "wait, is a drag already in flight for this lead?" gets checked.
+É o único contador que já existe no schema, e reaproveitar código/campo existente parece mais simples do que adicionar um novo — mas os dois contam coisas semanticamente diferentes (D-04 já documenta isso para o propósito original do campo, e essa nota não necessariamente é vista por quem projeta a feature nova).
 
 **How to avoid:**
-Don't try to add cross-component locking (out of proportion for a solo single-tab-at-a-time admin tool). Instead, contain the blast radius: the new auto-advance action should be a narrow, conditional, single-column transition (`novo → contatado` only, gated per Pitfall 4), so the worst case of a lost update is "a lead that should have shown as Contatado still shows Novo" — recoverable by the admin re-opening and re-sending, or via the existing manual stage dropdown — rather than clobbering a `Negociação`/`Perdido`/`Fechado` state the admin explicitly set by hand. Flag this as a known, accepted limitation (same posture as the existing unresolved "Perdido em sequência" race) rather than attempting to fix it in this milestone — fixing both properly would mean serializing writes per-lead (e.g. a DB-level `UPDATE ... WHERE stage = current AND id = ?` with an affected-rows check), which is a larger change than this milestone's scope.
+Introduzir um campo próprio para a sequência (ex.: `followUpSequenceStep`, incrementado *apenas* pela ação explícita "sem resposta, agendar próximo" descrita no Pitfall 4), independente de `contactAttempts`. Os dois contadores devem poder divergir livremente sem que isso seja um bug.
 
 **Warning signs:**
-A lead the admin explicitly dragged to Negociação right after auto-creating it (fast workflow: create → drag → the auto-trigger dialog is still open in the background → admin clicks send) ends up back in "Contatado" after both requests settle.
+Código novo lendo `lead.contactAttempts` para decidir o próximo intervalo de follow-up; um lead que recebeu 2 mensagens de "primeiro contato" reenviadas manualmente pulando direto para o 3º intervalo da sequência sem nunca ter ficado sem resposta de fato.
 
 **Phase to address:**
-The phase implementing auto-advance — document the accepted risk explicitly in the phase's plan/CONTEXT (not silently), and add it as a known limitation next to the existing "Perdido em sequência" one in STATE.md's deferred items if not fully closed by this milestone's UAT.
+Feature #3 (Sequência de follow-up escalonada).
 
 ---
 
-### Pitfall 6: Counter increment and stage-advance as two separate Server Action calls — partial failure leaves inconsistent state
+### Pitfall 6: Guard automatizado anti-hard-delete não protege as tabelas novas por padrão
 
 **What goes wrong:**
-If the same click fires two independent `"use server"` calls (`incrementContactAttempts(leadId)` and `updateLeadStage(leadId, "contatado")`), a failure of the second call after the first succeeds (or vice versa) leaves the lead with an incremented counter but no stage change, or an advanced stage with an uncounted attempt — and because the click also always opens a real `wa.me` tab regardless of server outcome (Pitfall 2), the admin has no visual cue that anything server-side went wrong at all.
+A regra do projeto ("nunca hard-delete, toda entidade removível usa soft-delete") é documentada como permanente no `PROJECT.md`, mas o enforcement automatizado (`npm run guard:no-hard-delete`) só varre por `.delete(leads...)` e `.delete(subnichos...)` — literal, hardcoded (`scripts/guard-no-hard-delete.cjs:49,55-60`). Uma tabela nova `interacoes` (feature #2) ou `tarefas` (feature #6) pode ganhar um botão "excluir" implementado com `db.delete(interacoes)...` ou `DELETE FROM tarefas` cru, e o guard passa verde mesmo assim — dando falsa sensação de que a convenção do projeto está sendo automaticamente protegida quando, na prática, ninguém está checando essas duas tabelas novas.
 
 **Why it happens:**
-The counter ("increments on every click, any template") and the stage-advance ("only Novo, only primeiro_contato") have different gating conditions, which makes it tempting to implement them as two separate, independently-testable actions/calls fired together from the same `onClick`.
+O guard foi escopado deliberadamente só a `leads`/`subnichos` na Fase 1 (comentário explícito no próprio script: "não é um bloqueio genérico"), o que foi uma decisão correta *naquele momento* (outras tabelas, como `templates`, legitimamente têm hard-delete próprio, D-13). Mas isso significa que toda tabela nova que deveria seguir a política de soft-delete precisa de uma decisão explícita e de uma linha nova no guard — não acontece automaticamente.
 
 **How to avoid:**
-Implement one new Server Action (e.g. `registerWhatsAppContact(leadId, tipo)`) that, in a single DB transaction, always increments the attempt counter and conditionally (re-checking current stage server-side per Pitfall 4) advances the stage — one round trip, one atomic write, one success/failure outcome. Note the driver-specific gotcha if this touches `better-sqlite3` (current local driver per STACK.md): its Drizzle `db.transaction(fn)` callback must be **synchronous** (no `await` inside), unlike the `@libsql/client`/Turso driver mentioned as this project's documented future-hosting path, whose transactions are async — if/when the project migrates to Turso later, this transaction code needs re-checking, not just a driver-string swap.
+Ao desenhar `interacoes` e `tarefas`, decidir explicitamente (e documentar, tipo D-13) se cada uma segue soft-delete (`deletedAt`) ou tem hard-delete legítimo — e, se soft-delete, adicionar os padrões correspondentes (`/\.delete\(\s*interacoes\b/`, `/\.delete\(\s*tarefas\b/`, mais os equivalentes de SQL cru) em `CODE_PATTERNS`/`CODE_SQL_PATTERNS` no mesmo commit que cria a tabela — não depois.
 
 **Warning signs:**
-Contact-attempt count for a lead is higher than the number of times its stage actually reflects contact; support/debug sessions where "the counter went up but the card never moved" with no error toast shown.
+`npm run guard:no-hard-delete` passando (exit 0) mesmo depois de adicionar código de exclusão para `interacoes`/`tarefas` — isso não é sinal de que o código está correto, é sinal de que o guard ainda não sabe que essas tabelas existem.
 
 **Phase to address:**
-The phase implementing the new Server Action — success criteria should require "one Server Action call per click," not "one call per concern."
+Feature #2 (Timeline de interações) e Feature #6 (Agenda/tarefas soltas) — cada uma no momento em que sua tabela é criada.
 
 ---
 
-### Pitfall 7: Attempt counter over/under-counts around the existing auto-open first-contact dialog
+### Pitfall 7: Agregações de métricas via N+1 (loop por sub-nicho/origem) e/ou esquecendo o filtro `deletedAt`
 
 **What goes wrong:**
-The existing `useFirstContactTrigger` (`lead-form-dialog.tsx`) auto-opens `WhatsAppPreviewDialog` right after a lead is manually created — but merely *opening* the dialog is not a contact attempt (see codebase fact #2 above: CSV import never auto-opens at all, so this only applies to the single-create flow). Two distinct wrong implementations are easy to reach for: (a) incrementing inside `useFirstContactTrigger.trigger()` or wherever `setPreviewState`/`firstContact.trigger()` is called — this counts every auto-open and every manual re-open as an "attempt" even if the admin closes without sending; (b) incrementing only when the dialog is dismissed via any path (treating "dialog was shown" as "attempt made"), which over-counts admins who close without ever intending to contact.
-
-**How to avoid:**
-The counter increment lives exclusively inside the same `onClick` on the "Abrir WhatsApp" anchor as the stage-advance (Pitfall 1/6) — never in `useFirstContactTrigger`, never in any `setPreviewState`/`onOpenChange` handler. Closing the auto-opened (or manually opened) dialog via Cancel/Escape/outside-click must leave the counter untouched. This also means: a lead can be auto-created, the dialog can auto-open, the admin can close it immediately, and `contactAttempts` correctly stays `0` — write this as an explicit test case, since it's the one most likely to be silently skipped (nothing about the auto-open UI hints that "no counter increment happened" needs verifying).
-
-**Warning signs:**
-Freshly-imported or freshly-created leads the admin has never actually messaged show `contactAttempts: 1` on the pipeline card.
-
-**Phase to address:**
-Same phase as Pitfall 1/6 — cover explicitly in the phase's UAT/verification checklist ("create a lead, close the auto-opened dialog without sending, confirm counter is 0").
-
----
-
-### Pitfall 8: Per-stage settings table with no seeded defaults silently disables the "esfriando" (stale) flag instead of erroring
-
-**What goes wrong:**
-Today the stale threshold is a single hardcoded literal (`differenceInDays(new Date(), lead.stageChangedAt) >= 5`, `contatado` only) computed inline in `src/app/pipeline/page.tsx`. Generalizing this into a settings table read at request time introduces a new failure mode the hardcoded version couldn't have: if the settings table has no row (migration didn't seed it, or a specific stage's row is missing because the config UI only ever wrote rows for stages the admin actually visited), a naive read (`settings.find(s => s.stage === lead.stage)?.dias`) returns `undefined`. `differenceInDays(...) >= undefined` evaluates to `false` in JS, not an error — every lead in that stage silently stops being flagged as stale, with no console error, no failed request, nothing visibly broken. This is worse than the original `stageChangedAt` nullable-backfill bug (already guarded against in this codebase) precisely because it fails *quiet*, not loud.
+Duas variantes do mesmo erro ao construir o painel de métricas (feature #4) e o relatório de motivos de perda (feature #5):
+(1) Montar a matriz sub-nicho × origem × etapa iterando em JS — `for (subnicho of subnichos) { for (origem of origens) { query... } }` — em vez de uma única query `GROUP BY`. Cada query individual é barata neste volume (poucos milhares de leads), mas o padrão diverge do único precedente de agregação que o projeto já tem (o cálculo de "esfriando" processa uma única lista já carregada, em memória, não uma query por lead) e cresce em número de round-trips a cada sub-nicho/origem nova cadastrada.
+(2) Esquecer de filtrar `isNull(leads.deletedAt)` na query de agregação. Toda query "de verdade" hoje no projeto filtra soft-deleted (`getActiveDashboardLeads`, os índices `leads_deleted_at_idx`) — mas é fácil escrever uma nova query de métrica direto contra `leads` sem lembrar desse filtro, porque, ao contrário do dashboard de follow-up, uma query de contagem/agregação não "quebra" visivelmente se incluir lixeira — ela só produz um número sutilmente errado (leads apagados contando como reais no relatório de perda ou no painel de origem), que o admin não tem como perceber sem conferir manualmente.
 
 **Why it happens:**
-A settings table modeled as "one row per stage, created on first save from `/configuracoes`" (the natural CRUD instinct) has no rows at all until the admin visits that page and saves — but the pipeline page reads settings on every load starting the moment this feature ships, long before the admin necessarily visits `/configuracoes` even once.
+Métricas agregadas são o primeiro caso no projeto em que várias entidades (sub-nichos × origens × etapas) precisam ser cruzadas de uma vez — não existe precedente local de `GROUP BY` para copiar, ao contrário do padrão de soft-delete, que é onipresente mas fácil de esquecer justamente por estar implícito em vez de forçado por tipo/constraint.
 
 **How to avoid:**
-Make the migration itself self-seeding: `CREATE TABLE` with `NOT NULL DEFAULT <current hardcoded value>` per stage column (or an `INSERT` of the singleton/three rows in the same migration file that adds the table), so there is no separate "seed step" an admin or deploy process can forget to run. Additionally, keep a defensive fallback constant in the read path (e.g. `const FALLBACK = { novo: 3, contatado: 5, negociacao: 7 }`) used only if a row is unexpectedly missing, so a missing-row bug degrades to "uses a reasonable default" rather than "silently flags nothing."
+Uma única query por seção do painel, usando `groupBy` do Drizzle (`db.select({ origemTipo: leads.origemTipo, count: count() }).from(leads).where(isNull(leads.deletedAt)).groupBy(leads.origemTipo)`), pivotada em JS/UI só depois de já ter os totais agregados pelo banco. Sempre incluir `isNull(leads.deletedAt)` explicitamente em toda query nova de métrica/relatório — não herdar por acidente de uma função existente que talvez não a tenha.
 
 **Warning signs:**
-Right after deploying this feature, the pipeline board shows zero "esfriando" badges anywhere, including on leads that were flagged yesterday under the old hardcoded rule.
+Página de métricas com tempo de carregamento crescendo proporcionalmente ao número de sub-nichos cadastrados (sinal de N+1); total de leads no painel de métricas maior que o total visível em `/pipeline` ou `/leads` (sinal de estar contando leads na lixeira).
 
 **Phase to address:**
-The phase implementing `/configuracoes` — plan should explicitly require the migration to seed defaults matching the current hardcoded `5` for Contatado (no behavior change on day one), not just create an empty table.
-
----
-
-### Pitfall 9: A configured threshold of `0` days flags every lead in that stage the instant it enters it
-
-**What goes wrong:**
-`differenceInDays(now, stageChangedAt) >= N` with `N = 0` is true for a lead that changed stage one second ago (same calendar day → `differenceInDays` returns `0`, and `0 >= 0`). If the new `/configuracoes` form accepts `0` (or doesn't validate at all — e.g., an empty/NaN input coerced to `0`), every lead sitting in that stage — including ones the admin just moved there — immediately renders as "stale/esfriando," which is very likely not what "0 dias parado" intuitively means to a non-technical admin filling out the settings form.
-
-**Why it happens:**
-`0` looks like a safe/valid default for a numeric "days" input, and a Zod schema copy-pasted from elsewhere in the app might only check `z.number().int()` without a `.min(1)`, especially since nothing about the existing hardcoded `5` establishes a precedent for what the floor should be.
-
-**How to avoid:**
-Validate the `/configuracoes` form input with `.int().min(1)` (or whatever floor makes sense — even `1` still has the "created this morning, flagged as parado by evening" edge case worth surfacing in the UI copy) and reject `0`/negative/non-numeric input with a clear inline error, rather than letting it silently persist and produce an all-cards-flagged pipeline.
-
-**Warning signs:**
-Admin sets one stage's threshold low while testing the new settings page and the entire pipeline board turns "esfriando" red/yellow instantly, with no indication whether that's the new config working correctly or a bug.
-
-**Phase to address:**
-Same phase as Pitfall 8 — add to the phase's form-validation success criteria explicitly, not left implicit in "add Zod validation."
+Feature #4 (Painel de métricas) e Feature #5 (Relatório de motivos de perda).
 
 ---
 
 ## Technical Debt Patterns
 
+Atalhos que parecem razoáveis mas criam problema depois.
+
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|--------------------|-----------------|------------------|
-| Two separate Server Action calls (counter, stage) instead of one transaction | Each function stays small/independently testable | Partial-failure inconsistent state (Pitfall 6) with no user-visible error surface | Never for this feature — the anchor-click pattern has no retry/confirmation UI to recover from partial failure |
-| Client-side gate check on `lead.stage`/`defaultTipo` prop instead of server-side re-read | Avoids one extra `SELECT`, feels "instant" | Stale-read races (Pitfall 3, 4) that silently violate the "never regress/re-advance" rule | Never — this rule is a hard invariant per the milestone spec, not a UX nicety |
-| Settings table with no migration-seeded defaults, seeded only via first `/configuracoes` save | Simpler migration, less to test on day one | Silent stale-flag disablement for any stage never explicitly saved (Pitfall 8) | Never — self-seeding in the migration costs one extra `INSERT`/`DEFAULT` clause |
-| Accepting `useOptimistic` divergence between the pipeline board and the WhatsApp-triggered auto-advance | Ships without touching `pipeline-board.tsx`'s dnd/optimistic code at all | Same-lead race with drag-and-drop (Pitfall 5) stays open, mirrors the already-known "Perdido em sequência" gap | Acceptable for this milestone if explicitly documented as a known/accepted limitation, given the narrow blast radius (novo→contatado only) |
+|----------|-------------------|-----------------|------------------|
+| Hardcodar os intervalos da sequência escalonada (ex. `[4, 10, 20]`) direto no código em vez de configurável em `/configuracoes` | Entrega a feature #3 mais rápido, sem tela nova | Repete exatamente o erro que a Fase 7 já corrigiu (o "esfriando" hardcoded em 5 dias só na etapa Contatado) — o admin já pediu explicitamente "intervalos crescentes configuráveis" no todo original; hardcode aqui é reintroduzir a mesma dívida que acabou de ser paga | Só como spike descartável para validar o cálculo antes de desenhar a tela — nunca como entrega final |
+| Gravar a nova interação e atualizar `contactAttempts`/`stage` em duas chamadas separadas (`db.insert` seguido de `db.update`) em vez de uma transação (`db.transaction`) | Menos código para escrever no primeiro corte | Se a segunda chamada falhar (ex. constraint, processo interrompido), a timeline registra uma interação que não bate com o estado real do lead — histórico mentiroso é pior que histórico ausente | Nunca, quando as duas escritas representam o mesmo evento de negócio (ex. "clique em WhatsApp" gerando tanto a interação quanto o incremento do contador) |
+| Deixar `origemTipo`/classificação de motivo de perda como `null` permanente para os 33 leads já existentes, sem backfill explícito | Evita decidir a regra de mapeamento agora | Painel de métricas (#4) e relatório de perda (#5) nascem com uma fatia "não classificado" que nunca some sozinha, distorcendo os primeiros relatórios que o admin vai olhar | Aceitável só se o painel exibir "não classificado" como categoria visível e explícita — nunca se for silenciosamente excluído do total |
 
 ## Integration Gotchas
 
-Not a third-party API integration in the usual sense (per project constraints, `wa.me` is a static link, not a JS-callable API), but the anchor-navigation pattern has its own gotchas worth treating the same way:
+Não há integrações externas novas neste milestone (sem API paga de WhatsApp, sem deploy público) — a "integração" real é com as próprias ferramentas de banco/migração do projeto.
 
 | Integration | Common Mistake | Correct Approach |
-|-------------|------------------|--------------------|
-| `wa.me` anchor + server mutation | `preventDefault()` + `await mutation()` + `window.open()` to "confirm success first" | Keep native `<a href>` navigation untouched; fire the mutation as a non-blocking side effect in the same handler (Pitfall 2) |
-| `better-sqlite3` transaction (local dev driver) | Writing `await`-based async logic inside `db.transaction(fn)`, which works fine on `@libsql/client`/Turso but throws or silently misbehaves on `better-sqlite3`'s synchronous transaction API | Keep the transaction callback fully synchronous when targeting `better-sqlite3`; re-audit if/when this project migrates to Turso (documented future path in STACK.md) |
-| `revalidatePath` after the new Server Action | Assuming all 4 surfaces re-render instantly and consistently after a WhatsApp-triggered stage change, without accounting for a concurrent optimistic drag already in flight on `/pipeline` | Call `revalidatePath("/pipeline")`, `revalidatePath("/")`, `revalidatePath("/leads")` exactly like `updateLeadStage` already does — but don't treat this as a substitute for the server-side re-check in Pitfall 4; revalidation reflects final DB state, it doesn't prevent races |
+|-------------|----------------|-------------------|
+| `drizzle-kit push` contra `data/crm.db` (banco com dados reais, snapshot de migração já divergente) | Rodar `push` direto no arquivo que o admin usa para prospectar, sem cópia de segurança, assumindo que o diff vai ser exatamente o esperado | Copiar `data/crm.db` antes de qualquer `push` que altere `leads`/`origem`/`motivoPerda`; inspecionar o plano de alteração que o `push` mostra antes de confirmar, especialmente se ele mencionar "recreate table" |
+| Link `wa.me` + fluxo de sequência escalonada | Assumir que "enviar a próxima mensagem da sequência" pode ser automatizado a partir do backend (contraria decisão já tomada: sem API paga, sempre clique manual) | A sequência escalonada só decide *quando sugerir* e *qual template sugerir* — o envio continua 100% manual via link `wa.me`, igual a hoje |
 
 ## Performance Traps
 
-Scale is a non-issue here (solo admin, a few thousand leads, SQLite) — no performance traps expected from these 3 features at this project's scale. Not populating this section with speculative entries.
+Padrões que funcionam na escala atual mas merecem atenção se o volume crescer.
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|-----------------|
+| Tabela `interacoes` sem índice em `leadId` (e em `(leadId, createdAt)` para ordenação da timeline) | Nenhum sintoma perceptível na escala atual (poucas dezenas de milhares de linhas é trivial para SQLite/WAL) — o risco é convenção, não performance real hoje | Seguir a convenção já estabelecida no schema (todo FK relevante tem índice: `leads_subnicho_id_idx`, `leads_import_batch_id_idx`) — custo zero de adicionar agora, evita ter que lembrar depois | Só viraria sintoma perceptível em dezenas/centenas de milhares de interações — muito acima da escala real deste projeto (CRM solo, poucos milhares de leads) |
+| Server Components irmãos na mesma página de dashboard/métricas chamando a mesma função de query (ex. `getConfiguracoes()`) de forma independente | Múltiplos round-trips idênticos ao banco na mesma requisição, sem que apareça erro nenhum | Envolver funções de leitura compartilhadas com `React.cache()` (padrão nativo do App Router) quando o painel de métricas tiver múltiplas seções lendo os mesmos dados base | Só relevante quando o painel de métricas (#4) tiver várias seções/gráficos na mesma página — não é um problema hoje porque não existe essa página ainda |
+| Adicionar camada de cache (`unstable_cache`, camada de agregação materializada) para o painel de métricas "por precaução" | Parece proativo/robusto | Complexidade e um novo caminho de invalidação de cache para manter, sem benefício real num app solo local com poucos milhares de linhas — SQLite com WAL já responde queries agregadas simples na casa de milissegundos nesta escala | Nunca vale a pena nesta escala — YAGNI explícito; revisitar só se o app deixar de ser single-admin |
 
 ## Security Mistakes
 
-No new attack surface — no new external inputs, no new auth boundary (solo local-first tool). The one item worth a mention:
+Problemas específicos do domínio, além do básico de segurança web (app é local/single-admin, sem auth por decisão — ver `CLAUDE.md`).
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| `/configuracoes` days-per-stage inputs accepted without server-side Zod validation (only client-side form validation) | A malformed/negative/huge value written directly via a forged request could produce nonsensical pipeline UI (not a security breach given single-admin/no-auth scope, but worth the same server-side validation discipline as `leadSchema`/`stageUpdateSchema` already establish) | Validate with a Zod schema on the Server Action itself, same pattern as `stageUpdateSchema`, not just via the form's `react-hook-form` resolver |
+| Tabelas novas (`interacoes`, `tarefas`) ganharem exclusão hard-delete sem que o guard automatizado saiba disso (ver Pitfall 6) | Perda permanente e silenciosa de histórico de interação com lead de saúde — dado que o projeto trata como nunca-descartável por padrão | Adicionar as tabelas novas ao guard no mesmo commit que as cria, não depois; rodar `npm run guard:no-hard-delete` como parte da checklist de verificação de cada uma dessas duas features |
+| Texto livre de `interacoes` (o que foi dito na conversa) acumulando informação sensível de saúde sem que isso seja uma decisão consciente | Nenhum vetor de exposição externo hoje (app local, sem deploy, sem auth por decisão) — mas se o backlog "Conectar landing page pública" ou export CSV (ambos fora deste milestone) avançarem no futuro, esse texto livre vira o primeiro dado sensível exposto | Não é ação necessária *neste* milestone — só uma nota para quando (se) a feature de export/deploy público for retomada, para não tratar `interacoes` como "só notas soltas sem sensibilidade" |
 
 ## UX Pitfalls
 
+Erros de experiência específicos destas 6 features.
+
 | Pitfall | User Impact | Better Approach |
-|---------|--------------|-------------------|
-| No toast/feedback when the new auto-advance Server Action fails after the WhatsApp tab already opened | Admin has already switched to the WhatsApp tab and sent the message by the time (or without ever knowing) the stage-advance silently failed server-side — they'll trust the pipeline board's stage that never actually happened | Fire the existing `toast.success`/`toast.error` pattern (already used by `handleDragEnd` in `pipeline-board.tsx`) from the new action's result, even though it fires after the tab has opened — better late feedback than none, consistent with the milestone's explicit requirement for a confirmation toast |
-| Threshold of `0`/very low days makes the whole board look "on fire" the first time the admin tries the new settings page | Admin loses trust in the "esfriando" signal entirely after one bad experiment | Validate the floor (Pitfall 9) and consider showing a live preview count ("X leads would show as parado with this value") on the `/configuracoes` form before saving |
-| Counter shown on the pipeline card with no distinction between "attempt via 1º contato" vs "attempt via follow-up/prova de valor" | Admin can't tell from the number alone whether a lead has been genuinely worked or just repeatedly nudged with the same follow-up template | Out of this milestone's stated scope (spec says a single number, any template) — but worth flagging as a likely v1.3 follow-up rather than silently deciding it away |
+|---------|-------------|-------------------|
+| Temperatura automática (quente/morno/frio, item de backlog PME relacionado, deriva de origem + tempo parado) reclassificando leads em massa e silenciosamente sempre que o admin edita `diasParadoContatado`/`diasParadoNovo`/`diasParadoNegociacao` em `/configuracoes` | Um print de tela feito hoje para Instagram (motivo comercial explícito do backlog) pode não bater com o que a tela mostra amanhã sem que o admin tenha tocado em nenhum lead — sensação de "número mentiu" | Se/quando a temperatura for construída, tratá-la como valor 100% derivado e recalculado na leitura (mesmo padrão do "esfriando"), nunca como coluna armazenada editável — e deixar visível, perto do badge, a regra que gerou aquela classificação (ex. tooltip "quente: outbound + contatado há 2 dias"), para a mudança nunca parecer arbitrária |
+| Misturar campo derivado (temperatura, esfriando) com campo editável manualmente na mesma coluna do banco | Uma vez que o admin "corrige" manualmente um valor derivado, ele para de se atualizar sozinho e o admin esquece que aquele lead específico ficou "congelado" para sempre naquele estado | Nunca sobrepor: campos derivados nunca ganham um input de edição manual. Se o admin discorda da classificação automática, a correção é ajustar o sinal de entrada (ex. mudar a etapa, mudar `origemTipo`), não escrever por cima do resultado |
+| Sequência escalonada sugerindo a próxima data mas exigindo que o admin digite a data manualmente de novo no formulário em vez de um botão de um clique que já aplica o valor calculado | Fricção reintroduzida exatamente onde a feature promete eliminar fricção (a mesma lógica de "nunca mais perder follow-up" que já motivou o projeto inteiro) | Botão "aplicar próxima data sugerida" que grava direto via Server Action, com a data ainda editável depois se o admin quiser ajustar — sugestão como padrão, nunca como obrigação |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Auto-advance gate:** Often implemented by checking the `defaultTipo` prop or a stale client-held `lead.stage` — verify the gate reads the dialog's live `tipo` state AND a fresh server-side `SELECT` of current stage, not either alone (Pitfalls 3, 4)
-- [ ] **Contact-attempt counter:** Often wired to the surface-level "open dialog" button or `useFirstContactTrigger` — verify it only fires from the shared `WhatsAppPreviewDialog`'s "Abrir WhatsApp" anchor click, and that closing an auto-opened dialog without sending leaves the count at 0 (Pitfalls 1, 7)
-- [ ] **Stage-advance + counter atomicity:** Often built as two separate Server Action calls — verify it's one transaction, one round trip, with the driver's sync/async transaction constraint respected for `better-sqlite3` (Pitfall 6)
-- [ ] **Settings table defaults:** Often only seeded by the admin's first save on `/configuracoes` — verify the migration itself inserts/defaults all 3 stage rows (or DEFAULTs), matching the current hardcoded `5` for Contatado so day-one behavior doesn't silently regress (Pitfall 8)
-- [ ] **Settings validation floor:** Often left at `.int()` with no `.min()` — verify `0`/negative values are rejected server-side, not just discouraged client-side (Pitfall 9)
-- [ ] **Popup-blocker safety:** Often "fixed" later by someone adding `preventDefault()` to "make it more reliable" — verify no code path between the anchor render and click adds `preventDefault()` + async-before-`window.open()` (Pitfall 2)
+- [ ] **Separação Inbound × Outbound:** Frequentemente falta conectar o campo novo às automações existentes — verificar que auto-avanço de etapa, cálculo de "esfriando" e a futura sequência escalonada de fato leem `origemTipo` e mudam de comportamento, não só que o campo existe e é exibido decorativamente na tela.
+- [ ] **Separação Inbound × Outbound:** Frequentemente falta backfill dos 33 leads já existentes — verificar que não sobra nenhum lead com `origemTipo` null sem que isso seja uma categoria visível ("não classificado") em vez de invisível.
+- [ ] **Timeline de interações:** Frequentemente falta a tabela nova no guard `guard:no-hard-delete` — verificar rodando o guard depois de implementar qualquer exclusão de interação.
+- [ ] **Timeline de interações:** Frequentemente falta atomicidade entre gravar a interação e atualizar `contactAttempts`/`stage` no mesmo evento de clique de WhatsApp — verificar que ambas as escritas estão na mesma transação/query, não em duas chamadas separadas que podem divergir se uma falhar.
+- [ ] **Sequência de follow-up escalonada:** Frequentemente parece "automática" na demonstração mas na verdade só recalcula quando o admin clica em algo — verificar explicitamente que não há expectativa (na spec, na UI, no texto ao admin) de que o sistema "vai lembrar sozinho" sem o app estar aberto.
+- [ ] **Sequência de follow-up escalonada:** Frequentemente os intervalos ficam hardcoded "por enquanto" e nunca viram tela de configuração — verificar que existe alguma forma de o admin editar os intervalos sem mexer em código, replicando o padrão de `/configuracoes` já existente.
+- [ ] **Painel de métricas por origem e sub-nicho:** Frequentemente soma leads da lixeira (soft-deleted) sem ninguém perceber — verificar que toda query do painel filtra `isNull(deletedAt)` e que o total do painel bate com o total visível em `/pipeline`.
+- [ ] **Relatório de motivos de perda:** Frequentemente lista dezenas de "motivos" quase-idênticos por vir de texto livre não normalizado — verificar que a decisão de governar (ou normalizar) `motivoPerda` foi tomada antes de considerar o relatório pronto.
+- [ ] **Agenda/tarefas soltas:** Frequentemente esquece se a tabela `tarefas` segue ou não a política de soft-delete do projeto (a regra diz "toda entidade removível", mas isso exige uma decisão explícita, não é automático) — verificar que existe uma decisão documentada (tipo D-XX) e, se for soft-delete, que o guard cobre a tabela nova.
 
 ## Recovery Strategies
 
+Quando o pitfall acontece mesmo com prevenção, como recuperar.
+
 | Pitfall | Recovery Cost | Recovery Steps |
-|---------|-----------------|-------------------|
-| Counter over/under-counted for some leads after a bad deploy (Pitfall 1 or 7) | LOW | `contactAttempts` is a simple integer column — a one-off UPDATE/migration script can zero it out or recompute a best-effort value; no cascading data loss since nothing else derives from it |
-| Settings table missing rows silently disabled staleness flags (Pitfall 8) | LOW | Ship a follow-up migration that inserts the missing default rows; no data was lost, only a UI signal was dark for a period |
-| Lost-update race between drag-and-drop and WhatsApp auto-advance clobbered a manual stage change (Pitfall 5) | LOW–MEDIUM | Admin can always manually reset the lead's stage via the existing `LeadFormDialog` edit form (stage dropdown) — no destructive/irreversible state, same recovery path as any other stage mistake today |
-| Popup-blocker silently ate a click (Pitfall 2) | LOW | No server state is corrupted (mutation still fires independently of navigation per the fix); admin just re-clicks "Abrir WhatsApp" — but until the code is fixed, this looks like a recurring "the button doesn't work" complaint, worth catching in code review before shipping rather than relying on this being "cheap to recover from" in production |
+|---------|-----------------|------------------|
+| `drizzle-kit push` falhou/corrompeu dados ao adicionar enum em `leads` (Pitfall 1) | LOW (se houver backup) / HIGH (se não) | Restaurar `data/crm.db` a partir da cópia feita antes do `push` (`copy data\crm.db.bak data\crm.db`); reexecutar o `push` com a coluna nova nullable/com default em vez de reaproveitar `origem` diretamente |
+| Guard não cobriu `interacoes`/`tarefas` e um hard-delete real já foi commitado e executado (Pitfall 6) | MEDIUM | Se soft-delete: adicionar `deletedAt` retroativamente e migrar o código de exclusão antes de mais dados serem perdidos; dados já hard-deletados antes da correção não são recuperáveis (sem backup) — comunicar isso ao admin explicitamente, não silenciar |
+| Relatório de motivos de perda lançado já fragmentado por texto livre (Pitfall 3) | LOW | Não é preciso refazer o relatório — normalizar/agrupar os valores existentes com um script de mapeamento (trim+lowercase+dicionário de sinônimos) rodado uma vez sobre os dados atuais, e só depois decidir se vale a pena governar o campo para frente |
+| `contactAttempts` foi usado por engano como índice de sequência escalonada e já está em produção (Pitfall 5) | MEDIUM | Introduzir o campo novo (`followUpSequenceStep`) começando do zero para todos os leads a partir da data da correção — não tentar reconstruir retroativamente "quantos follow-ups sem resposta" cada lead teve a partir de `contactAttempts`, porque essa informação nunca existiu de forma confiável nele |
 
 ## Pitfall-to-Phase Mapping
 
+Como as fases do roadmap devem endereçar estes pitfalls.
+
 | Pitfall | Prevention Phase | Verification |
-|---------|--------------------|-----------------|
-| 1. Wrong click handler instrumented (surface button vs. dialog's send anchor) | Auto-advance + counter phase | Code review confirms all new logic lives inside `whatsapp-preview-dialog.tsx`'s anchor `onClick`, not in the 4 callers |
-| 2. `preventDefault` + await + `window.open` breaks popup | Auto-advance + counter phase | Manual test: click "Abrir WhatsApp" repeatedly under normal network conditions and with Chrome DevTools network throttled to "Slow 3G" — tab must open every time |
-| 3. Gate on `defaultTipo` prop vs. live `tipo` state | Auto-advance + counter phase | Test case: open dialog from dashboard (`defaultTipo="follow_up"`), switch type to "1º contato", send — must advance; open from pipeline (`defaultTipo="primeiro_contato"`), switch to "Follow-up", send — must NOT advance |
-| 4. Client-side stale `lead.stage` gate instead of server re-check | Auto-advance + counter phase | Code review of the new Server Action confirms a fresh `SELECT` immediately precedes the conditional `UPDATE`, mirroring `updateLeadStage`'s existing pattern |
-| 5. Drag-and-drop vs. WhatsApp-auto-advance same-lead race | Auto-advance + counter phase | Documented as accepted/known limitation in the phase's CONTEXT/plan (not silently left out); optionally added to STATE.md deferred items alongside "Perdido em sequência" |
-| 6. Two separate Server Action calls, partial-failure risk | Auto-advance + counter phase | Code review confirms one Server Action, one DB transaction, for both counter increment and conditional stage-advance |
-| 7. Counter double/under-counts around auto-open dialog | Auto-advance + counter phase | UAT case: create a lead manually, let the dialog auto-open, close without sending — `contactAttempts` must remain 0 |
-| 8. Settings table missing seeded defaults | `/configuracoes` phase | Migration review confirms `NOT NULL DEFAULT`/seed `INSERT` for all 3 stages in the same migration that creates the table; smoke test immediately after migration shows identical "esfriando" badges to the pre-migration hardcoded behavior |
-| 9. `0`-day threshold flags everything instantly | `/configuracoes` phase | Form + Server Action both reject `0`/negative input with a visible inline error; no client-only validation |
+|---------|--------------------|----------------|
+| Retrofit de `origem` sem backfill (Pitfall 1) | Feature #1 (Inbound × Outbound) | Query de distinct values rodada e documentada antes do `push`; nenhuma linha com classificação null após a migração sem isso ser intencional e visível |
+| Classificação por parsing de string livre (Pitfall 2) | Feature #1 | Busca por `.includes()`/regex sobre `leads.origem` em código de automação — deve retornar zero ocorrências |
+| Relatório de perda sobre campo não-governado (Pitfall 3) | Feature #5 (mas decisão a tomar já na Feature #1, mesma classe de problema) | Distribuição do relatório revisada manualmente pelo admin antes de considerar a fase concluída — nenhuma categoria "estranhamente fragmentada" |
+| Sequência tratada como scheduler ativo (Pitfall 4) | Feature #3 (Sequência de follow-up escalonada) | Nenhuma menção, em spec/UI/copy, a comportamento que dependa do app estar fechado/em background |
+| `contactAttempts` reaproveitado como índice de sequência (Pitfall 5) | Feature #3 | Campo novo dedicado existe e é usado; `contactAttempts` não aparece em nenhuma lógica de cálculo de próximo intervalo |
+| Guard não cobre tabelas novas (Pitfall 6) | Feature #2 (Timeline) e Feature #6 (Agenda/tarefas) | `npm run guard:no-hard-delete` atualizado no mesmo commit que cria cada tabela nova, com padrões cobrindo-a |
+| Agregação N+1 / esquecer `deletedAt` (Pitfall 7) | Feature #4 (Painel de métricas) e Feature #5 (Relatório de perda) | Cada seção do painel/relatório corresponde a uma única query `GROUP BY`; total do painel bate com total ativo do `/pipeline` |
 
 ## Sources
 
-- `src/components/whatsapp-preview-dialog.tsx` (this project, read directly) — single shared anchor, `tipo`/`texto` live state, existing doc comments on `href` recomputation and dialog-mount precedent — HIGH confidence
-- `src/components/pipeline-board.tsx` (this project, read directly) — existing `useOptimistic`/`startTransition` drag-and-drop pattern, existing "Perdido em sequência" queueing fix (CR-02) as the closest precedent for same-lead races — HIGH confidence
-- `src/actions/lead-actions.ts` (this project, read directly) — existing `updateLeadStage` SELECT-then-compare pattern, existing `stageChangedAt` nullable-backfill precedent referenced (not re-flagged) per instructions — HIGH confidence
-- `src/app/pipeline/page.tsx`, `src/db/schema.ts` (this project, read directly) — current hardcoded `esfriando` threshold (`contatado`, `>= 5` dias) that Feature 3 must generalize and preserve on day one — HIGH confidence
-- `src/hooks/use-first-contact-trigger.ts`, `src/components/lead-form-dialog.tsx`, `src/app/importar/[batchId]/page.tsx`, `src/components/post-import-lead-list.tsx` (this project, read directly) — confirms auto-open exists only for manual single-lead creation, not CSV batch import — HIGH confidence
-- `.planning/STATE.md` deferred items (this project) — exact wording of the still-open "race condition de 'Perdido' em sequência" and 7-day boundary UAT gaps used as precedent framing for Pitfall 5 — HIGH confidence
-- General knowledge: browser popup-blocker behavior requiring `window.open()` to remain in the synchronous user-gesture call stack; `better-sqlite3` vs. `@libsql/client` sync/async transaction API difference (cross-checked against this project's own STACK.md, which documents the Turso migration path) — MEDIUM-HIGH confidence (well-established browser/driver behavior, not independently re-verified against current docs this session, but consistent with training-data knowledge and this project's own documented driver choices)
+- Leitura direta do código-fonte deste projeto: `src/db/schema.ts`, `src/db/queries.ts`, `src/db/client.ts`, `src/actions/lead-actions.ts`, `src/app/pipeline/page.tsx`, `src/lib/csv-import.ts`, `src/lib/validations.ts`, `src/components/lead-form-dialog.tsx`, `scripts/guard-no-hard-delete.cjs` — HIGH confidence, evidência primária.
+- Query direta contra `data/crm.db` via `better-sqlite3` (`SELECT origem, COUNT(*) FROM leads GROUP BY origem`) — HIGH confidence, dado real do projeto, não hipotético.
+- `.planning/PROJECT.md`, `.planning/todos/pending/2026-08-01-*.md`, `.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md` — contexto do milestone e raciocínio de priorização já documentado pelo usuário.
+- WebSearch: "SQLite ALTER TABLE add CHECK constraint enum column existing data drizzle-kit push" (GitHub issues drizzle-team/drizzle-orm #3713, #4131; orm.drizzle.team/docs) — confirma que Drizzle simula enum via `CHECK` + reconstrução de tabela em SQLite, e que há bugs/discussões abertas especificamente sobre alterar enums em tabelas existentes — MEDIUM-HIGH confidence.
+- WebSearch: "better-sqlite3 WAL mode composite index performance thousands of rows single writer" (github.com/WiseLibs/better-sqlite3/docs/performance.md; phiresky's blog) — confirma que WAL + índice é adequado até escalas muito acima da deste projeto (100k+ SELECTs/s documentados) — HIGH confidence, corrobora que a escala atual não é um risco real de performance.
+- WebSearch: "Next.js Server Actions cron-less scheduled reminders" — confirma que cron/background jobs não sobrevivem a ambientes request-driven/serverless sem infraestrutura externa dedicada, reforçando por que o padrão "computa na leitura" já usado neste projeto é a abordagem correta, não um atalho — MEDIUM confidence (nenhuma fonte cobre exatamente este padrão combinado com Server Actions, mas o princípio de "processo não persiste entre requisições" é bem estabelecido).
+- WebSearch: "lead scoring hot warm cold automatic temperature flip-flopping UX" — confirma que sistemas de scoring automático em CRMs enfrentam o mesmo risco de reclassificação frequente/confusa quando o sinal de entrada muda, e que a prática recomendada é tornar a regra visível/transparente — MEDIUM confidence (fontes genéricas de CRM, não específicas deste stack).
 
 ---
-*Pitfalls research for: auto-advance-on-WhatsApp-contact + contact-attempt counter + per-stage stale-config settings (v1.2 milestone)*
-*Researched: 2026-07-30*
+*Pitfalls research for: Milestone v1.3 (Qualificação e Histórico de Leads) — CRM de Leads Área da Saúde*
+*Researched: 2026-08-01*
