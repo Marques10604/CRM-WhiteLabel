@@ -36,6 +36,14 @@ type ActionState =
  *
  * D-02: ao salvar com sucesso, os campos permanecem visíveis com os valores
  * recém-salvos — nunca resetar o formulário nem navegar para outra tela.
+ *
+ * O atributo booleano na tag de abertura do form existe para que a
+ * constraint validation nativa do HTML5 (dos `min={1}` dos inputs) não
+ * intercepte o submit antes do `react-hook-form` rodar — sem ele a
+ * mensagem Zod "Mínimo de 1 dia." nunca renderiza (gap do item 3 de
+ * `07-HUMAN-UAT.md`). A autoridade real de validação continua sendo o
+ * `safeParse` server-side de `saveConfiguracoes` (T-07-06/T-07-01), então
+ * remover esse atributo no futuro só devolve o bug de UX — não remover.
  */
 export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
@@ -78,6 +86,7 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
            o render); a regra do React Compiler não consegue provar isso estaticamente para
            `form.handleSubmit(onSubmit)`, mesmo falso-positivo pré-existente no analog. */
         onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
         className="flex flex-col gap-4"
       >
         <FieldGroup>
