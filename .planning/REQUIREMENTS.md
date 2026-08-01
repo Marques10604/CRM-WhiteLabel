@@ -69,33 +69,35 @@ Explicitly excluded. Documented to prevent scope creep.
 | Cadência de follow-up configurável por lead individual | SEQ-01 é uma sequência global — configuração por lead é complexidade que ninguém pediu ainda |
 | Dashboard de BI completo (gráficos avançados, drill-down) | METRICAS-01/02 usam tabela/números — lib de gráfico (`recharts`) fica adiável pra quando o admin sentir falta na prática (ver STACK.md) |
 | Tabela `origens` governada substituindo `leads.origem` | Considerada (ver `.planning/research/SUMMARY.md` Gaps) e descartada em favor da coluna `origemTipo` mais simples — `origem` livre continua em uso como variável `{origem}` nos templates de WhatsApp |
-| Governança formal de `motivoPerda` (enum) | Mesma classe de problema do `origem`, mas adiada pra decisão explícita na Fase 5 (relatório de motivos de perda) — pode virar normalização leve (trim/lower) em vez de campo governado, dependendo do quanto o texto livre fragmentar o relatório na prática |
+| Governança formal de `motivoPerda` (enum) | Mesma classe de problema do `origem`, mas adiada pra decisão explícita na Fase 11 (relatório de motivos de perda) — pode virar normalização leve (trim/lower) em vez de campo governado, dependendo do quanto o texto livre fragmentar o relatório na prática |
 
 ## Traceability
 
-Preenchido pelo roadmapper na criação do roadmap.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ORIGEM-01 | TBD | Pending |
-| ORIGEM-02 | TBD | Pending |
-| ORIGEM-03 | TBD | Pending |
-| TIMELINE-01 | TBD | Pending |
-| TIMELINE-02 | TBD | Pending |
-| SEQ-01 | TBD | Pending |
-| SEQ-02 | TBD | Pending |
-| SEQ-03 | TBD | Pending |
-| METRICAS-01 | TBD | Pending |
-| METRICAS-02 | TBD | Pending |
-| PERDA-01 | TBD | Pending |
-| TAREFA-01 | TBD | Pending |
-| TAREFA-02 | TBD | Pending |
+| ORIGEM-01 | Phase 8 | Pending |
+| ORIGEM-02 | Phase 8 | Pending |
+| ORIGEM-03 | Phase 10 | Pending |
+| TIMELINE-01 | Phase 9 | Pending |
+| TIMELINE-02 | Phase 9 | Pending |
+| SEQ-01 | Phase 10 | Pending |
+| SEQ-02 | Phase 10 | Pending |
+| SEQ-03 | Phase 10 | Pending |
+| METRICAS-01 | Phase 11 | Pending |
+| METRICAS-02 | Phase 11 | Pending |
+| PERDA-01 | Phase 11 | Pending |
+| TAREFA-01 | Phase 12 | Pending |
+| TAREFA-02 | Phase 12 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 13 total
-- Mapped to phases: 0 (roadmap pendente)
-- Unmapped: 13 ⚠️ (normal antes da criação do roadmap)
+- Mapped to phases: 13/13 ✓
+- Unmapped: 0
+
+**Notes:**
+- ORIGEM-03's observable behavior (Inbound lead never gets a suggested next follow-up date) can only be verified once the escalating sequence itself exists — mapped to Phase 10 (Sequência de Follow-up Escalonada) rather than Phase 8, even though the underlying `origemTipo` field is built in Phase 8. Phase 10 depends on Phase 8 for this reason.
+- METRICAS-01/02 and PERDA-01 combined into a single Phase 11 ("Painel de Métricas e Relatório de Motivos de Perda") — shared `/relatorios` page infrastructure, consistent with `granularity: coarse` in `config.json` (target 3-5 phases per milestone) and with research SUMMARY.md's own note that these two were "sequenced near" each other for infra reuse, not blocked by data dependency between them.
 
 ---
 *Requirements defined: 2026-08-01*
-*Last updated: 2026-08-01 after research + requirement scoping (milestone v1.3)*
+*Last updated: 2026-08-01 — roadmap created (milestone v1.3), traceability filled, coverage 13/13*

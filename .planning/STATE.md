@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: planning
-last_updated: "2026-08-01T19:16:50.336Z"
+last_updated: "2026-08-01T19:45:00.000Z"
 last_activity: 2026-08-01
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.3 (Qualificação e Histórico de Leads) — definindo requisitos e roadmap
+**Current focus:** Milestone v1.3 (Qualificação e Histórico de Leads) — roadmap criado (Fases 8-12), pronto para planejar a primeira fase
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-08-01 — Milestone v1.3 started
+Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — primeira fase do milestone v1.3
+Plan: — (roadmap criado, nenhum plano detalhado ainda)
+Status: Ready to plan
+Last activity: 2026-08-01 — ROADMAP.md criado para v1.3 (5 fases: 8-12), REQUIREMENTS.md traceability preenchida (13/13 requisitos mapeados)
+
+Progress: [░░░░░░░░░░] 0% (v1.3)
 
 ## Performance Metrics
 
@@ -72,6 +74,8 @@ Last activity: 2026-08-01 — Milestone v1.3 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- Roadmap v1.3: 5 fases (8-12), não 6 como o `research/SUMMARY.md` sugeriu — Painel de Métricas (METRICAS-01/02) e Relatório de Motivos de Perda (PERDA-01) combinados numa única Phase 11, por compartilharem a mesma infraestrutura de página `/relatorios` e por `config.json` pedir granularidade `coarse` (3-5 fases)
+- Roadmap v1.3: ORIGEM-03 (gate Inbound não recebe sugestão de sequência) mapeado para Phase 10 (Sequência), não Phase 8 (Origem) — o comportamento observável só existe quando a própria sequência escalonada existe; Phase 10 depende de Phase 8 por causa disso
 - Roadmap v1.1: Phase 5 única (não múltiplas fases) — escopo de IMPORT-04/IMPORT-05 é pequeno e contido, um plano de goal único (dividido em tasks se necessário) é mais apropriado que fases artificiais
 - Roadmap: Templates fixos de WhatsApp (não IA generativa) no v1
 - Roadmap: Link wa.me pré-preenchido em vez de envio automático via API
@@ -113,18 +117,18 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-Backlog registrado em 2026-08-01 a partir de uma varredura de ideias externa (`C:\Users\Vencedor\Desktop\Ideias.txt`) — nada implementado, só registrado. Ver `PROJECT.md` seção Active para a lista completa com prioridade e links.
+Backlog registrado em 2026-08-01 a partir de uma varredura de ideias externa (`C:\Users\Vencedor\Desktop\Ideias.txt`) — os 6 itens de alto valor abaixo agora têm requisito (REQUIREMENTS.md) e fase mapeada em ROADMAP.md (Fases 8-12); os arquivos de todo continuam em `pending/` até a fase correspondente ser executada e fechada.
 
-**Alto valor (ordem de prioridade):**
+**Alto valor (agora mapeados em fases do roadmap v1.3):**
 
-1. [Separação Inbound x Outbound](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
-2. [Timeline de interações por lead](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
-3. [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general (pendência original de 2026-07-21)
-4. [Painel de métricas por origem e sub-nicho](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
-5. [Relatório de motivos de perda](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
-6. [Agenda/tarefas soltas](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
+1. [Separação Inbound x Outbound](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md) → Phase 8 (ORIGEM-01/02) + Phase 10 (ORIGEM-03)
+2. [Timeline de interações por lead](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md) → Phase 9 (TIMELINE-01/02)
+3. [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) → Phase 10 (SEQ-01/02/03) — pendência original de 2026-07-21
+4. [Painel de métricas por origem e sub-nicho](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md) → Phase 11 (METRICAS-01/02)
+5. [Relatório de motivos de perda](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md) → Phase 11 (PERDA-01)
+6. [Agenda/tarefas soltas](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md) → Phase 12 (TAREFA-01/02)
 
-**PME (avaliar prioridade, não urgente):** [tags livres](.planning/todos/pending/2026-08-01-tags-livres-por-lead.md), [temperatura automática](.planning/todos/pending/2026-08-01-temperatura-autom-tica-do-lead.md), [busca global](.planning/todos/pending/2026-08-01-busca-global.md), [exportar CSV](.planning/todos/pending/2026-08-01-exportar-dados-em-csv.md), [anexo por lead](.planning/todos/pending/2026-08-01-anexo-simples-por-lead.md), [campo vendedor no banco](.planning/todos/pending/2026-08-01-campo-de-vendedor-respons-vel-no-banco.md), [meta mensal](.planning/todos/pending/2026-08-01-meta-mensal-com-barra-de-progresso.md)
+**PME (avaliar prioridade, não urgente, fora do roadmap v1.3):** [tags livres](.planning/todos/pending/2026-08-01-tags-livres-por-lead.md), [temperatura automática](.planning/todos/pending/2026-08-01-temperatura-autom-tica-do-lead.md), [busca global](.planning/todos/pending/2026-08-01-busca-global.md), [exportar CSV](.planning/todos/pending/2026-08-01-exportar-dados-em-csv.md), [anexo por lead](.planning/todos/pending/2026-08-01-anexo-simples-por-lead.md), [campo vendedor no banco](.planning/todos/pending/2026-08-01-campo-de-vendedor-respons-vel-no-banco.md), [meta mensal](.planning/todos/pending/2026-08-01-meta-mensal-com-barra-de-progresso.md)
 
 **Herdadas de sessões anteriores:** [Conectar captura de leads da prospecção ao CRM](.planning/todos/completed/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) — status `completed` no disco mas **não resolvida de fato**: o gargalo real (CSV do cowork) foi coberto pela Fase 5, mas a conexão landing-page↔CRM em si segue TBD (mesmo conflito local-vs-público, ver IMPORT-V2-02 em `REQUIREMENTS.md`)
 
@@ -137,9 +141,13 @@ Resolvidos no v1.0, limpos no fechamento do milestone:
 - ~~Phase 2 (CSV Import): no real cowork CSV sample available yet~~ — resolvido: um CSV real do cowork foi usado em prospecção ao vivo e revelou os bugs corrigidos em `cbfb1bc`/`fc684c6`/`0fb70fd` (telefone com DDI estrangeiro, sub-nicho ausente)
 - ~~[Phase 3 gap-closure] Decision Coverage Gate falso positivo~~ — resolvido e documentado no `RETROSPECTIVE.md` como padrão recorrente de falso-positivo em checkers baseados em grep
 
-Aberto, carregado para o próximo milestone:
+Aberto, carregado para o v1.3:
 
 - Cross-cutting: continuar vigiando scope creep para auth/multi-usuário/mobile/WhatsApp Business API em toda fase nova — explicitamente fora de escopo por `PROJECT.md`.
+- Phase 8: backup de `data/crm.db` antes de qualquer `drizzle-kit push` que altere a tabela `leads` (dados reais de `origem` já sujos — `"Importação CSV"`, `"Teste"`, `"insta"`, confirmado por query direta em `research/SUMMARY.md`).
+- Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
+- Phase 10: reset de `sequenciaPosicao` (ao fechar/perder lead vs. voltar para "novo") é decisão de produto em aberto — resolver em `/gsd-discuss-phase` da própria Phase 10, não travar em pesquisa adicional.
+- Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
 
 ### Quick Tasks Completed
 
@@ -160,7 +168,6 @@ Items acknowledged and carried forward from previous milestone close:
 |----------|------|--------|-------------|
 | uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes: dashboard 3 seções, CRUD de templates, botão WhatsApp (preview/link ao vivo/anti-conflito com drag), auto-trigger de 1º contato nas 3 superfícies, boundary de 7 dias, race condition de "Perdido" em sequência, stageChangedAt/motivoPerda | partial — nunca testado no navegador (sem acesso a browser em nenhuma sessão até agora) | 2026-07-29 (fechamento v1.0) |
 | verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo do uat_gap acima | 2026-07-29 (fechamento v1.0) |
-| todo | [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) | pending | 2026-07-29 (fechamento v1.0) |
 | todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4) não resolvido | 2026-07-29 (fechamento v1.0) |
 | verification_gap | Fases 1 e 2 **nunca tiveram `/gsd-verify-work` formal rodado** — nenhum `VERIFICATION.md` existe pra elas (só a Fase 3 tem, `passed`). Múltiplos `SUMMARY.md` (01-02, 01-03, 01-04, 02-02, 02-03) registram "sem acesso a navegador nesta sessão, clique real recomendado antes de considerar pronto pra uso real" | nunca verificado no navegador, apenas por leitura de código/`tsc`/`build` | 2026-07-29 (fechamento v1.0) |
 
@@ -168,11 +175,11 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-01T18:06:48.782Z
-Stopped at: Fase 07 fechada e publicada. UAT humano 6/6 via browser real; fix do item 3 aplicado (quick 260801-ij4); VERIFICATION.md promovido para `passed`; LEARNINGS.md extraído; ROADMAP/STATE/handoffs reconciliados; repositório GitHub criado pelo usuário (https://github.com/Marques10604/CRM-WhiteLabel) e primeiro push feito — branch `worktree-agent-ad346cc0697623e0c` publicada como `main` (histórico completo de 276 commits, sem PR porque era a publicação inicial de um repo vazio; `master` local antiga, de 22 commits, ficou obsoleta e não foi tocada). `origin` configurado, `origin/HEAD` apontando para `main`.
+Last session: 2026-08-01T19:45:00.000Z
+Stopped at: ROADMAP.md criado para o milestone v1.3 — 5 fases (8: Origem Governada + Inbound/Outbound, 9: Timeline de Interações, 10: Sequência de Follow-up Escalonada, 11: Painel de Métricas e Relatório de Motivos de Perda, 12: Agenda/Tarefas Soltas). Todos os 13 requisitos v1.3 mapeados 1-pra-1 (nenhum órfão). REQUIREMENTS.md traceability preenchida e coverage 13/13. STATE.md atualizado para refletir posição "Ready to plan" na Phase 8.
 Resume file: None
-Próxima fase: nenhuma decidida ainda — milestone v1.2 (Follow-up Automático) está com as 3 fases previstas 100% completas. Rodar `/gsd-progress` ou `/gsd-new-milestone` para decidir o próximo passo.
-Servidor de dev: RODANDO em `http://localhost:3000` (PID 6928) — não precisa reiniciar.
+Próxima fase: Phase 8 (Origem Governada + Separação Inbound × Outbound) — decisão de schema (`origemTipo` coluna nova vs. tabela `origens` governada) já resolvida a favor de `origemTipo` em `PROJECT.md`/`REQUIREMENTS.md` Out of Scope; ainda assim recomenda-se `/gsd-discuss-phase 8` antes de planejar, por causa do backfill sobre dado real sujo (ver Blockers/Concerns acima).
+Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão de execução (host de 4GB, evitar processos duplicados).
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
 
@@ -232,5 +239,6 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 ## Operator Next Steps
 
-- Rodar `/gsd-plan-phase 6` para detalhar o(s) plano(s) da Phase 6 (Auto-avanço de Etapa + Contador de Tentativas) — WA-06/WA-07/WA-08, ponto de integração único em `whatsapp-preview-dialog.tsx`.
-- Phase 7 (Configuração de Dias-Parado por Etapa — CONFIG-01/CONFIG-02) é independente de Phase 6 (sem arquivos/migração compartilhados) e pode ser planejada antes, depois ou em paralelo.
+- Rodar `/gsd-plan-phase 8` para detalhar o(s) plano(s) da Phase 8 (Origem Governada + Separação Inbound × Outbound) — ORIGEM-01/02, decisão de schema (`origemTipo` coluna nova) já resolvida, backfill precisa de query real contra `data/crm.db` (valores sujos conhecidos: `"Importação CSV"`, `"Teste"`, `"insta"`).
+- Considerar `/gsd-discuss-phase 8` antes do plano, dado que a fase mexe em dado real de produção via `drizzle-kit push` sem migration history versionado (mesmo padrão de risco já visto na Fase 6/7).
+- Fases 9 (Timeline) e 12 (Tarefas) não têm dependência técnica dura de Phase 8 e podem ser planejadas/executadas em paralelo ou adiantadas, se preferir por ordem de valor de negócio (ver `PROJECT.md` "Target features").

@@ -4,7 +4,8 @@
 
 - ✅ **v1.0 MVP** — Fases 1-4 (shipado 2026-07-29) — ver `.planning/milestones/v1.0-ROADMAP.md`
 - ✅ **v1.1 Importação Inteligente** — Fase 5 (shipado 2026-07-30)
-- 🚧 **v1.2 Follow-up Automático** — Fases 6-7 (em andamento)
+- ✅ **v1.2 Follow-up Automático** — Fases 6-7 (shipado 2026-08-01)
+- 🚧 **v1.3 Qualificação e Histórico de Leads** — Fases 8-12 (em andamento)
 
 ## Phases
 
@@ -27,12 +28,22 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 - [x] **Phase 5: Notas Enriquecidas na Importação CSV** - Wizard de importação passa a aceitar mapear múltiplas colunas de inteligência do CSV do cowork, concatenadas automaticamente em um campo de notas formatado e legível, mantendo total compatibilidade com o mapeamento simples já existente (completed 2026-07-30)
 
-### 🚧 v1.2 Follow-up Automático (Em Andamento)
+### ✅ v1.2 Follow-up Automático (Shipado 2026-08-01)
 
 **Meta do milestone:** Reduzir a manutenção manual do pipeline — o sistema acompanha contato e tempo parado sozinho, avisando quando algo precisa de atenção, em vez de depender só da memória do admin.
 
 - [x] **Phase 6: Auto-avanço de Etapa + Contador de Tentativas** - Clicar em "Abrir WhatsApp" com o template de primeiro contato avança automaticamente um lead "Novo" para "Contatado" (com toast de confirmação), e todo clique de WhatsApp incrementa um contador de tentativas de contato visível no pipeline (completed 2026-07-30)
 - [x] **Phase 7: Configuração de Dias-Parado por Etapa** - Tela `/configuracoes` generaliza o "esfriando" hoje hardcoded (5 dias, só Contatado) para as 3 primeiras etapas do funil, cada uma com seu próprio limite configurável (completed 2026-07-31)
+
+### 🚧 v1.3 Qualificação e Histórico de Leads (Em Andamento)
+
+**Meta do milestone:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
+
+- [ ] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem`
+- [ ] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual
+- [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
+- [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
+- [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
 
 ## Phase Details
 
@@ -110,10 +121,86 @@ Plans:
 
 **UI hint**: yes
 
+### Phase 8: Origem Governada + Separação Inbound × Outbound
+
+**Goal**: Cada lead tem uma classificação de origem confiável (Inbound ou Outbound) via campo dedicado, sem depender de interpretar texto livre — base técnica para o painel de métricas (Phase 11) e para a automação condicional da sequência de follow-up (Phase 10)
+**Depends on**: Nothing novo neste milestone (estende `leads` — schema já em produção desde a Fase 1)
+**Requirements**: ORIGEM-01, ORIGEM-02
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Admin classifica um lead (na criação ou na edição) com um tipo de origem explícito — Inbound ou Outbound — via campo dedicado (`origemTipo`, enum fechado) no formulário do lead, sem depender de interpretar o texto livre já existente em `origem`
+  2. Todo lead que já existia antes da mudança de schema recebe uma classificação padrão via backfill explícito e documentado — nenhum lead ativo fica com `origemTipo` vazio/nulo após a migração
+  3. A classificação de origem (Inbound/Outbound) fica visível em pelo menos uma tela de consulta do lead (formulário, lista ou pipeline), para o admin conferir o resultado do backfill e de novas classificações
+
+**Plans**: TBD
+
+**UI hint**: yes
+
+### Phase 9: Timeline de Interações
+
+**Goal**: O admin deixa de depender só do contador de tentativas — cada evento de contato com um lead vira um registro na linha do tempo, com data e resumo, consultável a qualquer momento
+**Depends on**: Nothing novo (independente de Phase 8; toca a mesma superfície de código de `registerWhatsAppContact`/`LeadFormDialog` já existente desde a Fase 6, sem dependência técnica dura)
+**Requirements**: TIMELINE-01, TIMELINE-02
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Todo clique em "Abrir WhatsApp" (qualquer template, em qualquer tela) gera automaticamente um registro na timeline do lead, com data/hora e tipo/resumo do evento, sem exigir nenhuma ação manual extra do admin
+  2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
+  3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
+
+**Plans**: TBD
+
+**UI hint**: yes
+
+### Phase 10: Sequência de Follow-up Escalonada
+
+**Goal**: Reabordagem fria segue um roteiro de intervalos crescentes com templates de reforço de valor, calculado sempre na leitura (nunca por disparo agendado) — e nunca se aplica a um lead que já chegou quente (Inbound)
+**Depends on**: Phase 8 (precisa de `origemTipo` populado para o gate Inbound); reutiliza o mesmo ponto de extensão de `registerWhatsAppContact` já mexido na Phase 9 (sem dependência técnica dura dela)
+**Requirements**: SEQ-01, SEQ-02, SEQ-03, ORIGEM-03
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Admin configura, numa tela dedicada, uma sequência de intervalos crescentes (em dias) entre tentativas de reabordagem
+  2. Ao visualizar um lead Outbound com posição registrada na sequência, o sistema mostra a próxima data de follow-up sugerida — calculada na leitura a partir da posição do lead na sequência, nunca por um job/disparo agendado (sem cron/scheduler neste app)
+  3. Um lead classificado como Inbound (Phase 8) nunca recebe essa sugestão automática de próxima data de reabordagem — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
+  4. Templates de mensagem de reforço de valor/prova social ficam disponíveis para o admin usar ao reabordar um lead que está na sequência
+
+**Plans**: TBD
+
+**UI hint**: yes
+
+### Phase 11: Painel de Métricas e Relatório de Motivos de Perda
+
+**Goal**: Admin enxerga de onde vêm as vendas (origem, sub-nicho) e por que perde negócios (motivo de perda), numa única tela de relatórios, sem precisar cruzar dados manualmente na planilha antiga
+**Depends on**: Phase 8 (bloqueio técnico duro — precisa de `origemTipo` já populado para agrupar por Inbound/Outbound); sequenciada com o relatório de motivo de perda por compartilhar a mesma infraestrutura de página (`/relatorios`)
+**Requirements**: METRICAS-01, METRICAS-02, PERDA-01
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Admin visualiza, numa tela de relatórios, a contagem e a taxa de conversão de leads agrupados por tipo de origem (Inbound/Outbound)
+  2. Admin visualiza, na mesma tela, a contagem de leads agrupados por sub-nicho
+  3. Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`), com o campo normalizado/governado o suficiente para não fragmentar o relatório em variações de texto livre equivalentes
+
+**Plans**: TBD
+
+**UI hint**: yes
+
+### Phase 12: Agenda / Tarefas Soltas
+
+**Goal**: Admin registra um compromisso ou lembrete que não está amarrado a nenhum lead (ex: ligar pro cowork, preparar material) e ainda assim recebe destaque de urgência igual aos follow-ups de lead
+**Depends on**: Nothing (tabela nova sem FK para `leads`, totalmente desacoplada das demais fases deste milestone)
+**Requirements**: TAREFA-01, TAREFA-02
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Admin cria uma tarefa avulsa com data e descrição, sem precisar vincular a nenhum lead
+  2. Tarefas aparecem no dashboard de follow-up, agrupadas por urgência (Vencidas/Hoje/Próximos 7 dias) — mesmo padrão já usado para follow-ups de lead
+  3. Tarefas soltas ficam visualmente distinguíveis dos follow-ups de lead dentro do mesmo agrupamento por urgência, sem exigir uma tela/rota separada para o admin achar o que precisa fazer hoje
+
+**Plans**: TBD
+
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|-----------------|--------|-----------|
@@ -124,3 +211,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
+| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 0/TBD | Not started | - |
+| 9. Timeline de Interações | v1.3 | 0/TBD | Not started | - |
+| 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
+| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
+| 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
