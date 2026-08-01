@@ -3,6 +3,7 @@ created: 2026-08-01T18:48:32.927Z
 title: "Relatório de motivos de perda"
 area: general
 priority: "ALTO VALOR — item 5 de 6 (varredura 2026-08-01)"
+resolves_phase: 11
 files:
   - src/db/schema.ts (leads.motivoPerda, já existe desde a Fase 3, sem relatório agregado)
 ---

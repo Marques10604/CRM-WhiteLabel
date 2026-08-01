@@ -3,6 +3,7 @@ created: 2026-08-01T18:48:32.927Z
 title: "Separação Inbound x Outbound (fila/tratamento diferente por origem do lead)"
 area: general
 priority: "ALTO VALOR — item 1 de 6 (varredura 2026-08-01)"
+resolves_phase: 8
 files: []
 ---
 

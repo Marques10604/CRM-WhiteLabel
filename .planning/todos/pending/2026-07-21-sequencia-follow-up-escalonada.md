@@ -2,6 +2,7 @@
 created: 2026-07-21T03:14:14.823Z
 title: Sequência de follow-up escalonada com templates de valor
 area: general
+resolves_phase: 10
 files:
   - src/components/lead-form-dialog.tsx
   - src/components/lead-table-toolbar.tsx

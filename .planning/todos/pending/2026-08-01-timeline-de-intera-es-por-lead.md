@@ -3,6 +3,7 @@ created: 2026-08-01T18:48:32.927Z
 title: "Timeline de interações por lead"
 area: general
 priority: "ALTO VALOR — item 2 de 6 (varredura 2026-08-01)"
+resolves_phase: 9
 files:
   - src/db/schema.ts (leads.contactAttempts, contador atual sem histórico)
 ---

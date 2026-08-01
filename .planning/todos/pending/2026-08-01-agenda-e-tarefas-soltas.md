@@ -3,6 +3,7 @@ created: 2026-08-01T18:48:32.927Z
 title: "Agenda/tarefas soltas (não amarradas a um lead)"
 area: general
 priority: "ALTO VALOR — item 6 de 6 (varredura 2026-08-01)"
+resolves_phase: 12
 files: []
 ---
 

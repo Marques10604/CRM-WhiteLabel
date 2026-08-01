@@ -3,6 +3,7 @@ created: 2026-08-01T18:48:32.927Z
 title: "Painel de métricas por origem e sub-nicho"
 area: general
 priority: "ALTO VALOR — item 4 de 6 (varredura 2026-08-01)"
+resolves_phase: 11
 files: []
 ---
 
