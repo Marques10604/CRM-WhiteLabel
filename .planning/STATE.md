@@ -1,33 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Follow-up Automático
-status: completed
-last_updated: "2026-08-01T18:06:48.782Z"
+milestone: v1.3
+milestone_name: Qualificação e Histórico de Leads
+status: planning
+last_updated: "2026-08-01T19:16:50.336Z"
 last_activity: 2026-08-01
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-29)
+See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.2 fechado — próxima fase a definir
+**Current focus:** Milestone v1.3 (Qualificação e Histórico de Leads) — definindo requisitos e roadmap
 
 ## Current Position
 
-Phase: 07 (configura-o-de-dias-parado-por-etapa) — SHIPPED
-Plan: 2 of 2
-Status: complete — publicado no GitHub (main), sem PR (primeiro push do projeto)
-Last activity: 2026-08-01
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-08-01 — Milestone v1.3 started
 
 ## Performance Metrics
 
@@ -116,6 +116,7 @@ Recent decisions affecting current work:
 Backlog registrado em 2026-08-01 a partir de uma varredura de ideias externa (`C:\Users\Vencedor\Desktop\Ideias.txt`) — nada implementado, só registrado. Ver `PROJECT.md` seção Active para a lista completa com prioridade e links.
 
 **Alto valor (ordem de prioridade):**
+
 1. [Separação Inbound x Outbound](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
 2. [Timeline de interações por lead](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
 3. [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general (pendência original de 2026-07-21)

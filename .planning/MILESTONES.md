@@ -29,3 +29,17 @@
 - Todos os 7 passos do `<human-check>` originalmente planejado foram confirmados por teste real de navegador (`gsd-browser`) nesta sessão de fechamento — algo inédito no projeto até aqui (fases anteriores nunca tiveram acesso a navegador). O próprio teste revelou e corrigiu 3 problemas reais: WR-01 (resumo ao vivo desatualizado após remapear coluna), CR-01 (prévia travava indefinidamente se a busca de dados de apoio falhasse) e um achado novo (quebra de linha na coluna Notas da prévia colapsada pelo CSS padrão da tabela).
 
 ---
+
+## v1.2 Follow-up Automático (Shipped: 2026-08-01)
+
+**Phases completed:** 2 fases (Fase 6, Fase 7), 4 planos
+
+**Key accomplishments:**
+
+- Fase 6 — Auto-avanço de etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, em qualquer tela onde o botão aparece, com guarda server-side (nunca regride/re-avança leads além de Contatado); contador de tentativas de contato (`contactAttempts`) incrementado a todo clique de WhatsApp, visível no card do pipeline.
+- Fase 7 — Tela `/configuracoes` generaliza o "esfriando" antes hardcoded (só Contatado, 5 dias fixo) para as 3 primeiras etapas do funil (Novo/Contatado/Negociação), cada uma com seu próprio limite configurável via tabela singleton `configuracoes`. Paridade pré-save confirmada em runtime (D-04): comportamento idêntico ao pré-deploy até o admin salvar novos valores.
+- UAT humano interativo via browser real (Claude in Chrome) rodado nesta sessão de fechamento — 6/6 testes, 1 issue real encontrada (validação HTML5 nativa escondia a mensagem de erro customizada do Zod) e corrigida no mesmo ciclo (quick task 260801-ij4, `noValidate` no form).
+- Primeiro push do projeto pro GitHub (`github.com/Marques10604/CRM-WhiteLabel`, branch `main`) — repositório criado pelo usuário nesta sessão, histórico completo de 276 commits publicado diretamente como `main` (repo estava vazio, não havia branch base pra abrir PR).
+- Fechamento formal via `/close-phase`: `07-LEARNINGS.md` extraído, `07-VERIFICATION.md` promovido de `human_needed` para `passed` com evidência do UAT registrada.
+
+---

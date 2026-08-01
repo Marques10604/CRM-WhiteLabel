@@ -1,19 +1,20 @@
 # CRM de Leads — Área da Saúde
 
-## Current Milestone: v1.2 Follow-up Automático — ✅ CONCLUÍDO (2026-08-01)
+## Current Milestone: v1.3 Qualificação e Histórico de Leads
 
-**Goal:** Reduzir a manutenção manual do pipeline — o sistema acompanha contato e tempo parado sozinho, avisando quando algo precisa de atenção, em vez de depender só da memória do admin.
+**Goal:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
 
-**Entregue (Fases 6 e 7):**
-- Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato (todas as telas, toast de confirmação, sem regredir/re-avançar leads já além de Contatado) — Fase 6
-- Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), visível no card do pipeline — Fase 6
-- Configuração de dias-parado por etapa em `/configuracoes` — generaliza o "esfriando" antes hardcoded (só Contatado, 5 dias fixo) para Novo/Contatado/Negociação, cada uma com seu N configurável — Fase 7, UAT humano 6/6 via browser real em 2026-08-01
+**Target features (ordem de prioridade, ver `.planning/todos/pending/2026-08-01-*.md` para o raciocínio completo por trás da ordem):**
+1. Separação Inbound × Outbound — fila/tratamento diferente por origem do lead, pra automação não tratar lead quente (tráfego pago) como frio (prospecção)
+2. Timeline de interações por lead — histórico do que foi dito em cada tentativa, não só o contador atual
+3. Sequência de follow-up escalonada — intervalos crescentes configuráveis, com templates de reforço de valor/prova social
+4. Painel de métricas por origem e sub-nicho — depende dos itens 1-2 já estarem entregando dado confiável
+5. Relatório de motivos de perda — agrega o campo `motivoPerda` (já existe desde a Fase 3, sem relatório hoje)
+6. Agenda/tarefas soltas — tarefa avulsa não amarrada a nenhum lead
 
-Publicado no GitHub (`github.com/Marques10604/CRM-WhiteLabel`, branch `main`) em 2026-08-01 — primeiro push do projeto.
+**Fora deste milestone (backlog registrado, não descartado):** ideias PME (tags, temperatura automática, busca global, export CSV, anexo, campo de vendedor no banco, meta mensal) seguem em `.planning/todos/pending/`; roadmap pós-cliente-pagante e infra white label seguem como seeds (`SEED-001`, `SEED-002`) até o gatilho de "primeiro cliente pagante".
 
-**Próximo milestone (v1.3): ainda não iniciado.** Ver seção `Active` abaixo — backlog priorizado por uma varredura de ideias em 2026-08-01, aguardando `/gsd-new-milestone` pra formalizar escopo.
-
-**Milestone anterior (v1.1 Importação Inteligente):** concluído em 2026-07-30, Fase 5 — wizard de importação passou a concatenar múltiplas colunas de origem do CSV do cowork em notas formatadas (IMPORT-04/IMPORT-05).
+**Milestone anterior (v1.2 Follow-up Automático):** concluído e publicado no GitHub em 2026-08-01 (Fases 6-7 — auto-avanço de etapa, contador de tentativas, configuração de dias-parado por etapa). Ver Validated abaixo.
 
 ## What This Is
 
@@ -48,17 +49,16 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-Nenhum item de milestone em execução no momento (v1.2 concluído em 2026-08-01, v1.3 ainda não iniciado).
+Escopo do milestone v1.3 em andamento (ver `Current Milestone` acima) — vira roadmap de fases via `/gsd-new-milestone`:
 
-**Backlog priorizado — varredura de ideias de 2026-08-01** (`C:\Users\Vencedor\Desktop\Ideias.txt`, registrado em `.planning/todos/pending/` e `.planning/seeds/`; nada implementado ainda, só registrado):
+- [ ] Separação Inbound × Outbound (fila/tratamento diferente por origem do lead) — [todo](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
+- [ ] Timeline de interações por lead — [todo](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
+- [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social — [todo](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) (pendência original de 2026-07-21, reordenada nesta varredura)
+- [ ] Painel de métricas por origem e sub-nicho — [todo](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
+- [ ] Relatório de motivos de perda — [todo](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
+- [ ] Agenda/tarefas soltas (não amarradas a um lead) — [todo](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
 
-*Alto valor — candidatos a próximas fases, em ordem de prioridade:*
-1. [ ] Separação Inbound × Outbound (fila/tratamento diferente por origem do lead) — [todo](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
-2. [ ] Timeline de interações por lead — [todo](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
-3. [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social — [todo](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) (pendência original de 2026-07-21, reordenada nesta varredura)
-4. [ ] Painel de métricas por origem e sub-nicho — [todo](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
-5. [ ] Relatório de motivos de perda — [todo](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
-6. [ ] Agenda/tarefas soltas (não amarradas a um lead) — [todo](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
+Backlog registrado em 2026-08-01 (`C:\Users\Vencedor\Desktop\Ideias.txt`), fora do escopo deste milestone:
 
 *Ideias PME — avaliar prioridade, não urgentes:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco, sem UI), meta mensal com barra de progresso — todos individuais em `.planning/todos/pending/2026-08-01-*.md`
 
@@ -122,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-01 — v1.2 concluído e publicado no GitHub; backlog v1.3 registrado a partir de varredura de ideias externa*
+*Last updated: 2026-08-01 — milestone v1.3 (Qualificação e Histórico de Leads) iniciado via /gsd-new-milestone*
