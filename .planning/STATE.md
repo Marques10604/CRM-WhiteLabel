@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
 status: verifying
-last_updated: "2026-07-31T22:18:51.986Z"
-last_activity: 2026-07-31
+last_updated: "2026-08-01T16:46:14.276Z"
+last_activity: 2026-08-01
 progress:
   total_phases: 3
   completed_phases: 3
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-07-29)
 Phase: 07 (configura-o-de-dias-parado-por-etapa) — EXECUTING
 Plan: 2 of 2
 Status: Phase complete — ready for verification
-Last activity: 2026-07-31
+Last activity: 2026-08-01
 
 ## Performance Metrics
 
