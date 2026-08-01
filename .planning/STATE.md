@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Follow-up Automático
-status: verifying
-last_updated: "2026-08-01T16:46:14.276Z"
+status: completed
+last_updated: "2026-08-01T18:06:48.782Z"
 last_activity: 2026-08-01
 progress:
   total_phases: 3
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 07 — configura-o-de-dias-parado-por-etapa
+**Current focus:** Milestone v1.2 fechado — próxima fase a definir
 
 ## Current Position
 
-Phase: 07 (configura-o-de-dias-parado-por-etapa) — EXECUTING
+Phase: 07 (configura-o-de-dias-parado-por-etapa) — SHIPPED
 Plan: 2 of 2
-Status: Phase complete — ready for verification
+Status: complete — publicado no GitHub (main), sem PR (primeiro push do projeto)
 Last activity: 2026-08-01
 
 ## Performance Metrics
@@ -154,9 +154,10 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-01T16:31:12.000Z
-Stopped at: Fase 07 concluída (UAT humano via browser real: 5 passed, 1 issue corrigida no quick task 260801-ij4). Reteste do item 3 (mensagem "Mínimo de 1 dia.") no navegador ainda pendente antes de fechar a fase.
-Resume file: .planning/phases/07-configura-o-de-dias-parado-por-etapa/07-HUMAN-UAT.md
+Last session: 2026-08-01T18:06:48.782Z
+Stopped at: Fase 07 fechada e publicada. UAT humano 6/6 via browser real; fix do item 3 aplicado (quick 260801-ij4); VERIFICATION.md promovido para `passed`; LEARNINGS.md extraído; ROADMAP/STATE/handoffs reconciliados; repositório GitHub criado pelo usuário (https://github.com/Marques10604/CRM-WhiteLabel) e primeiro push feito — branch `worktree-agent-ad346cc0697623e0c` publicada como `main` (histórico completo de 276 commits, sem PR porque era a publicação inicial de um repo vazio; `master` local antiga, de 22 commits, ficou obsoleta e não foi tocada). `origin` configurado, `origin/HEAD` apontando para `main`.
+Resume file: None
+Próxima fase: nenhuma decidida ainda — milestone v1.2 (Follow-up Automático) está com as 3 fases previstas 100% completas. Rodar `/gsd-progress` ou `/gsd-new-milestone` para decidir o próximo passo.
 Servidor de dev: RODANDO em `http://localhost:3000` (PID 6928) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
