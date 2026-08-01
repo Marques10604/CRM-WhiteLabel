@@ -113,8 +113,21 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general
-- [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) — area: general — mesmo Gap 4 da sessão 2026-07-25, conflito local vs. público não resolvido
+Backlog registrado em 2026-08-01 a partir de uma varredura de ideias externa (`C:\Users\Vencedor\Desktop\Ideias.txt`) — nada implementado, só registrado. Ver `PROJECT.md` seção Active para a lista completa com prioridade e links.
+
+**Alto valor (ordem de prioridade):**
+1. [Separação Inbound x Outbound](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
+2. [Timeline de interações por lead](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
+3. [Sequência de follow-up escalonada com templates de valor](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) — area: general (pendência original de 2026-07-21)
+4. [Painel de métricas por origem e sub-nicho](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
+5. [Relatório de motivos de perda](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
+6. [Agenda/tarefas soltas](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
+
+**PME (avaliar prioridade, não urgente):** [tags livres](.planning/todos/pending/2026-08-01-tags-livres-por-lead.md), [temperatura automática](.planning/todos/pending/2026-08-01-temperatura-autom-tica-do-lead.md), [busca global](.planning/todos/pending/2026-08-01-busca-global.md), [exportar CSV](.planning/todos/pending/2026-08-01-exportar-dados-em-csv.md), [anexo por lead](.planning/todos/pending/2026-08-01-anexo-simples-por-lead.md), [campo vendedor no banco](.planning/todos/pending/2026-08-01-campo-de-vendedor-respons-vel-no-banco.md), [meta mensal](.planning/todos/pending/2026-08-01-meta-mensal-com-barra-de-progresso.md)
+
+**Herdadas de sessões anteriores:** [Conectar captura de leads da prospecção ao CRM](.planning/todos/completed/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) — status `completed` no disco mas **não resolvida de fato**: o gargalo real (CSV do cowork) foi coberto pela Fase 5, mas a conexão landing-page↔CRM em si segue TBD (mesmo conflito local-vs-público, ver IMPORT-V2-02 em `REQUIREMENTS.md`)
+
+**Seeds (gatilho futuro, surgem em `/gsd-new-milestone`):** [SEED-001](.planning/seeds/SEED-001-roadmap-p-s-cliente-pagante.md) (proposta/catálogo/pós-venda, gatilho: 1º cliente pagante), [SEED-002](.planning/seeds/SEED-002-infra-white-label.md) (multi-tenant/white label, mesmo gatilho, tratado como outro produto)
 
 ### Blockers/Concerns
 

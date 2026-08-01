@@ -36,3 +36,10 @@ TBD — ideias de abordagem a validar num /gsd-discuss-phase futuro:
 Escopo maior que uma quick task — precisa virar fase própria no roadmap
 quando chegar a vez (provavelmente relacionado à fase de templates de
 mensagem).
+
+## Priority Note (2026-08-01)
+
+Marcado como item **#3 de prioridade** entre os 6 itens "ALTO VALOR" da
+varredura de ideias externa de 2026-08-01 (ver `C:\Users\Vencedor\Desktop\Ideias.txt`),
+depois de [[2026-08-01-separa-o-inbound-x-outbound]] e
+[[2026-08-01-timeline-de-intera-es-por-lead]].

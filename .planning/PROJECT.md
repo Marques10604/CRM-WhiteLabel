@@ -1,15 +1,17 @@
 # CRM de Leads — Área da Saúde
 
-## Current Milestone: v1.2 Follow-up Automático
+## Current Milestone: v1.2 Follow-up Automático — ✅ CONCLUÍDO (2026-08-01)
 
 **Goal:** Reduzir a manutenção manual do pipeline — o sistema acompanha contato e tempo parado sozinho, avisando quando algo precisa de atenção, em vez de depender só da memória do admin.
 
-**Target features:**
-- Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato (todas as telas, toast de confirmação, sem regredir/re-avançar leads já além de Contatado)
-- Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), visível no card do pipeline
-- Configuração de dias-parado por etapa numa nova página `/configuracoes` — generaliza o "esfriando" hoje hardcoded (só Contatado, 5 dias fixo) para Novo/Contatado/Negociação, cada uma com seu N configurável
+**Entregue (Fases 6 e 7):**
+- Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato (todas as telas, toast de confirmação, sem regredir/re-avançar leads já além de Contatado) — Fase 6
+- Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), visível no card do pipeline — Fase 6
+- Configuração de dias-parado por etapa em `/configuracoes` — generaliza o "esfriando" antes hardcoded (só Contatado, 5 dias fixo) para Novo/Contatado/Negociação, cada uma com seu N configurável — Fase 7, UAT humano 6/6 via browser real em 2026-08-01
 
-**Fora de escopo neste milestone:** sequência de follow-up escalonada, porta de entrada local para IA cadastrar leads, e conectar a landing page pública ao CRM — ficam para v1.3+ (ver Active abaixo).
+Publicado no GitHub (`github.com/Marques10604/CRM-WhiteLabel`, branch `main`) em 2026-08-01 — primeiro push do projeto.
+
+**Próximo milestone (v1.3): ainda não iniciado.** Ver seção `Active` abaixo — backlog priorizado por uma varredura de ideias em 2026-08-01, aguardando `/gsd-new-milestone` pra formalizar escopo.
 
 **Milestone anterior (v1.1 Importação Inteligente):** concluído em 2026-07-30, Fase 5 — wizard de importação passou a concatenar múltiplas colunas de origem do CSV do cowork em notas formatadas (IMPORT-04/IMPORT-05).
 
@@ -40,20 +42,33 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Ao criar/importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido — v1.0 (Fase 4)
 - ✓ Dashboard e pipeline oferecem botão inline "Enviar WhatsApp" com preview editável, disparo sempre por clique manual — v1.0 (Fase 4)
 - ✓ Wizard de importação aceita mapear múltiplas colunas de origem (score/sinal_dor/trecho_dor/observação) concatenadas em notas, sem perder a inteligência de priorização do CSV do cowork — v1.1 (Fase 5), IMPORT-04/IMPORT-05, confirmado por teste real de navegador (todos os 7 passos do human-check)
+- ✓ Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, em todas as telas com o botão, sem regredir/re-avançar leads já além de Contatado, com toast de confirmação — v1.2 (Fase 6)
+- ✓ Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), exibido no card do pipeline — v1.2 (Fase 6)
+- ✓ Tela `/configuracoes` para definir dias-parado por etapa (Novo/Contatado/Negociação), generalizando o "esfriando" hardcoded (antes só Contatado, 5 dias fixo) — v1.2 (Fase 7), UAT humano 6/6 via browser real em 2026-08-01
 
 ### Active
 
-Escopo do milestone v1.2 em andamento (ver `Current Milestone` acima):
+Nenhum item de milestone em execução no momento (v1.2 concluído em 2026-08-01, v1.3 ainda não iniciado).
 
-- [ ] Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, em todas as telas com o botão, sem regredir/re-avançar leads já além de Contatado, com toast de confirmação
-- [ ] Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), exibido no card do pipeline
-- [ ] Tela `/configuracoes` para definir dias-parado por etapa (Novo/Contatado/Negociação), generalizando o "esfriando" hardcoded hoje (só Contatado, 5 dias fixo) em `src/app/pipeline/page.tsx`
+**Backlog priorizado — varredura de ideias de 2026-08-01** (`C:\Users\Vencedor\Desktop\Ideias.txt`, registrado em `.planning/todos/pending/` e `.planning/seeds/`; nada implementado ainda, só registrado):
 
-Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizados em fases — ficam para v1.3+:
+*Alto valor — candidatos a próximas fases, em ordem de prioridade:*
+1. [ ] Separação Inbound × Outbound (fila/tratamento diferente por origem do lead) — [todo](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
+2. [ ] Timeline de interações por lead — [todo](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
+3. [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social — [todo](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) (pendência original de 2026-07-21, reordenada nesta varredura)
+4. [ ] Painel de métricas por origem e sub-nicho — [todo](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
+5. [ ] Relatório de motivos de perda — [todo](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
+6. [ ] Agenda/tarefas soltas (não amarradas a um lead) — [todo](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
 
-- [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social
-- [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente
-- [ ] Conectar a landing page pública (Vercel) ao CRM — adiado deliberadamente pelo usuário (2026-07-29) até haver tráfego pago; quando chegar a hora, será junto da migração de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada
+*Ideias PME — avaliar prioridade, não urgentes:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco, sem UI), meta mensal com barra de progresso — todos individuais em `.planning/todos/pending/2026-08-01-*.md`
+
+*Fora do milestone atual, também herdadas de sessões anteriores:*
+- [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente — decisão já tomada: só local, sem deploy
+- [ ] Conectar a landing page pública (Vercel) ao CRM — adiado deliberadamente pelo usuário até haver tráfego pago; quando chegar a hora, será junto da migração de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada (IMPORT-V2-02)
+
+*Adiado com gatilho explícito (seeds, surgem automaticamente em `/gsd-new-milestone`):*
+- Roadmap pós-cliente-pagante (proposta/orçamento, catálogo de produtos, pós-venda) — [SEED-001](.planning/seeds/SEED-001-roadmap-p-s-cliente-pagante.md)
+- Infra white label / multi-tenant (login, feature flags por nicho, nomenclatura dinâmica, theming, cobrança recorrente, agentes de IA por empresa) — [SEED-002](.planning/seeds/SEED-002-infra-white-label.md), tratado como **outro produto**, não como fase deste CRM
 
 ### Out of Scope
 
@@ -76,6 +91,7 @@ Candidatos levantados numa sessão de ideias (2026-07-25), ainda não formalizad
 - **Escopo de uso**: Ferramenta solo (um único admin), sem necessidade de autenticação multi-usuário — evita complexidade desnecessária de contas/permissões
 - **Plataforma**: Acesso via navegador no computador — não é necessário app mobile nativo
 - **WhatsApp**: Sem integração com API oficial de envio — usar link wa.me com mensagem pré-preenchida, evitando custo e burocracia de conta WhatsApp Business API
+- **Nomenclatura de schema**: Nunca cravar termos específicos do nicho de saúde (ex. "paciente", "consulta") direto em nomes de tabela/coluna — usar nomes genéricos ("lead", "contato", etc.), mesmo o projeto sendo single-nicho hoje. Custo de seguir essa regra é zero agora; custo de não seguir é uma reescrita de banco inteira se um dia isso virar white label (ver [[SEED-002]]). Regra permanente, não um item de backlog a ser "concluído".
 
 ## Key Decisions
 
@@ -106,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-30 — v1.2 milestone iniciado*
+*Last updated: 2026-08-01 — v1.2 concluído e publicado no GitHub; backlog v1.3 registrado a partir de varredura de ideias externa*
