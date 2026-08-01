@@ -136,6 +136,7 @@ Aberto, carregado para o próximo milestone:
 | 260725-219 | Implementar no sidebar real (app-sidebar.tsx) as decisões dos sketches 001/004: brand header selo discreto, rótulo "Principal", ícones lucide, espaçamento e fundo teal suave no item ativo | 2026-07-25 | abaaba7 | [260725-219-implementar-no-sidebar-real-do-app-src-c](./quick/260725-219-implementar-no-sidebar-real-do-app-src-c/) |
 | 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
+| 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 
 ## Deferred Items
 
@@ -153,10 +154,10 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-07-31T22:18:51.939Z
-Stopped at: Completed 07-02-PLAN.md
-Resume file: None
-Servidor de dev: RODANDO em `http://localhost:3000` (PID 1496, sobrevivendo entre sessões) — não precisa reiniciar.
+Last session: 2026-08-01T16:31:12.000Z
+Stopped at: Fase 07 concluída (UAT humano via browser real: 5 passed, 1 issue corrigida no quick task 260801-ij4). Reteste do item 3 (mensagem "Mínimo de 1 dia.") no navegador ainda pendente antes de fechar a fase.
+Resume file: .planning/phases/07-configura-o-de-dias-parado-por-etapa/07-HUMAN-UAT.md
+Servidor de dev: RODANDO em `http://localhost:3000` (PID 6928) — não precisa reiniciar.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
 
