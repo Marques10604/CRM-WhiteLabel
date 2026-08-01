@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.3 (Qualificação e Histórico de Leads) — roadmap criado (Fases 8-12), pronto para planejar a primeira fase
+**Current focus:** Milestone v1.3, Fase 8 (Origem Governada + Inbound×Outbound) — `/go-and-do 8` em andamento, **interrompido no meio da Etapa 0-B (revisão de intenção)** por limite de sessão da conta (reset 20h America/Sao_Paulo). Retomar com `/go-and-do 8` numa sessão nova.
 
 ## Current Position
 
-Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — primeira fase do milestone v1.3
-Plan: — (roadmap criado, nenhum plano detalhado ainda)
-Status: Ready to plan
-Last activity: 2026-08-01 — ROADMAP.md criado para v1.3 (5 fases: 8-12), REQUIREMENTS.md traceability preenchida (13/13 requisitos mapeados)
+Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — PAUSADA em Etapa 0-B (intenção), rodando via /go-and-do
+Plan: — (roadmap criado; SPEC/CONTEXT prontos; revisão de intenção incompleta)
+Status: /go-and-do 8 pausado — retomar com `/go-and-do 8`
+Last activity: 2026-08-01T20:26 — sessão atingiu o limite de conta no meio da Etapa 0-B; ver "Retomada exata da Fase 8" abaixo
 
 Progress: [░░░░░░░░░░] 0% (v1.3)
 
@@ -175,11 +175,26 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-01T20:26:33.388Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-CONTEXT.md
-Próxima fase: Phase 8 (Origem Governada + Separação Inbound × Outbound) — decisão de schema (`origemTipo` coluna nova vs. tabela `origens` governada) já resolvida a favor de `origemTipo` em `PROJECT.md`/`REQUIREMENTS.md` Out of Scope; ainda assim recomenda-se `/gsd-discuss-phase 8` antes de planejar, por causa do backfill sobre dado real sujo (ver Blockers/Concerns acima).
-Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão de execução (host de 4GB, evitar processos duplicados).
+Last session: 2026-08-01T20:26:33.388Z — sessão atingiu o **limite de conta** (reset 20h America/Sao_Paulo), não foi pausa graciosa normal do go-and-do
+Stopped at: `/go-and-do 8`, Etapa 0-B (revisão adversarial de intenção) — ver "Retomada exata da Fase 8" abaixo
+Resume file: .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-INTENT-REVIEW.md
+Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão (host de 4GB, evitar processos duplicados).
+
+### Retomada exata da Fase 8 (`/go-and-do 8`)
+
+**O que já está pronto e commitado** em `.planning/phases/08-origem-governada-separa-o-inbound-outbound/`:
+- `08-SPEC.md`, `08-CONTEXT.md`, `08-DISCUSSION-LOG.md` — gerados via `--auto`
+- `08-INTENT-REVIEW.md` — frontmatter `intent_review: needs_decision` (ciclo 1 rodou: Codex sozinho, `gpt-5.6-terra`; agy falhou — `revisor-gsd` não instalado neste host, rota legada negada em modo headless; degradação registrada em `sinos`). Achados confirmados: 6; descartados: 5; pausas de negócio: 2 (`q1-backfill-teste-insta`, `q2-csv-default-permanente`)
+- `08-DECISOES.md` — decisão da orquestração pra `q2` (manter `origemTipo="outbound"` fixo em todo import CSV, sem seletor de UI novo)
+- `08-RUN-LOG.jsonl` — telemetria da rodada até a interrupção
+
+**O que NÃO ficou resolvido:** a resposta do usuário pra `q1-backfill-teste-insta` foi dada no chat ("Todos outbound (Recomendado)" — os 5 leads soft-deletados com origem "insta"/"Teste" viram `origemTipo=outbound` no backfill, igual ao resto do lote), mas o subagente de intenção **morreu por limite de sessão antes de gravar essa resposta no `08-INTENT-REVIEW.md`** e finalizar o ciclo. `intent_review` ainda está `needs_decision` no frontmatter, não `done`.
+
+**Como retomar:** rodar `/go-and-do 8` numa sessão nova. Pela Sub-rotina H (retomada cross-sessão), a Etapa 0-B vai redespachar o subagente de intenção do zero (não dá pra continuar o subagente antigo entre sessões) — ele vai ler o `08-INTENT-REVIEW.md` existente e retomar cirúrgico. **Ao chegar em `q1-backfill-teste-insta`, a resposta já está decidida — não precisa perguntar de novo ao usuário:** todos os 33 leads (incluindo os 5 "insta"/"Teste" soft-deletados) recebem `origemTipo=outbound` no backfill.
+
+Também vale registrar, se ainda não estiver claro pro subagente novo: `q2-csv-default-permanente` já foi decidida (ver `08-DECISOES.md`) — manter default fixo, sem seletor de UI.
+
+**Nota técnica desta rodada:** `gsd-tools.cjs` não existe neste host — usar `gsd-sdk` (instalado globalmente, mesmos handlers) como equivalente em qualquer `gsd_run query ...` que os prompts da skill pedirem.
 
 ### 2026-07-29 (sessão anterior) — ideias de backlog + fixes pontuais de import
 
