@@ -22,7 +22,7 @@ result: PASSED — campos carregados com Novo=999999, Contatado=5, Negociação=
 
 ### 3. Validation error UI (interactive)
 expected: Digitar 0 (ou um valor negativo) em qualquer campo de /configuracoes e clicar em salvar — mensagem "Mínimo de 1 dia." aparece abaixo do campo; nada é persistido no banco.
-result: ISSUE — parcialmente correto. Confirmado que nada é persistido (nenhuma requisição de rede disparada ao clicar Salvar com 0 no campo Novo). MAS a mensagem customizada "Mínimo de 1 dia." nunca aparece: o `<input type="number" min={1}>` tem validação HTML5 nativa e o `<form>` não tem `noValidate`, então o navegador intercepta o submit ANTES do react-hook-form/zodResolver rodar — foca o campo nativamente e mostra sua própria mensagem do browser ("O valor deve ser maior ou igual a 1."), nunca o texto do Zod. Reproduzido de forma consistente (3 tentativas via clique real + verificação de `validationMessage`/`document.activeElement` via JS). Fix sugerido: adicionar `noValidate` no `<form>` de configuracoes-form.tsx para o Zod assumir a validação client-side como documentado em 07-SECURITY.md (T-07-06). Testado via browser real em 2026-08-01. Fix aplicado no quick task 260801-ij4 (noValidate na tag de form de configuracoes-form.tsx) — aguardando reteste humano no navegador para virar PASSED.
+result: PASSED (após fix) — bug original: a mensagem customizada "Mínimo de 1 dia." nunca aparecia porque o `<input type="number" min={1}>` tinha validação HTML5 nativa e o `<form>` não tinha `noValidate`, então o navegador interceptava o submit ANTES do react-hook-form/zodResolver rodar. Fix aplicado no quick task 260801-ij4 (`noValidate` na tag `<form>` de configuracoes-form.tsx, commit 7e9e5e5). Reteste em 2026-08-01 via browser real: digitando 0 no campo Novo e submetendo, o elemento `[role=alert]` agora exibe exatamente "Mínimo de 1 dia." e nenhuma requisição de rede é disparada (nada persistido). Confirmado.
 
 ### 4. Save success UX (interactive)
 expected: Salvar valores válidos (ex.: 2/3/4) em /configuracoes — admin permanece na tela, os campos continuam mostrando os valores salvos, e aparece o toast "Configurações salvas.".
@@ -39,12 +39,12 @@ result: PASSED — confirmado via zoom na screenshot: fundo e texto/ícone em te
 ## Summary
 
 total: 6
-passed: 5
-issues: 1
+passed: 6
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
-- **Item 3 (Validation error UI)**: mensagem customizada Zod "Mínimo de 1 dia." nunca é exibida porque a validação HTML5 nativa (`min={1}` sem `noValidate` no `<form>`) intercepta o submit antes do react-hook-form rodar. Comportamento de segurança (nada persiste) está correto; só a UX da mensagem diverge do especificado. Fix sugerido: `<form noValidate ...>` em `configuracoes-form.tsx`. Status: fix aplicado (quick 260801-ij4), reteste pendente.
+Nenhum gap aberto. Item 3 (Validation error UI) tinha uma issue de UX (mensagem customizada Zod nunca aparecia por causa de validação HTML5 nativa interceptando o submit) — corrigida no quick task 260801-ij4 (`noValidate` em `configuracoes-form.tsx`, commit 7e9e5e5) e reconfirmada em 2026-08-01 via browser real.
