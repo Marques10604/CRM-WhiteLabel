@@ -424,12 +424,13 @@ Não aplicável — nenhuma mudança de ecossistema/versão relevante para esta 
 
 **Se esta tabela parecer vazia de riscos altos:** os dois itens acima são de baixo risco porque a recomendação final (ALTER TABLE manual) não depende de nenhum deles estar certo — são notas de contexto, não pré-condições do plano.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **O script de backfill deve ser mesclado num único arquivo (`scripts/backfill-origem-tipo.cjs`, migração + verificação) ou dividido em dois (`backfill-*.cjs` + `verify-*.cjs`, espelhando o par `verify-wa-contact-invariant.cjs`/nenhum script de aplicação separado da Fase 6)?**
    - What we know: a Fase 06-01 aplicou a coluna via `node -e` inline (não um script `.cjs` dedicado) e só criou um script `.cjs` para a guarda de invariante de negócio (não para a migração em si). A Fase 07-01 também aplicou via `push` inline, sem script dedicado.
    - What's unclear: se o padrão de "script `.cjs` dedicado à migração" (não só à verificação) é preferível aqui, já que o backfill desta fase tem uma exigência explícita de idempotência que os precedentes não tinham.
    - Recommendation: um único script mesclado (proposto em Pattern 2) é mais simples de auditar/re-rodar do que dois arquivos — decisão de baixo risco, fica a critério do planner.
+   - **RESOLVED (planejamento da Fase 8):** adotada a recomendação — arquivo único mesclado `scripts/backfill-origem-tipo.cjs` (migração + verificação + idempotência), planejado na Task 2 do `08-01-PLAN.md`. Nenhuma questão aberta remanescente nesta pesquisa.
 
 ## Environment Availability
 
