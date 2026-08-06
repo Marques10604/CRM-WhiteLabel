@@ -6,8 +6,8 @@ plans_reviewed:
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-01-PLAN.md
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-02-PLAN.md
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-03-PLAN.md
-cycle: 2
-cycle_history: [1, 2]
+cycle: 3
+cycle_history: [1, 2, 3]
 ---
 
 # Cross-AI Plan Review — Phase 8
@@ -312,3 +312,259 @@ Error: Individual quota reached. Please upgrade your subscription to increase yo
 
 **Status:** FALHOU (stdout vazio — critério de falha definido para esta execução). Não conta como
 reviewer participante do Cycle 2.
+
+---
+
+# Cycle 3 — Revisão de confirmação (fix cirúrgico do HIGH derivado do Cycle 2)
+
+**Gatilho:** commit `6448c18` reescreveu a Task 2 do 08-03-PLAN.md, substituindo o backup/restore
+manual sem `try/finally` (Fix 1, revisado no Cycle 2) por `scripts/test-mutation-guard.cjs`: um
+script Node.js que roda pré-condição (exatamente 1 ocorrência da linha alvo antes de mutar),
+backup local, bloco `try { mutar + verificar exit 1 } finally { restaurar do backup + apagar
+backup }` (o `finally` roda incondicionalmente mesmo se o `try` lançar), pós-condição (releitura
+confirmando linha restaurada e backup removido), e uma segunda chamada de
+`npm run verify:origem-tipo` confirmando exit 0. Propagado também para `<verify><automated>`,
+`<acceptance_criteria>`, `<threat_model>` (novo T-08-11), `<verification>` item 3 e
+`<success_criteria>` do 08-03-PLAN.md — confirmado por diff (`git diff 11b4ff7 6448c18`) antes de
+disparar esta revisão.
+
+**Reviewers que efetivamente participaram neste ciclo, com evidência de modelo:** apenas **Codex**
+(via `gpt-5.6-terra`, após a mesma rejeição de `gpt-5.6-sol` já observada nos Cycles 1 e 2). **Agy
+foi tentado ativamente nesta rodada** — ver "Nota sobre Agy" abaixo — mas continua bloqueado por
+quota de conta (stdout vazio, critério de falha definido para esta execução), então não conta como
+reviewer participante.
+
+## Nota sobre Agy (mesma degradação do Cycle 2 — quota ainda não resetou)
+
+`agy.exe` (v1.1.10) está presente e `agy agents` roda, mas retorna lista vazia de agentes
+disponíveis (o agente custom `~/.gemini/config/agents/revisor-gsd/agent.md` continua inexistente —
+não editado, não recriado, fora do escopo de escrita autorizado desta tarefa).
+
+Tentativa de diagnóstico com prompt trivial e sintaxe correta (sem `--effort`, que o Cycle 2 já
+havia determinado ser incompatível com `claude-sonnet-4-6`):
+
+```
+agy --model claude-sonnet-4-6 --sandbox --print "Say only the word PONG and nothing else."
+```
+
+Resultado: `exit 1`, **stdout com 0 bytes** (confirmado via redirecionamento separado de
+stdout/stderr, não apenas inspeção visual), stderr:
+```
+Error: Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 142h53m27s.
+```
+
+Isto é a MESMA janela de quota relatada no Cycle 2 (`143h5m27s` a partir de
+`2026-08-06T22:35Z`) — o contador caiu ~12 minutos entre as duas leituras (`143h5m27s` no Cycle 2
+→ `142h54m16s`/`142h53m27s` nesta tentativa), consistente com o mesmo bloqueio ainda não resetado
+(reset esperado por volta de 2026-08-12). Nenhuma tentativa adicional foi feita além desta checagem
+única de diagnóstico, para não consumir mais quota nem inventar contorno. Nenhum arquivo fora do
+`phase_dir`/`/tmp` foi tocado.
+
+**Conclusão sobre Agy nesta rodada:** degradação idêntica, não nova — conta com quota individual
+ainda esgotada. Reportado aqui como degradação conhecida e persistente, não corrigido
+silenciosamente.
+
+## Codex Review — Cycle 3
+
+**Modelo solicitado:** `gpt-5.6-sol` (explícito, com `-c model_reasoning_effort=low`).
+**Resultado:** rejeitado pela API com o MESMO erro dos Cycles 1 e 2:
+```
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account."}}
+```
+Nova tentativa com `--model gpt-5.6-terra` (mesmo `reasoning_effort=low`) — bem-sucedida.
+**Reviewer degradado nesta rodada:** SIM, pela mesma razão dos Cycles 1 e 2 (troca de modelo
+autorizada pela regra de contingência desta execução).
+
+### Summary
+
+O HIGH derivado do Cycle 2 está **PARCIALMENTE RESOLVIDO**. O `try/finally` de
+`scripts/test-mutation-guard.cjs` protege corretamente contra exceções JavaScript, falhas de
+asserção e erros de `spawnSync` ocorridos depois que a mutação começa — o `finally` roda antes do
+término normal do processo nesses casos. Porém, o Codex apontou que ele **não pode** proteger
+contra término abrupto do processo (`SIGKILL`, queda de energia, crash do SO, finalização forçada)
+entre a escrita do arquivo mutado e a restauração; o próprio plano já reconhece essa lacuna
+explicitamente. Por isso, a alegação de ser "à prova de interrupção" é forte demais, e o risco
+original de interrupção permanece de pé para essa classe específica de falha — o Codex classificou
+isso como um **HIGH** (não rebaixou para MEDIUM/LOW).
+
+### Strengths
+
+- O script de mutação não depende mais de `git checkout`, então não pode mais descartar alterações
+  não commitadas não relacionadas.
+- A pré-condição de contagem exata da linha-alvo evita mutar um estado de fonte inesperado.
+- Recusar sobrescrever um `.bak-mutationtest` já existente preserva o único original recuperável
+  após uma execução anterior interrompida.
+- O `try/finally` cobre corretamente exceções da lógica de mutação, asserções de status de
+  verificação e falhas comuns de `spawnSync`.
+- A pós-condição relê tanto o arquivo-fonte quanto o estado do backup, em vez de assumir que a
+  restauração funcionou.
+- A chamada final de `verify:origem-tipo` prova que a fonte restaurada devolve a guarda ao verde.
+- Planos 08-01 e 08-02 tornam o ciclo de vida do dado explícito: default físico SQLite/backfill,
+  validação estrita na entrada manual, e default no CSV aplicado server-side.
+- O plano de import contabiliza corretamente o mapeamento explícito de `.values({...})`, evitando
+  uma omissão mascarada silenciosamente.
+- O plano do harness de teste conserta deliberadamente o bootstrap de schema temporário obsoleto
+  antes de depender dele como evidência.
+- Fronteiras de segurança e restrições de migração destrutiva estão bem documentadas.
+
+### Concerns
+
+- **HIGH — guarda de mutação continua vulnerável a término abrupto do processo.** O `finally` não
+  executa após `SIGKILL`, finalização forçada, queda de energia ou crash do SO. Se isso acontecer
+  depois de `writeFileSync(TARGET, mutated)` e antes da restauração, `import-actions.ts` permanece
+  mutado e o backup permanece ao lado. A guarda "backup já existe no início → fail()" evita
+  sobrescrever o dado de recuperação, mas não restaura automaticamente.
+- **MEDIUM — falha de restauração contorna a pós-condição anunciada.** Se `fs.copyFileSync(BACKUP,
+  TARGET)` lançar dentro do `finally`, a execução sai do `try/finally` com esse erro. A pós-condição
+  subsequente não roda, e `fs.rmSync(BACKUP)` é pulado. Isso é mais seguro do que reportar sucesso
+  falsamente, mas o plano deveria declarar esse comportamento exato e preservar uma saída de
+  recuperação acionável.
+- **MEDIUM — o teste muta um arquivo-fonte real da working tree desnecessariamente.** Um teste de
+  mutação pode validar o verificador usando uma cópia temporária e um override explícito de
+  entrada do verificador. Isso eliminaria todas as preocupações de recuperação de crash, corridas
+  com editores, e arquivos de backup remanescentes.
+- **MEDIUM — execuções concorrentes podem entrar em corrida.** Dois processos de
+  `test-mutation-guard` podem ambos observar ausência de backup, e então copiar/mutar o mesmo
+  alvo simultaneamente. O plano assume execução serializada mas não a impõe.
+- **MEDIUM — o texto do backup do Plano 08-01 é tecnicamente impreciso.** `wal_checkpoint(TRUNCATE)`
+  ocorre antes de `fs.copyFileSync`; ele próprio é uma operação de escrita/manutenção de banco. É a
+  abordagem correta para um backup SQLite coerente, mas não é literalmente "backup antes de
+  qualquer escrita". O threat model deveria dizer "checkpoint antes do snapshot, antes da mutação
+  de schema/dado".
+- **LOW — limpeza de erro do script de migração do Plano 08-01 é fraca.** Se o script de migração
+  lançar depois de abrir o banco, `db.close()` pode não rodar. Geralmente inofensivo para um CLI de
+  vida curta, mas `try/finally` em torno do handle do banco seria mais limpo.
+- **LOW — portabilidade de comando no Windows.** `spawnSync("npm", ...)` geralmente funciona no
+  Windows, mas usar `npm.cmd` no Windows é mais robusto neste ambiente do repositório.
+- **LOW — algumas asserções estáticas por regex são sensíveis a formatação.** Aceitável para uma
+  guarda permanente de fiação, mas checagens ancoradas em sintaxe ou um pequeno parser reduziriam
+  falsos-negativos após mudanças de formatação inofensivas.
+
+### Suggestions
+
+- Substituir a mutação in-place por completo:
+  - Fazer `verify-origem-tipo.cjs` aceitar um override de ambiente restrito para o caminho da fonte
+    de `import-actions.ts`.
+  - Copiar `import-actions.ts` para um arquivo único sob o diretório temp do SO, mutar essa cópia,
+    rodar o verificador com o override, depois apagar o diretório temp.
+  - Manter a invocação normal do verificador inalterada para checagens de produção.
+  - Isso remove completamente o problema de crash-safety do arquivo-fonte, em vez de tentar se
+    recuperar dele.
+- Se a mutação in-place precisar permanecer, rebaixar o texto de garantia para: "seguro contra
+  exceções comuns e falhas de processo-filho; não recuperável automaticamente após finalização
+  forçada do processo."
+- Colocar restauração e limpeza em blocos `try/finally` aninhados, preservando o backup se a
+  restauração falhar e emitindo seu caminho exato:
+  - tentativa de restauração;
+  - só remover o backup após uma restauração bem-sucedida;
+  - reportar um comando/caminho de recuperação em caso de falha.
+- Adicionar um arquivo de lock exclusivo criado em modo exclusivo antes da criação do backup,
+  removendo-o só depois que as pós-condições passarem. Isso evita execuções simultâneas.
+- No 08-01, refrasear a garantia de backup e envolver a conexão de migração com
+  `try/finally { db.close() }`.
+- No 08-03, selecionar `npm.cmd` quando `process.platform === "win32"`.
+
+### Risk Assessment
+
+**MEDIUM.** O design da fase, a ordenação de migração, os contratos de validação e a cobertura de
+verificação são fortes. O risco material remanescente está limitado ao teste de mutação, não a
+dado ou comportamento de produção — mas ainda pode deixar o arquivo-fonte da working tree de um
+desenvolvedor quebrado após uma interrupção forçada. Com a abordagem de cópia temporária, esta
+revisão se tornaria **risco LOW** e o HIGH do Cycle 2 seria totalmente resolvido.
+
+### Plan-specific notes (Codex)
+
+**08-01-PLAN.md:** Bem escopado e tecnicamente sólido para uma migração SQLite aditiva. A guarda
+idempotente de `ALTER`, o `WHERE origem_tipo IS NULL`, a verificação direta contra o banco, e a
+prova de segunda execução são particularmente fortes. A correção principal é terminológica e de
+limpeza: o checkpoint WAL precede o snapshot copiado e deveria ser descrito com precisão; garantir
+que os handles de banco fecham em todo caminho de falha.
+
+**08-02-PLAN.md:** Forte e apropriadamente contido. Honra a distinção deliberada entre leads
+manuais exigindo seleção consciente e imports CSV recebendo um default `outbound` server-side.
+Também evita scope creep para badges, listas e UI de wizard. Nenhum bloqueador material encontrado.
+
+**08-03-PLAN.md:** O conserto do harness e o verificador permanente são bem justificados, e o teste
+de mutação é muito mais seguro que as versões dos Cycles 1/2. O problema remanescente é
+arquitetural: um teste não deveria mutar um arquivo-fonte rastreado quando um verificador pode ser
+parametrizado para inspecionar uma mutação temporária. Até essa mudança ser feita, o veredito de
+crash-safety permanece parcial, não completo.
+
+---
+
+## Consensus Summary — Cycle 3
+
+Apenas um reviewer externo gerou parecer neste ciclo (Codex, com a mesma troca de modelo por
+indisponibilidade de `gpt-5.6-sol` já vista nos Cycles 1 e 2). Agy foi tentado ativamente mas
+continua bloqueado pela mesma quota de conta esgotada do Cycle 2 (stdout vazio) — ver "Nota sobre
+Agy" acima. Não há convergência/divergência entre múltiplos reviewers a sintetizar neste ciclo; o
+veredito abaixo é o do próprio Codex.
+
+### Verdict sobre o HIGH do Cycle 2
+
+**PARCIALMENTE RESOLVIDO — HIGH REBAIXADO EM ESCOPO, MAS NÃO ELIMINADO.** O Fix 2
+(`scripts/test-mutation-guard.cjs` com `try/finally` + pré/pós-condição) fecha corretamente a
+lacuna de falhas "normais" de processo: exceções JavaScript, asserção de status incorreto do
+verificador, e falhas de `spawnSync` agora sempre disparam a restauração via `finally` antes do
+processo terminar normalmente. Isso é uma melhoria real e verificável sobre o Fix 1.
+
+Porém, o Codex identificou que a classe de falha "processo morre sem chance de rodar código
+JavaScript" (`SIGKILL`, queda de energia, crash do SO, finalização forçada externa) **continua sem
+mitigação** — o próprio 08-03-PLAN.md já reconhece isso explicitamente como limitação residual
+("mesma limitação de qualquer processo, documentada aqui em vez de ignorada"), mas o Codex avalia
+que essa lacuna residual ainda constitui um HIGH, não um LOW aceitável, porque a arquitetura atual
+(mutar o arquivo-fonte real da working tree in-place) é evitável: a sugestão do Codex é mutar uma
+cópia temporária sob `os.tmpdir()` e parametrizar `verify-origem-tipo.cjs` para inspecionar essa
+cópia via override de caminho, o que eliminaria inteiramente a superfície de risco em vez de
+apenas reduzi-la.
+
+### Agreed Strengths
+N/A — apenas um reviewer gerou parecer neste ciclo.
+
+### Agreed Concerns
+N/A — apenas um reviewer. Ver `### Concerns` acima (Cycle 3) para a lista completa.
+
+### Divergent Views
+N/A — apenas um reviewer.
+
+## Model Evidence — Cycle 3
+
+### Codex
+
+Primeira tentativa (`--model gpt-5.6-sol`) — rejeitada pela API (mesmo erro dos Cycles 1 e 2):
+```
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account."}}
+```
+
+Segunda tentativa (`--model gpt-5.6-terra`, mesmo `-c model_reasoning_effort=low`) — bem-sucedida.
+Banner verbatim (`head -8` de `/tmp/gsd-review-codex-08-c3.err`):
+
+```
+OpenAI Codex v0.144.6
+--------
+workdir: C:\Users\Vencedor\Desktop\crm-leads
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: low
+```
+
+**Reviewer degradado nesta rodada:** SIM — mesma troca de modelo dos Cycles 1 e 2, mesma regra de
+contingência aplicada.
+
+### Agy (tentativa sem parecer)
+
+```
+agy --model claude-sonnet-4-6 --sandbox --print "Say only the word PONG and nothing else."
+```
+
+Stdout: 0 bytes (confirmado via redirecionamento separado para arquivo, não inferido).
+Stderr:
+```
+Error: Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 142h53m27s.
+```
+
+**Status:** FALHOU (stdout vazio — critério de falha definido para esta execução). Não conta como
+reviewer participante do Cycle 3. Mesma quota do Cycle 2, ainda não resetada (contador caiu ~12min
+entre as duas leituras, consistente com continuidade do mesmo bloqueio, não um novo bloqueio).
