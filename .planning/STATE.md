@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: planning
-last_updated: "2026-08-01T20:26:33.424Z"
-last_activity: "2026-08-01 — ROADMAP.md criado para v1.3 (5 fases: 8-12), REQUIREMENTS.md traceability preenchida (13/13 requisitos mapeados)"
+status: executing
+last_updated: "2026-08-06T13:42:48.308Z"
+last_activity: 2026-08-06 -- Phase 08 planning complete
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 6
+  total_plans: 9
   completed_plans: 6
   percent: 38
 ---
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — PAUSADA em Etapa 0-B (intenção), rodando via /go-and-do
 Plan: — (roadmap criado; SPEC/CONTEXT prontos; revisão de intenção incompleta)
-Status: /go-and-do 8 pausado — retomar com `/go-and-do 8`
-Last activity: 2026-08-01T20:26 — sessão atingiu o limite de conta no meio da Etapa 0-B; ver "Retomada exata da Fase 8" abaixo
+Status: Ready to execute
+Last activity: 2026-08-06 -- Phase 08 planning complete
 
 Progress: [░░░░░░░░░░] 0% (v1.3)
 
@@ -183,6 +183,7 @@ Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` ant
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
 **O que já está pronto e commitado** em `.planning/phases/08-origem-governada-separa-o-inbound-outbound/`:
+
 - `08-SPEC.md`, `08-CONTEXT.md`, `08-DISCUSSION-LOG.md` — gerados via `--auto`
 - `08-INTENT-REVIEW.md` — frontmatter `intent_review: needs_decision` (ciclo 1 rodou: Codex sozinho, `gpt-5.6-terra`; agy falhou — `revisor-gsd` não instalado neste host, rota legada negada em modo headless; degradação registrada em `sinos`). Achados confirmados: 6; descartados: 5; pausas de negócio: 2 (`q1-backfill-teste-insta`, `q2-csv-default-permanente`)
 - `08-DECISOES.md` — decisão da orquestração pra `q2` (manter `origemTipo="outbound"` fixo em todo import CSV, sem seletor de UI novo)
