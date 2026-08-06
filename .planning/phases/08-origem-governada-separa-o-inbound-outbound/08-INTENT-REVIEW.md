@@ -1,12 +1,15 @@
 ---
-intent_review: needs_decision
+intent_review: done
 revisores_efetivos: [codex]
 codex_model_evidencia: "model: gpt-5.6-terra"
 agy_model_evidencia: null
-ciclos_completos: 1
+ciclos: 1
 achados_confirmados: 6
 achados_descartados: 5
 pausas_de_negocio: 2
+transparencia:
+  - "Ausência de badge visual de origem/backfill não é regressão — decisão consciente D-05, já documentada em 08-CONTEXT.md, confirmada pelo revisor como não-bloqueadora"
+  - "scripts/test-lead-actions.cjs chama createLead/updateLead diretamente e precisa ser atualizado no mesmo commit que tornar origemTipo obrigatório (achado #7)"
 ---
 
 # Fase 8 — Revisão Adversarial de Intenção (Ciclo 1)
@@ -21,8 +24,8 @@ pausas_de_negocio: 2
 
 | # | Alegação do Codex | Verificação (Read/Grep no código) | Destino | Ação tomada |
 |---|---|---|---|---|
-| 1 | Backfill 100% "outbound" é suposição de negócio não verificável só pelo banco — 5 dos 33 leads têm `origem` "Teste"/"insta" (todos já soft-deletados, 0 ativos), não necessariamente do lote CSV do cowork | Confirmado por query direta: `origem="insta"` (2 linhas) e `origem="Teste"` (3 linhas), 100% com `deleted_at` preenchido. Nenhuma evidência no banco de como esses 5 leads foram captados — "insta" é compatível tanto com "nota manual de que o contato foi via Instagram" (possivelmente Inbound) quanto com um teste do próprio admin | **Mexe em critério de aceite (Requirement 3)** | `<business_pause>` — Pergunta 1 abaixo |
-| 2 | Default fixo "outbound" no import CSV é regra de negócio nova, pode classificar errado um lead quente se o wizard for reusado para outra fonte no futuro (ex.: export de tráfego pago) | Confirmado: `mapCsvRows`/`import-actions.ts` não distinguem fonte do CSV — qualquer arquivo que passe pelo wizard hoje receberia `outbound` sem exceção | **Mexe em critério de aceite (Requirement 2, comportamento contínuo)** | `<business_pause>` — Pergunta 2 abaixo |
+| 1 | Backfill 100% "outbound" é suposição de negócio não verificável só pelo banco — 5 dos 33 leads têm `origem` "Teste"/"insta" (todos já soft-deletados, 0 ativos), não necessariamente do lote CSV do cowork | Confirmado por query direta: `origem="insta"` (2 linhas) e `origem="Teste"` (3 linhas), 100% com `deleted_at` preenchido. Nenhuma evidência no banco de como esses 5 leads foram captados — "insta" é compatível tanto com "nota manual de que o contato foi via Instagram" (possivelmente Inbound) quanto com um teste do próprio admin | **Mexe em critério de aceite (Requirement 3)** | `<business_pause>` — Pergunta 1. **Decisão do usuário: Backfill uniforme, "Todos outbound (Recomendado)"** — incorporado em `08-SPEC.md` (Acceptance Criteria) |
+| 2 | Default fixo "outbound" no import CSV é regra de negócio nova, pode classificar errado um lead quente se o wizard for reusado para outra fonte no futuro (ex.: export de tráfego pago) | Confirmado: `mapCsvRows`/`import-actions.ts` não distinguem fonte do CSV — qualquer arquivo que passe pelo wizard hoje receberia `outbound` sem exceção | **Mexe em critério de aceite (Requirement 2, comportamento contínuo)** | `<business_pause>` — Pergunta 2. **Decisão pela orquestração (camada 0), registrada em `08-DECISOES.md`: manter default fixo "outbound", sem seletor de UI** — incorporado em `08-SPEC.md` (Acceptance Criteria) |
 | 3 | `text(..., {enum:[...]}).notNull()` do Drizzle não cria `CHECK` no SQLite — "enum fechado" só vale na camada de aplicação | Confirmado por leitura de `src/db/migrations/0000_gifted_slapstick.sql:5-9` — `canal`/`stage` já são `text NOT NULL` puro, sem `CHECK`, mesmo padrão que `origemTipo` seguiria | **Correção factual** | Aplicada em `08-SPEC.md` §Constraints — clarificado que o enum fechado é garantido por Zod/aplicação, mesmo precedente de `canal`/`stage`, não regressão nova |
 | 4 | Mecanismo exato de migração (ALTER TABLE vs. drizzle-kit push) ainda em aberto, mas define contrato físico do campo (ex.: se ficar com `DEFAULT 'outbound'` na coluna, futuros inserts sem o campo herdam isso silenciosamente) | Já era `Claude's Discretion` explícito em `08-CONTEXT.md` antes desta revisão — Codex não trouxe fato novo, só reforçou a importância | Já coberto (sem novo achado) | Nenhuma mudança — mantido como decisão técnica do planner, com a ressalva do Codex sobre `DEFAULT` físico anotada para o researcher/planner considerar |
 | 5 | Acceptance criteria original não cobria: verificação de schema real pós-migração (DDL/`PRAGMA table_info`), nem idempotência do script de backfill (rodar 2x não deve reclassificar linha já corrigida manualmente) | Confirmado por leitura do `08-SPEC.md` original — nenhum item de aceite cobria idempotência | **Tradeoff de risco/implementação** | Aplicada em `08-SPEC.md` §Constraints/§Acceptance Criteria — novo item de idempotência do script de backfill |
@@ -36,7 +39,12 @@ pausas_de_negocio: 2
 
 **Fontes convergentes:** nenhum achado teve confirmação cruzada Codex+agy nesta rodada (agy falhou antes de produzir parecer) — todos os achados acima têm fonte única (`codex`).
 
-## Perguntas pendentes (decisão do usuário)
+## Decisões do usuário (destino 2 — pausas de negócio resolvidas)
+
+Ambas as pausas de negócio abertas no Ciclo 1 foram decididas. Nenhuma reabre o loop de
+convergência: as duas escolhas coincidem com a recomendação já registrada abaixo, e a
+retomada (sessão nova, após interrupção por limite de conta) não trouxe achado novo dos
+revisores — apenas incorporação das decisões já tomadas.
 
 ### Pergunta 1 — Valor do backfill para os 5 leads soft-deletados "Teste"/"insta"
 
@@ -44,13 +52,13 @@ pausas_de_negocio: 2
 
 **O que a verificação confirmou:** os 5 leads (`"Teste"` ×3, `"insta"` ×2) estão **todos soft-deletados** (0 ativos) — não aparecem em nenhuma tela hoje, e o próprio SPEC.md já não exigia edição em massa deles. Não há metadado adicional no banco (sem campo de nota/timestamp de criação detalhado consultado) que prove a origem real desses 5 registros além do texto livre.
 
-**Opções:**
+**Opções apresentadas:**
 - **Backfill uniforme: todos os 33 leads (incluindo os 5 "Teste"/"insta") recebem `origemTipo = "outbound"`** — mais simples, consistente com a leitura original do SPEC.md; risco: se algum dos 2 "insta" for de fato um contato Inbound histórico, a Phase 10/11 vai tratá-lo (e a nenhuma automação real hoje, já que estão soft-deletados) como outbound incorretamente — mas por estarem na Lixeira, o impacto prático em produção é zero até serem restaurados.
 - **Backfill diferenciado: "Importação CSV" → outbound; "Teste" → outbound (dado de teste, não lead real); "insta" → inbound** (assumindo que "insta" nota contato via Instagram) — mais correto semanticamente se a suposição estiver certa, mas exige uma regra de mapeamento extra no script de backfill (`origem` → `origemTipo` por correspondência de texto, o que o próprio SPEC.md original queria evitar como precedente — "nenhuma automação nova pode inferir por parsing de string", Pitfall 2 do `research/SUMMARY.md`) e a suposição sobre "insta" pode estar errada de qualquer forma.
 
-**Recomendação:** Backfill uniforme (todos → outbound), pelo motivo que o próprio Codex concorda ser mitigante: os 5 leads em questão já estão soft-deletados (zero impacto em automação ativa hoje), e diferenciar o backfill por parsing de texto do campo `origem` reintroduziria exatamente o Pitfall 2 que este projeto decidiu evitar (inferência frágil por string). Se o admin quiser reclassificar algum desses 5 no futuro, o caminho já existe: restaurar via Lixeira → editar `origemTipo` manualmente no formulário (achado #6 acima).
+**Recomendação (já registrada no Ciclo 1):** Backfill uniforme (todos → outbound).
 
-**Reversível:** sim — é um `UPDATE` em 5 linhas soft-deletadas; corrigir depois (via restaurar+editar, ou um segundo `UPDATE` direto) não quebra nada em produção porque nenhum lead ativo é afetado por esta escolha.
+**Decisão do usuário:** **Backfill uniforme — "Todos outbound (Recomendado)"**. Os 33 leads existentes, incluindo os 5 soft-deletados (`"Teste"` ×3, `"insta"` ×2), recebem `origemTipo = "outbound"` no script de backfill, sem regra diferenciada por texto de `origem`. Incorporado em `08-SPEC.md` (Acceptance Criteria, linha do backfill de 33 linhas). Reversível: sim — `UPDATE` em 5 linhas soft-deletadas; restaurar via Lixeira + editar manualmente corrige caso a caso no futuro, sem impacto em produção.
 
 ### Pergunta 2 — Default do import CSV daqui pra frente: sempre "outbound", ou existe hoje algum caso de CSV vindo de fonte "quente"?
 
@@ -58,15 +66,24 @@ pausas_de_negocio: 2
 
 **O que a verificação confirmou:** hoje o único uso real do wizard `/importar` é o lote do cowork parceiro (`CSV_DEFAULTS.origem = "Importação CSV"`, `CLAUDE.md`: "recebidos em lote via CSV de um cowork parceiro") — não há, no código ou nos planos documentados, nenhuma outra fonte de CSV prevista para v1.3.
 
-**Opções:**
+**Opções apresentadas:**
 - **Manter o default fixo "outbound" para todo import CSV, sem exceção** — simples, sem novo passo de UI no wizard (mantém Requirement 2 do SPEC como está); assume que o wizard continua sendo, na prática, o canal exclusivo do lote de prospecção fria do cowork.
 - **Adicionar um seletor único por lote no wizard** ("Este lote é Inbound ou Outbound?", aplicado a todas as linhas do arquivo) — mais correto se o admin um dia importar CSV de fonte diferente, mas é um passo de UI novo que o SPEC.md atual explicitamente não pedia, e o `ROADMAP.md`/`REQUIREMENTS.md` desta fase não mencionam essa necessidade.
 
-**Recomendação:** manter o default fixo "outbound" — não há indício real (código, roadmap ou histórico do projeto) de que o wizard vá receber outra fonte de CSV neste milestone; adicionar um seletor de lote agora seria construir para um caso hipotético não pedido (indo contra o próprio princípio do projeto de "nenhuma automação nova pode inferir/assumir além do que os requisitos pedem"). Se o admin efetivamente começar tráfego pago com exportação em CSV, isso é retrabalho pequeno e localizado (um select a mais no wizard) para tratar quando o caso real aparecer.
+**Recomendação (já registrada no Ciclo 1):** manter o default fixo "outbound".
 
-**Reversível:** sim — é uma linha de código (`CSV_DEFAULTS`/`mapCsvRows`); trocar o default fixo por um seletor de lote depois é uma mudança pequena e isolada, sem impacto em dado já importado.
+**Decisão:** **decidida pela orquestração (camada 0)** e registrada em `08-DECISOES.md` (2026-08-01, Etapa 0-B) — manter o default fixo `origemTipo="outbound"` para todo import CSV, sem seletor de UI novo no wizard. Coincide com a recomendação do Ciclo 1; não reaberta aqui. Incorporado em `08-SPEC.md` (Acceptance Criteria, linha do import CSV). Reversível: sim — troca localizada em `CSV_DEFAULTS`/`mapCsvRows`, sem impacto em dado já importado.
+
+## Convergência — fechamento do loop
+
+Passo 5 (retomada pós-interrupção, sessão nova): as duas pausas de negócio do Ciclo 1
+foram resolvidas sem gerar achado novo — ambas as decisões do usuário coincidem com a
+recomendação já verificada no ciclo. Não há Codex/Antigravity a re-rodar (nenhuma
+correção de fato ou reabertura de escopo motivaria um Ciclo 2; a interrupção anterior foi
+por limite de conta, não por achado pendente de verificação). Loop encerrado em 1 ciclo
+completo: nenhum achado novo sustentado, ambas pausas de negócio fechadas.
 
 ---
 
 *Fase: 08-origem-governada-separa-o-inbound-outbound*
-*Revisão gerada: 2026-08-01 (Ciclo 1, needs_decision)*
+*Revisão gerada: 2026-08-01 (Ciclo 1) — pausas de negócio resolvidas e loop fechado em 2026-08-06 (sessão de retomada pós-limite de conta)*
