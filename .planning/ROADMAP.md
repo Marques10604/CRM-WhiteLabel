@@ -132,7 +132,20 @@ Plans:
   2. Todo lead que já existia antes da mudança de schema recebe uma classificação padrão via backfill explícito e documentado — nenhum lead ativo fica com `origemTipo` vazio/nulo após a migração
   3. A classificação de origem (Inbound/Outbound) fica visível em pelo menos uma tela de consulta do lead (formulário, lista ou pipeline), para o admin conferir o resultado do backfill e de novas classificações
 
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 08-01-PLAN.md — Contratos de `origemTipo` (coluna Drizzle + schemas Zod) e migração `ALTER TABLE` + backfill idempotente das 33 linhas de `data/crm.db`, com backup prévio
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 08-02-PLAN.md — Campo obrigatório "Tipo de origem" no modal de lead (padrão do campo `canal`, sem pré-seleção) + default `outbound` persistido no import CSV em lote
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 08-03-PLAN.md — Bootstrap de `test-lead-actions.cjs` consertado + casos de `origemTipo` + guarda permanente `verify:origem-tipo` + gates finais (tsc/eslint/build)
 
 **UI hint**: yes
 
