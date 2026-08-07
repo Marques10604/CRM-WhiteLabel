@@ -57,6 +57,11 @@ const CANAL_OPTIONS = [
   { value: "whatsapp", label: "WhatsApp" },
 ] as const;
 
+const ORIGEM_TIPO_OPTIONS = [
+  { value: "inbound", label: "Inbound" },
+  { value: "outbound", label: "Outbound" },
+] as const;
+
 const STAGE_OPTIONS = [
   { value: "novo", label: "Novo" },
   { value: "contatado", label: "Contatado" },
@@ -108,6 +113,7 @@ export function LeadFormDialog({
       telefone: lead?.telefone ?? "",
       canal: lead?.canal,
       origem: lead?.origem ?? "",
+      origemTipo: lead?.origemTipo,
       // Reexibição do valor armazenado (centavos) via formatCentsToBRL (D-02 contrato de valor).
       valorEstimado: lead ? formatCentsToBRL(lead.valorEstimado) : "",
       notas: lead?.notas ?? "",
@@ -249,6 +255,44 @@ export function LeadFormDialog({
                     De onde esse lead veio — ex: indicação, anúncio, evento, parceria com o cowork.
                   </FieldDescription>
                   <FieldError errors={[errors.origem]} />
+                </FieldContent>
+              </Field>
+
+              <Field data-invalid={!!errors.origemTipo}>
+                <FieldLabel htmlFor="origemTipo">Tipo de origem</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="origemTipo"
+                    render={({ field }) => (
+                      <Select
+                        name="origemTipo"
+                        items={ORIGEM_TIPO_OPTIONS as unknown as { value: string; label: string }[]}
+                        value={(field.value as string | undefined) ?? null}
+                        onValueChange={(value) => field.onChange(value)}
+                      >
+                        <SelectTrigger
+                          id="origemTipo"
+                          aria-invalid={!!errors.origemTipo}
+                          className="w-full"
+                        >
+                          <SelectValue placeholder="Selecione o tipo de origem" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ORIGEM_TIPO_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <FieldDescription>
+                    Inbound = o lead procurou você (anúncio, formulário, indicação). Outbound = você
+                    iniciou o contato (prospecção fria).
+                  </FieldDescription>
+                  <FieldError errors={[errors.origemTipo]} />
                 </FieldContent>
               </Field>
             </div>
