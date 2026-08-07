@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-06T13:42:48.308Z"
-last_activity: 2026-08-06 -- Phase 08 planning complete
+last_updated: "2026-08-07T11:41:43.927Z"
+last_activity: 2026-08-07
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 7
   percent: 38
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.3, Fase 8 (Origem Governada + Inbound×Outbound) — `/go-and-do 8` em andamento, **interrompido no meio da Etapa 0-B (revisão de intenção)** por limite de sessão da conta (reset 20h America/Sao_Paulo). Retomar com `/go-and-do 8` numa sessão nova.
+**Current focus:** Phase 08 — origem-governada-separa-o-inbound-outbound
 
 ## Current Position
 
-Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — PAUSADA em Etapa 0-B (intenção), rodando via /go-and-do
-Plan: — (roadmap criado; SPEC/CONTEXT prontos; revisão de intenção incompleta)
+Phase: 08 (origem-governada-separa-o-inbound-outbound) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-08-06 -- Phase 08 planning complete
+Last activity: 2026-08-07
 
-Progress: [░░░░░░░░░░] 0% (v1.3)
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0% (v1.3)
 | Phase 06 P02 | 20min | 2 tasks | 2 files |
 | Phase 07 P01 | 25min | 3 tasks | 4 files |
 | Phase 07-configura-o-de-dias-parado-por-etapa P02 | 20min | 3 tasks | 4 files |
+| Phase 08 P01 | 15min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - [Phase ?]: drizzle-kit push (nao generate) usado no Plano 07-01 - snapshot de migracoes ja divergente do banco real desde Fase 4/6, debito tecnico pre-existente nao resolvido aqui
 - [Phase 07-02]: react-hooks/refs (eslint-config-next 16.2.10) sinaliza como erro o padrao onSubmit={form.handleSubmit(onSubmit)} + leitura de formRef.current, mesmo falso-positivo ja presente em template-form-dialog.tsx (analog mandatado); suprimido com eslint-disable-next-line documentado, sem mudar comportamento
 - [Phase 07-02]: limitesPorEtapa em pipeline/page.tsx omite fechado/perdido por construcao (ausencia no mapa, nao condicional extra) - paridade pre-save (D-04) confirmada em runtime com lead real forcado 10 dias em novo
+- [Phase ?]: [Phase 08-01]: origemTipo posicionado imediatamente apos origem em schema.ts e validations.ts (D-02); default apenas na coluna Drizzle/fisica e em csvRowSchema, leadSchema fica sem default (D-04, formulario forca escolha consciente)
+- [Phase ?]: [Phase 08-01]: backfill uniforme confirmado em producao - todos os 33 leads (22 ativos + 11 soft-deletados, incluindo os 5 com origem insta/Teste) receberam origemTipo=outbound via ALTER TABLE manual idempotente, sem drizzle-kit
 
 ### Pending Todos
 
@@ -175,9 +178,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-01T20:26:33.388Z — sessão atingiu o **limite de conta** (reset 20h America/Sao_Paulo), não foi pausa graciosa normal do go-and-do
-Stopped at: `/go-and-do 8`, Etapa 0-B (revisão adversarial de intenção) — ver "Retomada exata da Fase 8" abaixo
-Resume file: .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-INTENT-REVIEW.md
+Last session: 2026-08-07T11:41:43.903Z
+Stopped at: Completed 08-01-PLAN.md
+Resume file: None
 Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão (host de 4GB, evitar processos duplicados).
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)

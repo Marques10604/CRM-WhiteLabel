@@ -9,8 +9,8 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 ### Origem e Segmentação
 
-- [ ] **ORIGEM-01**: Admin classifica cada lead com um tipo de origem (Inbound ou Outbound) via campo dedicado (`origemTipo`, enum fechado) — sem depender do texto livre existente em `origem`
-- [ ] **ORIGEM-02**: Leads existentes recebem uma classificação padrão via backfill explícito e documentado, ao aplicar a mudança de schema
+- [x] **ORIGEM-01**: Admin classifica cada lead com um tipo de origem (Inbound ou Outbound) via campo dedicado (`origemTipo`, enum fechado) — sem depender do texto livre existente em `origem`
+- [x] **ORIGEM-02**: Leads existentes recebem uma classificação padrão via backfill explícito e documentado, ao aplicar a mudança de schema
 - [ ] **ORIGEM-03**: Leads classificados como Inbound não recebem sugestão automática da sequência de follow-up escalonada — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
 
 ### Timeline de Interações
@@ -75,8 +75,8 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ORIGEM-01 | Phase 8 | Pending |
-| ORIGEM-02 | Phase 8 | Pending |
+| ORIGEM-01 | Phase 8 | Complete |
+| ORIGEM-02 | Phase 8 | Complete |
 | ORIGEM-03 | Phase 10 | Pending |
 | TIMELINE-01 | Phase 9 | Pending |
 | TIMELINE-02 | Phase 9 | Pending |
