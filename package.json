@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs"
+    "guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs",
+    "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
+    "test:lead-actions": "node scripts/test-lead-actions.cjs",
+    "test:mutation-guard": "node scripts/test-mutation-guard.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
