@@ -128,6 +128,10 @@ Sem acesso a navegador nesta sessão headless (mesmo caveat registrado em pratic
 - Nenhum bloqueio técnico identificado para o plano 08-03
 - Débito pendente: verificação humana via navegador (ver seção acima) — recomendado antes de considerar a Fase 8 pronta para uso real em prospecção
 
+## Self-Check: PASSED
+
+Todos os arquivos declarados (`src/components/lead-form-dialog.tsx`, `src/lib/csv-import.ts`, `src/actions/import-actions.ts`, `08-02-SUMMARY.md`) e todos os commits (`5551fb3`, `3ecab19`, `0d230f0`) confirmados existentes no disco/histórico do git.
+
 ---
 *Phase: 08-origem-governada-separa-o-inbound-outbound*
 *Completed: 2026-08-07*

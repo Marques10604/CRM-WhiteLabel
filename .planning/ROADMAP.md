@@ -132,7 +132,7 @@ Plans:
   2. Todo lead que já existia antes da mudança de schema recebe uma classificação padrão via backfill explícito e documentado — nenhum lead ativo fica com `origemTipo` vazio/nulo após a migração
   3. A classificação de origem (Inbound/Outbound) fica visível em pelo menos uma tela de consulta do lead (formulário, lista ou pipeline), para o admin conferir o resultado do backfill e de novas classificações
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 **Wave 1**
@@ -141,7 +141,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02-PLAN.md — Campo obrigatório "Tipo de origem" no modal de lead (padrão do campo `canal`, sem pré-seleção) + default `outbound` persistido no import CSV em lote
+- [x] 08-02-PLAN.md — Campo obrigatório "Tipo de origem" no modal de lead (padrão do campo `canal`, sem pré-seleção) + default `outbound` persistido no import CSV em lote
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -224,7 +224,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
-| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 1/3 | In Progress|  |
+| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 2/3 | In Progress|  |
 | 9. Timeline de Interações | v1.3 | 0/TBD | Not started | - |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |

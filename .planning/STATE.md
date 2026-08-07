@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-07T11:41:43.927Z"
+last_updated: "2026-08-07T16:12:05.911Z"
 last_activity: 2026-08-07
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 38
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 08 (origem-governada-separa-o-inbound-outbound) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-08-07
 
-Progress: [████████░░] 78%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [████████░░] 78%
 | Phase 07 P01 | 25min | 3 tasks | 4 files |
 | Phase 07-configura-o-de-dias-parado-por-etapa P02 | 20min | 3 tasks | 4 files |
 | Phase 08 P01 | 15min | 3 tasks | 3 files |
+| Phase 08 P02 | 18min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase 07-02]: limitesPorEtapa em pipeline/page.tsx omite fechado/perdido por construcao (ausencia no mapa, nao condicional extra) - paridade pre-save (D-04) confirmada em runtime com lead real forcado 10 dias em novo
 - [Phase ?]: [Phase 08-01]: origemTipo posicionado imediatamente apos origem em schema.ts e validations.ts (D-02); default apenas na coluna Drizzle/fisica e em csvRowSchema, leadSchema fica sem default (D-04, formulario forca escolha consciente)
 - [Phase ?]: [Phase 08-01]: backfill uniforme confirmado em producao - todos os 33 leads (22 ativos + 11 soft-deletados, incluindo os 5 com origem insta/Teste) receberam origemTipo=outbound via ALTER TABLE manual idempotente, sem drizzle-kit
+- [Phase ?]: [Phase 08-02]: origemTipo posicionado imediatamente apos origem no modal de lead (D-02), espelhando estrutura por estrutura o campo canal (D-03); defaultValues.origemTipo sem fallback garante placeholder vazio na criacao (D-04)
+- [Phase ?]: [Phase 08-02]: CSV_DEFAULTS.origemTipo eh documentacao/paridade visual; aplicacao real do default outbound continua no .default() do csvRowSchema (08-01) -- origemTipo nao vira CsvFieldKey mapeavel, wizard sem passo de UI novo
 
 ### Pending Todos
 
@@ -178,8 +181,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-07T11:41:43.903Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-08-07T16:12:05.876Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
 Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão (host de 4GB, evitar processos duplicados).
 
