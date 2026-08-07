@@ -37,6 +37,9 @@ export const leads = sqliteTable(
     telefone: text("telefone").notNull(),
     canal: text("canal", { enum: ["instagram", "whatsapp"] }).notNull(),
     origem: text("origem").notNull(),
+    origemTipo: text("origem_tipo", { enum: ["inbound", "outbound"] })
+      .notNull()
+      .default("outbound"), // espelha o DEFAULT físico OBRIGATÓRIO exigido pelo SQLite no ALTER TABLE ADD COLUMN NOT NULL sobre tabela não-vazia (restrição do SQLite, não escolha de produto) — nunca acionado pelos fluxos da aplicação, porque o Zod sempre entrega o campo preenchido
     valorEstimado: integer("valor_estimado_centavos").notNull(), // centavos, evita ponto flutuante
     notas: text("notas").notNull(),
     followUpDate: integer("follow_up_date", { mode: "timestamp" }).notNull(),

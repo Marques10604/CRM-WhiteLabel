@@ -27,6 +27,9 @@ export const leadSchema = z.object({
     error: "Selecione um canal de contato.",
   }),
   origem: z.string().trim().min(1, "Origem é obrigatória."),
+  origemTipo: z.enum(["inbound", "outbound"], {
+    error: "Selecione o tipo de origem.",
+  }), // SEM .default() — D-04 exige que o formulário manual nunca pré-selecione um valor, forçando escolha consciente do admin
   valorEstimado: z.preprocess(
     (v) => parseBRLToCents(String(v ?? "")),
     z.number({ error: "Valor estimado é obrigatório." }).int().nonnegative()
@@ -49,9 +52,14 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * id só dentro da transação de bulkImportLeads. `followUpDate` é omitido
  * porque nenhuma coluna de follow-up é coletada do CSV — o servidor grava
  * followUpDate = new Date() (momento da importação) diretamente no insert.
+ * `origemTipo` recebe `.default("outbound")` aqui (e só aqui) porque o CSV
+ * do cowork não tem passo de UI para essa escolha — a origem real do lote é
+ * conhecida e uniforme; em `leadSchema` o campo fica sem default (D-04), já
+ * que o formulário manual precisa forçar uma escolha consciente do admin.
  */
 export const csvRowSchema = leadSchema.omit({ subnichoId: true, followUpDate: true }).extend({
   subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
+  origemTipo: z.enum(["inbound", "outbound"]).default("outbound"),
 });
 
 export type CsvRowValues = z.infer<typeof csvRowSchema>;
