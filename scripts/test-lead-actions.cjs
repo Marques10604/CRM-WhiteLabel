@@ -78,13 +78,44 @@ async function runBehaviorTests() {
   const tmpDb = path.join(os.tmpdir(), `crm-leads-test-lead-actions-${Date.now()}.db`);
   process.env.DB_FILE_NAME = tmpDb;
 
-  const migrationSql = fs
-    .readFileSync(path.join(__dirname, "..", "src", "db", "migrations", "0000_gifted_slapstick.sql"), "utf8")
+  const migrationsDir = path.join(__dirname, "..", "src", "db", "migrations");
+  const migration0000 = fs
+    .readFileSync(path.join(migrationsDir, "0000_gifted_slapstick.sql"), "utf8")
+    .replace(/--> statement-breakpoint/g, "");
+  const migration0001 = fs
+    .readFileSync(path.join(migrationsDir, "0001_grey_xavin.sql"), "utf8")
     .replace(/--> statement-breakpoint/g, "");
 
   const setupDb = new Database(tmpDb);
   setupDb.pragma("foreign_keys = ON");
-  setupDb.exec(migrationSql);
+  setupDb.exec(migration0000);
+  setupDb.exec(migration0001);
+
+  // O snapshot de migrações do drizzle-kit está divergente do banco real desde
+  // as Fases 04-02/06-01/07-01 (débito pré-existente documentado em STATE.md):
+  // estas colunas foram aplicadas via ALTER TABLE manual direto em data/crm.db,
+  // sem nunca virar arquivo .sql. O banco temporário deste harness precisa
+  // reconstruir essas colunas manualmente para espelhar src/db/schema.ts —
+  // sem isso, countLeads() (que faz db.select().from(leads), listando TODAS as
+  // colunas do schema) explode com "no such column" antes de qualquer asserção.
+  const manualAlters = [
+    "ALTER TABLE `leads` ADD `import_batch_id` text;",
+    "ALTER TABLE `leads` ADD `contact_attempts` integer DEFAULT 0 NOT NULL;",
+    "ALTER TABLE `leads` ADD `origem_tipo` text DEFAULT 'outbound' NOT NULL;",
+    "ALTER TABLE `subnichos` ADD `deleted_at` integer;",
+  ];
+  for (const ddl of manualAlters) {
+    try {
+      setupDb.exec(ddl);
+    } catch (err) {
+      if (typeof err?.message === "string" && err.message.includes("duplicate column name")) {
+        // Coluna já existe (ex.: virou arquivo de migração real no futuro) — tolerado.
+      } else {
+        throw err;
+      }
+    }
+  }
+
   const subnichoInsert = setupDb.prepare("INSERT INTO subnichos (nome) VALUES (?)").run("Nutricionista");
   const subnichoId = Number(subnichoInsert.lastInsertRowid);
   setupDb.close();
@@ -103,6 +134,7 @@ async function runBehaviorTests() {
       telefone: "(11) 91234-5678",
       canal: "whatsapp",
       origem: "Instagram Ads",
+      origemTipo: "outbound",
       valorEstimado: "1.234,56",
       notas: "Lead quente, pediu retorno.",
       followUpDate: "2026-08-01",
@@ -272,6 +304,39 @@ async function runBehaviorTests() {
       thrownErr?.code === "SQLITE_CONSTRAINT_FOREIGNKEY",
       `db.insert(leads) DIRETO com subnichoId inexistente: err.code === "SQLITE_CONSTRAINT_FOREIGNKEY" (got ${thrownErr?.code})`
     );
+  }
+
+  // Caso 9 (ORIGEM-01/02): createLead com origemTipo vazio -> erro, não
+  // insere. Prova automatizada do critério de aceite "submeter o formulário
+  // de criação sem selecionar origemTipo bloqueia o submit com erro de
+  // validação visível" (08-SPEC.md Requirement 1).
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ origemTipo: "" }));
+    const after = await countLeads();
+    check(after === before, "createLead com origemTipo vazio: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.origemTipo) &&
+        result.errors.origemTipo.includes("Selecione o tipo de origem."),
+      `createLead com origemTipo vazio: errors.origemTipo inclui "Selecione o tipo de origem." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 10 (ORIGEM-01/02): createLead com origemTipo="inbound" -> insere 1
+  // linha e persiste o valor escolhido. Prova automatizada do critério de
+  // aceite "criar um lead com origemTipo selecionado persiste o valor".
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(createLead, makeFormData({ origemTipo: "inbound" }));
+    const after = await countLeads();
+    check(after === before + 1, `createLead com origemTipo="inbound": insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (!outcome.threw) {
+      check(outcome.result?.success === true, 'createLead com origemTipo="inbound": retorna { success: true } quando revalidatePath não lança');
+    } else {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(row?.origemTipo === "inbound", `createLead com origemTipo="inbound": linha persistida com origemTipo === "inbound" (got ${row?.origemTipo})`);
   }
 
   try {
