@@ -1,13 +1,13 @@
 ---
 phase: 8
 reviewers: [codex]
-reviewed_at: 2026-08-06T22:35:43Z
+reviewed_at: 2026-08-07T11:25:35Z
 plans_reviewed:
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-01-PLAN.md
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-02-PLAN.md
   - .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-03-PLAN.md
-cycle: 3
-cycle_history: [1, 2, 3]
+cycle: 4
+cycle_history: [1, 2, 3, 4]
 ---
 
 # Cross-AI Plan Review — Phase 8
@@ -568,3 +568,247 @@ Error: Individual quota reached. Please upgrade your subscription to increase yo
 **Status:** FALHOU (stdout vazio — critério de falha definido para esta execução). Não conta como
 reviewer participante do Cycle 3. Mesma quota do Cycle 2, ainda não resetada (contador caiu ~12min
 entre as duas leituras, consistente com continuidade do mesmo bloqueio, não um novo bloqueio).
+
+---
+
+# Cycle 4 — Revisão de confirmação (Fix 3, arquitetura de cópia temporária — decisão do usuário)
+
+**Gatilho:** commit `5bad347` reescreveu a Task 2 do 08-03-PLAN.md, substituindo a mutação in-place
+do arquivo real com backup/restore + `try/finally` (Fix 2, revisado no Cycle 3) por uma arquitetura
+que **nunca escreve o arquivo-fonte real**: `scripts/test-mutation-guard.cjs` agora copia
+`src/actions/import-actions.ts` para um diretório exclusivo criado com
+`fs.mkdtempSync(path.join(os.tmpdir(), "crm-leads-mutationtest-"))`, muta só essa cópia, roda
+`npm run verify:origem-tipo` com a nova env var `ORIGEM_TIPO_IMPORT_ACTIONS_PATH` apontando para a
+cópia mutada (espera exit 1), roda a mesma guarda sem a env var contra o arquivo real (espera exit
+0, provando que nunca foi tocado), remove o diretório temporário no `finally` (agora limpeza
+best-effort de lixo, não proteção de dado), e reconfirma por pós-condição que o arquivo real mantém
+a linha intacta. `scripts/verify-origem-tipo.cjs` ganhou o override
+`process.env.ORIGEM_TIPO_IMPORT_ACTIONS_PATH ?? <caminho real fixo>`, aplicado apenas à checagem do
+elo de `import-actions.ts` — as outras 4 checagens estáticas permanecem com caminho fixo, sem
+override. Esta é a **terceira** aplicação seguida do padrão "achado de tooling → fix cirúrgico →
+confirmação" no mesmo ponto do plano, e foi uma **decisão explícita do usuário** (não uma
+auto-decisão de triagem de camada 0): eliminar a classe de risco por completo em vez de reduzir a
+janela de risco, como o Codex já havia sugerido no Cycle 3.
+
+Confirmado por diff (`git diff 9c02b8d 5bad347 -- 08-03-PLAN.md`) antes de disparar esta revisão:
+apenas `08-03-PLAN.md` foi alterado (52 inserções, 35 remoções, 1 arquivo); `08-01-PLAN.md` e
+`08-02-PLAN.md` permanecem inalterados desde o Cycle 3.
+
+**Reviewers que efetivamente participaram neste ciclo, com evidência de modelo:** apenas **Codex**
+(via `gpt-5.6-terra`, após a mesma rejeição de `gpt-5.6-sol` já observada nos Cycles 1, 2 e 3). **Agy
+foi tentado ativamente nesta rodada** — ver "Nota sobre Agy" abaixo — mas continua bloqueado por
+quota de conta (stdout vazio, critério de falha definido para esta execução), então não conta como
+reviewer participante.
+
+## Nota sobre Agy (mesma degradação dos Cycles 2 e 3 — quota ainda não resetou)
+
+Tentativa de diagnóstico idêntica às rodadas anteriores (prompt trivial, sem `--effort`, já
+determinado incompatível com `claude-sonnet-4-6` no Cycle 2):
+
+```
+agy --model claude-sonnet-4-6 --sandbox --print "Say only the word PONG and nothing else."
+```
+
+Resultado: `exit 1`, **stdout com 0 bytes** (confirmado via redirecionamento separado de
+stdout/stderr para arquivos distintos, não apenas inspeção visual), stderr:
+```
+Error: Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 130h15m19s.
+```
+
+Esta é a MESMA janela de quota relatada nos Cycles 2 e 3 (`143h5m27s` no Cycle 2 →
+`142h53m27s` no Cycle 3 → `130h15m19s` nesta tentativa) — o contador continua caindo de forma
+monotônica e consistente com o mesmo bloqueio original ainda não resetado (reset esperado por volta
+de 2026-08-12/13), não um novo bloqueio. Nenhuma tentativa adicional foi feita além desta checagem
+única de diagnóstico, para não consumir mais quota nem inventar contorno. Nenhum arquivo fora do
+`phase_dir`/`/tmp` foi tocado.
+
+**Conclusão sobre Agy nesta rodada:** degradação idêntica, não nova — conta com quota individual
+ainda esgotada. Reportado aqui como degradação conhecida e persistente, não corrigida
+silenciosamente.
+
+## Codex Review — Cycle 4
+
+**Modelo solicitado:** `gpt-5.6-sol` (explícito, com `-c model_reasoning_effort=low`).
+**Resultado:** rejeitado pela API com o MESMO erro dos Cycles 1, 2 e 3:
+```
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account."}}
+```
+Nova tentativa com `--model gpt-5.6-terra` (mesmo `reasoning_effort=low`) — bem-sucedida.
+**Reviewer degradado nesta rodada:** SIM, pela mesma razão dos Cycles 1, 2 e 3 (troca de modelo
+autorizada pela regra de contingência desta execução).
+
+### Veredito do Codex sobre o HIGH do Cycle 3
+
+> "Veredito do HIGH do Cycle 3: RESOLVIDO. Concordo com a lógica do Fix 3: ele elimina a classe de
+> risco levantada no Cycle 3. O arquivo real `src/actions/import-actions.ts` deixa de ser alvo de
+> qualquer escrita; portanto SIGKILL, queda de energia ou crash do SO não podem deixá-lo mutado
+> entre uma operação de 'alterar' e outra de 'restaurar'. O pior estado remanescente é uma cópia
+> mutada órfã em `os.tmpdir()`, que não afeta a working tree nem o produto. O `try/finally` agora é
+> apenas limpeza, não mecanismo de integridade de dado."
+
+**RESOLVIDO — sem ressalva de escopo, ao contrário dos Cycles 2 e 3.** O Codex não classificou
+nenhum novo achado como HIGH nesta rodada. Ver `### Concerns` abaixo para a lista completa
+(MEDIUM/LOW) por plano.
+
+### 08-01 — Schema, validação e backfill
+
+**Summary:** plano bem ordenado, migração SQLite apropriada (backup antes de escrita, `ALTER TABLE`
+com `DEFAULT 'outbound' NOT NULL`, guarda idempotente, verificação independente). Risco: **MÉDIO**,
+exclusivamente por tocar o banco real — a estratégia técnica em si é sólida.
+
+**Strengths:**
+- Evita corretamente `drizzle-kit push` para uma tabela real já populada.
+- `DEFAULT` físico resolve o requisito de SQLite e o backfill sem update destrutivo.
+- `leadSchema` sem default e `csvRowSchema` com default preservam a distinção correta entre criação manual e importação.
+- Segunda execução do script prova idempotência de DDL e dado.
+- Checkpoint WAL antes da cópia torna o backup mais confiável.
+
+**Concerns:**
+- **MEDIUM** — a instrução de recuperação usa um padrão amplo (`cp data/crm.db.backup-* data/crm.db`); se houver vários backups pode escolher incorretamente. O plano já exige registrar o nome exato — a restauração deve usar exclusivamente esse caminho.
+- **LOW** — o script cria backup também em reexecuções idempotentes; SUMMARY deve identificar qual arquivo foi o backup efetivamente pré-migração.
+- **LOW** — `fail()`/`process.exit(1)` pode encerrar antes de `db.close()` numa falha de pós-verificação; `try/finally` para fechar a conexão seria mais limpo.
+
+**Suggestions:**
+- Capturar `backupPath` explicitamente e restaurar apenas esse arquivo em caso de rollback.
+- Envolver a conexão de trabalho em `try/finally { db.close() }`.
+- Registrar hora e hash/tamanho do backup no SUMMARY, além do nome.
+
+### 08-02 — Formulário e importação CSV
+
+**Summary:** implementa corretamente a decisão de produto (escolha consciente no formulário manual,
+`Outbound` automático no CSV, sem UI desnecessária no wizard). Risco: **BAIXO**.
+
+**Strengths:**
+- Campo segue exatamente o padrão existente de `canal`, incluindo `name` necessário para `FormData` bruto.
+- `origemTipo: lead?.origemTipo` sem fallback é a implementação certa para não pré-selecionar a criação manual.
+- Campo na posição semanticamente correta, após `origem`.
+- Insert explícito em `bulkImportLeads` recebe `origemTipo: row.origemTipo`, evitando que o default físico esconda uma falha de fiação.
+- Não expande escopo com badge, coluna ou alteração do wizard.
+
+**Concerns:**
+- **LOW** — `CSV_DEFAULTS.origemTipo` é apenas documentação/paridade; valor efetivo vem de `csvRowSchema`. Já explicado no plano, mas deve permanecer explícito em comentário.
+- **LOW** — teste manual de importação cria dados reais; o plano prevê soft-delete opcional, mas deveria exigir remoção/identificação clara do lote de teste para não poluir métricas futuras.
+
+**Suggestions:**
+- Tornar a limpeza dos leads de teste obrigatória, ou usar banco temporário no teste de importação automatizado.
+- No SUMMARY, diferenciar "default declarado em `CSV_DEFAULTS`" de "default aplicado pelo `csvRowSchema`".
+
+### 08-03 — Harness, guarda permanente e Fix 3
+
+**Summary:** fecha bem a cobertura da fase, corrige deliberadamente um harness pré-existente
+quebrado, cria guarda estática+DB relevante. **O Fix 3 é uma melhoria arquitetural real, não apenas
+uma mitigação: não há operação de escrita em `SOURCE`, logo não há janela de restauração.** Risco:
+**MÉDIO**, por detalhes de robustez do runner de teste — não por risco de corromper o arquivo-fonte.
+
+**Strengths:**
+- Bootstrap temporário passa a refletir o schema real, inclusive migrações manuais.
+- Casos de ausência e persistência de `origemTipo` cobrem os critérios mais importantes de ORIGEM-01.
+- Guarda cobre schema, Zod, UI, importação e invariantes físicos do banco.
+- Teste de mutação prova a falha da guarda contra uma cópia e a aprovação contra o arquivo real na mesma execução.
+- Diretórios exclusivos via `mkdtempSync` eliminam colisões entre execuções concorrentes.
+- A pós-condição no arquivo real ainda faz sentido: não é restauração; é um detector defensivo contra regressão futura no próprio script.
+
+**Concerns:**
+- **MEDIUM** — no Windows, `spawnSync("npm", ...)` é menos robusto que `npm.cmd`, padrão já importante neste ambiente; deveria escolher `process.platform === "win32" ? "npm.cmd" : "npm"`.
+- **MEDIUM** — a segunda execução ("sem a env var") herdará `process.env` se o processo-pai já tiver `ORIGEM_TIPO_IMPORT_ACTIONS_PATH` setada; isso pode fazer o teste validar outro arquivo em vez de `SOURCE`.
+- **LOW** — `fail()`/`process.exit(1)` dentro do `try` pode impedir o `finally` de limpar o temporário em caminhos de falha; não reintroduz risco para `SOURCE`, mas contradiz a promessa de limpeza best-effort.
+- **LOW** — o override permite que qualquer execução de `verify:origem-tipo` leia outro arquivo local; sem risco de produção (script de dev, só lê texto), mas pode enfraquecer a confiabilidade do gate se a variável ficar setada acidentalmente.
+- **LOW** — o frontmatter de `08-03-PLAN.md` lista três arquivos modificados, mas a Task 2 também cria `scripts/test-mutation-guard.cjs`.
+
+**Suggestions:**
+- `const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";`
+- Para a verificação do arquivo real, construir ambiente limpo removendo `ORIGEM_TIPO_IMPORT_ACTIONS_PATH` de uma cópia de `process.env` antes do segundo `spawnSync`.
+- Fazer `fail()` lançar `Error` dentro do bloco protegido; capturar no topo, definir `process.exitCode = 1`, permitindo que o `finally` execute.
+- Logar claramente quando o override está ativo (ex.: `AVISO: verificando import-actions via override temporário`).
+- Adicionar `scripts/test-mutation-guard.cjs` a `files_modified`.
+
+### Risk Assessment (tabela do Codex)
+
+| Área | Risco | Justificativa |
+|---|---:|---|
+| HIGH do Cycle 3 | **LOW — RESOLVIDO** | O arquivo real nunca é escrito; interrupção só pode deixar lixo temporário. |
+| Migração do banco real | **MEDIUM** | DDL em dado real, embora backup, checkpoint, idempotência e queries independentes reduzam bastante o risco. |
+| Formulário/importação | **LOW** | Contratos Zod e insert explícito cobrem os fluxos necessários. |
+| Guardas/testes | **MEDIUM** | Arquitetura correta, mas precisa endurecer `npm.cmd` e limpar explicitamente a env var herdada. |
+
+**Conclusão textual do Codex:** "Não vejo um novo HIGH introduzido pelo Fix 3. Os ajustes
+recomendados são de confiabilidade do teste e higiene do ambiente, não uma reabertura da
+vulnerabilidade de interrupção que motivou o Cycle 3."
+
+---
+
+## Consensus Summary — Cycle 4
+
+Apenas um reviewer externo gerou parecer neste ciclo (Codex, com a mesma troca de modelo por
+indisponibilidade de `gpt-5.6-sol` já vista nos Cycles 1, 2 e 3). Agy foi tentado ativamente mas
+continua bloqueado pela mesma quota de conta esgotada dos Cycles 2 e 3 (stdout vazio) — ver "Nota
+sobre Agy" acima. Não há convergência/divergência entre múltiplos reviewers a sintetizar neste
+ciclo; o veredito abaixo é o do próprio Codex.
+
+### Verdict sobre o HIGH do Cycle 3
+
+**RESOLVIDO.** O Codex confirma que a arquitetura do Fix 3 (mutar apenas uma cópia temporária em
+`os.tmpdir()`, nunca o arquivo-fonte real; verificador com override de caminho restrito a essa
+checagem) elimina por completo a classe de risco de interrupção de processo que motivou o HIGH do
+Cycle 3 — não a reduz, elimina. O `try/finally` remanescente deixou de proteger integridade de
+dado (não há mais dado real em risco) e passou a ser apenas limpeza best-effort de um diretório
+temporário. O pior cenário de falha abrupta do processo (SIGKILL, queda de energia, crash do SO) é
+um diretório órfão em `os.tmpdir()` — lixo, não uma regressão funcional ou de working tree.
+
+O Codex não levantou nenhum HIGH novo nesta rodada — nem derivado do Fix 3 em si (ex.: uso indevido
+do override de ambiente, pós-condição redundante) nem nos planos 08-01/08-02, que permanecem
+inalterados desde o Cycle 3. Os itens levantados (2 MEDIUM + 2 LOW no 08-03, 1 MEDIUM + 2 LOW no
+08-01, 2 LOW no 08-02) são de robustez/higiene — não reabrem a vulnerabilidade original nem
+bloqueiam a fase.
+
+### Agreed Strengths
+N/A — apenas um reviewer gerou parecer neste ciclo.
+
+### Agreed Concerns
+N/A — apenas um reviewer. Ver `### Concerns` acima (Cycle 4, por plano) para a lista completa.
+
+### Divergent Views
+N/A — apenas um reviewer.
+
+## Model Evidence — Cycle 4
+
+### Codex
+
+Primeira tentativa (`--model gpt-5.6-sol`) — rejeitada pela API (mesmo erro dos Cycles 1, 2 e 3):
+```
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.6-sol' model is not supported when using Codex with a ChatGPT account."}}
+```
+
+Segunda tentativa (`--model gpt-5.6-terra`, mesmo `-c model_reasoning_effort=low`) — bem-sucedida.
+Banner verbatim (`head -8` de `/tmp/gsd-review-codex-08-c4.err`):
+
+```
+OpenAI Codex v0.144.6
+--------
+workdir: C:\Users\Vencedor\Desktop\crm-leads
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: low
+```
+
+**Reviewer degradado nesta rodada:** SIM — mesma troca de modelo dos Cycles 1, 2 e 3, mesma regra
+de contingência aplicada.
+
+### Agy (tentativa sem parecer)
+
+```
+agy --model claude-sonnet-4-6 --sandbox --print "Say only the word PONG and nothing else."
+```
+
+Stdout: 0 bytes (confirmado via redirecionamento separado para arquivo, não inferido).
+Stderr:
+```
+Error: Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 130h15m19s.
+```
+
+**Status:** FALHOU (stdout vazio — critério de falha definido para esta execução). Não conta como
+reviewer participante do Cycle 4. Mesma quota dos Cycles 2 e 3, ainda não resetada (contador caiu
+de `142h53m27s` para `130h15m19s`, consistente com continuidade do mesmo bloqueio, não um novo
+bloqueio).
