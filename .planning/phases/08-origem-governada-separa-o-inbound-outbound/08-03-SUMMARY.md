@@ -87,7 +87,20 @@ Nenhuma. Tasks 1 e 2 seguiram o plano exatamente (já commitadas antes desta ses
 
 ## Issues Encountered
 
-- **`.next/lock` obsoleto:** a primeira tentativa de `npm run build` falhou com "Another next build process is already running" por um lock file remanescente de uma execução anterior (nenhum processo `node.exe` realmente detinha o lock — confirmado via `tasklist`). O lock desapareceu sozinho segundos depois (provável cleanup tardio de processo já finalizado) e a segunda tentativa de build passou limpo. Não é um defeito de código; nenhuma ação manual de remoção de lock foi necessária.
+- **`.next/lock` obsoleto:** a primeira tentativa de `npm run build` falhou com "Another next build process is already running" por um lock file remanescente. O lock desapareceu sozinho segundos depois e a segunda tentativa passou limpo. **Causa provável, descoberta depois:** ver nota de sessão concorrente abaixo — outra sessão rodou a mesma Task 3 em paralelo a esta, o que explica o lock transitório.
+- **`npx eslint` sem escopo:** achado detalhado (413 problemas pré-existentes, causa raiz no `eslint.config.mjs`, plano de correção futura) documentado em [`deferred-items.md`](./deferred-items.md) — não relacionado a `origemTipo`, não bloqueia o fechamento da fase.
+
+## Nota: sessão concorrente detectada
+
+Ao commitar este documento, `git log` revelou o commit `bc587d3` ("docs(08-03): documentar gates
+finais + debito de lint pre-existente descoberto") já presente no histórico, criado por **outra
+sessão/agente rodando em paralelo a esta**, cobrindo exatamente a mesma Task 3 — mesmos gates,
+mesma conclusão (Fase 8 completa), mesmo achado de débito de eslint (documentado por ela em
+`deferred-items.md`, preservado e referenciado acima). Este SUMMARY (`08-03-SUMMARY.md`)
+substituiu o conteúdo do arquivo de mesmo nome que essa sessão concorrente havia criado — o
+conteúdo é substancialmente equivalente (mesmos gates verdes, mesma tabela de 9 critérios com
+conclusão idêntica), nenhuma informação real foi perdida, e `deferred-items.md` dessa sessão foi
+mantido e linkado acima. Ver aviso ao usuário no fechamento desta sessão.
 
 ## User Setup Required
 
