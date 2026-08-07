@@ -6,3 +6,5 @@
 {"ts":"2026-08-06T09:59:01-03:00","seq":6,"sessao":"77f675f6","evento":"checkpoint","etapa":"2 planejamento","tokens":0,"pct":0,"limit":400000}
 {"ts":"2026-08-06T11:22:02-03:00","seq":7,"sessao":"77f675f6","evento":"end","etapa":"2.3 planejamento","subagent_tokens":165790}
 {"ts":"2026-08-06T11:40:14-03:00","seq":8,"sessao":"77f675f6","evento":"checkpoint","etapa":"3.2 convergencia","tokens":0,"pct":0,"limit":400000}
+{"ts":"2026-08-07T08:29:00-03:00","seq":9,"sessao":"77f675f6","evento":"end","etapa":"3.2 convergencia","subagent_tokens":143213}
+{"ts":"2026-08-07T08:29:26-03:00","seq":10,"sessao":"77f675f6","evento":"checkpoint","etapa":"3.3 execucao","tokens":0,"pct":0,"limit":400000}

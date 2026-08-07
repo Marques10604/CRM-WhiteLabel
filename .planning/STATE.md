@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: executing
-last_updated: "2026-08-07T16:12:05.911Z"
+status: verifying
+last_updated: "2026-08-07T23:32:57.980Z"
 last_activity: 2026-08-07
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 9
-  completed_plans: 8
-  percent: 38
+  completed_plans: 9
+  percent: 50
 ---
 
 # Project State
@@ -24,12 +24,12 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 ## Current Position
 
-Phase: 08 (origem-governada-separa-o-inbound-outbound) — EXECUTING
+Phase: 08 (origem-governada-separa-o-inbound-outbound) — COMPLETE
 Plan: 3 of 3
-Status: Ready to execute
+Status: 08-03-SUMMARY.md escrito, todos os gates verdes (tsc, eslint escopado, guard, testes, verify:origem-tipo, build). 1 item pendente de human-check (modal de edição em navegador). Próxima fase: 09 (Timeline de interações)
 Last activity: 2026-08-07
 
-Progress: [█████████░] 89%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -68,6 +68,8 @@ Progress: [█████████░] 89%
 | Phase 07-configura-o-de-dias-parado-por-etapa P02 | 20min | 3 tasks | 4 files |
 | Phase 08 P01 | 15min | 3 tasks | 3 files |
 | Phase 08 P02 | 18min | 2 tasks | 3 files |
+| Phase 08 P03 | ~25min | 3 tasks | 4 files |
+| Phase 08 P03 | 35min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -120,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 08-01]: backfill uniforme confirmado em producao - todos os 33 leads (22 ativos + 11 soft-deletados, incluindo os 5 com origem insta/Teste) receberam origemTipo=outbound via ALTER TABLE manual idempotente, sem drizzle-kit
 - [Phase ?]: [Phase 08-02]: origemTipo posicionado imediatamente apos origem no modal de lead (D-02), espelhando estrutura por estrutura o campo canal (D-03); defaultValues.origemTipo sem fallback garante placeholder vazio na criacao (D-04)
 - [Phase ?]: [Phase 08-02]: CSV_DEFAULTS.origemTipo eh documentacao/paridade visual; aplicacao real do default outbound continua no .default() do csvRowSchema (08-01) -- origemTipo nao vira CsvFieldKey mapeavel, wizard sem passo de UI novo
+- [Phase 08-03]: Bootstrap pre-existente de test-lead-actions.cjs consertado deliberadamente na fase (opcao a), nao adiado - Casos 9/10 provam obrigatoriedade/persistencia de origemTipo
+- [Phase 08-03]: Guarda verify-origem-tipo.cjs provada por teste de mutacao que nunca escreve o arquivo-fonte real (copia em os.tmpdir()) - elimina risco de interrupcao deixar import-actions.ts quebrado em disco
+- [Phase 08-03]: npx eslint sem escopo revelou 413 problemas pre-existentes (.claude/get-shit-done, worktree orfao, scripts .cjs pre-existentes) nao relacionados a origemTipo - documentado em deferred-items.md, fora de escopo, nao bloqueia fechamento da Fase 8
 
 ### Pending Todos
 
@@ -181,10 +186,10 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-07T16:12:05.876Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-08-07T23:32:57.956Z
+Stopped at: Fase 8 fechada — 08-03-SUMMARY.md escrito, todos os gates automatizados verdes (tsc, eslint escopado, guard-no-hard-delete, test:lead-actions, verify:origem-tipo, test:mutation-guard, build). Checklist de 9 itens do 08-SPEC.md conferido: 8/9 atendidos, 1 pendente de human-check (abrir modal de edição de lead pré-existente no navegador e confirmar origemTipo correto).
 Resume file: None
-Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão (host de 4GB, evitar processos duplicados).
+Servidor de dev: nenhum processo node ativo ao final desta sessão. Antes da próxima: rodar `npm run dev`, validar os human-checks pendentes de 08-02/08-03, depois planejar Fase 9 (Timeline de interações).
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 

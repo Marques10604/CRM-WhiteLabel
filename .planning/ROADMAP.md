@@ -39,7 +39,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 **Meta do milestone:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
 
-- [ ] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem`
+- [x] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem` (completed 2026-08-07)
 - [ ] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual
 - [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
 - [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
@@ -132,7 +132,7 @@ Plans:
   2. Todo lead que já existia antes da mudança de schema recebe uma classificação padrão via backfill explícito e documentado — nenhum lead ativo fica com `origemTipo` vazio/nulo após a migração
   3. A classificação de origem (Inbound/Outbound) fica visível em pelo menos uma tela de consulta do lead (formulário, lista ou pipeline), para o admin conferir o resultado do backfill e de novas classificações
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
@@ -145,7 +145,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 08-03-PLAN.md — Bootstrap de `test-lead-actions.cjs` consertado + casos de `origemTipo` + guarda permanente `verify:origem-tipo` + gates finais (tsc/eslint/build)
+- [x] 08-03-PLAN.md — Bootstrap de `test-lead-actions.cjs` consertado + casos de `origemTipo` + guarda permanente `verify:origem-tipo` + gates finais (tsc/eslint/build)
 
 **UI hint**: yes
 
@@ -224,7 +224,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
-| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 2/3 | In Progress|  |
+| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 0/TBD | Not started | - |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
