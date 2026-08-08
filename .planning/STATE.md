@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: verifying
-last_updated: "2026-08-07T23:32:57.980Z"
-last_activity: 2026-08-07
+last_updated: "2026-08-08T11:05:47Z"
+last_activity: 2026-08-08
 progress:
   total_phases: 8
   completed_phases: 4
@@ -125,6 +125,8 @@ Recent decisions affecting current work:
 - [Phase 08-03]: Bootstrap pre-existente de test-lead-actions.cjs consertado deliberadamente na fase (opcao a), nao adiado - Casos 9/10 provam obrigatoriedade/persistencia de origemTipo
 - [Phase 08-03]: Guarda verify-origem-tipo.cjs provada por teste de mutacao que nunca escreve o arquivo-fonte real (copia em os.tmpdir()) - elimina risco de interrupcao deixar import-actions.ts quebrado em disco
 - [Phase 08-03]: npx eslint sem escopo revelou 413 problemas pre-existentes (.claude/get-shit-done, worktree orfao, scripts .cjs pre-existentes) nao relacionados a origemTipo - documentado em deferred-items.md, fora de escopo, nao bloqueia fechamento da Fase 8
+- [Quick 260807-uit]: WR-02 executado antes de WR-01 (ordem obrigatoria) - a guarda verify-origem-tipo.cjs precisava aceitar as duas formas do default (.default("outbound") ou .default(CSV_DEFAULTS.origemTipo)) antes da Task 2 trocar a forma real, senao quebraria no meio da tarefa
+- [Quick 260807-uit]: IN-01 e IN-02 do 08-REVIEW.md permanecem deliberadamente intocados - sao "info", nao "warning", fora do escopo desta tarefa
 
 ### Pending Todos
 
@@ -170,6 +172,7 @@ Aberto, carregado para o v1.3:
 | 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
+| 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
 
 ## Deferred Items
 
@@ -186,8 +189,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-07T23:32:57.956Z
-Stopped at: Fase 8 fechada — 08-03-SUMMARY.md escrito, todos os gates automatizados verdes (tsc, eslint escopado, guard-no-hard-delete, test:lead-actions, verify:origem-tipo, test:mutation-guard, build). Checklist de 9 itens do 08-SPEC.md conferido: 8/9 atendidos, 1 pendente de human-check (abrir modal de edição de lead pré-existente no navegador e confirmar origemTipo correto).
+Last session: 2026-08-08T11:05:47Z
+Stopped at: Quick task `260807-uit` concluído — os 3 warnings do code review da Fase 8 (`08-REVIEW.md`) fechados (WR-01/WR-02/WR-03), gates automatizados verdes (tsc, guard-no-hard-delete, verify:origem-tipo, test:mutation-guard, test:lead-actions com Casos 11/12 novos, build). O human-check pendente de 08-02/08-03 (abrir modal de edição de lead pré-existente no navegador e confirmar origemTipo correto) continua NÃO verificado — sem acesso a navegador nesta sessão. Próximo passo real: rodar `npm run dev`, validar esse human-check, depois planejar Fase 9 (Timeline de interações).
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Antes da próxima: rodar `npm run dev`, validar os human-checks pendentes de 08-02/08-03, depois planejar Fase 9 (Timeline de interações).
 
