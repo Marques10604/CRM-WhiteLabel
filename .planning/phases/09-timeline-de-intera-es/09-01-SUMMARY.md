@@ -131,6 +131,10 @@ None - no external service configuration required.
 - **Bloqueio operacional temporário para 09-02:** `whatsappContactSchema.texto` já é obrigatório, mas `registerWhatsAppContact`/`whatsapp-preview-dialog.tsx` ainda não passam `texto` — 09-02 precisa ser executada antes de qualquer uso real do botão "Abrir WhatsApp" em produção (ver Decisions Made acima).
 - Nenhum arquivo de UI foi tocado nesta plan (conforme `<success_criteria>` do PLAN.md) — 09-02/09-03/09-04 seguem livres para construir a UI da timeline sobre esta camada de dados.
 
+## Self-Check: PASSED
+
+All files created/modified verified to exist on disk. All 4 commit hashes (7631e19, 6e65683, ec502ae, b59f9fe) verified present in git log.
+
 ---
 *Phase: 09-timeline-de-intera-es*
 *Completed: 2026-08-08*
