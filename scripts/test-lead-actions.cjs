@@ -123,6 +123,8 @@ async function runBehaviorTests() {
   // Importados DEPOIS de DB_FILE_NAME estar setado, para que src/db/client.ts
   // abra a conexão no banco temporário (o módulo é cacheado no primeiro import).
   const { createLead, updateLead } = await import("@/actions/lead-actions");
+  const { bulkImportLeads } = await import("@/actions/import-actions");
+  const { csvRowSchema } = await import("@/lib/validations");
   const { db } = await import("@/db/client");
   const { leads } = await import("@/db/schema");
   const { eq } = await import("drizzle-orm");
@@ -337,6 +339,65 @@ async function runBehaviorTests() {
     }
     const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
     check(row?.origemTipo === "inbound", `createLead com origemTipo="inbound": linha persistida com origemTipo === "inbound" (got ${row?.origemTipo})`);
+  }
+
+  // makeImportRow: formato ConfirmedImportRow (o que csv-import-preview-table.tsx
+  // monta de verdade). Deliberadamente SEM a chave origemTipo — o CSV do
+  // cowork nunca traz essa coluna e o wizard nunca coleta essa escolha
+  // (WR-03, 08-REVIEW.md). "Nutricionista" já foi semeado no bootstrap acima.
+  function makeImportRow(overrides = {}) {
+    return {
+      nome: "Importado CSV",
+      telefone: "(11) 98888-7777",
+      canal: "whatsapp",
+      origem: "Importação CSV",
+      valorEstimado: "0",
+      notas: "Importado via CSV.",
+      subnichoNome: "Nutricionista",
+      ...overrides,
+    };
+  }
+
+  // Caso 11 (WR-03): prova que o default de origemTipo vem do ZOD
+  // (csvRowSchema), não do DEFAULT físico da coluna SQLite. Precisa ser
+  // separado do Caso 12: se alguém trocar `.default(...)` por `.optional()`
+  // em csvRowSchema, `row.origemTipo` chega undefined, o Drizzle OMITE a
+  // coluna do INSERT e o `.default('outbound')` do schema Drizzle preenche
+  // 'outbound' mesmo assim — a linha persistida continuaria correta e essa
+  // regressão passaria despercebida só olhando o banco. Só a asserção sobre
+  // a saída do safeParse detecta essa troca.
+  {
+    const parsed = csvRowSchema.safeParse(makeImportRow());
+    check(parsed.success === true, "csvRowSchema.safeParse(linha sem origemTipo): success === true");
+    check(
+      parsed.success && parsed.data.origemTipo === "outbound",
+      `csvRowSchema.safeParse(linha sem origemTipo): data.origemTipo === "outbound" (got ${parsed.success ? parsed.data.origemTipo : "n/a"})`
+    );
+  }
+
+  // Caso 12 (WR-03): prova de ponta a ponta — bulkImportLeads real, linha sem
+  // origemTipo, persistência lida de volta do banco temporário.
+  {
+    const before = await countLeads();
+    let result;
+    try {
+      result = await bulkImportLeads([makeImportRow()]);
+    } catch (err) {
+      if (typeof err?.message === "string" && /revalidatePath|static generation store/i.test(err.message)) {
+        result = undefined;
+        console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+      } else {
+        throw err;
+      }
+    }
+    const after = await countLeads();
+    check(after === before + 1, `bulkImportLeads(linha sem origemTipo): insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (result !== undefined) {
+      check(result?.success === true && result?.count === 1, `bulkImportLeads(linha sem origemTipo): retorna { success: true, count: 1 } (got ${JSON.stringify(result)})`);
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(row?.origemTipo === "outbound", `bulkImportLeads(linha sem origemTipo): linha persistida com origemTipo === "outbound" (got ${row?.origemTipo})`);
+    check(row?.importBatchId !== null && row?.importBatchId !== undefined, `bulkImportLeads(linha sem origemTipo): linha persistida com importBatchId não-nulo (got ${row?.importBatchId})`);
   }
 
   try {
