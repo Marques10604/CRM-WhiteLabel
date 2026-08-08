@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { startOfDay } from "date-fns";
+import { History } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -34,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SubnichoCombobox } from "@/components/subnicho-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
+import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
@@ -98,6 +100,7 @@ export function LeadFormDialog({
     undefined
   );
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const firstContact = useFirstContactTrigger(firstContactTemplate);
 
@@ -446,6 +449,17 @@ export function LeadFormDialog({
             </div>
 
             <DialogFooter className="mx-0 mb-0 rounded-none border-t-0 bg-transparent p-0">
+              {isEditMode && lead ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setTimelineOpen(true)}
+                  disabled={pending}
+                >
+                  <History className="size-4" />
+                  Ver histórico
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"
@@ -479,6 +493,8 @@ export function LeadFormDialog({
         defaultTipo="primeiro_contato"
         subtitulo={`Sugestão: enviar mensagem de primeiro contato para ${firstContact.lead?.nome ?? ""}.`}
       />
+
+      <LeadTimelineDialog open={timelineOpen} onOpenChange={setTimelineOpen} lead={lead} />
     </>
   );
 }

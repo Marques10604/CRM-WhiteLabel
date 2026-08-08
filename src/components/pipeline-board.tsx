@@ -16,6 +16,7 @@ import { PipelineColumn } from "@/components/pipeline-column";
 import { PipelineLeadCard } from "@/components/pipeline-lead-card";
 import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
+import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
 import type { Lead, Subnicho, Template } from "@/types";
 
@@ -39,6 +40,9 @@ type PreviewState =
   | { open: false }
   | { open: true; lead: Lead; subnichoNome: string };
 
+/** Estado da timeline de interações (D-03), mesma forma de `PreviewState`. */
+type TimelineState = { open: false } | { open: true; lead: Lead };
+
 const STAGE_LABEL_BY_VALUE = new Map(
   STAGE_OPTIONS.map((option) => [option.value, option.label])
 );
@@ -60,6 +64,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
     open: false,
   });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
+  const [timelineState, setTimelineState] = useState<TimelineState>({ open: false });
   // Fila de resolvers pendentes do modal "motivo da perda" (CR-02): um
   // `useRef` único era sobrescrito quando um segundo lead era solto em
   // "Perdido" antes do primeiro modal ser fechado, perdendo o `resolve` da
@@ -192,6 +197,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
                         subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
                       })
                     }
+                    onViewHistory={() => setTimelineState({ open: true, lead })}
                   />
                 ))}
               </PipelineColumn>
@@ -231,6 +237,14 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
         subnichoNome={previewState.open ? previewState.subnichoNome : ""}
         templates={templates}
         defaultTipo="primeiro_contato"
+      />
+
+      <LeadTimelineDialog
+        open={timelineState.open}
+        onOpenChange={(open) => {
+          if (!open) setTimelineState({ open: false });
+        }}
+        lead={timelineState.open ? timelineState.lead : undefined}
       />
     </div>
   );
