@@ -4,6 +4,16 @@
 // Idioma de guarda igual a scripts/verify-pipeline-migration.cjs: prefixo de
 // log [verify-origem-tipo], fail() com process.exit(1), DB_PATH resolvido de
 // DB_FILE_NAME (permite apontar para um banco temporário em testes).
+//
+// INVARIANTE (WR-02, code review da Fase 8): todas as checagens estáticas
+// abaixo rodam sobre uma forma CANÔNICA de cada arquivo-fonte — comentários
+// removidos (stripComments) e, em seguida, TODO espaço em branco removido
+// (dense()) — em vez de janelas de regex limitadas por contagem de
+// caracteres (`[\s\S]{0,220}`) ou por indentação exata (`\n\s{2}\w+:`).
+// Reformatação (prettier, mudança de indentação, quebra de linha, comentário
+// crescer) nunca produz falso negativo, porque a forma densa é imune a tudo
+// isso por construção. Nenhuma checagem estática deste arquivo pode voltar a
+// usar um quantificador de contagem de caracteres (`{0,N}`) sobre código-fonte.
 const fs = require("node:fs");
 const path = require("node:path");
 const Database = require("better-sqlite3");
@@ -36,8 +46,34 @@ function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 }
 
-function readStripped(filePath) {
-  return stripComments(fs.readFileSync(filePath, "utf8"));
+// Forma canônica de um arquivo-fonte: comentários removidos, depois TODO
+// espaço em branco removido (`\s+` cobre espaço, tab, quebra de linha). É
+// imune a indentação, largura de linha, quebra de linha e crescimento de
+// comentário — a raiz da fragilidade da WR-02 (janelas de regex limitadas por
+// contagem de caracteres/indentação fixa) deixa de existir porque não sobra
+// nenhum espaço em branco para uma janela precisar "pular por cima".
+function dense(filePath) {
+  return stripComments(fs.readFileSync(filePath, "utf8")).replace(/\s+/g, "");
+}
+
+// declarationSlice(denseSource, startToken): recorta a declaração de um campo
+// a partir de startToken até o início do próximo campo IRMÃO do mesmo objeto,
+// sem limite de tamanho em caracteres — substitui diretamente os antigos
+// `[\s\S]{0,220}` / `[\s\S]{0,80}` / `(?=\n\s{2}\w+:|\n\}\);)`. Sobre a forma
+// DENSA (sem espaço em branco), o início de um campo irmão aparece sempre
+// como `,identificador:` — vírgula seguida IMEDIATAMENTE de um identificador
+// e dois-pontos. Isso é seguro mesmo com objetos/arrays aninhados dentro da
+// declaração (ex.: `,{enum:` ou `,["outbound"` no meio do argumento de
+// `text(...)`/`z.enum(...)`), porque depois da vírgula esses começam com `{`
+// ou `[`/aspas — nunca com um caractere de palavra seguido de `:` — então o
+// recorte nunca termina cedo demais dentro de um valor aninhado.
+function declarationSlice(denseSource, startToken) {
+  const idx = denseSource.indexOf(startToken);
+  if (idx === -1) return "";
+  const rest = denseSource.slice(idx + startToken.length);
+  const siblingMatch = rest.match(/,\w+:/);
+  const cut = siblingMatch ? rest.slice(0, siblingMatch.index) : rest;
+  return startToken + cut;
 }
 
 const staticFailures = [];
@@ -47,31 +83,31 @@ function checkStatic(condition, message) {
 
 // --- Elo 1: src/db/schema.ts — coluna Drizzle origemTipo ---
 {
-  const schemaSrc = readStripped(SCHEMA_PATH);
-  const window = (schemaSrc.match(/origemTipo:\s*text\([\s\S]{0,220}?\)[\s\S]{0,80}?[,;]/) || [""])[0];
+  const schemaDense = dense(SCHEMA_PATH);
+  const window = declarationSlice(schemaDense, "origemTipo:");
   checkStatic(
-    /text\(\s*["']origem_tipo["']\s*,\s*\{\s*enum:\s*\[\s*["']inbound["']\s*,\s*["']outbound["']\s*\]\s*\}\s*\)/.test(window),
+    /text\(["']origem_tipo["'],\{enum:\[["']inbound["'],["']outbound["']\]\}\)/.test(window),
     "src/db/schema.ts: coluna origemTipo não declara text(\"origem_tipo\", { enum: [\"inbound\", \"outbound\"] })"
   );
   checkStatic(/\.notNull\(\)/.test(window), "src/db/schema.ts: coluna origemTipo sem .notNull() encadeado");
   checkStatic(
-    /\.default\(\s*["']outbound["']\s*\)/.test(window),
+    /\.default\(["']outbound["']\)/.test(window),
     'src/db/schema.ts: coluna origemTipo sem .default("outbound") encadeado'
   );
 }
 
 // --- Elo 2 e 3: src/lib/validations.ts — leadSchema (sem default) e csvRowSchema (com default) ---
 {
-  const validationsSrc = readStripped(VALIDATIONS_PATH);
-  const csvRowSchemaIdx = validationsSrc.indexOf("export const csvRowSchema");
+  const validationsDense = dense(VALIDATIONS_PATH);
+  const csvRowSchemaIdx = validationsDense.indexOf("exportconstcsvRowSchema");
   checkStatic(csvRowSchemaIdx !== -1, "src/lib/validations.ts: csvRowSchema não encontrado");
 
-  const leadSchemaSrc = csvRowSchemaIdx === -1 ? validationsSrc : validationsSrc.slice(0, csvRowSchemaIdx);
-  const csvRowSchemaSrc = csvRowSchemaIdx === -1 ? "" : validationsSrc.slice(csvRowSchemaIdx);
+  const leadSchemaDense = csvRowSchemaIdx === -1 ? validationsDense : validationsDense.slice(0, csvRowSchemaIdx);
+  const csvRowSchemaDense = csvRowSchemaIdx === -1 ? "" : validationsDense.slice(csvRowSchemaIdx);
 
-  const leadWindow = (leadSchemaSrc.match(/origemTipo:[\s\S]*?(?=\n\s{2}\w+:|\n\}\);)/) || [""])[0];
+  const leadWindow = declarationSlice(leadSchemaDense, "origemTipo:");
   checkStatic(
-    /origemTipo:\s*z\.enum\(\s*\[\s*["']inbound["']\s*,\s*["']outbound["']\s*\]/.test(leadWindow),
+    /origemTipo:z\.enum\(\[["']inbound["'],["']outbound["']\]/.test(leadWindow),
     "src/lib/validations.ts: leadSchema.origemTipo não é z.enum([\"inbound\", \"outbound\"])"
   );
   checkStatic(
@@ -79,39 +115,47 @@ function checkStatic(condition, message) {
     "src/lib/validations.ts: leadSchema.origemTipo ganhou um .default( — D-04 exige formulário manual sem pré-seleção"
   );
 
+  // Elo 3 aceita DUAS formas: o literal "outbound"/'outbound' (estado antes
+  // da WR-01) OU a referência a CSV_DEFAULTS.origemTipo (estado depois da
+  // WR-01, fonte única) — pré-requisito para a correção de WR-01 não quebrar
+  // esta guarda. Checado direto sobre a forma densa a partir do início de
+  // csvRowSchema, sem limite de caracteres.
   checkStatic(
-    /origemTipo:\s*z\.enum\(\s*\[\s*["']inbound["']\s*,\s*["']outbound["']\s*\]\s*\)\s*\.default\(\s*["']outbound["']\s*\)/.test(
-      csvRowSchemaSrc
+    /origemTipo:z\.enum\(\[["']inbound["'],["']outbound["']\]\)\.default\((?:["']outbound["']|CSV_DEFAULTS\.origemTipo)\)/.test(
+      csvRowSchemaDense
     ),
-    'src/lib/validations.ts: csvRowSchema.origemTipo não é z.enum([...]).default("outbound")'
+    'src/lib/validations.ts: csvRowSchema.origemTipo não é z.enum([...]).default("outbound") nem z.enum([...]).default(CSV_DEFAULTS.origemTipo)'
   );
 }
 
 // --- Elo 4: src/components/lead-form-dialog.tsx — select com as 2 opções ---
 {
-  const formSrc = readStripped(LEAD_FORM_DIALOG_PATH);
+  const formDense = dense(LEAD_FORM_DIALOG_PATH);
   checkStatic(
-    /ORIGEM_TIPO_OPTIONS\s*=\s*\[[\s\S]{0,200}?\]/.test(formSrc),
+    formDense.includes("ORIGEM_TIPO_OPTIONS=["),
     "src/components/lead-form-dialog.tsx: ORIGEM_TIPO_OPTIONS não encontrado"
   );
   checkStatic(
-    /value:\s*["']inbound["']/.test(formSrc) && /value:\s*["']outbound["']/.test(formSrc),
+    /value:["']inbound["']/.test(formDense) && /value:["']outbound["']/.test(formDense),
     "src/components/lead-form-dialog.tsx: ORIGEM_TIPO_OPTIONS não contém os dois valores inbound/outbound"
   );
-  checkStatic(/name="origemTipo"/.test(formSrc), 'src/components/lead-form-dialog.tsx: nenhum name="origemTipo" encontrado');
+  checkStatic(
+    /name=["']origemTipo["']/.test(formDense),
+    'src/components/lead-form-dialog.tsx: nenhum name="origemTipo" encontrado'
+  );
 }
 
 // --- Elo 5: src/actions/import-actions.ts — persistência no insert do import CSV ---
 {
-  let importActionsSrc;
+  let importActionsDense;
   try {
-    importActionsSrc = readStripped(IMPORT_ACTIONS_PATH);
+    importActionsDense = dense(IMPORT_ACTIONS_PATH);
   } catch (err) {
     checkStatic(false, `não foi possível ler ${IMPORT_ACTIONS_PATH}: ${err.message}`);
-    importActionsSrc = "";
+    importActionsDense = "";
   }
   checkStatic(
-    /origemTipo:\s*row\.origemTipo\s*,/.test(importActionsSrc),
+    importActionsDense.includes("origemTipo:row.origemTipo,"),
     `${IMPORT_ACTIONS_PATH}: bulkImportLeads não persiste "origemTipo: row.origemTipo," no insert (Pitfall 3)`
   );
 }
