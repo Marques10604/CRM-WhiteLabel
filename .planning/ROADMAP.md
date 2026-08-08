@@ -160,12 +160,12 @@ Plans:
   2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
   3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
 
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 09-01-PLAN.md — Camada de dados: tabela `interacoes` (schema + tipos + contratos Zod), extensão da guarda anti hard-delete no mesmo commit, `drizzle-kit push` no banco vivo e as 4 Server Actions com guarda de imutabilidade no WHERE
+- [x] 09-01-PLAN.md — Camada de dados: tabela `interacoes` (schema + tipos + contratos Zod), extensão da guarda anti hard-delete no mesmo commit, `drizzle-kit push` no banco vivo e as 4 Server Actions com guarda de imutabilidade no WHERE
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -242,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
-| 9. Timeline de Interações | v1.3 | 0/4 | Planned | - |
+| 9. Timeline de Interações | v1.3 | 1/4 | In Progress|  |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

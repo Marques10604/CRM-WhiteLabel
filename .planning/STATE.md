@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: verifying
-last_updated: "2026-08-08T20:31:00.038Z"
-last_activity: 2026-08-07
+status: executing
+last_updated: "2026-08-08T23:18:42.732Z"
+last_activity: 2026-08-08
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 13
+  completed_plans: 10
   percent: 50
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 08 — origem-governada-separa-o-inbound-outbound
+**Current focus:** Phase 09 — timeline-de-intera-es
 
 ## Current Position
 
-Phase: 08 (origem-governada-separa-o-inbound-outbound) — COMPLETE
-Plan: 3 of 3
-Status: 08-03-SUMMARY.md escrito, todos os gates verdes (tsc, eslint escopado, guard, testes, verify:origem-tipo, build). 1 item pendente de human-check (modal de edição em navegador). Próxima fase: 09 (Timeline de interações)
-Last activity: 2026-08-07
+Phase: 09 (timeline-de-intera-es) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-08-08
 
-Progress: [██████████] 100%
+Progress: [████████░░] 77%
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [██████████] 100%
 | Phase 08 P02 | 18min | 2 tasks | 3 files |
 | Phase 08 P03 | ~25min | 3 tasks | 4 files |
 | Phase 08 P03 | 35min | 3 tasks | 3 files |
+| Phase 09 P01 | 10min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Recent decisions affecting current work:
 - [Phase 08-03]: npx eslint sem escopo revelou 413 problemas pre-existentes (.claude/get-shit-done, worktree orfao, scripts .cjs pre-existentes) nao relacionados a origemTipo - documentado em deferred-items.md, fora de escopo, nao bloqueia fechamento da Fase 8
 - [Quick 260807-uit]: WR-02 executado antes de WR-01 (ordem obrigatoria) - a guarda verify-origem-tipo.cjs precisava aceitar as duas formas do default (.default("outbound") ou .default(CSV_DEFAULTS.origemTipo)) antes da Task 2 trocar a forma real, senao quebraria no meio da tarefa
 - [Quick 260807-uit]: IN-01 e IN-02 do 08-REVIEW.md permanecem deliberadamente intocados - sao "info", nao "warning", fora do escopo desta tarefa
+- [Phase ?]: [Phase 09-01]: Coluna unica tipo (4 valores, incluindo nota_manual) em interacoes, sem segunda dimensao de categorizacao
+- [Phase ?]: [Phase 09-01]: whatsappContactSchema.texto obrigatorio desde 09-01, mas registerWhatsAppContact so passa a enviar texto na 09-02 - janela intencional, executar 09-02 antes de considerar a Fase 9 pronta para uso real do botao WhatsApp
+- [Phase ?]: [Phase 09-01]: drizzle-kit push recriou subnicho_nome_unique_idx (DROP+CREATE identico) por drift de snapshot ja conhecido - sem perda de dado, subnichos com 9 linhas intactas
 
 ### Pending Todos
 
@@ -190,9 +194,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-08T20:30:59.890Z
-Stopped at: Phase 9 UI-SPEC approved
-Resume file: .planning/phases/09-timeline-de-intera-es/09-UI-SPEC.md
+Last session: 2026-08-08T23:18:42.707Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
