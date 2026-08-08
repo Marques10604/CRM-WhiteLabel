@@ -10,7 +10,7 @@
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { leads, subnichos } from "@/db/schema";
+import { interacoes, leads, subnichos } from "@/db/schema";
 import { leadSchema, stageUpdateSchema, whatsappContactSchema } from "@/lib/validations";
 import type { Lead, Template } from "@/types";
 
@@ -213,12 +213,25 @@ export async function updateLeadStage(
  * um clique quase simultâneos no mesmo lead pode perder uma escrita, mas
  * nunca sobrescreve negociacao/fechado/perdido definidos manualmente,
  * porque o gate exige etapa atual "novo".
+ *
+ * TIMELINE-01: desde a Fase 9, além do contador/avanço, esta função também
+ * grava a linha correspondente em `interacoes` — as duas escritas (update de
+ * `leads` e insert em `interacoes`) acontecem dentro de `db.transaction()`
+ * (mesmo precedente de `applyDefaultTemplate` em `template-actions.ts`,
+ * Pitfall 3 do RESEARCH.md) para nunca incrementar o contador sem gravar o
+ * evento correspondente na timeline, mesmo sob falha parcial de I/O. O
+ * insert é incondicional (irmão do update, fora do `advanced ? {} : {}`) —
+ * follow_up e prova_valor também viram linha de timeline, não só
+ * primeiro_contato (Pitfall 4 do RESEARCH.md). `texto` agora é obrigatório
+ * (`whatsappContactSchema.texto`, D-04): uma caixa de mensagem vazia falha o
+ * safeParse e não grava tentativa nem interação, por design.
  */
 export async function registerWhatsAppContact(
   leadId: number,
-  tipo: Template["tipo"]
+  tipo: Template["tipo"],
+  texto: string
 ): Promise<{ advanced: boolean }> {
-  const parsed = whatsappContactSchema.safeParse({ leadId, tipo });
+  const parsed = whatsappContactSchema.safeParse({ leadId, tipo, texto });
   if (!parsed.success) {
     return { advanced: false };
   }
@@ -233,13 +246,21 @@ export async function registerWhatsAppContact(
 
   const advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
 
-  await db
-    .update(leads)
-    .set({
-      contactAttempts: sql`${leads.contactAttempts} + 1`,
-      ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
-    })
-    .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(leads)
+      .set({
+        contactAttempts: sql`${leads.contactAttempts} + 1`,
+        ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
+      })
+      .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+
+    await tx.insert(interacoes).values({
+      leadId: parsed.data.leadId,
+      tipo: parsed.data.tipo,
+      texto: parsed.data.texto,
+    });
+  });
 
   revalidatePath("/");
   revalidatePath("/pipeline");

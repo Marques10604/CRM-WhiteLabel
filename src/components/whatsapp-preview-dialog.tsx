@@ -171,7 +171,10 @@ export function WhatsAppPreviewDialog({
                   (Pitfall 2). O gate de avanço é decidido inteiramente no
                   servidor a partir de um SELECT fresco; o cliente só envia
                   o tipo vivo do Select e exibe o toast se o retorno indicar
-                  avanço. */}
+                  avanço. TIMELINE-01/D-04: o texto integral da caixa de
+                  mensagem (capturado ANTES de onOpenChange(false) limpar o
+                  state) é o que fica registrado na timeline — exatamente o
+                  que foi enviado, edições incluídas. */}
               {waHref ? (
                 <a
                   href={waHref}
@@ -182,7 +185,7 @@ export function WhatsAppPreviewDialog({
                     if (!lead) return;
                     const leadId = lead.id;
                     const nome = lead.nome;
-                    registerWhatsAppContact(leadId, tipo)
+                    registerWhatsAppContact(leadId, tipo, texto)
                       .then((result) => {
                         if (result.advanced) {
                           toast.success(`${nome} avançou para Contatado.`);
