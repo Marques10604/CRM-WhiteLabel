@@ -16,7 +16,7 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 ### Timeline de Interações
 
 - [x] **TIMELINE-01**: Cada evento de contato com um lead (clique de WhatsApp, nota manual) é registrado numa linha do tempo, com data e tipo/resumo
-- [ ] **TIMELINE-02**: Admin visualiza o histórico completo de interações de um lead, em ordem cronológica, na tela/modal do lead
+- [x] **TIMELINE-02**: Admin visualiza o histórico completo de interações de um lead, em ordem cronológica, na tela/modal do lead
 
 ### Sequência de Follow-up Escalonada
 
@@ -79,7 +79,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | ORIGEM-02 | Phase 8 | Complete |
 | ORIGEM-03 | Phase 10 | Pending |
 | TIMELINE-01 | Phase 9 | Complete |
-| TIMELINE-02 | Phase 9 | Pending |
+| TIMELINE-02 | Phase 9 | Complete |
 | SEQ-01 | Phase 10 | Pending |
 | SEQ-02 | Phase 10 | Pending |
 | SEQ-03 | Phase 10 | Pending |

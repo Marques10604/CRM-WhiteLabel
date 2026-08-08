@@ -160,7 +160,7 @@ Plans:
   2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
   3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 **Wave 1**
@@ -173,7 +173,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 09-03-PLAN.md — Superfície dedicada `LeadTimelineDialog` (D-02): lista cronológica com texto integral, composer de nota manual no topo, edição inline e exclusão confirmada só para notas manuais (D-06)
+- [x] 09-03-PLAN.md — Superfície dedicada `LeadTimelineDialog` (D-02): lista cronológica com texto integral, composer de nota manual no topo, edição inline e exclusão confirmada só para notas manuais (D-06)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -242,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
-| 9. Timeline de Interações | v1.3 | 2/4 | In Progress|  |
+| 9. Timeline de Interações | v1.3 | 3/4 | In Progress|  |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
