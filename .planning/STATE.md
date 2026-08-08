@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: verifying
-last_updated: "2026-08-08T15:56:00Z"
-last_activity: 2026-08-08
+last_updated: "2026-08-08T18:41:16.249Z"
+last_activity: 2026-08-07
 progress:
   total_phases: 8
   completed_phases: 4
@@ -190,9 +190,9 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-08T15:56:00Z
-Stopped at: Sessão de human-check no navegador (a primeira do projeto com acesso real a browser). Validados ao vivo: os 4 cenários pendentes de origemTipo (Fase 8), o bug de `followUpDate` ("Invalid input: expected date, received Date" — sessão de debug resolvida em `.planning/debug/resolved/followup-invalid-date-input.md`), e o quick task `260808-h5i` (warning React 19 `useActionState`/`startTransition` em `lead-form-dialog.tsx`, commit `1b7dc04`, confirmado que o warning sumiu do console e o botão "Salvando..." agora funciona). Todos os leads de teste criados durante as verificações foram removidos (soft-delete) do banco real. Débito remanescente: `.planning/debug/resolved/followup-invalid-date-input.md` ainda está untracked — commitar numa próxima sessão. Human-checks ainda não cobertos: CRUD de templates, contador de tentativas de WhatsApp, auto-trigger de 1º contato (herdados da Fase 4).
-Resume file: None
+Last session: 2026-08-08T18:41:16.212Z
+Stopped at: Phase 9 context gathered
+Resume file: .planning/phases/09-timeline-de-intera-es/09-CONTEXT.md
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
