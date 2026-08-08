@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-08T23:18:42.732Z"
+last_updated: "2026-08-08T23:30:38.623Z"
 last_activity: 2026-08-08
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
   percent: 50
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 09 (timeline-de-intera-es) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-08-08
 
-Progress: [████████░░] 77%
+Progress: [█████████░] 85%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: [████████░░] 77%
 | Phase 08 P03 | ~25min | 3 tasks | 4 files |
 | Phase 08 P03 | 35min | 3 tasks | 3 files |
 | Phase 09 P01 | 10min | 3 tasks | 7 files |
+| Phase 09-timeline-de-intera-es P02 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 09-01]: Coluna unica tipo (4 valores, incluindo nota_manual) em interacoes, sem segunda dimensao de categorizacao
 - [Phase ?]: [Phase 09-01]: whatsappContactSchema.texto obrigatorio desde 09-01, mas registerWhatsAppContact so passa a enviar texto na 09-02 - janela intencional, executar 09-02 antes de considerar a Fase 9 pronta para uso real do botao WhatsApp
 - [Phase ?]: [Phase 09-01]: drizzle-kit push recriou subnicho_nome_unique_idx (DROP+CREATE identico) por drift de snapshot ja conhecido - sem perda de dado, subnichos com 9 linhas intactas
+- [Phase 09-02]: registerWhatsAppContact grava contador e interacao numa unica db.transaction(); insert incondicional fora do bloco de avanco cobre os 3 tipos de template
+- [Phase 09-02]: Harness test-interacao-actions.cjs roda sem ORM/sem import de TS (:memory: puro), seguindo o precedente de verify-wa-contact-invariant.cjs, para nao depender de bootstrap de migracoes de uma tabela sem .sql versionado
 
 ### Pending Todos
 
@@ -194,8 +197,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-08T23:18:42.707Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-08-08T23:30:38.595Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
