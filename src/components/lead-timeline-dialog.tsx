@@ -4,14 +4,20 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { MessageCircle, StickyNote } from "lucide-react";
+import { MessageCircle, Pencil, StickyNote, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldContent, FieldError } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
-import { createInteracaoManual, getInteracoesByLead } from "@/actions/interacao-actions";
+import { DeleteNotaDialog } from "@/components/delete-nota-dialog";
+import {
+  createInteracaoManual,
+  getInteracoesByLead,
+  softDeleteInteracaoManual,
+  updateInteracaoManual,
+} from "@/actions/interacao-actions";
 import { notaManualTextoSchema, type NotaManualFormValues } from "@/lib/validations";
 import type { Interacao, Lead } from "@/types";
 
@@ -40,6 +46,10 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
   const [interacoes, setInteracoes] = useState<Interacao[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [textoEdicao, setTextoEdicao] = useState("");
+  const [salvandoEdicaoId, setSalvandoEdicaoId] = useState<number | null>(null);
+  const [notaParaExcluir, setNotaParaExcluir] = useState<number | null>(null);
   // Guarda contra respostas fora de ordem: sempre que uma nova busca começa
   // (efeito ou recarregar() pós-mutação), o id "em voo" é atualizado; uma
   // resposta cujo leadId não bate mais com o id em voo é descartada.
@@ -71,10 +81,16 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setInteracoes([]);
       setCarregando(false);
+      setEditandoId(null);
+      setTextoEdicao("");
+      setNotaParaExcluir(null);
       return;
     }
     form.reset({ texto: "" });
     setCarregando(true);
+    setEditandoId(null);
+    setTextoEdicao("");
+    setNotaParaExcluir(null);
     recarregar().finally(() => setCarregando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, lead?.id]);
@@ -94,9 +110,50 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
     });
   }
 
+  function handleIniciarEdicao(interacao: Interacao) {
+    setEditandoId(interacao.id);
+    setTextoEdicao(interacao.texto);
+  }
+
+  function handleCancelarEdicao() {
+    setEditandoId(null);
+    setTextoEdicao("");
+  }
+
+  async function handleSalvarEdicao(id: number) {
+    setSalvandoEdicaoId(id);
+    try {
+      const resultado = await updateInteracaoManual(id, textoEdicao);
+      if ("errors" in resultado) {
+        toast.error("Não foi possível salvar a nota. Tente novamente.");
+        return;
+      }
+      toast.success("Nota atualizada.");
+      setEditandoId(null);
+      setTextoEdicao("");
+      await recarregar();
+    } finally {
+      setSalvandoEdicaoId(null);
+    }
+  }
+
+  async function handleConfirmarExclusao() {
+    if (notaParaExcluir === null) return;
+    const id = notaParaExcluir;
+    const resultado = await softDeleteInteracaoManual(id);
+    if ("errors" in resultado) {
+      toast.error("Não foi possível salvar a nota. Tente novamente.");
+      return;
+    }
+    toast.success("Nota removida da timeline.");
+    setNotaParaExcluir(null);
+    await recarregar();
+  }
+
   return (
-    <Dialog open={open && !!lead} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+    <>
+      <Dialog open={open && !!lead} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-lg">
         {lead ? (
           <>
             <DialogHeader>
@@ -163,10 +220,63 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
                         <span className="text-[14px] text-muted-foreground">
                           {format(interacao.createdAt, "dd/MM/yyyy 'às' HH:mm")}
                         </span>
+                        {interacao.tipo === "nota_manual" ? (
+                          <div className="ml-auto flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label="Editar nota"
+                              onClick={() => handleIniciarEdicao(interacao)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label="Excluir nota"
+                              onClick={() => setNotaParaExcluir(interacao.id)}
+                            >
+                              <Trash2 className="size-4 text-[#DC2626]" />
+                            </Button>
+                          </div>
+                        ) : null}
                       </div>
-                      <p className="text-[16px] leading-normal whitespace-pre-wrap text-foreground">
-                        {interacao.texto}
-                      </p>
+                      {editandoId === interacao.id ? (
+                        <div className="flex flex-col gap-2">
+                          <Textarea
+                            value={textoEdicao}
+                            onChange={(event) => setTextoEdicao(event.target.value)}
+                            className="min-h-24"
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancelarEdicao}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
+                              disabled={
+                                textoEdicao.trim().length === 0 || salvandoEdicaoId === interacao.id
+                              }
+                              onClick={() => handleSalvarEdicao(interacao.id)}
+                            >
+                              Salvar
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-[16px] leading-normal whitespace-pre-wrap text-foreground">
+                          {interacao.texto}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -174,7 +284,15 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
             </div>
           </>
         ) : null}
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <DeleteNotaDialog
+        open={notaParaExcluir !== null}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) setNotaParaExcluir(null);
+        }}
+        onConfirm={handleConfirmarExclusao}
+      />
+    </>
   );
 }
