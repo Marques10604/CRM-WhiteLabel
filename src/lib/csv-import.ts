@@ -50,11 +50,14 @@ export type MappedCsvRow = {
  *
  * `origemTipo` é um caso à parte: é um default FIXO e permanente (Requirement
  * 2 do 08-SPEC.md), nunca vem de coluna do CSV e nunca é escolhido pelo admin
- * no wizard — não é um campo mapeável de coluna do arquivo. A entrada abaixo
- * existe só para documentação/paridade visual com os demais defaults; o
- * ponto de aplicação real é o `.default("outbound")` do `csvRowSchema` em
- * `src/lib/validations.ts`, que preenche o valor quando a linha confirmada
- * não traz esse dado (o wizard nunca coleta essa escolha).
+ * no wizard — não é um campo mapeável de coluna do arquivo. Desde a correção
+ * WR-01 (code review da Fase 8), esta entrada é a FONTE ÚNICA real: o
+ * `csvRowSchema` em `src/lib/validations.ts` importa `CSV_DEFAULTS` e usa
+ * `.default(CSV_DEFAULTS.origemTipo)`, então mudar o valor aqui muda o
+ * comportamento real do import — não existe mais um literal duplicado. O
+ * ponto de APLICAÇÃO continua sendo o `.default()` do `csvRowSchema` (não
+ * `mapCsvRows`), que preenche o valor quando a linha confirmada não traz
+ * esse dado (o wizard nunca coleta essa escolha).
  */
 export const CSV_DEFAULTS = {
   canal: "whatsapp",

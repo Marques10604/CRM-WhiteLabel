@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseBRLToCents } from "@/lib/money";
 import { normalizePhone } from "@/lib/phone";
+import { CSV_DEFAULTS } from "@/lib/csv-import";
 
 export const subnichoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
@@ -52,14 +53,17 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * id só dentro da transação de bulkImportLeads. `followUpDate` é omitido
  * porque nenhuma coluna de follow-up é coletada do CSV — o servidor grava
  * followUpDate = new Date() (momento da importação) diretamente no insert.
- * `origemTipo` recebe `.default("outbound")` aqui (e só aqui) porque o CSV
- * do cowork não tem passo de UI para essa escolha — a origem real do lote é
- * conhecida e uniforme; em `leadSchema` o campo fica sem default (D-04), já
- * que o formulário manual precisa forçar uma escolha consciente do admin.
+ * `origemTipo` recebe `.default(CSV_DEFAULTS.origemTipo)` aqui (e só aqui,
+ * único ponto de APLICAÇÃO do default) porque o CSV do cowork não tem passo
+ * de UI para essa escolha — a origem real do lote é conhecida e uniforme. O
+ * VALOR em si vem de `CSV_DEFAULTS.origemTipo` (`src/lib/csv-import.ts`),
+ * fonte única compartilhada com os demais defaults do import CSV (WR-01);
+ * em `leadSchema` o campo fica sem default (D-04), já que o formulário
+ * manual precisa forçar uma escolha consciente do admin.
  */
 export const csvRowSchema = leadSchema.omit({ subnichoId: true, followUpDate: true }).extend({
   subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
-  origemTipo: z.enum(["inbound", "outbound"]).default("outbound"),
+  origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),
 });
 
 export type CsvRowValues = z.infer<typeof csvRowSchema>;
