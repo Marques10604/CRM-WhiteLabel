@@ -65,6 +65,40 @@ export const leads = sqliteTable(
 );
 
 /**
+ * Timeline de interações por lead (TIMELINE-01/02). Coluna única `tipo`
+ * reaproveita o vocabulário de `templates.tipo` mais um 4º valor
+ * `nota_manual` (decisão de coluna única do 09-RESEARCH.md §Alternatives
+ * Considered) — atende "tipo/resumo" sem uma segunda dimensão não pedida.
+ *
+ * `updatedAt` é NULLABLE e SEM default (diferente de `templates.updatedAt`,
+ * que é notNull): só é preenchido quando uma nota manual é editada — eventos
+ * automáticos de WhatsApp nunca têm updatedAt.
+ *
+ * `deletedAt` é NULLABLE e só é escrito para `tipo="nota_manual"` (D-06/D-07)
+ * — eventos automáticos de WhatsApp são imutáveis por decisão de produto, a
+ * guarda vive no WHERE das Server Actions (src/actions/interacao-actions.ts),
+ * nunca só na UI.
+ */
+export const interacoes = sqliteTable(
+  "interacoes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    leadId: integer("lead_id").notNull().references(() => leads.id, { onDelete: "restrict" }),
+    tipo: text("tipo", {
+      enum: ["primeiro_contato", "follow_up", "prova_valor", "nota_manual"],
+    }).notNull(),
+    texto: text("texto").notNull(), // D-04/D-05: texto integral, sem truncamento e sem .max()
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }), // nullable, sem default — só em edição de nota manual
+    deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable, só para tipo="nota_manual" (D-06/D-07)
+  },
+  (table) => [
+    index("interacoes_lead_id_idx").on(table.leadId),
+    index("interacoes_deleted_at_idx").on(table.deletedAt),
+  ]
+);
+
+/**
  * Tabela singleton (CONFIG-01/CONFIG-02) — sempre uma única linha, `id` fixo
  * = 1, nunca autoIncrement. A invariante "uma linha" é garantida em código
  * de aplicação (getConfiguracoes/saveConfiguracoes), mesmo precedente de

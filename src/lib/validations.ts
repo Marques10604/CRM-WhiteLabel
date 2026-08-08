@@ -80,9 +80,17 @@ export const stageUpdateSchema = z.object({
  * um endpoint HTTP interno, valida em runtime mesmo com o TypeScript do
  * client já garantindo a forma (Pitfall 8 do RESEARCH).
  */
+/**
+ * `texto` obrigatório (D-04/D-05, TIMELINE-01/02): um clique em "Abrir
+ * WhatsApp" com a caixa de mensagem vazia deixa de registrar
+ * tentativa/interação — consequência deliberada, mensagem vazia não é
+ * contato real. Coerente com o comportamento pré-existente de "entrada
+ * inválida ⇒ { advanced: false }, sem escrita" de registerWhatsAppContact.
+ */
 export const whatsappContactSchema = z.object({
   leadId: z.coerce.number().int().positive(),
   tipo: z.enum(["primeiro_contato", "follow_up", "prova_valor"]),
+  texto: z.string().trim().min(1, "Mensagem vazia."),
 });
 
 export const templateSchema = z.object({
@@ -95,6 +103,25 @@ export const templateSchema = z.object({
 });
 
 export type TemplateFormValues = z.input<typeof templateSchema>;
+
+/**
+ * Contratos de nota manual da timeline de interações (TIMELINE-01/02),
+ * derivados em camada (mesmo idioma DRY de csvRowSchema derivando de
+ * leadSchema) a partir de notaManualTextoSchema — nunca cópias paralelas.
+ */
+export const notaManualTextoSchema = z.object({
+  texto: z.string().trim().min(1, "Nota não pode ficar vazia."),
+});
+
+export const interacaoManualSchema = notaManualTextoSchema.extend({
+  leadId: z.coerce.number().int().positive(),
+});
+
+export const interacaoManualUpdateSchema = notaManualTextoSchema.extend({
+  id: z.coerce.number().int().positive(),
+});
+
+export type NotaManualFormValues = z.input<typeof notaManualTextoSchema>;
 
 /**
  * Contrato de saveConfiguracoes (CONFIG-01/CONFIG-02, T-07-01) — validação
