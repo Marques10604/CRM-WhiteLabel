@@ -160,7 +160,24 @@ Plans:
   2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
   3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
 
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 09-01-PLAN.md — Camada de dados: tabela `interacoes` (schema + tipos + contratos Zod), extensão da guarda anti hard-delete no mesmo commit, `drizzle-kit push` no banco vivo e as 4 Server Actions com guarda de imutabilidade no WHERE
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 09-02-PLAN.md — Captura automática: `registerWhatsAppContact(leadId, tipo, texto)` grava contador e interação numa única transação (qualquer template), preview passa o texto vivo, e harness permanente `test:interacao-actions`
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 09-03-PLAN.md — Superfície dedicada `LeadTimelineDialog` (D-02): lista cronológica com texto integral, composer de nota manual no topo, edição inline e exclusão confirmada só para notas manuais (D-06)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 09-04-PLAN.md — Os 3 pontos de entrada de D-03 (ícone na lista `/leads`, ícone no card do pipeline, botão "Ver histórico" no rodapé do modal) + bateria de 9 gates sequenciais
 
 **UI hint**: yes
 
@@ -225,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
-| 9. Timeline de Interações | v1.3 | 0/TBD | Not started | - |
+| 9. Timeline de Interações | v1.3 | 0/4 | Planned | - |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
