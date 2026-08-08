@@ -77,6 +77,12 @@ export function WhatsAppPreviewDialog({
   useEffect(() => {
     if (!open || !lead) return;
     const template = pickTemplate(templates, defaultTipo);
+    /* Mesmo falso-positivo pré-existente já documentado no projeto (STATE.md
+       decisão 07-02, aplicado em lead-timeline-dialog.tsx/09-03): sincroniza
+       `tipo`/`texto` com a prop `open`/`lead` ao abrir para um lead novo —
+       não é estado derivável sem efeito (depende de `templates`/`subnichoNome`
+       vindos de fora e de `pickTemplate`/`renderTemplate`). */
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTipo(defaultTipo);
     setTexto(
       renderTemplate(template?.corpo ?? "", {
