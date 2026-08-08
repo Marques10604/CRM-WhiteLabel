@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs",
+    "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "test:lead-actions": "node scripts/test-lead-actions.cjs",
     "test:mutation-guard": "node scripts/test-mutation-guard.cjs"
