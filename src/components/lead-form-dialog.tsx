@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -117,7 +117,14 @@ export function LeadFormDialog({
       // Reexibição do valor armazenado (centavos) via formatCentsToBRL (D-02 contrato de valor).
       valorEstimado: lead ? formatCentsToBRL(lead.valorEstimado) : "",
       notas: lead?.notas ?? "",
-      followUpDate: lead?.followUpDate,
+      // Modo criação (lead undefined) precisa de um valor real, não undefined:
+      // o Calendar só destaca "hoje" visualmente (classe `today`, bg sutil) —
+      // isso NÃO é uma seleção de fato (`data-selected-single`, bg forte). Sem
+      // este default, o admin vê o destaque de "hoje", assume que já há uma
+      // data escolhida, clica Salvar sem tocar no calendário, e o zodResolver
+      // barra o submit com "Invalid input: expected date, received Date"
+      // porque followUpDate chega undefined em leadSchema (z.coerce.date()).
+      followUpDate: lead?.followUpDate ?? startOfDay(new Date()),
       subnichoId: lead?.subnichoId,
       stage: lead?.stage ?? "novo",
       motivoPerda: lead?.motivoPerda ?? "",
@@ -167,7 +174,13 @@ export function LeadFormDialog({
     // Submete o FormData BRUTO do DOM (valor/telefone ainda em pt-BR/formatado
     // como digitado) — a normalização/parse autoritativa acontece no server
     // dentro de `leadSchema` (createLead/updateLead), nunca aqui no client.
-    formAction(new FormData(formRef.current));
+    const formData = new FormData(formRef.current);
+    // Envolve a chamada de formAction numa transition para o React 19 não
+    // acusar "called outside of a transition" e para `pending` atualizar
+    // corretamente durante o submit.
+    startTransition(() => {
+      formAction(formData);
+    });
   }
 
   const errors = form.formState.errors;
