@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: verifying
-last_updated: "2026-08-08T11:05:47Z"
+last_updated: "2026-08-08T15:56:00Z"
 last_activity: 2026-08-08
 progress:
   total_phases: 8
@@ -173,6 +173,7 @@ Aberto, carregado para o v1.3:
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 | 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
+| 260808-h5i | Corrigir warning React 19 em lead-form-dialog.tsx: formAction (useActionState) chamado fora de startTransition — envolvido em startTransition(() => {...}), FormData montado antes a partir do DOM bruto (contrato da Phase 01 preservado). Efeito colateral positivo: botão "Salvando..."/disabled=pending passa a funcionar de verdade. Verificado ao vivo no navegador (warning sumiu do console, botão mostrou "Salvando...") | 2026-08-08 | 1b7dc04 | [260808-h5i-corrigir-warning-react-19-useactionstate](./quick/260808-h5i-corrigir-warning-react-19-useactionstate/) |
 
 ## Deferred Items
 
@@ -189,10 +190,10 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-08T11:05:47Z
-Stopped at: Quick task `260807-uit` concluído — os 3 warnings do code review da Fase 8 (`08-REVIEW.md`) fechados (WR-01/WR-02/WR-03), gates automatizados verdes (tsc, guard-no-hard-delete, verify:origem-tipo, test:mutation-guard, test:lead-actions com Casos 11/12 novos, build). O human-check pendente de 08-02/08-03 (abrir modal de edição de lead pré-existente no navegador e confirmar origemTipo correto) continua NÃO verificado — sem acesso a navegador nesta sessão. Próximo passo real: rodar `npm run dev`, validar esse human-check, depois planejar Fase 9 (Timeline de interações).
+Last session: 2026-08-08T15:56:00Z
+Stopped at: Sessão de human-check no navegador (a primeira do projeto com acesso real a browser). Validados ao vivo: os 4 cenários pendentes de origemTipo (Fase 8), o bug de `followUpDate` ("Invalid input: expected date, received Date" — sessão de debug resolvida em `.planning/debug/resolved/followup-invalid-date-input.md`), e o quick task `260808-h5i` (warning React 19 `useActionState`/`startTransition` em `lead-form-dialog.tsx`, commit `1b7dc04`, confirmado que o warning sumiu do console e o botão "Salvando..." agora funciona). Todos os leads de teste criados durante as verificações foram removidos (soft-delete) do banco real. Débito remanescente: `.planning/debug/resolved/followup-invalid-date-input.md` ainda está untracked — commitar numa próxima sessão. Human-checks ainda não cobertos: CRUD de templates, contador de tentativas de WhatsApp, auto-trigger de 1º contato (herdados da Fase 4).
 Resume file: None
-Servidor de dev: nenhum processo node ativo ao final desta sessão. Antes da próxima: rodar `npm run dev`, validar os human-checks pendentes de 08-02/08-03, depois planejar Fase 9 (Timeline de interações).
+Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
