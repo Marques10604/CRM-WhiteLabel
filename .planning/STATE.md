@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: executing
-last_updated: "2026-08-08T23:51:01.847Z"
-last_activity: 2026-08-08
+status: verifying
+last_updated: "2026-08-09T00:07:19.698Z"
+last_activity: 2026-08-09
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 12
-  percent: 50
+  completed_plans: 13
+  percent: 63
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 09 (timeline-de-intera-es) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-08-08
+Status: Phase complete — ready for verification
+Last activity: 2026-08-09
 
-Progress: [█████████░] 92%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 92%
 | Phase 09 P01 | 10min | 3 tasks | 7 files |
 | Phase 09-timeline-de-intera-es P02 | 8min | 2 tasks | 4 files |
 | Phase 09 P03 | 15min | 3 tasks | 2 files |
+| Phase 09 P04 | ~15min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,8 @@ Recent decisions affecting current work:
 - [Phase 09-02]: Harness test-interacao-actions.cjs roda sem ORM/sem import de TS (:memory: puro), seguindo o precedente de verify-wa-contact-invariant.cjs, para nao depender de bootstrap de migracoes de uma tabela sem .sql versionado
 - [Phase 09-03]: eslint-disable documentado para 2 falsos-positivos ja conhecidos (react-hooks/set-state-in-effect no reset do efeito, react-hooks/refs em form.handleSubmit) - mesmo padrao ja aceito para whatsapp-preview-dialog.tsx/template-form-dialog.tsx/configuracoes-form.tsx (STATE.md decisao 07-02)
 - [Phase 09-03]: DeleteNotaDialog renderizado como irmao do Dialog da timeline (fragment no retorno do componente), nao aninhado dentro do DialogContent - segue instrucao literal do plano e precedente de lead-table.tsx
+- [Phase 09-04]: Icone History sempre inserido DENTRO de wrappers de stopPropagation ja existentes (lead-table.tsx linha inteira, pipeline-lead-card.tsx wrapper do WhatsAppSendButton), nunca em um novo wrapper irmao
+- [Phase 09-04]: eslint-disable-next-line react-hooks/set-state-in-effect adicionado em whatsapp-preview-dialog.tsx (setTipo dentro do efeito de reset) para destravar o gate eslint escopado da Task 3 — mesmo padrao ja aceito no projeto (STATE.md decisao 07-02), ja aplicado em lead-timeline-dialog.tsx (09-03) para o mesmo falso-positivo do React Compiler
 
 ### Pending Todos
 
@@ -200,8 +203,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-08T23:51:01.814Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-08-09T00:07:19.665Z
+Stopped at: Completed 09-04-PLAN.md (final plan of Phase 09)
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 

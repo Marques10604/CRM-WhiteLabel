@@ -40,7 +40,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 **Meta do milestone:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
 
 - [x] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem` (completed 2026-08-07)
-- [ ] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual
+- [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
 - [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
 - [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
 - [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
@@ -160,7 +160,7 @@ Plans:
   2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
   3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -177,7 +177,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 09-04-PLAN.md — Os 3 pontos de entrada de D-03 (ícone na lista `/leads`, ícone no card do pipeline, botão "Ver histórico" no rodapé do modal) + bateria de 9 gates sequenciais
+- [x] 09-04-PLAN.md — Os 3 pontos de entrada de D-03 (ícone na lista `/leads`, ícone no card do pipeline, botão "Ver histórico" no rodapé do modal) + bateria de 9 gates sequenciais
 
 **UI hint**: yes
 
@@ -242,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
-| 9. Timeline de Interações | v1.3 | 3/4 | In Progress|  |
+| 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
