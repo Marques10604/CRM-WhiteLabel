@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-09T03:05:47Z",
+  "phase": "09",
+  "phase_name": "timeline-de-interacoes",
+  "phase_dir": ".planning/phases/09-timeline-de-intera-es",
+  "plan": 4,
+  "task": null,
+  "total_tasks": 4,
+  "status": "paused",
+  "completed_tasks": [
+    { "id": "09-01", "name": "Fundacao da Timeline (tabela interacoes, actions, guards)", "status": "done", "commit": "see 09-01-SUMMARY.md" },
+    { "id": "09-02", "name": "Captura Automatica da Timeline (clique WhatsApp -> registro transacional)", "status": "done", "commit": "7c98073..652931f" },
+    { "id": "09-03", "name": "Superficie da Timeline de Interacoes (LeadTimelineDialog, composer, edicao/exclusao)", "status": "done", "commit": "4ed2ec5..1db494f" },
+    { "id": "09-04", "name": "Pontos de Entrada da Timeline + Fechamento da Fase (lista, pipeline, modal de lead)", "status": "done", "commit": "0430467..1365fd7" },
+    { "id": "09-verify", "name": "Verificacao goal-backward da fase 9", "status": "done_human_needed", "progress": "23/23 must-haves verificados por codigo/live-DB; status=human_needed por depender de clique real em navegador" },
+    { "id": "09-uat", "name": "Persistir itens de verificacao humana como UAT", "status": "done", "commit": "26612fd" }
+  ],
+  "remaining_tasks": [
+    { "id": "09-human-uat", "name": "Executar os 5 testes manuais de 09-HUMAN-UAT.md no navegador", "status": "not_started" },
+    { "id": "09-close", "name": "Fechar a fase 9 (extract-learnings -> ship) apos UAT limpo", "status": "not_started" },
+    { "id": "09-wr01", "name": "Decidir se corrige WR-01 (race condition em registerWhatsAppContact) antes ou depois do fechamento", "status": "not_started" }
+  ],
+  "blockers": [
+    {
+      "description": "Todos os testes de 09-HUMAN-UAT.md exigem clique real no navegador (esta sessao de execucao/verificacao nao teve acesso a browser)",
+      "type": "human_action",
+      "workaround": "Rodar `npm run dev`, abrir /leads e /pipeline, e seguir os 5 testes descritos em 09-HUMAN-UAT.md"
+    }
+  ],
+  "human_actions_pending": [
+    { "action": "Testar manualmente os 5 cenarios em 09-HUMAN-UAT.md (nota manual, editar/excluir nota, captura automatica de WhatsApp nos 3 tipos, entrada pelo /pipeline, entrada pelo modal de lead)", "context": "Sao os unicos itens que faltam para a fase 9 passar de human_needed para passed", "blocking": true }
+  ],
+  "decisions": [
+    { "decision": "Timeline de interacoes usa soft-delete + guarda de tipo (so nota_manual pode ser editada/excluida)", "rationale": "Preservar integridade do historico automatico de WhatsApp; entradas automaticas sao imutaveis por design", "phase": "09" },
+    { "decision": "Registro de interacao de WhatsApp acontece na mesma transacao do incremento de contact_attempts", "rationale": "Evitar estado inconsistente (contador avanca sem registro, ou vice-versa)", "phase": "09" },
+    { "decision": "09-VERIFICATION.md e 09-PATTERNS.md ainda nao foram commitados (estao untracked)", "rationale": "Gerados durante a sessao de verificacao mas o commit final so incluiu 09-HUMAN-UAT.md", "phase": "09" }
+  ],
+  "uncommitted_files": [
+    ".planning/phases/09-timeline-de-intera-es/09-PATTERNS.md",
+    ".planning/phases/09-timeline-de-intera-es/09-VERIFICATION.md"
+  ],
+  "next_action": "Rodar `npm run dev`, abrir o app no navegador, e executar os 5 testes manuais listados em .planning/phases/09-timeline-de-intera-es/09-HUMAN-UAT.md, preenchendo o campo 'result' de cada um (pass/issue). Depois rodar /gsd-close-phase (ou close-phase skill) para fechar a fase 9.",
+  "context_notes": "Fase 9 (Timeline de Interacoes) esta com todo o codigo implementado e verificado estaticamente (23/23 must-haves, score no 09-VERIFICATION.md). O unico bloqueio para fechar a fase e a bateria de 5 testes manuais no navegador (09-HUMAN-UAT.md), porque esta sessao de agente nao tem acesso a browser. Ha tambem um warning nao-critico (WR-01 em 09-REVIEW.md) sobre uma race condition teorica entre registerWhatsAppContact e updateLeadStage (drag-and-drop rapido logo apos clicar WhatsApp pode sobrescrever um estagio manual) - nao bloqueia o fechamento da fase, mas deve ser triado pelo usuario. Deadline do usuario: comecar prospeccao real com o CRM em 2026-07-27 (ja passou segundo a data atual 2026-08-09 -- confirmar com o usuario se esse prazo mudou)."
+}
