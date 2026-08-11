@@ -210,9 +210,13 @@ export async function updateLeadStage(
  *
  * Limitação aceita (Pitfall 5 do RESEARCH): esta mutação não participa do
  * useOptimistic/startTransition do board — uma corrida rara entre um drag e
- * um clique quase simultâneos no mesmo lead pode perder uma escrita, mas
- * nunca sobrescreve negociacao/fechado/perdido definidos manualmente,
- * porque o gate exige etapa atual "novo".
+ * um clique quase simultâneos no mesmo lead pode perder uma escrita. O gate
+ * de etapa "novo" é reverificado dentro do próprio WHERE da escrita
+ * transacional (não só no SELECT anterior) — se um updateLeadStage
+ * concorrente mudar o stage entre o SELECT e o UPDATE, o .returning() volta
+ * vazio e `advanced` é corrigido para false antes do retorno, então esta
+ * função nunca sobrescreve negociacao/fechado/perdido definidos manualmente
+ * (WR-01, 09-REVIEW.md).
  *
  * TIMELINE-01: desde a Fase 9, além do contador/avanço, esta função também
  * grava a linha correspondente em `interacoes` — as duas escritas (update de
@@ -244,16 +248,30 @@ export async function registerWhatsAppContact(
     return { advanced: false };
   }
 
-  const advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
+  let advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
 
   await db.transaction(async (tx) => {
-    await tx
+    const stageGuard = advanced ? [eq(leads.stage, "novo")] : [];
+    const updated = await tx
       .update(leads)
       .set({
         contactAttempts: sql`${leads.contactAttempts} + 1`,
         ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
       })
-      .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+      .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt), ...stageGuard))
+      .returning({ id: leads.id });
+
+    if (advanced && updated.length === 0) {
+      // Stage mudou concorrentemente (ex.: drag-and-drop) entre o SELECT
+      // acima e este UPDATE — a guarda barrou o avanço automático. Registra
+      // só a tentativa (sem a mudança de stage), sem sobrescrever o stage
+      // manual definido pela corrida.
+      advanced = false;
+      await tx
+        .update(leads)
+        .set({ contactAttempts: sql`${leads.contactAttempts} + 1` })
+        .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
+    }
 
     await tx.insert(interacoes).values({
       leadId: parsed.data.leadId,
