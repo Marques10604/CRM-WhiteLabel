@@ -1,7 +1,7 @@
 ---
 phase: 09-timeline-de-intera-es
 verified: 2026-08-09T00:26:05Z
-status: human_needed
+status: passed
 score: 23/23 must-haves verified (code + live gates)
 overrides_applied: 0
 human_verification:
@@ -29,7 +29,7 @@ human_verification:
 
 **Phase Goal:** O admin deixa de depender só do contador de tentativas — cada evento de contato com um lead vira um registro na linha do tempo, com data e resumo, consultável a qualquer momento
 **Verified:** 2026-08-09T00:26:05Z
-**Status:** human_needed
+**Status:** passed *(promovido — ver § Promoção de status)*
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -185,3 +185,8 @@ No code-level gaps found. Every observable truth derived from the ROADMAP succes
 
 *Verified: 2026-08-09T00:26:05Z*
 *Verifier: Claude (gsd-verifier)*
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-08-11.
+Evidência: UAT automatizado via navegador (Claude in Chrome, a pedido explícito do usuário) concluído — 09-HUMAN-UAT.md em `complete`, 5/5 testes `pass`, 0 issues, 0 pending. Não foi clique humano literal; o usuário pediu que o agente executasse o UAT pelo navegador.
