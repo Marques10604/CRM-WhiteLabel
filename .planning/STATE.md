@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 Phase: 09 (timeline-de-intera-es) — EXECUTING
 Plan: 4 of 4
 Status: Phase 9 shipped — PR #1
-Last activity: 2026-08-11
+Last activity: 2026-08-11 - Completed quick task 260811-pb1: Corrigir WR-01 (race condition em registerWhatsAppContact)
 
 Progress: [██████████] 100%
 
@@ -187,6 +187,7 @@ Aberto, carregado para o v1.3:
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 | 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
+| 260811-pb1 | Corrigir WR-01 do 09-REVIEW.md: race condition em registerWhatsAppContact — reverificar stage no WHERE atômico da transação em vez de confiar num SELECT pré-transação | 2026-08-11 | 73b43b2 | [260811-pb1-corrigir-wr-01-race-condition-em-registe](./quick/260811-pb1-corrigir-wr-01-race-condition-em-registe/) |
 | 260808-h5i | Corrigir warning React 19 em lead-form-dialog.tsx: formAction (useActionState) chamado fora de startTransition — envolvido em startTransition(() => {...}), FormData montado antes a partir do DOM bruto (contrato da Phase 01 preservado). Efeito colateral positivo: botão "Salvando..."/disabled=pending passa a funcionar de verdade. Verificado ao vivo no navegador (warning sumiu do console, botão mostrou "Salvando...") | 2026-08-08 | 1b7dc04 | [260808-h5i-corrigir-warning-react-19-useactionstate](./quick/260808-h5i-corrigir-warning-react-19-useactionstate/) |
 
 ## Deferred Items
