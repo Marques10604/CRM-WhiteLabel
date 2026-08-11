@@ -50,6 +50,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
   const [textoEdicao, setTextoEdicao] = useState("");
   const [salvandoEdicaoId, setSalvandoEdicaoId] = useState<number | null>(null);
   const [notaParaExcluir, setNotaParaExcluir] = useState<number | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
   // Guarda contra respostas fora de ordem: sempre que uma nova busca começa
   // (efeito ou recarregar() pós-mutação), o id "em voo" é atualizado; uma
   // resposta cujo leadId não bate mais com o id em voo é descartada.
@@ -84,6 +85,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
       setEditandoId(null);
       setTextoEdicao("");
       setNotaParaExcluir(null);
+      setExcluindo(false);
       return;
     }
     form.reset({ texto: "" });
@@ -91,6 +93,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
     setEditandoId(null);
     setTextoEdicao("");
     setNotaParaExcluir(null);
+    setExcluindo(false);
     recarregar().finally(() => setCarregando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, lead?.id]);
@@ -140,14 +143,19 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
   async function handleConfirmarExclusao() {
     if (notaParaExcluir === null) return;
     const id = notaParaExcluir;
-    const resultado = await softDeleteInteracaoManual(id);
-    if ("errors" in resultado) {
-      toast.error("Não foi possível salvar a nota. Tente novamente.");
-      return;
+    setExcluindo(true);
+    try {
+      const resultado = await softDeleteInteracaoManual(id);
+      if ("errors" in resultado) {
+        toast.error("Não foi possível salvar a nota. Tente novamente.");
+        return;
+      }
+      toast.success("Nota removida da timeline.");
+      setNotaParaExcluir(null);
+      await recarregar();
+    } finally {
+      setExcluindo(false);
     }
-    toast.success("Nota removida da timeline.");
-    setNotaParaExcluir(null);
-    await recarregar();
   }
 
   return (
@@ -292,6 +300,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
           if (!nextOpen) setNotaParaExcluir(null);
         }}
         onConfirm={handleConfirmarExclusao}
+        pending={excluindo}
       />
     </>
   );

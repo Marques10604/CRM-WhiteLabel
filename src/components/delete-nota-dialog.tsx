@@ -14,6 +14,8 @@ type DeleteNotaDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  /** Desabilita o botão "Excluir" e troca o texto enquanto a exclusão está em voo (IN-01, 09-REVIEW.md). */
+  pending?: boolean;
 };
 
 /**
@@ -23,7 +25,12 @@ type DeleteNotaDialogProps = {
  * recuperação de notas manuais nesta fase (soft-delete apenas no banco,
  * `deletedAt`, recuperável manualmente via Drizzle Studio).
  */
-export function DeleteNotaDialog({ open, onOpenChange, onConfirm }: DeleteNotaDialogProps) {
+export function DeleteNotaDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  pending = false,
+}: DeleteNotaDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false}>
@@ -34,11 +41,11 @@ export function DeleteNotaDialog({ open, onOpenChange, onConfirm }: DeleteNotaDi
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancelar
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Excluir
+          <Button variant="destructive" onClick={onConfirm} disabled={pending}>
+            {pending ? "Excluindo..." : "Excluir"}
           </Button>
         </DialogFooter>
       </DialogContent>
