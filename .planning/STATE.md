@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: planning
-last_updated: "2026-08-01T20:26:33.424Z"
-last_activity: "2026-08-01 — ROADMAP.md criado para v1.3 (5 fases: 8-12), REQUIREMENTS.md traceability preenchida (13/13 requisitos mapeados)"
+status: "Phase 9 shipped — PR #1"
+stopped_at: Completed 09-04-PLAN.md (final plan of Phase 09)
+last_updated: "2026-08-11T21:06:48.754Z"
+last_activity: 2026-08-11
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 38
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 13
+  percent: 63
 ---
 
 # Project State
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.3, Fase 8 (Origem Governada + Inbound×Outbound) — `/go-and-do 8` em andamento, **interrompido no meio da Etapa 0-B (revisão de intenção)** por limite de sessão da conta (reset 20h America/Sao_Paulo). Retomar com `/go-and-do 8` numa sessão nova.
+**Current focus:** Phase 09 — timeline-de-intera-es
 
 ## Current Position
 
-Phase: 8 of 12 (Origem Governada + Separação Inbound × Outbound) — PAUSADA em Etapa 0-B (intenção), rodando via /go-and-do
-Plan: — (roadmap criado; SPEC/CONTEXT prontos; revisão de intenção incompleta)
-Status: /go-and-do 8 pausado — retomar com `/go-and-do 8`
-Last activity: 2026-08-01T20:26 — sessão atingiu o limite de conta no meio da Etapa 0-B; ver "Retomada exata da Fase 8" abaixo
+Phase: 09 (timeline-de-intera-es) — EXECUTING
+Plan: 4 of 4
+Status: Phase 9 shipped — PR #1
+Last activity: 2026-08-11 - Completed quick task 260811-ro5: Corrigir IN-01 (guard de in-flight no botão de excluir nota manual)
 
-Progress: [░░░░░░░░░░] 0% (v1.3)
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -66,6 +67,14 @@ Progress: [░░░░░░░░░░] 0% (v1.3)
 | Phase 06 P02 | 20min | 2 tasks | 2 files |
 | Phase 07 P01 | 25min | 3 tasks | 4 files |
 | Phase 07-configura-o-de-dias-parado-por-etapa P02 | 20min | 3 tasks | 4 files |
+| Phase 08 P01 | 15min | 3 tasks | 3 files |
+| Phase 08 P02 | 18min | 2 tasks | 3 files |
+| Phase 08 P03 | ~25min | 3 tasks | 4 files |
+| Phase 08 P03 | 35min | 3 tasks | 3 files |
+| Phase 09 P01 | 10min | 3 tasks | 7 files |
+| Phase 09-timeline-de-intera-es P02 | 8min | 2 tasks | 4 files |
+| Phase 09 P03 | 15min | 3 tasks | 2 files |
+| Phase 09 P04 | ~15min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -114,6 +123,24 @@ Recent decisions affecting current work:
 - [Phase ?]: drizzle-kit push (nao generate) usado no Plano 07-01 - snapshot de migracoes ja divergente do banco real desde Fase 4/6, debito tecnico pre-existente nao resolvido aqui
 - [Phase 07-02]: react-hooks/refs (eslint-config-next 16.2.10) sinaliza como erro o padrao onSubmit={form.handleSubmit(onSubmit)} + leitura de formRef.current, mesmo falso-positivo ja presente em template-form-dialog.tsx (analog mandatado); suprimido com eslint-disable-next-line documentado, sem mudar comportamento
 - [Phase 07-02]: limitesPorEtapa em pipeline/page.tsx omite fechado/perdido por construcao (ausencia no mapa, nao condicional extra) - paridade pre-save (D-04) confirmada em runtime com lead real forcado 10 dias em novo
+- [Phase ?]: [Phase 08-01]: origemTipo posicionado imediatamente apos origem em schema.ts e validations.ts (D-02); default apenas na coluna Drizzle/fisica e em csvRowSchema, leadSchema fica sem default (D-04, formulario forca escolha consciente)
+- [Phase ?]: [Phase 08-01]: backfill uniforme confirmado em producao - todos os 33 leads (22 ativos + 11 soft-deletados, incluindo os 5 com origem insta/Teste) receberam origemTipo=outbound via ALTER TABLE manual idempotente, sem drizzle-kit
+- [Phase ?]: [Phase 08-02]: origemTipo posicionado imediatamente apos origem no modal de lead (D-02), espelhando estrutura por estrutura o campo canal (D-03); defaultValues.origemTipo sem fallback garante placeholder vazio na criacao (D-04)
+- [Phase ?]: [Phase 08-02]: CSV_DEFAULTS.origemTipo eh documentacao/paridade visual; aplicacao real do default outbound continua no .default() do csvRowSchema (08-01) -- origemTipo nao vira CsvFieldKey mapeavel, wizard sem passo de UI novo
+- [Phase 08-03]: Bootstrap pre-existente de test-lead-actions.cjs consertado deliberadamente na fase (opcao a), nao adiado - Casos 9/10 provam obrigatoriedade/persistencia de origemTipo
+- [Phase 08-03]: Guarda verify-origem-tipo.cjs provada por teste de mutacao que nunca escreve o arquivo-fonte real (copia em os.tmpdir()) - elimina risco de interrupcao deixar import-actions.ts quebrado em disco
+- [Phase 08-03]: npx eslint sem escopo revelou 413 problemas pre-existentes (.claude/get-shit-done, worktree orfao, scripts .cjs pre-existentes) nao relacionados a origemTipo - documentado em deferred-items.md, fora de escopo, nao bloqueia fechamento da Fase 8
+- [Quick 260807-uit]: WR-02 executado antes de WR-01 (ordem obrigatoria) - a guarda verify-origem-tipo.cjs precisava aceitar as duas formas do default (.default("outbound") ou .default(CSV_DEFAULTS.origemTipo)) antes da Task 2 trocar a forma real, senao quebraria no meio da tarefa
+- [Quick 260807-uit]: IN-01 e IN-02 do 08-REVIEW.md permanecem deliberadamente intocados - sao "info", nao "warning", fora do escopo desta tarefa
+- [Phase ?]: [Phase 09-01]: Coluna unica tipo (4 valores, incluindo nota_manual) em interacoes, sem segunda dimensao de categorizacao
+- [Phase ?]: [Phase 09-01]: whatsappContactSchema.texto obrigatorio desde 09-01, mas registerWhatsAppContact so passa a enviar texto na 09-02 - janela intencional, executar 09-02 antes de considerar a Fase 9 pronta para uso real do botao WhatsApp
+- [Phase ?]: [Phase 09-01]: drizzle-kit push recriou subnicho_nome_unique_idx (DROP+CREATE identico) por drift de snapshot ja conhecido - sem perda de dado, subnichos com 9 linhas intactas
+- [Phase 09-02]: registerWhatsAppContact grava contador e interacao numa unica db.transaction(); insert incondicional fora do bloco de avanco cobre os 3 tipos de template
+- [Phase 09-02]: Harness test-interacao-actions.cjs roda sem ORM/sem import de TS (:memory: puro), seguindo o precedente de verify-wa-contact-invariant.cjs, para nao depender de bootstrap de migracoes de uma tabela sem .sql versionado
+- [Phase 09-03]: eslint-disable documentado para 2 falsos-positivos ja conhecidos (react-hooks/set-state-in-effect no reset do efeito, react-hooks/refs em form.handleSubmit) - mesmo padrao ja aceito para whatsapp-preview-dialog.tsx/template-form-dialog.tsx/configuracoes-form.tsx (STATE.md decisao 07-02)
+- [Phase 09-03]: DeleteNotaDialog renderizado como irmao do Dialog da timeline (fragment no retorno do componente), nao aninhado dentro do DialogContent - segue instrucao literal do plano e precedente de lead-table.tsx
+- [Phase 09-04]: Icone History sempre inserido DENTRO de wrappers de stopPropagation ja existentes (lead-table.tsx linha inteira, pipeline-lead-card.tsx wrapper do WhatsAppSendButton), nunca em um novo wrapper irmao
+- [Phase 09-04]: eslint-disable-next-line react-hooks/set-state-in-effect adicionado em whatsapp-preview-dialog.tsx (setTipo dentro do efeito de reset) para destravar o gate eslint escopado da Task 3 — mesmo padrao ja aceito no projeto (STATE.md decisao 07-02), ja aplicado em lead-timeline-dialog.tsx (09-03) para o mesmo falso-positivo do React Compiler
 
 ### Pending Todos
 
@@ -159,6 +186,10 @@ Aberto, carregado para o v1.3:
 | 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
+| 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
+| 260811-pb1 | Corrigir WR-01 do 09-REVIEW.md: race condition em registerWhatsAppContact — reverificar stage no WHERE atômico da transação em vez de confiar num SELECT pré-transação | 2026-08-11 | 73b43b2 | [260811-pb1-corrigir-wr-01-race-condition-em-registe](./quick/260811-pb1-corrigir-wr-01-race-condition-em-registe/) |
+| 260811-ro5 | Corrigir IN-01 do 09-REVIEW.md: guard de in-flight no botão de excluir nota manual (mesmo padrão de salvandoEdicaoId) | 2026-08-11 | 5798a58 | [260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot](./quick/260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot/) |
+| 260808-h5i | Corrigir warning React 19 em lead-form-dialog.tsx: formAction (useActionState) chamado fora de startTransition — envolvido em startTransition(() => {...}), FormData montado antes a partir do DOM bruto (contrato da Phase 01 preservado). Efeito colateral positivo: botão "Salvando..."/disabled=pending passa a funcionar de verdade. Verificado ao vivo no navegador (warning sumiu do console, botão mostrou "Salvando...") | 2026-08-08 | 1b7dc04 | [260808-h5i-corrigir-warning-react-19-useactionstate](./quick/260808-h5i-corrigir-warning-react-19-useactionstate/) |
 
 ## Deferred Items
 
@@ -175,14 +206,15 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-01T20:26:33.388Z — sessão atingiu o **limite de conta** (reset 20h America/Sao_Paulo), não foi pausa graciosa normal do go-and-do
-Stopped at: `/go-and-do 8`, Etapa 0-B (revisão adversarial de intenção) — ver "Retomada exata da Fase 8" abaixo
-Resume file: .planning/phases/08-origem-governada-separa-o-inbound-outbound/08-INTENT-REVIEW.md
-Servidor de dev: verificar se ainda está rodando em `http://localhost:3000` antes de iniciar nova sessão (host de 4GB, evitar processos duplicados).
+Last session: 2026-08-09T00:07:19.665Z
+Stopped at: Completed 09-04-PLAN.md (final plan of Phase 09)
+Resume file: None
+Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
 **O que já está pronto e commitado** em `.planning/phases/08-origem-governada-separa-o-inbound-outbound/`:
+
 - `08-SPEC.md`, `08-CONTEXT.md`, `08-DISCUSSION-LOG.md` — gerados via `--auto`
 - `08-INTENT-REVIEW.md` — frontmatter `intent_review: needs_decision` (ciclo 1 rodou: Codex sozinho, `gpt-5.6-terra`; agy falhou — `revisor-gsd` não instalado neste host, rota legada negada em modo headless; degradação registrada em `sinos`). Achados confirmados: 6; descartados: 5; pausas de negócio: 2 (`q1-backfill-teste-insta`, `q2-csv-default-permanente`)
 - `08-DECISOES.md` — decisão da orquestração pra `q2` (manter `origemTipo="outbound"` fixo em todo import CSV, sem seletor de UI novo)

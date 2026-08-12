@@ -37,6 +37,9 @@ export const leads = sqliteTable(
     telefone: text("telefone").notNull(),
     canal: text("canal", { enum: ["instagram", "whatsapp"] }).notNull(),
     origem: text("origem").notNull(),
+    origemTipo: text("origem_tipo", { enum: ["inbound", "outbound"] })
+      .notNull()
+      .default("outbound"), // espelha o DEFAULT físico OBRIGATÓRIO exigido pelo SQLite no ALTER TABLE ADD COLUMN NOT NULL sobre tabela não-vazia (restrição do SQLite, não escolha de produto) — nunca acionado pelos fluxos da aplicação, porque o Zod sempre entrega o campo preenchido
     valorEstimado: integer("valor_estimado_centavos").notNull(), // centavos, evita ponto flutuante
     notas: text("notas").notNull(),
     followUpDate: integer("follow_up_date", { mode: "timestamp" }).notNull(),
@@ -58,6 +61,40 @@ export const leads = sqliteTable(
     index("leads_stage_idx").on(table.stage),
     index("leads_subnicho_id_idx").on(table.subnichoId),
     index("leads_import_batch_id_idx").on(table.importBatchId),
+  ]
+);
+
+/**
+ * Timeline de interações por lead (TIMELINE-01/02). Coluna única `tipo`
+ * reaproveita o vocabulário de `templates.tipo` mais um 4º valor
+ * `nota_manual` (decisão de coluna única do 09-RESEARCH.md §Alternatives
+ * Considered) — atende "tipo/resumo" sem uma segunda dimensão não pedida.
+ *
+ * `updatedAt` é NULLABLE e SEM default (diferente de `templates.updatedAt`,
+ * que é notNull): só é preenchido quando uma nota manual é editada — eventos
+ * automáticos de WhatsApp nunca têm updatedAt.
+ *
+ * `deletedAt` é NULLABLE e só é escrito para `tipo="nota_manual"` (D-06/D-07)
+ * — eventos automáticos de WhatsApp são imutáveis por decisão de produto, a
+ * guarda vive no WHERE das Server Actions (src/actions/interacao-actions.ts),
+ * nunca só na UI.
+ */
+export const interacoes = sqliteTable(
+  "interacoes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    leadId: integer("lead_id").notNull().references(() => leads.id, { onDelete: "restrict" }),
+    tipo: text("tipo", {
+      enum: ["primeiro_contato", "follow_up", "prova_valor", "nota_manual"],
+    }).notNull(),
+    texto: text("texto").notNull(), // D-04/D-05: texto integral, sem truncamento e sem .max()
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }), // nullable, sem default — só em edição de nota manual
+    deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable, só para tipo="nota_manual" (D-06/D-07)
+  },
+  (table) => [
+    index("interacoes_lead_id_idx").on(table.leadId),
+    index("interacoes_deleted_at_idx").on(table.deletedAt),
   ]
 );
 

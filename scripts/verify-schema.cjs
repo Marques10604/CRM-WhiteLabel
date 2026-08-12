@@ -26,8 +26,12 @@ const rows = db
 const tableNames = new Set(rows.filter((r) => r.type === "table").map((r) => r.name));
 const indexNames = new Set(rows.filter((r) => r.type === "index").map((r) => r.name));
 
-const requiredTables = ["leads", "subnichos"];
-const requiredIndexes = ["subnicho_nome_unique_idx"];
+const requiredTables = ["leads", "subnichos", "interacoes"];
+const requiredIndexes = [
+  "subnicho_nome_unique_idx",
+  "interacoes_lead_id_idx",
+  "interacoes_deleted_at_idx",
+];
 
 const missingTables = requiredTables.filter((t) => !tableNames.has(t));
 const missingIndexes = requiredIndexes.filter((i) => !indexNames.has(i));
@@ -39,6 +43,39 @@ if (missingIndexes.length > 0) {
   fail(`índices ausentes em sqlite_master: ${missingIndexes.join(", ")}`);
 }
 
+// Gate de sync de schema para a tabela interacoes (Fase 9, TIMELINE-01/02):
+// exige exatamente o conjunto de colunas físicas, nem a mais nem a menos.
+const REQUIRED_INTERACOES_COLUMNS = [
+  "id",
+  "lead_id",
+  "tipo",
+  "texto",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+];
+
+if (tableNames.has("interacoes")) {
+  const interacoesColumns = db
+    .prepare("PRAGMA table_info(interacoes)")
+    .all()
+    .map((c) => c.name);
+  const columnSet = new Set(interacoesColumns);
+  const requiredSet = new Set(REQUIRED_INTERACOES_COLUMNS);
+
+  const missingColumns = REQUIRED_INTERACOES_COLUMNS.filter((c) => !columnSet.has(c));
+  const extraColumns = interacoesColumns.filter((c) => !requiredSet.has(c));
+
+  if (missingColumns.length > 0 || extraColumns.length > 0) {
+    fail(
+      `colunas de 'interacoes' divergentes — faltando: [${missingColumns.join(", ")}], extras: [${extraColumns.join(", ")}]`
+    );
+  }
+}
+
 db.close();
-console.log("[verify-schema] OK: tabelas 'leads'/'subnichos' e índice 'subnicho_nome_unique_idx' presentes em", DB_PATH);
+console.log(
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes' e índices esperados presentes em",
+  DB_PATH
+);
 process.exit(0);

@@ -67,9 +67,9 @@ Dois caminhos de criação de lead existem hoje e ambos precisam de um valor de 
 - [ ] Schema Drizzle tem `leads.origemTipo` (enum `"inbound" | "outbound"`, `NOT NULL`)
 - [ ] Formulário de lead (criação e edição) tem campo obrigatório para `origemTipo`, validado via Zod
 - [ ] Submeter o formulário de criação sem `origemTipo` bloqueia o submit com erro visível
-- [ ] Import CSV em lote atribui `origemTipo` a toda linha importada, sem passo de UI adicional no wizard (valor exato — sempre `"outbound"` ou condicionado à origem do lote — depende da decisão do usuário registrada em `08-INTENT-REVIEW.md`)
+- [ ] Import CSV em lote atribui `origemTipo` a toda linha importada, sem passo de UI adicional no wizard — valor sempre `"outbound"`, default fixo e permanente (decisão do usuário confirmada em `08-INTENT-REVIEW.md`, Pergunta 2 — sem seletor de UI por lote, também registrada em `08-DECISOES.md`)
 - [ ] `SELECT COUNT(*) FROM leads WHERE origem_tipo IS NULL` retorna 0 após o backfill
-- [ ] As 33 linhas existentes (22 ativas + 11 soft-deletadas) têm `origem_tipo` preenchido após o backfill, confirmado por query direta — valor exato por linha (se uniformemente `"outbound"` ou diferenciado para as linhas `origem IN ("Teste","insta")`) depende da decisão do usuário registrada em `08-INTENT-REVIEW.md`
+- [ ] As 33 linhas existentes (22 ativas + 11 soft-deletadas) têm `origem_tipo` preenchido após o backfill, confirmado por query direta — valor uniformemente `"outbound"` para todas as 33 linhas, incluindo as 5 linhas `origem IN ("Teste","insta")` soft-deletadas (decisão do usuário confirmada em `08-INTENT-REVIEW.md`, Pergunta 1 — backfill uniforme, sem regra diferenciada por texto de `origem`)
 - [ ] Existe backup de `data/crm.db` datado de antes da migração, referenciado no commit/SUMMARY da fase
 - [ ] Abrir o modal de edição de um lead pré-existente ativo (backfillado) mostra o `origemTipo` correto no controle do formulário
 - [ ] Rodar o script de backfill uma segunda vez não altera nenhuma linha já classificada (idempotência verificada)

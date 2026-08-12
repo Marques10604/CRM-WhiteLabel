@@ -77,6 +77,12 @@ export function WhatsAppPreviewDialog({
   useEffect(() => {
     if (!open || !lead) return;
     const template = pickTemplate(templates, defaultTipo);
+    /* Mesmo falso-positivo pré-existente já documentado no projeto (STATE.md
+       decisão 07-02, aplicado em lead-timeline-dialog.tsx/09-03): sincroniza
+       `tipo`/`texto` com a prop `open`/`lead` ao abrir para um lead novo —
+       não é estado derivável sem efeito (depende de `templates`/`subnichoNome`
+       vindos de fora e de `pickTemplate`/`renderTemplate`). */
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTipo(defaultTipo);
     setTexto(
       renderTemplate(template?.corpo ?? "", {
@@ -171,7 +177,10 @@ export function WhatsAppPreviewDialog({
                   (Pitfall 2). O gate de avanço é decidido inteiramente no
                   servidor a partir de um SELECT fresco; o cliente só envia
                   o tipo vivo do Select e exibe o toast se o retorno indicar
-                  avanço. */}
+                  avanço. TIMELINE-01/D-04: o texto integral da caixa de
+                  mensagem (capturado ANTES de onOpenChange(false) limpar o
+                  state) é o que fica registrado na timeline — exatamente o
+                  que foi enviado, edições incluídas. */}
               {waHref ? (
                 <a
                   href={waHref}
@@ -182,7 +191,7 @@ export function WhatsAppPreviewDialog({
                     if (!lead) return;
                     const leadId = lead.id;
                     const nome = lead.nome;
-                    registerWhatsAppContact(leadId, tipo)
+                    registerWhatsAppContact(leadId, tipo, texto)
                       .then((result) => {
                         if (result.advanced) {
                           toast.success(`${nome} avançou para Contatado.`);

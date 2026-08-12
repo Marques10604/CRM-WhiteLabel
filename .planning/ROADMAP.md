@@ -39,8 +39,8 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 **Meta do milestone:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
 
-- [ ] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem`
-- [ ] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual
+- [x] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem` (completed 2026-08-07)
+- [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
 - [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
 - [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
 - [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
@@ -132,7 +132,20 @@ Plans:
   2. Todo lead que já existia antes da mudança de schema recebe uma classificação padrão via backfill explícito e documentado — nenhum lead ativo fica com `origemTipo` vazio/nulo após a migração
   3. A classificação de origem (Inbound/Outbound) fica visível em pelo menos uma tela de consulta do lead (formulário, lista ou pipeline), para o admin conferir o resultado do backfill e de novas classificações
 
-**Plans**: TBD
+**Plans:** 3/3 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 08-01-PLAN.md — Contratos de `origemTipo` (coluna Drizzle + schemas Zod) e migração `ALTER TABLE` + backfill idempotente das 33 linhas de `data/crm.db`, com backup prévio
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 08-02-PLAN.md — Campo obrigatório "Tipo de origem" no modal de lead (padrão do campo `canal`, sem pré-seleção) + default `outbound` persistido no import CSV em lote
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 08-03-PLAN.md — Bootstrap de `test-lead-actions.cjs` consertado + casos de `origemTipo` + guarda permanente `verify:origem-tipo` + gates finais (tsc/eslint/build)
 
 **UI hint**: yes
 
@@ -147,7 +160,24 @@ Plans:
   2. Admin consegue registrar uma nota manual na timeline de um lead, independente de qualquer clique de WhatsApp
   3. Ao abrir a tela/modal de um lead, o admin visualiza o histórico completo de interações em ordem cronológica, incluindo tanto os eventos automáticos de WhatsApp quanto as notas manuais
 
-**Plans**: TBD
+**Plans:** 4/4 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 09-01-PLAN.md — Camada de dados: tabela `interacoes` (schema + tipos + contratos Zod), extensão da guarda anti hard-delete no mesmo commit, `drizzle-kit push` no banco vivo e as 4 Server Actions com guarda de imutabilidade no WHERE
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 09-02-PLAN.md — Captura automática: `registerWhatsAppContact(leadId, tipo, texto)` grava contador e interação numa única transação (qualquer template), preview passa o texto vivo, e harness permanente `test:interacao-actions`
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 09-03-PLAN.md — Superfície dedicada `LeadTimelineDialog` (D-02): lista cronológica com texto integral, composer de nota manual no topo, edição inline e exclusão confirmada só para notas manuais (D-06)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 09-04-PLAN.md — Os 3 pontos de entrada de D-03 (ícone na lista `/leads`, ícone no card do pipeline, botão "Ver histórico" no rodapé do modal) + bateria de 9 gates sequenciais
 
 **UI hint**: yes
 
@@ -211,8 +241,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Notas Enriquecidas na Importação CSV | v1.1 | 2/2 | Complete | 2026-07-30 |
 | 6. Auto-avanço de Etapa + Contador de Tentativas | v1.2 | 2/2 | Complete    | 2026-07-30 |
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
-| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 0/TBD | Not started | - |
-| 9. Timeline de Interações | v1.3 | 0/TBD | Not started | - |
+| 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
+| 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

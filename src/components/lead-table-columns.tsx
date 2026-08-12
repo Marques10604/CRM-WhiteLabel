@@ -1,6 +1,6 @@
 import type { Column, ColumnDef, SortingState } from "@tanstack/react-table";
 import { format, endOfDay, startOfDay } from "date-fns";
-import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, History, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import type { Lead } from "@/types";
@@ -19,6 +19,7 @@ declare module "@tanstack/react-table" {
   interface TableMeta<TData> {
     onEditLead?: (lead: LeadRow) => void;
     onDeleteLead?: (lead: LeadRow) => void;
+    onViewTimeline?: (lead: LeadRow) => void;
   }
 }
 
@@ -140,6 +141,19 @@ export const leadTableColumns: ColumnDef<LeadRow>[] = [
     // dispararia a abertura do modal de edição por baixo.
     cell: ({ row, table }) => (
       <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label={`Ver histórico de ${row.original.nome}`}
+          title="Ver histórico"
+          onClick={(event) => {
+            event.stopPropagation();
+            table.options.meta?.onViewTimeline?.(row.original);
+          }}
+        >
+          <History className="size-4" />
+        </Button>
         <Button
           type="button"
           variant="ghost"

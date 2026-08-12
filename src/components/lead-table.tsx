@@ -11,7 +11,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { Calendar, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { Calendar, History, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { DeleteLeadDialog } from "@/components/delete-lead-dialog";
 import { LeadTableToolbar } from "@/components/lead-table-toolbar";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
+import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import {
   DEFAULT_SORTING,
   SortableColumnHeader,
@@ -57,7 +58,7 @@ const COL = {
   etapa: "flex-1 min-w-0",
   followup: "flex-1 min-w-0",
   telefone: "flex-1 min-w-0",
-  acoes: "w-[260px] shrink-0 justify-end",
+  acoes: "w-[300px] shrink-0 justify-end",
 } as const;
 
 const SORTABLE_HEADERS: { id: "nome" | "subnichoNome" | "stage" | "followUpDate"; label: string; className: string }[] = [
@@ -89,6 +90,9 @@ type DeleteState = { open: false } | { open: true; lead: LeadRow };
  */
 type PreviewState = { open: false } | { open: true; lead: Lead; subnichoNome: string };
 
+/** Estado da timeline de interações (D-03), mesma forma de `PreviewState`. */
+type TimelineState = { open: false } | { open: true; lead: Lead };
+
 /**
  * Tabela de leads ativos (D-06) — sort/filtro/paginação entram no plano
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
@@ -98,6 +102,7 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
+  const [timelineState, setTimelineState] = useState<TimelineState>({ open: false });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [, startTransition] = useTransition();
@@ -135,6 +140,7 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
     meta: {
       onEditLead: (lead) => setDialogState({ mode: "edit", lead }),
       onDeleteLead: (lead) => setDeleteState({ open: true, lead }),
+      onViewTimeline: (lead) => setTimelineState({ open: true, lead }),
     },
   });
 
@@ -274,6 +280,19 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
                         type="button"
                         variant="ghost"
                         size="icon-lg"
+                        aria-label={`Ver histórico de ${lead.nome}`}
+                        title="Ver histórico"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setTimelineState({ open: true, lead });
+                        }}
+                      >
+                        <History className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-lg"
                         aria-label={`Editar ${lead.nome}`}
                         onClick={(event) => {
                           event.stopPropagation();
@@ -358,6 +377,14 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
         subnichoNome={previewState.open ? previewState.subnichoNome : ""}
         templates={templates}
         defaultTipo="primeiro_contato"
+      />
+
+      <LeadTimelineDialog
+        open={timelineState.open}
+        onOpenChange={(open) => {
+          if (!open) setTimelineState({ open: false });
+        }}
+        lead={timelineState.open ? timelineState.lead : undefined}
       />
     </div>
   );

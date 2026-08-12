@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { startOfDay } from "date-fns";
+import { History } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -34,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SubnichoCombobox } from "@/components/subnicho-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
+import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
@@ -55,6 +57,11 @@ type LeadFormDialogProps = {
 const CANAL_OPTIONS = [
   { value: "instagram", label: "Instagram" },
   { value: "whatsapp", label: "WhatsApp" },
+] as const;
+
+const ORIGEM_TIPO_OPTIONS = [
+  { value: "inbound", label: "Inbound" },
+  { value: "outbound", label: "Outbound" },
 ] as const;
 
 const STAGE_OPTIONS = [
@@ -93,6 +100,7 @@ export function LeadFormDialog({
     undefined
   );
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const firstContact = useFirstContactTrigger(firstContactTemplate);
 
@@ -108,10 +116,18 @@ export function LeadFormDialog({
       telefone: lead?.telefone ?? "",
       canal: lead?.canal,
       origem: lead?.origem ?? "",
+      origemTipo: lead?.origemTipo,
       // Reexibição do valor armazenado (centavos) via formatCentsToBRL (D-02 contrato de valor).
       valorEstimado: lead ? formatCentsToBRL(lead.valorEstimado) : "",
       notas: lead?.notas ?? "",
-      followUpDate: lead?.followUpDate,
+      // Modo criação (lead undefined) precisa de um valor real, não undefined:
+      // o Calendar só destaca "hoje" visualmente (classe `today`, bg sutil) —
+      // isso NÃO é uma seleção de fato (`data-selected-single`, bg forte). Sem
+      // este default, o admin vê o destaque de "hoje", assume que já há uma
+      // data escolhida, clica Salvar sem tocar no calendário, e o zodResolver
+      // barra o submit com "Invalid input: expected date, received Date"
+      // porque followUpDate chega undefined em leadSchema (z.coerce.date()).
+      followUpDate: lead?.followUpDate ?? startOfDay(new Date()),
       subnichoId: lead?.subnichoId,
       stage: lead?.stage ?? "novo",
       motivoPerda: lead?.motivoPerda ?? "",
@@ -161,7 +177,13 @@ export function LeadFormDialog({
     // Submete o FormData BRUTO do DOM (valor/telefone ainda em pt-BR/formatado
     // como digitado) — a normalização/parse autoritativa acontece no server
     // dentro de `leadSchema` (createLead/updateLead), nunca aqui no client.
-    formAction(new FormData(formRef.current));
+    const formData = new FormData(formRef.current);
+    // Envolve a chamada de formAction numa transition para o React 19 não
+    // acusar "called outside of a transition" e para `pending` atualizar
+    // corretamente durante o submit.
+    startTransition(() => {
+      formAction(formData);
+    });
   }
 
   const errors = form.formState.errors;
@@ -249,6 +271,44 @@ export function LeadFormDialog({
                     De onde esse lead veio — ex: indicação, anúncio, evento, parceria com o cowork.
                   </FieldDescription>
                   <FieldError errors={[errors.origem]} />
+                </FieldContent>
+              </Field>
+
+              <Field data-invalid={!!errors.origemTipo}>
+                <FieldLabel htmlFor="origemTipo">Tipo de origem</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="origemTipo"
+                    render={({ field }) => (
+                      <Select
+                        name="origemTipo"
+                        items={ORIGEM_TIPO_OPTIONS as unknown as { value: string; label: string }[]}
+                        value={(field.value as string | undefined) ?? null}
+                        onValueChange={(value) => field.onChange(value)}
+                      >
+                        <SelectTrigger
+                          id="origemTipo"
+                          aria-invalid={!!errors.origemTipo}
+                          className="w-full"
+                        >
+                          <SelectValue placeholder="Selecione o tipo de origem" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ORIGEM_TIPO_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <FieldDescription>
+                    Inbound = o lead procurou você (anúncio, formulário, indicação). Outbound = você
+                    iniciou o contato (prospecção fria).
+                  </FieldDescription>
+                  <FieldError errors={[errors.origemTipo]} />
                 </FieldContent>
               </Field>
             </div>
@@ -389,6 +449,17 @@ export function LeadFormDialog({
             </div>
 
             <DialogFooter className="mx-0 mb-0 rounded-none border-t-0 bg-transparent p-0">
+              {isEditMode && lead ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setTimelineOpen(true)}
+                  disabled={pending}
+                >
+                  <History className="size-4" />
+                  Ver histórico
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"
@@ -422,6 +493,8 @@ export function LeadFormDialog({
         defaultTipo="primeiro_contato"
         subtitulo={`Sugestão: enviar mensagem de primeiro contato para ${firstContact.lead?.nome ?? ""}.`}
       />
+
+      <LeadTimelineDialog open={timelineOpen} onOpenChange={setTimelineOpen} lead={lead} />
     </>
   );
 }

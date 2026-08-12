@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseBRLToCents } from "@/lib/money";
 import { normalizePhone } from "@/lib/phone";
+import { CSV_DEFAULTS } from "@/lib/csv-import";
 
 export const subnichoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
@@ -27,6 +28,9 @@ export const leadSchema = z.object({
     error: "Selecione um canal de contato.",
   }),
   origem: z.string().trim().min(1, "Origem é obrigatória."),
+  origemTipo: z.enum(["inbound", "outbound"], {
+    error: "Selecione o tipo de origem.",
+  }), // SEM .default() — D-04 exige que o formulário manual nunca pré-selecione um valor, forçando escolha consciente do admin
   valorEstimado: z.preprocess(
     (v) => parseBRLToCents(String(v ?? "")),
     z.number({ error: "Valor estimado é obrigatório." }).int().nonnegative()
@@ -49,9 +53,17 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * id só dentro da transação de bulkImportLeads. `followUpDate` é omitido
  * porque nenhuma coluna de follow-up é coletada do CSV — o servidor grava
  * followUpDate = new Date() (momento da importação) diretamente no insert.
+ * `origemTipo` recebe `.default(CSV_DEFAULTS.origemTipo)` aqui (e só aqui,
+ * único ponto de APLICAÇÃO do default) porque o CSV do cowork não tem passo
+ * de UI para essa escolha — a origem real do lote é conhecida e uniforme. O
+ * VALOR em si vem de `CSV_DEFAULTS.origemTipo` (`src/lib/csv-import.ts`),
+ * fonte única compartilhada com os demais defaults do import CSV (WR-01);
+ * em `leadSchema` o campo fica sem default (D-04), já que o formulário
+ * manual precisa forçar uma escolha consciente do admin.
  */
 export const csvRowSchema = leadSchema.omit({ subnichoId: true, followUpDate: true }).extend({
   subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
+  origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),
 });
 
 export type CsvRowValues = z.infer<typeof csvRowSchema>;
@@ -68,9 +80,17 @@ export const stageUpdateSchema = z.object({
  * um endpoint HTTP interno, valida em runtime mesmo com o TypeScript do
  * client já garantindo a forma (Pitfall 8 do RESEARCH).
  */
+/**
+ * `texto` obrigatório (D-04/D-05, TIMELINE-01/02): um clique em "Abrir
+ * WhatsApp" com a caixa de mensagem vazia deixa de registrar
+ * tentativa/interação — consequência deliberada, mensagem vazia não é
+ * contato real. Coerente com o comportamento pré-existente de "entrada
+ * inválida ⇒ { advanced: false }, sem escrita" de registerWhatsAppContact.
+ */
 export const whatsappContactSchema = z.object({
   leadId: z.coerce.number().int().positive(),
   tipo: z.enum(["primeiro_contato", "follow_up", "prova_valor"]),
+  texto: z.string().trim().min(1, "Mensagem vazia."),
 });
 
 export const templateSchema = z.object({
@@ -83,6 +103,25 @@ export const templateSchema = z.object({
 });
 
 export type TemplateFormValues = z.input<typeof templateSchema>;
+
+/**
+ * Contratos de nota manual da timeline de interações (TIMELINE-01/02),
+ * derivados em camada (mesmo idioma DRY de csvRowSchema derivando de
+ * leadSchema) a partir de notaManualTextoSchema — nunca cópias paralelas.
+ */
+export const notaManualTextoSchema = z.object({
+  texto: z.string().trim().min(1, "Nota não pode ficar vazia."),
+});
+
+export const interacaoManualSchema = notaManualTextoSchema.extend({
+  leadId: z.coerce.number().int().positive(),
+});
+
+export const interacaoManualUpdateSchema = notaManualTextoSchema.extend({
+  id: z.coerce.number().int().positive(),
+});
+
+export type NotaManualFormValues = z.input<typeof notaManualTextoSchema>;
 
 /**
  * Contrato de saveConfiguracoes (CONFIG-01/CONFIG-02, T-07-01) — validação

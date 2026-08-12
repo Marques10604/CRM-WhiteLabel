@@ -1,2 +1,10 @@
 {"ts":"2026-08-01T17:14:41-03:00","seq":1,"sessao":"7b8882ff","evento":"run","etapa":"preparacao"}
 {"ts":"2026-08-01T17:17:42-03:00","seq":2,"sessao":"7b8882ff","evento":"checkpoint","etapa":"0-B intencao","tokens":0,"pct":0,"limit":400000}
+{"ts":"2026-08-06T09:51:14-03:00","seq":3,"sessao":"77f675f6","evento":"run","etapa":"0-B intent (retomada pos limite de sessao)"}
+{"ts":"2026-08-06T09:51:57-03:00","seq":4,"sessao":"77f675f6","evento":"checkpoint","etapa":"0-B intent (retomada)","tokens":0,"pct":0,"limit":400000}
+{"ts":"2026-08-06T09:58:42-03:00","seq":5,"sessao":"77f675f6","evento":"end","etapa":"0-B intent (retomada, done)","subagent_tokens":98773}
+{"ts":"2026-08-06T09:59:01-03:00","seq":6,"sessao":"77f675f6","evento":"checkpoint","etapa":"2 planejamento","tokens":0,"pct":0,"limit":400000}
+{"ts":"2026-08-06T11:22:02-03:00","seq":7,"sessao":"77f675f6","evento":"end","etapa":"2.3 planejamento","subagent_tokens":165790}
+{"ts":"2026-08-06T11:40:14-03:00","seq":8,"sessao":"77f675f6","evento":"checkpoint","etapa":"3.2 convergencia","tokens":0,"pct":0,"limit":400000}
+{"ts":"2026-08-07T08:29:00-03:00","seq":9,"sessao":"77f675f6","evento":"end","etapa":"3.2 convergencia","subagent_tokens":143213}
+{"ts":"2026-08-07T08:29:26-03:00","seq":10,"sessao":"77f675f6","evento":"checkpoint","etapa":"3.3 execucao","tokens":0,"pct":0,"limit":400000}

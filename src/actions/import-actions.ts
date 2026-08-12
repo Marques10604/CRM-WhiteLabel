@@ -146,6 +146,7 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
           telefone: row.telefone,
           canal: row.canal,
           origem: row.origem,
+          origemTipo: row.origemTipo,
           valorEstimado: row.valorEstimado,
           notas: row.notas,
           subnichoId: subnichoIdByNome.get(chave)!,

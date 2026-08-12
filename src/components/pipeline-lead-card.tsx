@@ -2,9 +2,10 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
-import { Clock, MessageCircle } from "lucide-react";
+import { Clock, History, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
+import { Button } from "@/components/ui/button";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import type { Lead } from "@/types";
 
@@ -14,6 +15,7 @@ type PipelineLeadCardProps = {
   isEsfriando: boolean;
   onClick: () => void;
   onSendWhatsApp: () => void;
+  onViewHistory: () => void;
 };
 
 /**
@@ -31,6 +33,7 @@ export function PipelineLeadCard({
   isEsfriando,
   onClick,
   onSendWhatsApp,
+  onViewHistory,
 }: PipelineLeadCardProps) {
   const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: lead.id,
@@ -63,12 +66,23 @@ export function PipelineLeadCard({
         <span className="text-[16px] leading-normal font-normal text-foreground">
           {lead.nome}
         </span>
-        {/* stopPropagation em pointerdown/click: impede que o botão vire drag-handle
-            (useDraggable listeners no wrapper) ou dispare o onClick de edição do card. */}
+        {/* stopPropagation em pointerdown/click: impede que os botões virem drag-handle
+            (useDraggable listeners no wrapper) ou disparem o onClick de edição do card. */}
         <div
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
+          className="flex items-center gap-1"
         >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            aria-label={`Ver histórico de ${lead.nome}`}
+            title="Ver histórico"
+            onClick={onViewHistory}
+          >
+            <History className="size-4" />
+          </Button>
           <WhatsAppSendButton
             nome={lead.nome}
             disabled={normalizePhone(lead.telefone) === null}
