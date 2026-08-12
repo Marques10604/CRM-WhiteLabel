@@ -229,6 +229,18 @@ export async function updateLeadStage(
  * primeiro_contato (Pitfall 4 do RESEARCH.md). `texto` agora é obrigatório
  * (`whatsappContactSchema.texto`, D-04): uma caixa de mensagem vazia falha o
  * safeParse e não grava tentativa nem interação, por design.
+ *
+ * SEQ-02 (D-01): além do avanço de etapa acima, `sequenciaPosicao` avança um
+ * degrau só quando `tipo === "follow_up"` — `avancaSequencia` é uma variável
+ * DELIBERADAMENTE independente de `advanced`: o auto-avanço de etapa
+ * (primeiro contato → "contatado") e o avanço da sequência escalonada
+ * (reabordagem programada) são regras diferentes que só por acaso
+ * compartilham o mesmo clique. `primeiro_contato` inaugura a relação e não é
+ * reabordagem; `prova_valor` é material de apoio, não um degrau da cadência
+ * — só `follow_up` avança a posição. O gate Inbound (ORIGEM-03) NÃO mora
+ * aqui: é de LEITURA e vive só em `computeSequenciaSugestao` (Pitfall 4 do
+ * RESEARCH.md) — incrementar a posição de um lead Inbound aqui é inofensivo
+ * porque esse valor nunca é lido para exibição desse tipo de lead.
  */
 export async function registerWhatsAppContact(
   leadId: number,
@@ -249,6 +261,7 @@ export async function registerWhatsAppContact(
   }
 
   let advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
+  const avancaSequencia = parsed.data.tipo === "follow_up";
 
   await db.transaction(async (tx) => {
     const stageGuard = advanced ? [eq(leads.stage, "novo")] : [];
@@ -256,6 +269,7 @@ export async function registerWhatsAppContact(
       .update(leads)
       .set({
         contactAttempts: sql`${leads.contactAttempts} + 1`,
+        ...(avancaSequencia ? { sequenciaPosicao: sql`${leads.sequenciaPosicao} + 1` } : {}),
         ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
       })
       .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt), ...stageGuard))
@@ -265,11 +279,16 @@ export async function registerWhatsAppContact(
       // Stage mudou concorrentemente (ex.: drag-and-drop) entre o SELECT
       // acima e este UPDATE — a guarda barrou o avanço automático. Registra
       // só a tentativa (sem a mudança de stage), sem sobrescrever o stage
-      // manual definido pela corrida.
+      // manual definido pela corrida. O avanço de sequenciaPosicao é
+      // repetido aqui pelo mesmo motivo de contactAttempts já ser repetido:
+      // nenhuma tentativa de follow-up pode ser perdida sob corrida (T-10-07).
       advanced = false;
       await tx
         .update(leads)
-        .set({ contactAttempts: sql`${leads.contactAttempts} + 1` })
+        .set({
+          contactAttempts: sql`${leads.contactAttempts} + 1`,
+          ...(avancaSequencia ? { sequenciaPosicao: sql`${leads.sequenciaPosicao} + 1` } : {}),
+        })
         .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
     }
 
