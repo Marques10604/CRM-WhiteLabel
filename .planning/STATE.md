@@ -2,15 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: "Phase 10 context gathered"
-stopped_at: Phase 10 context gathered (10-CONTEXT.md), ready for /gsd-plan-phase 10
-last_updated: "2026-08-12T02:19:14.657Z"
-last_activity: "2026-08-11 - Phase 10 context gathered"
+status: executing
+last_updated: "2026-08-12T17:01:42.271Z"
+last_activity: 2026-08-12
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 17
+  completed_plans: 14
   percent: 63
 ---
 
@@ -21,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 10 — sequência-de-follow-up-escalonada
+**Current focus:** Phase 10 — sequ-ncia-de-follow-up-escalonada
 
 ## Current Position
 
-Phase: 10 (sequência-de-follow-up-escalonada) — CONTEXT GATHERED
-Plan: 0 of TBD
-Status: Phase 10 context gathered
-Last activity: 2026-08-11 - Phase 10 context gathered
+Phase: 10 (sequ-ncia-de-follow-up-escalonada) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-08-12
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████████░░] 82%
 
 ## Performance Metrics
 
@@ -75,6 +74,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09-timeline-de-intera-es P02 | 8min | 2 tasks | 4 files |
 | Phase 09 P03 | 15min | 3 tasks | 2 files |
 | Phase 09 P04 | ~15min | 3 tasks | 6 files |
+| Phase 10 P01 | 10min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -141,6 +141,9 @@ Recent decisions affecting current work:
 - [Phase 09-03]: DeleteNotaDialog renderizado como irmao do Dialog da timeline (fragment no retorno do componente), nao aninhado dentro do DialogContent - segue instrucao literal do plano e precedente de lead-table.tsx
 - [Phase 09-04]: Icone History sempre inserido DENTRO de wrappers de stopPropagation ja existentes (lead-table.tsx linha inteira, pipeline-lead-card.tsx wrapper do WhatsAppSendButton), nunca em um novo wrapper irmao
 - [Phase 09-04]: eslint-disable-next-line react-hooks/set-state-in-effect adicionado em whatsapp-preview-dialog.tsx (setTipo dentro do efeito de reset) para destravar o gate eslint escopado da Task 3 — mesmo padrao ja aceito no projeto (STATE.md decisao 07-02), ja aplicado em lead-timeline-dialog.tsx (09-03) para o mesmo falso-positivo do React Compiler
+- [Phase 10-01]: D-11: semente de configuracoes.sequenciaIntervalosDias e [4,10,20], nao [] - lista vazia bloquearia o salvamento dos 3 campos de dias-parado ja existentes por causa da validacao min(1) do 10-UI-SPEC.md
+- [Phase 10-01]: D-12: reset de sequenciaPosicao para 0 ao voltar para stage=novo vale tanto para updateLeadStage quanto para updateLead (implementado no plano 10-02); motivoPerda ja segue esse padrao hoje
+- [Phase 10-01]: computeSequenciaSugestao ganhou um 4o gate (stage terminal) alem dos 3 esbocados em 10-RESEARCH.md, exigido pelo 10-UI-SPEC.md - amplitude deliberada, nao divergencia acidental
 
 ### Pending Todos
 
@@ -206,8 +209,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-09T00:07:19.665Z
-Stopped at: Completed 09-04-PLAN.md (final plan of Phase 09)
+Last session: 2026-08-12T17:01:42.245Z
+Stopped at: Completed 10-01-PLAN.md (plano 1 de 4 da Fase 10)
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 

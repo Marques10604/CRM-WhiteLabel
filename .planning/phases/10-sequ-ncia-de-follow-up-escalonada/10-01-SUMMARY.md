@@ -136,3 +136,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 10-sequ-ncia-de-follow-up-escalonada*
 *Completed: 2026-08-12*
+
+## Self-Check: PASSED
+
+Todos os 7 arquivos citados neste SUMMARY (`src/db/schema.ts`, `src/lib/validations.ts`, `scripts/test-lead-actions.cjs`, `scripts/migrate-sequencia-followup.cjs`, `scripts/verify-schema.cjs`, `src/db/queries.ts`, este próprio SUMMARY.md) confirmados presentes em disco. Os 4 commits das tasks (`4fd1efa`, `3efac4e`, `9fadfa4`) e da documentação (`a6ccb43`) confirmados em `git log --oneline --all`.

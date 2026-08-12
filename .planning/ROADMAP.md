@@ -193,12 +193,12 @@ Plans:
   3. Um lead classificado como Inbound (Phase 8) nunca recebe essa sugestão automática de próxima data de reabordagem — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
   4. Templates de mensagem de reforço de valor/prova social ficam disponíveis para o admin usar ao reabordar um lead que está na sequência
 
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 10-01-PLAN.md — Colunas `leads.sequenciaPosicao` e `configuracoes.sequenciaIntervalosDias` + contratos Zod + migração manual [BLOCKING] via better-sqlite3 + cálculo puro `computeSequenciaSugestao` com os gates ORIGEM-03/D-09/D-10
+- [x] 10-01-PLAN.md — Colunas `leads.sequenciaPosicao` e `configuracoes.sequenciaIntervalosDias` + contratos Zod + migração manual [BLOCKING] via better-sqlite3 + cálculo puro `computeSequenciaSugestao` com os gates ORIGEM-03/D-09/D-10
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -257,6 +257,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
-| 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
+| 10. Sequência de Follow-up Escalonada | v1.3 | 1/4 | In Progress|  |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

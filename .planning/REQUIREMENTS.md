@@ -11,7 +11,7 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 - [x] **ORIGEM-01**: Admin classifica cada lead com um tipo de origem (Inbound ou Outbound) via campo dedicado (`origemTipo`, enum fechado) — sem depender do texto livre existente em `origem`
 - [x] **ORIGEM-02**: Leads existentes recebem uma classificação padrão via backfill explícito e documentado, ao aplicar a mudança de schema
-- [ ] **ORIGEM-03**: Leads classificados como Inbound não recebem sugestão automática da sequência de follow-up escalonada — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
+- [x] **ORIGEM-03**: Leads classificados como Inbound não recebem sugestão automática da sequência de follow-up escalonada — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
 
 ### Timeline de Interações
 
@@ -20,8 +20,8 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 ### Sequência de Follow-up Escalonada
 
-- [ ] **SEQ-01**: Admin configura uma sequência de intervalos crescentes (em dias) entre tentativas de reabordagem
-- [ ] **SEQ-02**: O sistema sugere a próxima data de follow-up com base na posição do lead na sequência — cálculo feito na leitura, nunca um disparo automático agendado (sem cron/scheduler)
+- [x] **SEQ-01**: Admin configura uma sequência de intervalos crescentes (em dias) entre tentativas de reabordagem
+- [x] **SEQ-02**: O sistema sugere a próxima data de follow-up com base na posição do lead na sequência — cálculo feito na leitura, nunca um disparo automático agendado (sem cron/scheduler)
 - [ ] **SEQ-03**: Templates de mensagem de reforço de valor/prova social ficam disponíveis para uso nessas reabordagens
 
 ### Painel de Métricas
@@ -77,11 +77,11 @@ Explicitly excluded. Documented to prevent scope creep.
 |-------------|-------|--------|
 | ORIGEM-01 | Phase 8 | Complete |
 | ORIGEM-02 | Phase 8 | Complete |
-| ORIGEM-03 | Phase 10 | Pending |
+| ORIGEM-03 | Phase 10 | Complete |
 | TIMELINE-01 | Phase 9 | Complete |
 | TIMELINE-02 | Phase 9 | Complete |
-| SEQ-01 | Phase 10 | Pending |
-| SEQ-02 | Phase 10 | Pending |
+| SEQ-01 | Phase 10 | Complete |
+| SEQ-02 | Phase 10 | Complete |
 | SEQ-03 | Phase 10 | Pending |
 | METRICAS-01 | Phase 11 | Pending |
 | METRICAS-02 | Phase 11 | Pending |
