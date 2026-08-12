@@ -130,6 +130,19 @@ export async function updateLead(
         // DOM), então não vem em parsed.data — sem isto, o valor antigo
         // ficaria preso no banco indefinidamente ao reativar um lead.
         motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
+        // D-02/D-12 (SEQ-02): reset de sequenciaPosicao para 0 sempre que o
+        // DESTINO da edição é "novo" — o ciclo de reabordagem reinicia
+        // porque o lead esfriou e voltou ao início do funil, seja por drag
+        // no board ou por edição manual da etapa no formulário (a
+        // justificativa de produto é o destino, não o mecanismo). Idioma
+        // condicional-por-VALOR-ALVO (igual motivoPerda acima), não
+        // condicional-por-MUDANÇA (stageChanged, usado por stageChangedAt
+        // abaixo): resetar um lead que já está em "novo" é um no-op
+        // idempotente e seguro. Posicionado DEPOIS de ...parsed.data para
+        // nunca ser sobrescrito por ele. NÃO há reset ao fechar/perder
+        // (D-02): fora do funil ativo a posição simplesmente para de ser
+        // lida por computeSequenciaSugestao.
+        ...(parsed.data.stage === "novo" ? { sequenciaPosicao: 0 } : {}),
         ...(stageChanged ? { stageChangedAt: new Date() } : {}),
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
@@ -182,6 +195,12 @@ export async function updateLeadStage(
       // explicitamente, então mover um lead de volta para "Perdido" para
       // outra etapa via drag nunca limpava o motivo antigo.
       motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
+      // D-02/D-12 (SEQ-02): mesmo reset de updateLead acima, aplicado ao
+      // gesto de arrastar no board — condicional-por-VALOR-ALVO (destino
+      // "novo"), não condicional-por-MUDANÇA. Vale tanto para drag quanto
+      // para edição manual porque a justificativa de produto é o destino,
+      // não o mecanismo. Sem reset ao fechar/perder (D-02).
+      ...(parsed.data.stage === "novo" ? { sequenciaPosicao: 0 } : {}),
       ...(stageChanged ? { stageChangedAt: new Date() } : {}),
     })
     .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
