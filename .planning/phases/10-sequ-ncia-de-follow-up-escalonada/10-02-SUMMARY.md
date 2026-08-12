@@ -190,3 +190,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 10-sequ-ncia-de-follow-up-escalonada*
 *Completed: 2026-08-12*
+
+## Self-Check: PASSED
+
+Os 4 arquivos citados neste SUMMARY (`src/actions/lead-actions.ts`, `scripts/verify-sequencia-posicao.cjs`, `package.json`, este próprio `10-02-SUMMARY.md`) confirmados presentes em disco. Os 3 commits das tasks (`f7e519f`, `17af120`, `1ba13b8`) e o commit do próprio SUMMARY (`d9e170e`) confirmados em `git log --oneline --all`.

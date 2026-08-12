@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-12T17:01:42.271Z"
+last_updated: "2026-08-12T17:14:49.632Z"
 last_activity: 2026-08-12
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 63
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 10 (sequ-ncia-de-follow-up-escalonada) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-08-12
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Progress: [████████░░] 82%
 | Phase 09 P03 | 15min | 3 tasks | 2 files |
 | Phase 09 P04 | ~15min | 3 tasks | 6 files |
 | Phase 10 P01 | 10min | 3 tasks | 6 files |
+| Phase 10 P02 | 10min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,9 @@ Recent decisions affecting current work:
 - [Phase 10-01]: D-11: semente de configuracoes.sequenciaIntervalosDias e [4,10,20], nao [] - lista vazia bloquearia o salvamento dos 3 campos de dias-parado ja existentes por causa da validacao min(1) do 10-UI-SPEC.md
 - [Phase 10-01]: D-12: reset de sequenciaPosicao para 0 ao voltar para stage=novo vale tanto para updateLeadStage quanto para updateLead (implementado no plano 10-02); motivoPerda ja segue esse padrao hoje
 - [Phase 10-01]: computeSequenciaSugestao ganhou um 4o gate (stage terminal) alem dos 3 esbocados em 10-RESEARCH.md, exigido pelo 10-UI-SPEC.md - amplitude deliberada, nao divergencia acidental
+- [Phase ?]: [Phase 10-02]: avancaSequencia em registerWhatsAppContact e independente de advanced - so follow_up avanca sequenciaPosicao, primeiro_contato/prova_valor nunca alteram
+- [Phase ?]: [Phase 10-02]: reset de sequenciaPosicao usa idioma condicional-por-valor-alvo (stage===novo), nao condicional-por-mudanca - aplicado em updateLead e updateLeadStage
+- [Phase ?]: [Phase 10-02]: guardas .cjs em :memory: que testam SQL de leads devem usar ids unicos por cenario (freshLead), nunca DELETE FROM leads - guard-no-hard-delete.cjs faz match de linha e nao distingue producao de teste, nem codigo de comentario
 
 ### Pending Todos
 
@@ -209,8 +213,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-12T17:01:42.245Z
-Stopped at: Completed 10-01-PLAN.md (plano 1 de 4 da Fase 10)
+Last session: 2026-08-12T17:14:49.597Z
+Stopped at: Completed 10-02-PLAN.md (plano 2 de 4 da Fase 10)
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
