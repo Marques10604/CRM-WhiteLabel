@@ -136,3 +136,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 10-sequ-ncia-de-follow-up-escalonada*
 *Completed: 2026-08-12*
+
+## Self-Check: PASSED
+
+Os 3 arquivos citados neste SUMMARY (`src/actions/configuracoes-actions.ts`, `src/components/configuracoes-form.tsx`, este próprio SUMMARY.md) confirmados presentes em disco. Os 2 commits das tasks (`810432b`, `9a10bbd`) e o commit deste SUMMARY (`c2ced01`) confirmados em `git log --oneline --all`.
