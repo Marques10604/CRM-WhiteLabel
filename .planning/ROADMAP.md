@@ -193,7 +193,21 @@ Plans:
   3. Um lead classificado como Inbound (Phase 8) nunca recebe essa sugestão automática de próxima data de reabordagem — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
   4. Templates de mensagem de reforço de valor/prova social ficam disponíveis para o admin usar ao reabordar um lead que está na sequência
 
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — Colunas `leads.sequenciaPosicao` e `configuracoes.sequenciaIntervalosDias` + contratos Zod + migração manual [BLOCKING] via better-sqlite3 + cálculo puro `computeSequenciaSugestao` com os gates ORIGEM-03/D-09/D-10
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 10-02-PLAN.md — Avanço automático da posição em `registerWhatsAppContact` (template follow_up) e reset ao voltar para "Novo", com guarda de regressão `verify:sequencia`
+- [ ] 10-03-PLAN.md — Seção "Sequência de reabordagem" em `/configuracoes` com lista dinâmica de intervalos + `saveConfiguracoes` lendo N valores via `formData.getAll`
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 10-04-PLAN.md — Indicador "Sugestão: dd/MM" no dashboard e no card do pipeline (cálculo server-side) + gates finais e verificação humana ponta a ponta
 
 **UI hint**: yes
 
