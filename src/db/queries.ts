@@ -1,7 +1,7 @@
-import { and, asc, eq, isNull, notInArray } from "drizzle-orm";
+import { and, asc, eq, isNull, ne, notInArray, sql } from "drizzle-orm";
 import { addDays, isBefore, isToday, startOfDay } from "date-fns";
 import { db } from "@/db/client";
-import { configuracoes, leads } from "@/db/schema";
+import { configuracoes, interacoes, leads } from "@/db/schema";
 import type { Lead } from "@/types";
 
 /**
@@ -73,4 +73,74 @@ export async function getConfiguracoes(): Promise<Configuracoes> {
 
   const [created] = await db.insert(configuracoes).values({ id: 1 }).returning();
   return created;
+}
+
+/**
+ * Última interação de WhatsApp por lead (SEQ-02, D-09) — agregação em SQL
+ * (`max(created_at) GROUP BY lead_id`), não "buscar tudo e reduzir em JS": a
+ * timeline cresce com o histórico total de interações, não com o número de
+ * leads ativos, e o índice `interacoes_lead_id_idx` já cobre este `GROUP BY`.
+ * `ne(tipo, "nota_manual")` porque D-09 manda usar a última interação de
+ * WHATSAPP (primeiro_contato/follow_up/prova_valor) como base do cálculo —
+ * uma nota manual não é um contato real. `isNull(deletedAt)` exclui notas
+ * manuais soft-deletadas (mesmo filtro já usado em outras leituras da
+ * timeline). `* 1000` converte de volta para milissegundos porque
+ * `interacoes.createdAt` é gravado em `unixepoch()`, ou seja, SEGUNDOS.
+ */
+export async function getUltimaInteracaoWhatsAppPorLead(): Promise<Map<number, Date>> {
+  const rows = await db
+    .select({
+      leadId: interacoes.leadId,
+      ultima: sql<number>`max(${interacoes.createdAt})`,
+    })
+    .from(interacoes)
+    .where(and(ne(interacoes.tipo, "nota_manual"), isNull(interacoes.deletedAt)))
+    .groupBy(interacoes.leadId);
+
+  return new Map(rows.map((r) => [r.leadId, new Date(r.ultima * 1000)]));
+}
+
+/**
+ * Cálculo puro da próxima data de reabordagem sugerida pela sequência de
+ * follow-up escalonada (SEQ-02) — sem I/O, testável isoladamente, mesmo
+ * espírito de `groupLeadsByUrgency` acima. A DATA nunca é persistida em
+ * lugar nenhum: só o índice `sequenciaPosicao` é (SEQ-02, "cálculo na
+ * leitura") — persistir a data faria ela congelar quando o admin editasse os
+ * intervalos em `/configuracoes`.
+ *
+ * Quatro gates, nesta ordem, cada um retornando `undefined` (NUNCA lança
+ * exceção, NUNCA loga — "sequência esgotada" é ausência silenciosa, não
+ * erro):
+ *
+ *   a. `origemTipo !== "outbound"` → ORIGEM-03. Este é o ÚNICO ponto do
+ *      sistema onde o gate Inbound existe para a sugestão de sequência — não
+ *      duplicar em nenhum write-path (Pitfall 4 do 10-RESEARCH.md).
+ *   b. `stage` em etapa terminal (`fechado`/`perdido`) → `10-UI-SPEC.md`:
+ *      "Nunca mostrado para leads fechados/perdidos". Mora aqui, e não só na
+ *      página, para que o board do pipeline (que lista as 5 etapas) não
+ *      divirja do dashboard, que já exclui as terminais via
+ *      `getActiveDashboardLeads`. Amplia deliberadamente a assinatura
+ *      esboçada em 10-RESEARCH.md §Pattern 2 (que tinha só
+ *      `origemTipo | sequenciaPosicao`) para incluir `stage` — reforço
+ *      exigido pelo contrato de UI já aprovado, não uma divergência
+ *      acidental.
+ *   c. sem interação-base (`!ultimaInteracaoWhatsApp`) → D-09: sem
+ *      interação de WhatsApp registrada não há cálculo possível; nunca usar
+ *      `createdAt` do lead nem `followUpDate` como fallback.
+ *   d. índice fora dos intervalos configurados
+ *      (`intervalosDias[sequenciaPosicao] === undefined`) → D-10: sequência
+ *      esgotada, ou o admin encurtou a lista depois que o lead já tinha
+ *      avançado — os dois são cenários normais, não erros.
+ */
+export function computeSequenciaSugestao(
+  lead: Pick<Lead, "origemTipo" | "sequenciaPosicao" | "stage">,
+  ultimaInteracaoWhatsApp: Date | undefined,
+  intervalosDias: number[]
+): Date | undefined {
+  if (lead.origemTipo !== "outbound") return undefined; // ORIGEM-03
+  if (lead.stage === "fechado" || lead.stage === "perdido") return undefined; // 10-UI-SPEC.md: nunca mostrado em etapas terminais
+  if (!ultimaInteracaoWhatsApp) return undefined; // D-09
+  const intervalo = intervalosDias[lead.sequenciaPosicao];
+  if (intervalo === undefined) return undefined; // D-10
+  return addDays(ultimaInteracaoWhatsApp, intervalo);
 }
