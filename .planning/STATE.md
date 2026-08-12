@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-12T17:14:49.632Z"
+last_updated: "2026-08-12T17:30:47.377Z"
 last_activity: 2026-08-12
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 16
   percent: 63
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 10 (sequ-ncia-de-follow-up-escalonada) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-08-12
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: [█████████░] 88%
 | Phase 09 P04 | ~15min | 3 tasks | 6 files |
 | Phase 10 P01 | 10min | 3 tasks | 6 files |
 | Phase 10 P02 | 10min | 3 tasks | 3 files |
+| Phase 10 P03 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 10-02]: avancaSequencia em registerWhatsAppContact e independente de advanced - so follow_up avanca sequenciaPosicao, primeiro_contato/prova_valor nunca alteram
 - [Phase ?]: [Phase 10-02]: reset de sequenciaPosicao usa idioma condicional-por-valor-alvo (stage===novo), nao condicional-por-mudanca - aplicado em updateLead e updateLeadStage
 - [Phase ?]: [Phase 10-02]: guardas .cjs em :memory: que testam SQL de leads devem usar ids unicos por cenario (freshLead), nunca DELETE FROM leads - guard-no-hard-delete.cjs faz match de linha e nao distingue producao de teste, nem codigo de comentario
+- [Phase 10-03]: saveConfiguracoes le a lista dinamica via formData.getAll (nao mais Object.fromEntries), configuracoesServerSchema como contrato autoritativo
+- [Phase 10-03]: Ids de linha da lista dinamica: indice do array na carga inicial, contador em useRef (seeded pelo tamanho inicial) para linhas novas, so lido/escrito em event handlers para evitar falso-positivo react-hooks/refs do React Compiler
 
 ### Pending Todos
 
@@ -213,8 +216,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-12T17:14:49.597Z
-Stopped at: Completed 10-02-PLAN.md (plano 2 de 4 da Fase 10)
+Last session: 2026-08-12T17:30:47.317Z
+Stopped at: Completed 10-03-PLAN.md (plano 3 de 4 da Fase 10) - falta <human-check> de navegador (sem acesso a navegador nesta sessao) e plano 10-04 (indicador visual)
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 
