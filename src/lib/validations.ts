@@ -136,3 +136,30 @@ export const configuracoesSchema = z.object({
 });
 
 export type ConfiguracoesFormValues = z.input<typeof configuracoesSchema>;
+
+/**
+ * Contratos da sequência de follow-up escalonada (SEQ-01). `configuracoesSchema`
+ * acima continua sendo o contrato do FORMULÁRIO (só os 3 campos escalares de
+ * dias-parado, validados no cliente pelo `zodResolver`) — não ganhou um campo
+ * de array porque `configuracoes-form.tsx` usa os dois exports acima hoje via
+ * `zodResolver`, e acrescentar um campo obrigatório que o react-hook-form não
+ * registra faria `form.handleSubmit` reprovar o submit inteiro para sempre.
+ *
+ * `sequenciaIntervalosSchema` é exportado isoladamente (não só embutido em
+ * `configuracoesServerSchema`) porque o formulário precisa validar a lista
+ * dinâmica de intervalos no cliente (plano 10-03) com exatamente as mesmas
+ * regras do servidor, sem duplicar as mensagens de erro. As duas mensagens
+ * abaixo são literais do `10-UI-SPEC.md` §Copywriting Contract.
+ *
+ * `configuracoesServerSchema` é o contrato AUTORITATIVO do servidor,
+ * consumido por `saveConfiguracoes` — mesmo idioma de derivação em camada já
+ * usado por `interacaoManualSchema` acima (`.extend` sobre um schema base,
+ * nunca uma cópia paralela de campos).
+ */
+export const sequenciaIntervalosSchema = z
+  .array(z.coerce.number().int().min(1, "Mínimo de 1 dia."))
+  .min(1, "Adicione ao menos um intervalo.");
+
+export const configuracoesServerSchema = configuracoesSchema.extend({
+  sequenciaIntervalosDias: sequenciaIntervalosSchema,
+});

@@ -50,6 +50,7 @@ export const leads = sqliteTable(
     motivoPerda: text("motivo_perda"), // nullable, D-03 (preenchido opcionalmente ao mover para "perdido")
     stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
     contactAttempts: integer("contact_attempts").notNull().default(0), // WA-08/D-04: acumula pela vida do lead, nunca zera ao mudar de etapa
+    sequenciaPosicao: integer("sequencia_posicao").notNull().default(0), // SEQ-02/D-01/D-02/D-12: índice (0-based) do PRÓXIMO degrau da sequência de follow-up escalonada. Avança em registerWhatsAppContact quando o template usado é "follow_up" (D-01). Reseta para 0 quando o destino da mudança de etapa é "novo", tanto via updateLeadStage quanto via updateLead (D-02/D-12 — o reset vale pelo DESTINO, não pelo mecanismo do gesto). Nunca é capado/travado no write-path — "sequência esgotada" (posição além do último intervalo configurado) é tratado só na leitura, por computeSequenciaSugestao (D-10), nunca aqui. O DEFAULT 0 físico é exigido pelo SQLite no ALTER TABLE ADD COLUMN NOT NULL sobre tabela já populada (mesma restrição documentada em origemTipo acima).
     importBatchId: text("import_batch_id"), // nullable = lead criado manualmente (LEAD-05)
     deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
@@ -116,11 +117,30 @@ export const interacoes = sqliteTable(
  * A semeadura da linha `id=1` acontece em `getConfiguracoes()`
  * (`src/db/queries.ts`), não em SQL de migração — `drizzle-kit push` nunca
  * executa INSERT.
+ *
+ * `sequenciaIntervalosDias` (SEQ-01) é a primeira coluna deste schema em
+ * `text(mode:"json")` — o array inteiro é lido/escrito como unidade única via
+ * `$type<number[]>()`, sem tabela auxiliar `sequencia_intervalos`, porque a
+ * sequência é global/singleton (D-08): editada e salva de uma vez em
+ * `/configuracoes`, nunca consultada degrau-a-degrau via SQL. A semente é
+ * `[4,10,20]`, não `[]` (D-11, decisão do planner do plano 10-01): com
+ * semente vazia, a primeira visita a `/configuracoes` teria a lista de
+ * intervalos vazia, e `sequenciaIntervalosSchema.min(1)` bloquearia o
+ * salvamento de TODOS os campos do formulário (inclusive os 3 campos de
+ * dias-parado já existentes desde a Fase 7) até o admin adicionar um
+ * intervalo manualmente — uma regressão silenciosa numa funcionalidade já
+ * entregue. `[4,10,20]` é só o valor inicial editável, puramente informativo
+ * (D-06: nunca sobrescreve `followUpDate`, nunca dispara envio), então
+ * semear valores reais aqui não tem efeito colateral destrutivo.
  */
 export const configuracoes = sqliteTable("configuracoes", {
   id: integer("id").primaryKey(),
   diasParadoNovo: integer("dias_parado_novo").notNull().default(999999),
   diasParadoContatado: integer("dias_parado_contatado").notNull().default(5),
   diasParadoNegociacao: integer("dias_parado_negociacao").notNull().default(999999),
+  sequenciaIntervalosDias: text("sequencia_intervalos_dias", { mode: "json" })
+    .$type<number[]>()
+    .notNull()
+    .default(sql`'[4,10,20]'`),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
 });

@@ -103,6 +103,7 @@ async function runBehaviorTests() {
     "ALTER TABLE `leads` ADD `contact_attempts` integer DEFAULT 0 NOT NULL;",
     "ALTER TABLE `leads` ADD `origem_tipo` text DEFAULT 'outbound' NOT NULL;",
     "ALTER TABLE `subnichos` ADD `deleted_at` integer;",
+    "ALTER TABLE `leads` ADD `sequencia_posicao` integer DEFAULT 0 NOT NULL;",
   ];
   for (const ddl of manualAlters) {
     try {
