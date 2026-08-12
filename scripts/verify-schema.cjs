@@ -73,9 +73,29 @@ if (tableNames.has("interacoes")) {
   }
 }
 
+// Gate permanente de PRESENÇA para as duas colunas da Sequência de
+// Follow-up Escalonada (Fase 10, SEQ-01/SEQ-02). Deliberadamente checagem de
+// PRESENÇA, não de conjunto estrito (diferente do bloco de 'interacoes'
+// acima) — 'leads' acumula colunas a cada fase (origem_tipo, contact_attempts,
+// import_batch_id, e agora sequencia_posicao) e um conjunto estrito viraria
+// manutenção obrigatória em toda fase futura que tocar essa tabela.
+if (tableNames.has("leads")) {
+  const leadsColumns = new Set(db.prepare("PRAGMA table_info(leads)").all().map((c) => c.name));
+  if (!leadsColumns.has("sequencia_posicao")) {
+    fail("coluna ausente: leads.sequencia_posicao (Fase 10, SEQ-02)");
+  }
+}
+
+if (tableNames.has("configuracoes")) {
+  const configColumns = new Set(db.prepare("PRAGMA table_info(configuracoes)").all().map((c) => c.name));
+  if (!configColumns.has("sequencia_intervalos_dias")) {
+    fail("coluna ausente: configuracoes.sequencia_intervalos_dias (Fase 10, SEQ-01)");
+  }
+}
+
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes' e índices esperados presentes em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias' presentes em",
   DB_PATH
 );
 process.exit(0);
