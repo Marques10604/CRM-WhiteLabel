@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: executing
-last_updated: "2026-08-12T17:30:47.377Z"
-last_activity: 2026-08-12
+status: verifying
+last_updated: "2026-08-13T11:06:01.445Z"
+last_activity: 2026-08-13
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 17
-  completed_plans: 16
-  percent: 63
+  completed_plans: 17
+  percent: 75
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 10 (sequ-ncia-de-follow-up-escalonada) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-08-12
+Status: Phase complete — ready for verification
+Last activity: 2026-08-13
 
-Progress: [█████████░] 94%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: [█████████░] 94%
 | Phase 10 P01 | 10min | 3 tasks | 6 files |
 | Phase 10 P02 | 10min | 3 tasks | 3 files |
 | Phase 10 P03 | 12min | 2 tasks | 2 files |
+| Phase 10 P04 | 55min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 10-02]: guardas .cjs em :memory: que testam SQL de leads devem usar ids unicos por cenario (freshLead), nunca DELETE FROM leads - guard-no-hard-delete.cjs faz match de linha e nao distingue producao de teste, nem codigo de comentario
 - [Phase 10-03]: saveConfiguracoes le a lista dinamica via formData.getAll (nao mais Object.fromEntries), configuracoesServerSchema como contrato autoritativo
 - [Phase 10-03]: Ids de linha da lista dinamica: indice do array na carga inicial, contador em useRef (seeded pelo tamanho inicial) para linhas novas, so lido/escrito em event handlers para evitar falso-positivo react-hooks/refs do React Compiler
+- [Phase 10-04]: Gate de build (npm run build) documentado como pendencia de infraestrutura (host 4GB RAM), nao defeito de codigo - npx tsc --noEmit isolado passou limpo 2x, 9/10 gates automatizados verdes
 
 ### Pending Todos
 
@@ -185,6 +187,7 @@ Aberto, carregado para o v1.3:
 - Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
 - Phase 10: reset de `sequenciaPosicao` (ao fechar/perder lead vs. voltar para "novo") é decisão de produto em aberto — resolver em `/gsd-discuss-phase` da própria Phase 10, não travar em pesquisa adicional.
 - Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
+- Fase 10 (10-04): npm run build sem confirmacao de exit 0 nesta sessao - host 4GB RAM esgota memoria na fase Running TypeScript do next build mesmo com dev server parado (3 tentativas, incluindo heap ampliado); npx tsc --noEmit isolado passou limpo. Rodar npm run build numa maquina com mais RAM antes de deploy/publicacao. Human-check de 10 passos da Fase 10 tambem pendente (sem navegador nesta sessao).
 
 ### Quick Tasks Completed
 
@@ -216,8 +219,8 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-12T17:30:47.317Z
-Stopped at: Completed 10-03-PLAN.md (plano 3 de 4 da Fase 10) - falta <human-check> de navegador (sem acesso a navegador nesta sessao) e plano 10-04 (indicador visual)
+Last session: 2026-08-13T11:04:19.807Z
+Stopped at: Completed 10-04-PLAN.md (plano 4 de 4 da Fase 10) - 9/10 gates automatizados verdes; npm run build sem confirmacao de exit 0 nesta sessao (host 4GB RAM, 3 tentativas, tsc --noEmit isolado limpo); human-check de navegador (10 passos) ainda pendente. Fase 10 pronta para /gsd-transition ou /gsd-verify-work, com essas duas pendencias registradas.
 Resume file: None
 Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
 

@@ -41,7 +41,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 - [x] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem` (completed 2026-08-07)
 - [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
-- [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
+- [x] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação (completed 2026-08-13)
 - [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
 - [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
 
@@ -193,7 +193,7 @@ Plans:
   3. Um lead classificado como Inbound (Phase 8) nunca recebe essa sugestão automática de próxima data de reabordagem — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
   4. Templates de mensagem de reforço de valor/prova social ficam disponíveis para o admin usar ao reabordar um lead que está na sequência
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -207,7 +207,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 10-04-PLAN.md — Indicador "Sugestão: dd/MM" no dashboard e no card do pipeline (cálculo server-side) + gates finais e verificação humana ponta a ponta
+- [x] 10-04-PLAN.md — Indicador "Sugestão: dd/MM" no dashboard e no card do pipeline (cálculo server-side) + gates finais e verificação humana ponta a ponta
 
 **UI hint**: yes
 
@@ -257,6 +257,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
-| 10. Sequência de Follow-up Escalonada | v1.3 | 3/4 | In Progress|  |
+| 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

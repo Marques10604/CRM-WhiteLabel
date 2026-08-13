@@ -22,7 +22,7 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 - [x] **SEQ-01**: Admin configura uma sequência de intervalos crescentes (em dias) entre tentativas de reabordagem
 - [x] **SEQ-02**: O sistema sugere a próxima data de follow-up com base na posição do lead na sequência — cálculo feito na leitura, nunca um disparo automático agendado (sem cron/scheduler)
-- [ ] **SEQ-03**: Templates de mensagem de reforço de valor/prova social ficam disponíveis para uso nessas reabordagens
+- [x] **SEQ-03**: Templates de mensagem de reforço de valor/prova social ficam disponíveis para uso nessas reabordagens
 
 ### Painel de Métricas
 
@@ -82,7 +82,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | TIMELINE-02 | Phase 9 | Complete |
 | SEQ-01 | Phase 10 | Complete |
 | SEQ-02 | Phase 10 | Complete |
-| SEQ-03 | Phase 10 | Pending |
+| SEQ-03 | Phase 10 | Complete |
 | METRICAS-01 | Phase 11 | Pending |
 | METRICAS-02 | Phase 11 | Pending |
 | PERDA-01 | Phase 11 | Pending |
