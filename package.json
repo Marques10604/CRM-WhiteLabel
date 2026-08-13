@@ -13,7 +13,8 @@
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",
     "test:lead-actions": "node scripts/test-lead-actions.cjs",
     "test:interacao-actions": "node scripts/test-interacao-actions.cjs",
-    "test:mutation-guard": "node scripts/test-mutation-guard.cjs"
+    "test:mutation-guard": "node scripts/test-mutation-guard.cjs",
+    "test:compute-sequencia": "node scripts/test-compute-sequencia-sugestao.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
