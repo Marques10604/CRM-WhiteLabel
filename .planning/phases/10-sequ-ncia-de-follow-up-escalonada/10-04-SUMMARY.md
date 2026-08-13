@@ -180,3 +180,7 @@ None - nenhuma configuração de serviço externo necessária.
 ---
 *Phase: 10-sequ-ncia-de-follow-up-escalonada*
 *Completed: 2026-08-13*
+
+## Self-Check: PASSED
+
+Os 5 arquivos de código citados neste SUMMARY (`src/app/page.tsx`, `src/app/pipeline/page.tsx`, `src/components/pipeline-board.tsx`, `src/components/pipeline-lead-card.tsx`, `src/components/followup-dashboard.tsx`) e este próprio SUMMARY.md confirmados presentes em disco. Os 2 commits das tasks (`05c59f6`, `2ec129a`) e o commit deste SUMMARY (`152f449`) confirmados em `git log --oneline --all`.
