@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { CalendarClock } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
@@ -17,6 +18,7 @@ type FollowupDashboardProps = {
   proximos7Dias: Lead[];
   subnichos: Subnicho[];
   templates: Template[];
+  sugestaoPorLead: { leadId: number; data: Date }[];
 };
 
 type DialogState =
@@ -51,6 +53,7 @@ export function FollowupDashboard({
   proximos7Dias,
   subnichos,
   templates,
+  sugestaoPorLead,
 }: FollowupDashboardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
@@ -58,6 +61,11 @@ export function FollowupDashboard({
   const subnichoNameById = useMemo(
     () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
     [subnichos]
+  );
+
+  const sugestaoPorLeadId = useMemo(
+    () => new Map(sugestaoPorLead.map((s) => [s.leadId, s.data])),
+    [sugestaoPorLead]
   );
 
   const firstContactTemplate = useMemo(
@@ -152,7 +160,9 @@ export function FollowupDashboard({
                   </span>
                 </div>
                 <div className="flex flex-col gap-2 px-1 pb-1">
-                  {section.leads.map((lead) => (
+                  {section.leads.map((lead) => {
+                    const sugestao = sugestaoPorLeadId.get(lead.id);
+                    return (
                     <div
                       key={lead.id}
                       role="button"
@@ -177,6 +187,16 @@ export function FollowupDashboard({
                           <span className={section.dateClassName}>
                             {format(lead.followUpDate, "dd/MM/yyyy")}
                           </span>
+                          {sugestao ? (
+                            <span
+                              className="flex items-center gap-1 text-muted-foreground"
+                              aria-label={`Próxima reabordagem sugerida em ${format(sugestao, "dd/MM/yyyy")}`}
+                              title="Sugestão calculada a partir da última interação registrada. Não altera a data de follow-up real — o campo Follow-up continua sendo a fonte oficial."
+                            >
+                              <CalendarClock className="size-3.5" />
+                              Sugestão: {format(sugestao, "dd/MM")}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -197,7 +217,8 @@ export function FollowupDashboard({
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

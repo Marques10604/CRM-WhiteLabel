@@ -25,6 +25,7 @@ type PipelineBoardProps = {
   subnichos: Subnicho[];
   esfriandoLeadIds: number[];
   templates: Template[];
+  sugestaoPorLead: { leadId: number; data: Date }[];
 };
 
 type DialogState =
@@ -58,7 +59,13 @@ const STAGE_LABEL_BY_VALUE = new Map(
  * otimista e a mesma transição fica pendente aguardando a decisão do modal
  * (Pular/Salvar motivo) antes de chamar `updateLeadStage` uma única vez.
  */
-export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }: PipelineBoardProps) {
+export function PipelineBoard({
+  leads,
+  subnichos,
+  esfriandoLeadIds,
+  templates,
+  sugestaoPorLead,
+}: PipelineBoardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [motivoPerdaState, setMotivoPerdaState] = useState<MotivoPerdaState>({
     open: false,
@@ -97,6 +104,8 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
   );
 
   const esfriandoSet = useMemo(() => new Set(esfriandoLeadIds), [esfriandoLeadIds]);
+
+  const sugestaoPorLeadId = useMemo(() => new Map(sugestaoPorLead.map((s) => [s.leadId, s.data])), [sugestaoPorLead]);
 
   const leadsByStage = useMemo(() => {
     const grouped = new Map<Lead["stage"], Lead[]>();
@@ -189,6 +198,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
                     lead={lead}
                     subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
                     isEsfriando={esfriandoSet.has(lead.id)}
+                    sugestao={sugestaoPorLeadId.get(lead.id)}
                     onClick={() => setDialogState({ mode: "edit", lead })}
                     onSendWhatsApp={() =>
                       setPreviewState({

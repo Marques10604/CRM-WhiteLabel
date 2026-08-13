@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
-import { Clock, History, MessageCircle } from "lucide-react";
+import { CalendarClock, Clock, History, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ type PipelineLeadCardProps = {
   lead: Lead;
   subnichoNome: string;
   isEsfriando: boolean;
+  sugestao?: Date;
   onClick: () => void;
   onSendWhatsApp: () => void;
   onViewHistory: () => void;
@@ -31,6 +32,7 @@ export function PipelineLeadCard({
   lead,
   subnichoNome,
   isEsfriando,
+  sugestao,
   onClick,
   onSendWhatsApp,
   onViewHistory,
@@ -107,6 +109,16 @@ export function PipelineLeadCard({
           >
             <MessageCircle className="size-3.5" />
             {lead.contactAttempts}x
+          </span>
+        ) : null}
+        {sugestao ? (
+          <span
+            className="flex items-center gap-1"
+            aria-label={`Próxima reabordagem sugerida em ${format(sugestao, "dd/MM/yyyy")}`}
+            title="Sugestão calculada a partir da última interação registrada. Não altera a data de follow-up real — o campo Follow-up continua sendo a fonte oficial."
+          >
+            <CalendarClock className="size-3.5" />
+            Sugestão: {format(sugestao, "dd/MM")}
           </span>
         ) : null}
       </div>
