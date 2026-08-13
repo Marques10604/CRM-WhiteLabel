@@ -2,7 +2,11 @@ import { asc, isNull } from "drizzle-orm";
 import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
 import { leads, subnichos, templates } from "@/db/schema";
-import { getConfiguracoes } from "@/db/queries";
+import {
+  computeSequenciaSugestao,
+  getConfiguracoes,
+  getUltimaInteracaoWhatsAppPorLead,
+} from "@/db/queries";
 import { PipelineBoard } from "@/components/pipeline-board";
 
 /**
@@ -16,18 +20,26 @@ import { PipelineBoard } from "@/components/pipeline-board";
  * (criados antes de qualquer `updateLeadStage`) nunca são flagados — guard
  * explícito abaixo evita quebrar o cálculo com `null`. `templates` alimenta
  * o botão inline "Enviar WhatsApp" (WA-05) de cada card.
+ *
+ * SEQ-02/D-05/D-06: a sugestão de próxima reabordagem é derivada aqui, na
+ * leitura de cada request — nunca persistida, nunca agendada. Não filtramos
+ * `fechado`/`perdido` ao montar `activeLeads` (o board precisa das 5 etapas);
+ * o gate de etapa terminal para a sugestão já mora em `computeSequenciaSugestao`
+ * (plano 10-01), evitando duas fontes de verdade divergentes.
  */
 export default async function PipelinePage() {
-  const [activeLeads, allSubnichos, allTemplates, config] = await Promise.all([
-    db
-      .select()
-      .from(leads)
-      .where(isNull(leads.deletedAt))
-      .orderBy(asc(leads.followUpDate)),
-    db.select().from(subnichos),
-    db.select().from(templates),
-    getConfiguracoes(),
-  ]);
+  const [activeLeads, allSubnichos, allTemplates, config, ultimaInteracaoPorLead] =
+    await Promise.all([
+      db
+        .select()
+        .from(leads)
+        .where(isNull(leads.deletedAt))
+        .orderBy(asc(leads.followUpDate)),
+      db.select().from(subnichos),
+      db.select().from(templates),
+      getConfiguracoes(),
+      getUltimaInteracaoWhatsAppPorLead(),
+    ]);
 
   const limitesPorEtapa: Partial<Record<(typeof activeLeads)[number]["stage"], number>> = {
     novo: config.diasParadoNovo,
@@ -49,6 +61,17 @@ export default async function PipelinePage() {
     })
     .map((lead) => lead.id);
 
+  const sugestaoPorLead = activeLeads
+    .map((lead) => ({
+      leadId: lead.id,
+      data: computeSequenciaSugestao(
+        lead,
+        ultimaInteracaoPorLead.get(lead.id),
+        config.sequenciaIntervalosDias
+      ),
+    }))
+    .filter((s): s is { leadId: number; data: Date } => s.data !== undefined);
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-[28px] font-semibold leading-tight">Pipeline</h1>
@@ -57,6 +80,7 @@ export default async function PipelinePage() {
         subnichos={allSubnichos}
         esfriandoLeadIds={esfriandoLeadIds}
         templates={allTemplates}
+        sugestaoPorLead={sugestaoPorLead}
       />
     </div>
   );
