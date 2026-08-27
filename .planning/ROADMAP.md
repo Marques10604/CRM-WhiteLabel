@@ -222,7 +222,7 @@ Plans:
   2. Admin visualiza, na mesma tela, a contagem de leads agrupados por sub-nicho
   3. Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`), com o campo normalizado/governado o suficiente para não fragmentar o relatório em variações de texto livre equivalentes
 
-**Plans:** 2/5 plans executed
+**Plans:** 3/5 plans executed
 
 Plans:
 **Wave 1**
@@ -235,7 +235,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 11-03-PLAN.md — Captura obrigatória do motivo (D-04) nas duas superfícies: `MotivoPerdaCombobox` com criação-na-hora (D-03), contratos Zod condicionais, servidor autoritativo e modal de drag com Cancelar que reverte
+- [x] 11-03-PLAN.md — Captura obrigatória do motivo (D-04) nas duas superfícies: `MotivoPerdaCombobox` com criação-na-hora (D-03), contratos Zod condicionais, servidor autoritativo e modal de drag com Cancelar que reverte
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -279,5 +279,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
-| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 2/5 | In Progress|  |
+| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 3/5 | In Progress|  |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
