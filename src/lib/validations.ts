@@ -7,6 +7,16 @@ export const subnichoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
 });
 
+/**
+ * Contrato de CRUD de motivo de perda (D-01/D-02/D-03, PERDA-01) — espelho
+ * exato de `subnichoSchema`. A troca do texto livre pela referência governada
+ * em `stageUpdateSchema`/`leadSchema`/`csvRowSchema` é do plano 11-03;
+ * antecipar aqui quebraria `npx tsc --noEmit` até lá.
+ */
+export const motivoPerdaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório."),
+});
+
 export const leadSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
   telefone: z

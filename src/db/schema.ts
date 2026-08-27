@@ -29,6 +29,37 @@ export const templates = sqliteTable(
   (table) => [index("templates_tipo_idx").on(table.tipo)]
 );
 
+/**
+ * Lista governada extensível de motivos de perda (D-01/D-02, PERDA-01) —
+ * SEGUNDA ocorrência do mesmo padrão de `subnichos` no projeto (réplica
+ * estrutural exata: `id` / `nome` / `deletedAt` nullable = ativo / `createdAt`
+ * com default `unixepoch()`, mesmo par de índices). Substitui o texto livre
+ * antigo `leads.motivoPerda` por uma FK governada.
+ *
+ * Os 6 valores-semente de D-02 (`Preço`, `Sem retorno do lead`, `Concorrente`,
+ * `Sem verba/orçamento`, `Timing (não é prioridade agora)`, `Outro`) vivem em
+ * `scripts/migrate-motivos-perda.cjs`, NUNCA em `drizzle-kit push` — mesmo
+ * raciocínio já documentado para a semeadura de `configuracoes`:
+ * `drizzle-kit push` nunca executa INSERT, e o snapshot do drizzle-kit está
+ * divergente do banco real desde a Fase 4.
+ *
+ * Deve ser declarada ANTES de `leads` — a FK `leads.motivoPerdaId` exige a
+ * tabela já definida (mesma ordem `subnichos` → `leads` de hoje).
+ */
+export const motivosPerda = sqliteTable(
+  "motivos_perda",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    nome: text("nome").notNull(),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  },
+  (table) => [
+    uniqueIndex("motivo_perda_nome_unique_idx").on(sql`lower(trim(${table.nome}))`),
+    index("motivos_perda_deleted_at_idx").on(table.deletedAt),
+  ]
+);
+
 export const leads = sqliteTable(
   "leads",
   {
@@ -47,7 +78,8 @@ export const leads = sqliteTable(
     stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado", "perdido"] })
       .notNull()
       .default("novo"),
-    motivoPerda: text("motivo_perda"), // nullable, D-03 (preenchido opcionalmente ao mover para "perdido")
+    motivoPerda: text("motivo_perda"), // COLUNA MORTA (Fase 11) — texto livre legado, substituído pela FK `motivoPerdaId` abaixo. As referências em `src/` são removidas no plano 11-03; a coluna física é mantida por reversibilidade (11-RESEARCH.md Open Question 2). Não ler nem escrever este campo em código novo.
+    motivoPerdaId: integer("motivo_perda_id").references(() => motivosPerda.id, { onDelete: "restrict" }), // NULLABLE de propósito: D-04 exige o motivo só quando `stage === "perdido"`; obrigatoriedade condicional mora no Zod/Server Action, nunca em constraint de banco (precedente `stageChangedAt`; nenhuma tabela do projeto usa CHECK constraint)
     stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
     contactAttempts: integer("contact_attempts").notNull().default(0), // WA-08/D-04: acumula pela vida do lead, nunca zera ao mudar de etapa
     sequenciaPosicao: integer("sequencia_posicao").notNull().default(0), // SEQ-02/D-01/D-02/D-12: índice (0-based) do PRÓXIMO degrau da sequência de follow-up escalonada. Avança em registerWhatsAppContact quando o template usado é "follow_up" (D-01). Reseta para 0 quando o destino da mudança de etapa é "novo", tanto via updateLeadStage quanto via updateLead (D-02/D-12 — o reset vale pelo DESTINO, não pelo mecanismo do gesto). Nunca é capado/travado no write-path — "sequência esgotada" (posição além do último intervalo configurado) é tratado só na leitura, por computeSequenciaSugestao (D-10), nunca aqui. O DEFAULT 0 físico é exigido pelo SQLite no ALTER TABLE ADD COLUMN NOT NULL sobre tabela já populada (mesma restrição documentada em origemTipo acima).
@@ -61,6 +93,7 @@ export const leads = sqliteTable(
     index("leads_follow_up_date_idx").on(table.followUpDate),
     index("leads_stage_idx").on(table.stage),
     index("leads_subnicho_id_idx").on(table.subnichoId),
+    index("leads_motivo_perda_id_idx").on(table.motivoPerdaId), // cobre o GROUP BY motivoPerdaId da Seção 3 do relatório (mesmo raciocínio de leads_subnicho_id_idx)
     index("leads_import_batch_id_idx").on(table.importBatchId),
   ]
 );

@@ -10,11 +10,12 @@
  *
  * Varre recursivamente:
  *   - src/ + scripts/ (código: .ts/.tsx/.js/.cjs/.mjs) atrás de hard-delete de
- *     leads/subnichos/interacoes especificamente: .delete(leads ...),
- *     .delete(subnichos ...), .delete(interacoes ...) (escopo LEAD-04
- *     estendido pela Fase 9 — outras tabelas, ex. `templates`, podem
- *     legitimamente ter hard-delete próprio, ver D-13 em 04-01; não é escopo
- *     desta guarda), E TAMBÉM SQL cru destrutivo contra essas tabelas escrito
+ *     leads/subnichos/interacoes/motivos_perda especificamente: .delete(leads ...),
+ *     .delete(subnichos ...), .delete(interacoes ...), .delete(motivosPerda ...)
+ *     (escopo LEAD-04 estendido pela Fase 9 a `interacoes` e pela Fase 11 a
+ *     `motivos_perda` — outras tabelas, ex. `templates`, podem legitimamente
+ *     ter hard-delete próprio, ver D-13 em 04-01; não é escopo desta guarda),
+ *     E TAMBÉM SQL cru destrutivo contra essas tabelas escrito
  *     dentro de código (ex.: db.run(sql`DELETE FROM leads...`), .exec("DROP
  *     TABLE leads")) — sem isso, SQL raw em .ts/.js escapava da guarda mesmo
  *     sendo o hard-delete que LEAD-04 proíbe (achado da auditoria de
@@ -22,8 +23,8 @@
  *   - src/db/migrations/ (.sql) atrás de SQL destrutivo: DELETE FROM, DROP TABLE
  *
  * Convenção (ver comentário espelhado em src/actions/lead-actions.ts):
- * exclusão de lead/subnicho/interação é SEMPRE soft-delete/restrict — nunca
- * hard-delete.
+ * exclusão de lead/subnicho/interação/motivo de perda é SEMPRE
+ * soft-delete/restrict — nunca hard-delete.
  *
  * Exit 0 = árvore limpa. Exit 1 = achou hard-delete/SQL destrutivo (imprime
  * "<arquivo>:<linha>: <trecho>" em stderr para cada ocorrência).
@@ -45,20 +46,22 @@ const SQL_MIGRATIONS_DIR = path.join("src", "db", "migrations");
 // exceções legítimas (ex.: uma migração de schema específica) entram aqui.
 const ALLOWLIST = [path.join("scripts", "guard-no-hard-delete.cjs")];
 
-// Escopo LEAD-04 (estendido pela Fase 9 a `interacoes`): hard-delete de
-// leads/subnichos/interacoes especificamente — NÃO um bloqueio genérico a
-// qualquer `db.delete(...)` do repositório. Outras tabelas (ex. `templates`,
+// Escopo LEAD-04 (estendido pela Fase 9 a `interacoes`, pela Fase 11 a
+// `motivos_perda`): hard-delete de leads/subnichos/interacoes/motivosPerda
+// especificamente — NÃO um bloqueio genérico a qualquer `db.delete(...)` do
+// repositório. Outras tabelas (ex. `templates`,
 // D-13 de 04-01) podem ter hard-delete legítimo e intencional fora da
 // garantia de soft-delete que este guard protege.
 const CODE_PATTERNS = [
   /\.delete\(\s*leads\b/,
   /\.delete\(\s*subnichos\b/,
   /\.delete\(\s*interacoes\b/,
+  /\.delete\(\s*motivosPerda\b/,
 ];
 
-// SQL cru destrutivo contra leads/subnichos/interacoes escrito dentro de
-// código (não só migrações) — ex.: db.run(sql`DELETE FROM leads WHERE ...`),
-// sqlite.exec("DROP TABLE subnichos"). Escopado a essas três tabelas (mesma
+// SQL cru destrutivo contra leads/subnichos/interacoes/motivos_perda escrito
+// dentro de código (não só migrações) — ex.: db.run(sql`DELETE FROM leads
+// WHERE ...`), sqlite.exec("DROP TABLE subnichos"). Escopado a essas tabelas (mesma
 // filosofia de CODE_PATTERNS, não um banimento genérico de DELETE FROM/DROP
 // TABLE em qualquer código).
 const CODE_SQL_PATTERNS = [
@@ -68,6 +71,8 @@ const CODE_SQL_PATTERNS = [
   /\bDROP\s+TABLE\s+[`"']?subnichos\b/i,
   /\bDELETE\s+FROM\s+[`"']?interacoes\b/i,
   /\bDROP\s+TABLE\s+[`"']?interacoes\b/i,
+  /\bDELETE\s+FROM\s+[`"']?motivos_perda\b/i,
+  /\bDROP\s+TABLE\s+[`"']?motivos_perda\b/i,
 ];
 
 const SQL_PATTERNS = [/\bDELETE\s+FROM\b/i, /\bDROP\s+TABLE\b/i];
@@ -151,5 +156,7 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log("OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações");
+console.log(
+  "OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações (escopo protegido: leads, subnichos, interacoes, motivos_perda)"
+);
 process.exit(0);
