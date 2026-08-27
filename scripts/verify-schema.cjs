@@ -26,11 +26,12 @@ const rows = db
 const tableNames = new Set(rows.filter((r) => r.type === "table").map((r) => r.name));
 const indexNames = new Set(rows.filter((r) => r.type === "index").map((r) => r.name));
 
-const requiredTables = ["leads", "subnichos", "interacoes"];
+const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda"];
 const requiredIndexes = [
   "subnicho_nome_unique_idx",
   "interacoes_lead_id_idx",
   "interacoes_deleted_at_idx",
+  "motivo_perda_nome_unique_idx",
 ];
 
 const missingTables = requiredTables.filter((t) => !tableNames.has(t));
@@ -84,6 +85,9 @@ if (tableNames.has("leads")) {
   if (!leadsColumns.has("sequencia_posicao")) {
     fail("coluna ausente: leads.sequencia_posicao (Fase 10, SEQ-02)");
   }
+  if (!leadsColumns.has("motivo_perda_id")) {
+    fail("coluna ausente: leads.motivo_perda_id (Fase 11, PERDA-01)");
+  }
 }
 
 if (tableNames.has("configuracoes")) {
@@ -95,7 +99,7 @@ if (tableNames.has("configuracoes")) {
 
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias' presentes em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id' presentes em",
   DB_PATH
 );
 process.exit(0);
