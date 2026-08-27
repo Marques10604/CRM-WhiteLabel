@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: verifying
-last_updated: "2026-08-27T23:48:40.596Z"
+status: ready_for_uat
+last_updated: "2026-08-27T23:56:23.419Z"
 last_activity: 2026-08-27
 progress:
   total_phases: 8
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
 Plan: 5 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
-Status: Phase complete — ready for verification
+Status: ready_for_uat
 Last activity: 2026-08-27
 
 Progress: [██████████] 100%
