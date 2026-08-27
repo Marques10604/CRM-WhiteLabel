@@ -78,7 +78,10 @@ export const leads = sqliteTable(
     stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado", "perdido"] })
       .notNull()
       .default("novo"),
-    motivoPerda: text("motivo_perda"), // COLUNA MORTA (Fase 11) — texto livre legado, substituído pela FK `motivoPerdaId` abaixo. As referências em `src/` são removidas no plano 11-03; a coluna física é mantida por reversibilidade (11-RESEARCH.md Open Question 2). Não ler nem escrever este campo em código novo.
+    // COLUNA FÍSICA MORTA `motivo_perda` (text): texto livre legado da Fase 3.
+    // Removida da declaração Drizzle no plano 11-03 (zero leituras/escritas em
+    // `src/`), mas NUNCA dropada do banco — reversibilidade (11-RESEARCH.md
+    // Open Question 2). Substituída pela FK governada `motivoPerdaId` abaixo.
     motivoPerdaId: integer("motivo_perda_id").references(() => motivosPerda.id, { onDelete: "restrict" }), // NULLABLE de propósito: D-04 exige o motivo só quando `stage === "perdido"`; obrigatoriedade condicional mora no Zod/Server Action, nunca em constraint de banco (precedente `stageChangedAt`; nenhuma tabela do projeto usa CHECK constraint)
     stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
     contactAttempts: integer("contact_attempts").notNull().default(0), // WA-08/D-04: acumula pela vida do lead, nunca zera ao mudar de etapa

@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { subnichos, templates } from "@/db/schema";
+import { motivosPerda, subnichos, templates } from "@/db/schema";
 import {
   computeSequenciaSugestao,
   getActiveDashboardLeads,
@@ -22,14 +22,21 @@ import { FollowupDashboard } from "@/components/followup-dashboard";
  * `followUpDate` como indicador informativo, sem jamais sobrescrevê-lo.
  */
 export default async function Home() {
-  const [activeLeads, allSubnichos, allTemplates, config, ultimaInteracaoPorLead] =
-    await Promise.all([
-      getActiveDashboardLeads(),
-      db.select().from(subnichos),
-      db.select().from(templates),
-      getConfiguracoes(),
-      getUltimaInteracaoWhatsAppPorLead(),
-    ]);
+  const [
+    activeLeads,
+    allSubnichos,
+    allMotivosPerda,
+    allTemplates,
+    config,
+    ultimaInteracaoPorLead,
+  ] = await Promise.all([
+    getActiveDashboardLeads(),
+    db.select().from(subnichos),
+    db.select().from(motivosPerda),
+    db.select().from(templates),
+    getConfiguracoes(),
+    getUltimaInteracaoWhatsAppPorLead(),
+  ]);
 
   const { vencidos, hoje, proximos7Dias } = groupLeadsByUrgency(activeLeads);
 
@@ -52,6 +59,7 @@ export default async function Home() {
         hoje={hoje}
         proximos7Dias={proximos7Dias}
         subnichos={allSubnichos}
+        motivosPerda={allMotivosPerda}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}
       />

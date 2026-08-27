@@ -10,13 +10,14 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
 
 type FollowupDashboardProps = {
   vencidos: Lead[];
   hoje: Lead[];
   proximos7Dias: Lead[];
   subnichos: Subnicho[];
+  motivosPerda: MotivoPerda[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
 };
@@ -52,6 +53,7 @@ export function FollowupDashboard({
   hoje,
   proximos7Dias,
   subnichos,
+  motivosPerda,
   templates,
   sugestaoPorLead,
 }: FollowupDashboardProps) {
@@ -232,6 +234,7 @@ export function FollowupDashboard({
           if (!open) setDialogState({ mode: "closed" });
         }}
         subnichos={subnichos}
+        motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}

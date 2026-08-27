@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SubnichoCombobox } from "@/components/subnicho-combobox";
+import { MotivoPerdaCombobox } from "@/components/motivo-perda-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
@@ -40,12 +41,14 @@ import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
 import { useFirstContactTrigger } from "@/hooks/use-first-contact-trigger";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
 
 type LeadFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   subnichos: Subnicho[];
+  /** Lista governada de motivos de perda (D-04) — alimenta o combobox do campo condicional "Motivo da perda". */
+  motivosPerda: MotivoPerda[];
   /** Presença de `lead` decide o modo: undefined = criar, definido = editar (D-07). */
   lead?: Lead;
   /** Template padrão de 1º contato, usado pelo auto-gatilho WA-04 (D-19). */
@@ -90,6 +93,7 @@ export function LeadFormDialog({
   open,
   onOpenChange,
   subnichos,
+  motivosPerda,
   lead,
   firstContactTemplate,
   templates,
@@ -130,7 +134,7 @@ export function LeadFormDialog({
       followUpDate: lead?.followUpDate ?? startOfDay(new Date()),
       subnichoId: lead?.subnichoId,
       stage: lead?.stage ?? "novo",
-      motivoPerda: lead?.motivoPerda ?? "",
+      motivoPerdaId: lead?.motivoPerdaId ?? undefined,
     },
   });
 
@@ -370,18 +374,23 @@ export function LeadFormDialog({
               </Field>
 
               {form.watch("stage") === "perdido" ? (
-                <Field data-invalid={!!errors.motivoPerda}>
-                  <FieldLabel htmlFor="motivoPerda">Motivo da perda</FieldLabel>
+                <Field data-invalid={!!errors.motivoPerdaId}>
+                  <FieldLabel htmlFor="motivoPerdaId">Motivo da perda</FieldLabel>
                   <FieldContent>
-                    <Textarea
-                      id="motivoPerda"
-                      aria-invalid={!!errors.motivoPerda}
-                      {...form.register("motivoPerda")}
+                    <Controller
+                      control={form.control}
+                      name="motivoPerdaId"
+                      render={({ field }) => (
+                        <MotivoPerdaCombobox
+                          motivosPerda={motivosPerda}
+                          value={(field.value as number | null | undefined) ?? null}
+                          onValueChange={(id) => field.onChange(id ?? undefined)}
+                          invalid={!!errors.motivoPerdaId}
+                        />
+                      )}
                     />
-                    <FieldDescription>
-                      Opcional — por que esse lead foi perdido (ex: sem orçamento, escolheu concorrente).
-                    </FieldDescription>
-                    <FieldError errors={[errors.motivoPerda]} />
+                    <FieldDescription>Por que esse lead foi perdido.</FieldDescription>
+                    <FieldError errors={[errors.motivoPerdaId]} />
                   </FieldContent>
                 </Field>
               ) : null}
