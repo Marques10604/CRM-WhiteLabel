@@ -1,5 +1,5 @@
 import { and, asc, eq, isNull, ne, notInArray, sql } from "drizzle-orm";
-import { addDays, isBefore, isToday, startOfDay } from "date-fns";
+import { addDays, isBefore, isToday, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
 import { configuracoes, interacoes, leads } from "@/db/schema";
 import type { Lead } from "@/types";
@@ -143,4 +143,90 @@ export function computeSequenciaSugestao(
   const intervalo = intervalosDias[lead.sequenciaPosicao];
   if (intervalo === undefined) return undefined; // D-10
   return addDays(ultimaInteracaoWhatsApp, intervalo);
+}
+
+// ---------------------------------------------------------------------------
+// Painel de Relatórios (METRICAS-01, METRICAS-02, PERDA-01) — funções puras
+// ---------------------------------------------------------------------------
+
+/**
+ * Intervalo de datas resolvido a partir do preset de período da tela
+ * `/relatorios`. `end` é sempre "agora"; `start` recua conforme o preset.
+ */
+export type PeriodRange = { start: Date; end: Date };
+
+/**
+ * Preset de período (querystring `?period=`) → `PeriodRange` concreto —
+ * função PURA, sem I/O, no espírito de `computeSequenciaSugestao`.
+ *
+ * DUAS distinções registradas aqui de propósito:
+ *
+ *   (1) O parâmetro é `string | undefined`, NÃO um union literal tipado
+ *       (`"30d" | "90d" | "tudo"`). O valor vem de `searchParams` — território
+ *       não confiável: pode ser `undefined`, `"tudo"`, uma string adulterada na
+ *       URL, um payload de SQLi, qualquer coisa. QUALQUER valor fora de
+ *       `"30d"`/`"90d"` resolve SILENCIOSAMENTE para
+ *       `{ start: new Date(0), end: now }` ("tudo"). A função nunca lança, nunca
+ *       gera 500 — é a mitigação de T-11-19 (DoS por valor inválido) e T-11-20
+ *       (SQLi via `period`) de 11-RESEARCH.md §Security Domain: o valor jamais é
+ *       interpolado em SQL, vira `Date` aqui antes de ser parâmetro do Drizzle.
+ *
+ *   (2) O DEFAULT de primeiro acesso da UI é `"30d"` (11-UI-SPEC.md linha 162) e
+ *       mora no componente `PeriodoSelector`/na página — NÃO aqui. Esta função é
+ *       só o fallback de valor inválido, que é `"tudo"` (11-UI-SPEC.md linha
+ *       163). Confundir os dois é o erro esperado.
+ *
+ * `subDays`/`startOfDay` de date-fns evitam os bugs de fuso/horário de verão que
+ * aritmética manual de milissegundos introduz.
+ */
+export function resolvePeriodRange(preset: string | undefined, now = new Date()): PeriodRange {
+  if (preset === "90d") return { start: subDays(startOfDay(now), 90), end: now };
+  if (preset === "30d") return { start: subDays(startOfDay(now), 30), end: now };
+  return { start: new Date(0), end: now }; // "tudo" e QUALQUER valor inválido/adulterado (fallback seguro)
+}
+
+/**
+ * Taxa de conversão de uma linha de origem (D-06) — `fechados / total`.
+ *
+ * Retorna `0` EXPLICITAMENTE quando `total === 0` (Pitfall 3 de 11-RESEARCH.md:
+ * com os dados reais de hoje a maioria dos grupos tem `total` 0 — é o caso
+ * normal, não uma borda rara; `0/0` daria `NaN` e `n/0` daria `Infinity`, os
+ * dois renderizariam "NaN%" na tela).
+ *
+ * O denominador é o TOTAL de leads da origem, incluindo os ainda em aberto —
+ * NUNCA `fechados / (fechados + perdidos)` (D-06, decisão explícita).
+ */
+export function computeTaxaConversao(row: { total: number; fechados: number }): number {
+  if (row.total === 0) return 0;
+  return row.fechados / row.total;
+}
+
+/**
+ * Monta as linhas da Seção 1 do relatório (METRICAS-01) a partir do resultado
+ * cru do `GROUP BY` por origem — função PURA.
+ *
+ * SEMPRE devolve exatamente 2 linhas, nesta ordem fixa: `inbound` (label
+ * "Inbound"), depois `outbound` (label "Outbound"), preenchendo `total`/`fechados`
+ * com 0 quando a origem não aparece no `GROUP BY`, e `taxa` via
+ * `computeTaxaConversao`.
+ *
+ * `origemTipo` é um enum FECHADO de 2 valores (11-UI-SPEC.md linha 167),
+ * diferente de sub-nicho/motivo, que são listas abertas onde o `GROUP BY`
+ * naturalmente omite grupos vazios. Omitir a linha "Inbound" quando não há
+ * nenhum lead inbound esconderia exatamente o dado que o admin mais precisa ver
+ * hoje (23/23 leads são Outbound).
+ */
+export function buildLinhasOrigem(
+  rows: { origemTipo: "inbound" | "outbound"; total: number; fechados: number }[]
+): { origemTipo: "inbound" | "outbound"; label: string; total: number; fechados: number; taxa: number }[] {
+  const ordemFixa = [
+    { origemTipo: "inbound" as const, label: "Inbound" },
+    { origemTipo: "outbound" as const, label: "Outbound" },
+  ];
+  return ordemFixa.map(({ origemTipo, label }) => {
+    const encontrada = rows.find((r) => r.origemTipo === origemTipo);
+    const total = encontrada?.total ?? 0;
+    const fechados = encontrada?.fechados ?? 0;
+    return { origemTipo, label, total, fechados, taxa: computeTaxaConversao({ total, fechados }) };
+  });
 }
