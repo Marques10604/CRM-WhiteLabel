@@ -222,7 +222,28 @@ Plans:
   2. Admin visualiza, na mesma tela, a contagem de leads agrupados por sub-nicho
   3. Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`), com o campo normalizado/governado o suficiente para não fragmentar o relatório em variações de texto livre equivalentes
 
-**Plans**: TBD
+**Plans:** 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 11-01-PLAN.md — Tabela `motivos_perda` + FK `leads.motivoPerdaId` + tipos/contrato Zod base, migração manual [BLOCKING] via better-sqlite3 com seed dos 6 motivos de D-02, guard e gates de schema estendidos
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 11-02-PLAN.md — Server Actions de CRUD governado (criar/renomear/soft-delete com reativação-por-nome) e tela `/motivos-perda` espelhando `/subnichos`, com item novo no menu lateral
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 11-03-PLAN.md — Captura obrigatória do motivo (D-04) nas duas superfícies: `MotivoPerdaCombobox` com criação-na-hora (D-03), contratos Zod condicionais, servidor autoritativo e modal de drag com Cancelar que reverte
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 11-04-PLAN.md — Três agregações SQL `GROUP BY` (origem/sub-nicho/motivo) com os filtros de período de D-09 e D-11, mais as funções puras `resolvePeriodRange`/`computeTaxaConversao`/`buildLinhasOrigem` e o gate `test:relatorios`
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 11-05-PLAN.md — Tela `/relatorios` com as 3 seções empilhadas, seletor de período por querystring, item novo no menu lateral e suíte completa de gates + verificação humana ponta a ponta
 
 **UI hint**: yes
 
