@@ -10,6 +10,7 @@ import {
   Kanban,
   MessageSquare,
   Tag,
+  ListX,
   Trash2,
   Settings,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/pipeline", label: "Pipeline", icon: Kanban },
   { href: "/templates", label: "Templates", icon: MessageSquare },
   { href: "/subnichos", label: "Sub-nichos", icon: Tag },
+  { href: "/motivos-perda", label: "Motivos de Perda", icon: ListX },
   { href: "/lixeira", label: "Lixeira", icon: Trash2 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
