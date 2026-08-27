@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-27T23:23:10.566Z"
-last_activity: 2026-08-27 -- 11-03 (motivo de perda governado e obrigatório) completo
+last_updated: "2026-08-27T23:38:57.628Z"
+last_activity: 2026-08-27
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 22
-  completed_plans: 20
+  completed_plans: 21
   percent: 75
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
-Plan: 4 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
-Status: Ready to execute 11-04
-Last activity: 2026-08-27 -- 11-03 (motivo de perda governado e obrigatório) completo
+Plan: 5 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
+Status: Ready to execute
+Last activity: 2026-08-27
 
-Progress: [█████████░] 91%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Progress: [█████████░] 91%
 | Phase 10 P04 | 55min | 3 tasks | 5 files |
 | Phase 11 P02 | 30min | 2 tasks | 9 files |
 | Phase 11 P03 | 45min | 3 tasks | 15 files |
+| Phase 11 P04 | ~25min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -160,6 +161,8 @@ Recent decisions affecting current work:
 - [Phase 11-02]: revalidatePath('/relatorios') ja disparado por todas as mutacoes de motivo antes da rota existir (no-op seguro) para nao reabrir motivo-perda-actions.ts no plano 11-05
 - [Phase ?]: [Phase 11-03]: leadSchema = leadBaseSchema (objeto puro) + .refine condicional D-04; mensagem verbatim compartilhada com stageUpdateSchema; motivoPerdaId usa z.preprocess('' -> undefined) porque o input oculto do combobox emite string vazia
 - [Phase ?]: [Phase 11-03]: motivoPerdaExists tambem em updateLeadStage (T-11-13, sem try/catch de FK ali); prop motivosPerda threadada pelas 4 superficies do LeadFormDialog
+- [Phase ?]: [Phase 11-04]: getContagemPorMotivoPerda tipa retorno como motivoPerdaId number|null — Drizzle nao estreita coluna da tabela-base em innerJoin; tipagem honesta em vez de assercao
+- [Phase ?]: [Phase 11-04]: teste de integracao de query monta schema por DDL cru em os.tmpdir() (so as 3 tabelas + colunas que as queries tocam), nao replay das migrations
 
 ### Pending Todos
 
@@ -236,7 +239,7 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-27T23:22:28.453Z
+Last session: 2026-08-27T23:37:44.693Z
 
 **Estado da Fase 11 (execução):**
 

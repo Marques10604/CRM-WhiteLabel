@@ -26,8 +26,8 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 ### Painel de Métricas
 
-- [ ] **METRICAS-01**: Admin visualiza contagem/taxa de conversão de leads agrupados por tipo de origem (Inbound/Outbound)
-- [ ] **METRICAS-02**: Admin visualiza contagem de leads agrupados por sub-nicho
+- [x] **METRICAS-01**: Admin visualiza contagem/taxa de conversão de leads agrupados por tipo de origem (Inbound/Outbound)
+- [x] **METRICAS-02**: Admin visualiza contagem de leads agrupados por sub-nicho
 
 ### Relatório de Motivos de Perda
 
@@ -83,8 +83,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | SEQ-01 | Phase 10 | Complete |
 | SEQ-02 | Phase 10 | Complete |
 | SEQ-03 | Phase 10 | Complete |
-| METRICAS-01 | Phase 11 | Pending |
-| METRICAS-02 | Phase 11 | Pending |
+| METRICAS-01 | Phase 11 | Complete |
+| METRICAS-02 | Phase 11 | Complete |
 | PERDA-01 | Phase 11 | Complete |
 | TAREFA-01 | Phase 12 | Pending |
 | TAREFA-02 | Phase 12 | Pending |
