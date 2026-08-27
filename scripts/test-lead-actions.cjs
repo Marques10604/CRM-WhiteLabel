@@ -104,6 +104,13 @@ async function runBehaviorTests() {
     "ALTER TABLE `leads` ADD `origem_tipo` text DEFAULT 'outbound' NOT NULL;",
     "ALTER TABLE `subnichos` ADD `deleted_at` integer;",
     "ALTER TABLE `leads` ADD `sequencia_posicao` integer DEFAULT 0 NOT NULL;",
+    // Fase 11 (plano 11-01): tabela `motivos_perda` + FK `leads.motivo_perda_id`
+    // aplicadas via scripts/migrate-motivos-perda.cjs no banco real, nunca como
+    // arquivo .sql — mesmo débito de snapshot documentado acima. Sem isto,
+    // countLeads() (db.select().from(leads) lista TODAS as colunas do schema)
+    // explode com "no such column: motivo_perda_id".
+    "CREATE TABLE IF NOT EXISTS motivos_perda (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, deleted_at INTEGER, created_at INTEGER NOT NULL DEFAULT (unixepoch()));",
+    "ALTER TABLE `leads` ADD `motivo_perda_id` integer REFERENCES `motivos_perda`(`id`);",
   ];
   for (const ddl of manualAlters) {
     try {

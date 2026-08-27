@@ -1,7 +1,7 @@
 import { asc, isNull } from "drizzle-orm";
 import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
-import { leads, subnichos, templates } from "@/db/schema";
+import { leads, motivosPerda, subnichos, templates } from "@/db/schema";
 import {
   computeSequenciaSugestao,
   getConfiguracoes,
@@ -28,18 +28,25 @@ import { PipelineBoard } from "@/components/pipeline-board";
  * (plano 10-01), evitando duas fontes de verdade divergentes.
  */
 export default async function PipelinePage() {
-  const [activeLeads, allSubnichos, allTemplates, config, ultimaInteracaoPorLead] =
-    await Promise.all([
-      db
-        .select()
-        .from(leads)
-        .where(isNull(leads.deletedAt))
-        .orderBy(asc(leads.followUpDate)),
-      db.select().from(subnichos),
-      db.select().from(templates),
-      getConfiguracoes(),
-      getUltimaInteracaoWhatsAppPorLead(),
-    ]);
+  const [
+    activeLeads,
+    allSubnichos,
+    allMotivosPerda,
+    allTemplates,
+    config,
+    ultimaInteracaoPorLead,
+  ] = await Promise.all([
+    db
+      .select()
+      .from(leads)
+      .where(isNull(leads.deletedAt))
+      .orderBy(asc(leads.followUpDate)),
+    db.select().from(subnichos),
+    db.select().from(motivosPerda),
+    db.select().from(templates),
+    getConfiguracoes(),
+    getUltimaInteracaoWhatsAppPorLead(),
+  ]);
 
   const limitesPorEtapa: Partial<Record<(typeof activeLeads)[number]["stage"], number>> = {
     novo: config.diasParadoNovo,
@@ -78,6 +85,7 @@ export default async function PipelinePage() {
       <PipelineBoard
         leads={activeLeads}
         subnichos={allSubnichos}
+        motivosPerda={allMotivosPerda}
         esfriandoLeadIds={esfriandoLeadIds}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}

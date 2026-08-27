@@ -11,6 +11,7 @@
     "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",
+    "verify:motivo-perda": "node scripts/verify-motivo-perda-obrigatorio.cjs",
     "test:lead-actions": "node scripts/test-lead-actions.cjs",
     "test:interacao-actions": "node scripts/test-interacao-actions.cjs",
     "test:mutation-guard": "node scripts/test-mutation-guard.cjs",

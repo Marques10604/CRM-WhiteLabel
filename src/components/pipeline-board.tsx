@@ -18,11 +18,12 @@ import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
 
 type PipelineBoardProps = {
   leads: Lead[];
   subnichos: Subnicho[];
+  motivosPerda: MotivoPerda[];
   esfriandoLeadIds: number[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
@@ -54,14 +55,18 @@ const STAGE_LABEL_BY_VALUE = new Map(
  * que o drag engula o clique-para-editar (Pitfall 4). `useOptimistic` move
  * o card instantaneamente; se `updateLeadStage` falhar, o estado base nunca
  * muda e o React reverte o otimista sozinho ao assentar a transição
- * (RESEARCH.md Pattern 2). Soltar em "Perdido" abre um modal opcional e
- * não-bloqueante de motivo da perda (D-04): o card já se moveu de forma
- * otimista e a mesma transição fica pendente aguardando a decisão do modal
- * (Pular/Salvar motivo) antes de chamar `updateLeadStage` uma única vez.
+ * (RESEARCH.md Pattern 2). Soltar em "Perdido" abre um modal OBRIGATÓRIO de
+ * motivo da perda (D-04): o card já se moveu de forma otimista e a mesma
+ * transição fica pendente aguardando a decisão do modal. "Salvar motivo"
+ * chama `updateLeadStage(leadId, "perdido", motivoPerdaId)` uma única vez;
+ * "Cancelar" RETORNA da transição sem chamar o servidor — o estado base
+ * nunca mudou, então o `useOptimistic` reverte o card para a etapa anterior
+ * sozinho (mesmo mecanismo do caminho de falha).
  */
 export function PipelineBoard({
   leads,
   subnichos,
+  motivosPerda,
   esfriandoLeadIds,
   templates,
   sugestaoPorLead,
@@ -78,9 +83,10 @@ export function PipelineBoard({
   // primeira transição (que nunca chamava `updateLeadStage`). Agora cada
   // drag para "Perdido" entra numa fila; o modal exibe um lead por vez e
   // avança para o próximo pendente ao resolver o atual, garantindo que
-  // nenhuma transição de estágio fique órfã.
+  // nenhuma transição de estágio fique órfã. O valor resolvido é
+  // `number` (motivo escolhido) ou `null` (CANCELADO — reverte o drag).
   const motivoQueueRef = useRef<
-    { leadId: number; leadNome: string; resolve: (motivo: string | undefined) => void }[]
+    { leadId: number; leadNome: string; resolve: (motivoPerdaId: number | null) => void }[]
   >([]);
 
   const [optimisticLeads, setOptimisticStage] = useOptimistic(
@@ -130,23 +136,34 @@ export function PipelineBoard({
     startTransition(async () => {
       setOptimisticStage({ id: leadId, stage: newStage });
 
-      let motivoPerda: string | undefined;
+      let motivoPerdaId: number | null = null;
       if (newStage === "perdido") {
-        // Modal opcional/não-bloqueante (D-04): o card já se moveu acima.
-        // A transição fica pendente até o admin clicar Pular/Salvar motivo.
-        // Enfileira este lead (CR-02) em vez de assumir que é o único drag
-        // pendente — se o modal já estiver aberto para outro lead, este
-        // apenas aguarda sua vez na fila.
-        motivoPerda = await new Promise<string | undefined>((resolve) => {
+        // Modal OBRIGATÓRIO (D-04): o card já se moveu acima. A transição
+        // fica pendente até o admin clicar Cancelar/Salvar motivo. Enfileira
+        // este lead (CR-02) em vez de assumir que é o único drag pendente —
+        // se o modal já estiver aberto para outro lead, este apenas aguarda
+        // sua vez na fila.
+        motivoPerdaId = await new Promise<number | null>((resolve) => {
           const leadNome = lead?.nome ?? "";
           motivoQueueRef.current.push({ leadId, leadNome, resolve });
           if (motivoQueueRef.current.length === 1) {
             setMotivoPerdaState({ open: true, leadNome });
           }
         });
+
+        if (motivoPerdaId === null) {
+          // Cancelado: NENHUMA chamada ao servidor. O estado base nunca
+          // mudou, então o React descarta o otimista e o card volta à etapa
+          // anterior ao assentar esta transição. Sem toast de sucesso.
+          return;
+        }
       }
 
-      const result = await updateLeadStage(leadId, newStage, motivoPerda);
+      const result = await updateLeadStage(
+        leadId,
+        newStage,
+        motivoPerdaId ?? undefined
+      );
       if (result && "errors" in result) {
         toast.error("Não foi possível mover o lead. Tente novamente.");
         return;
@@ -156,9 +173,9 @@ export function PipelineBoard({
     });
   }
 
-  function resolveMotivoPerda(motivo: string | undefined) {
+  function advanceMotivoQueue(value: number | null) {
     const current = motivoQueueRef.current.shift();
-    current?.resolve(motivo);
+    current?.resolve(value);
     const next = motivoQueueRef.current[0];
     if (next) {
       // Outro lead já está aguardando (CR-02): avança a fila em vez de
@@ -168,6 +185,16 @@ export function PipelineBoard({
     } else {
       setMotivoPerdaState({ open: false });
     }
+  }
+
+  /** "Salvar motivo": resolve a promessa do drag com o id escolhido. */
+  function resolveMotivoPerda(motivoPerdaId: number) {
+    advanceMotivoQueue(motivoPerdaId);
+  }
+
+  /** "Cancelar" / dismiss: resolve com `null` — `handleDragEnd` retorna sem chamar o servidor e o drag reverte. */
+  function cancelMotivoPerda() {
+    advanceMotivoQueue(null);
   }
 
   return (
@@ -223,6 +250,7 @@ export function PipelineBoard({
           if (!open) setDialogState({ mode: "closed" });
         }}
         subnichos={subnichos}
+        motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}
@@ -231,11 +259,12 @@ export function PipelineBoard({
       <MotivoPerdaDialog
         open={motivoPerdaState.open}
         leadNome={motivoPerdaState.open ? motivoPerdaState.leadNome : ""}
+        motivosPerda={motivosPerda}
         onOpenChange={(open) => {
-          if (!open) resolveMotivoPerda(undefined);
+          if (!open) cancelMotivoPerda();
         }}
-        onSkip={() => resolveMotivoPerda(undefined)}
-        onSave={(motivo) => resolveMotivoPerda(motivo)}
+        onCancel={cancelMotivoPerda}
+        onSave={(motivoPerdaId) => resolveMotivoPerda(motivoPerdaId)}
       />
 
       <WhatsAppPreviewDialog
