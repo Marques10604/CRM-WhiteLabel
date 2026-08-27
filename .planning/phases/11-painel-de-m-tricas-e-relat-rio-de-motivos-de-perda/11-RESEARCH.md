@@ -398,17 +398,19 @@ Não aplicável — nenhuma mudança de "estado da arte" externa afeta esta fase
 
 **Nenhuma claim de compliance/segurança/retenção de dado foi feita nesta pesquisa** — todos os itens acima são de arquitetura interna, não de política de produto.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`leads.motivoPerdaId` deve ser NOT NULL ou nullable?**
    - What we know: D-04 exige que o campo seja obrigatório *ao mover para "Perdido"* — não que todo lead sempre tenha um motivo (leads em outras etapas nunca tiveram esse campo preenchido).
    - What's unclear: se o planner prefere nullable (validação condicional só no Zod, mesma abordagem de `subnichoId` que é NOT NULL só porque É sempre obrigatório) ou se há alguma vantagem em CHECK constraint condicional (SQLite suporta `CHECK`, mas o projeto não usa CHECK constraints em nenhuma tabela hoje — ver comentário em `configuracoes` no schema.ts: "nenhuma tabela do projeto usa CHECK constraint").
    - Recommendation: `nullable`, seguindo o precedente de `stageChangedAt` (nullable, preenchido condicionalmente) em vez de `subnichoId` (sempre obrigatório) — a obrigatoriedade condicional (só quando `stage==="perdido"`) já é o padrão estabelecido para `motivoPerda` hoje e deve continuar sendo aplicada em Zod/Server Action, não em constraint de banco.
+   - **RESOLVED (11-01):** adotado `nullable` com `.refine` condicional no Zod (`stageUpdateSchema`/`leadSchema`), FK `onDelete: "restrict"`. Sem CHECK constraint. Racional do precedente `stageChangedAt` mantido.
 
 2. **A coluna antiga `leads.motivo_perda` (texto) deve ser fisicamente removida (`ALTER TABLE ... DROP COLUMN`) ou só aposentada em código?**
    - What we know: SQLite (versão bundled em better-sqlite3 12.x) suporta `ALTER TABLE ... DROP COLUMN` desde 3.35.0 (2021) — tecnicamente viável. Não há dado real a perder (0 leads perdidos hoje).
    - What's unclear: se `npm run guard:no-hard-delete` trataria um `DROP COLUMN` como problema (ele só varre por `DELETE FROM`/`DROP TABLE`, não `DROP COLUMN` — não deveria disparar falso-positivo, mas não foi testado nesta pesquisa).
    - Recommendation: manter a coluna antiga fisicamente por simplicidade/reversibilidade (menor risco de migração), mas garantir zero referências a ela em `src/` — o planner deve decidir se vale o "lixo" de schema por segurança extra.
+   - **RESOLVED (11-01 + 11-03):** "coluna morta" — coluna física `motivo_perda` **mantida** no banco; toda referência em `src/` removida (11-01 mantém a declaração Drizzle para não quebrar `tsc` entre ondas; 11-03 remove a declaração após a troca FK estar completa). Sem `DROP COLUMN`.
 
 ## Environment Availability
 

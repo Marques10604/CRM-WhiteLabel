@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: verifying
-last_updated: "2026-08-13T23:45:23.690Z"
-last_activity: 2026-08-13
+status: executing
+last_updated: "2026-08-27T16:18:52.367Z"
+last_activity: 2026-08-27 -- Phase 11 planning complete
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 17
+  total_plans: 22
   completed_plans: 17
   percent: 75
 ---
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 10 (sequ-ncia-de-follow-up-escalonada) — EXECUTING
 Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-08-13
+Status: Ready to execute
+Last activity: 2026-08-27 -- Phase 11 planning complete
 
 Progress: [██████████] 100%
 
@@ -189,6 +189,16 @@ Aberto, carregado para o v1.3:
 - Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
 - Fase 10 (10-04): npm run build sem confirmacao de exit 0 nesta sessao - host 4GB RAM esgota memoria na fase Running TypeScript do next build mesmo com dev server parado (3 tentativas, incluindo heap ampliado); npx tsc --noEmit isolado passou limpo. Rodar npm run build numa maquina com mais RAM antes de deploy/publicacao. Human-check de 10 passos da Fase 10 tambem pendente (sem navegador nesta sessao).
 
+### Direção de infraestrutura / operação (definida 2026-08-27)
+
+**Plano:** CRM + o produto novo "Prospector Inteligente AI" (topo de funil, pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI`) rodam num **VPS único** quando prontos.
+
+- Motivo principal é do Prospector (precisa rodar 24/7; WhatsApp não-oficial não roda serverless), o CRM pega carona.
+- **Resolve o Gap 4** (impasse "CRM local × prospecção pública") que trava a todo `Conectar captura de leads da prospecção ao CRM` — com os dois no mesmo VPS o handoff vira export/import de CSV (o CRM já importa CSV) ou API interna.
+- **Ordem:** Prospector sobe primeiro; CRM migra depois, sem pressa. Nenhuma ação necessária no v1.3 do CRM agora.
+- Ao migrar o CRM: ativar gate de senha no middleware (já previsto no `CLAUDE.md`, "Stack Patterns by Variant"), Litestream do `data/crm.db` pra backup, Caddy/Coolify pra HTTPS. Continua SQLite; Postgres só quando houver multi-tenant real.
+- Detalhes completos: `IDEIA.md` seção 6 na pasta do Prospector.
+
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
@@ -219,10 +229,13 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-13T23:45:23.515Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-painel-de-m-tricas-e-relat-rio-de-motivos-de-perda/11-CONTEXT.md
-Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
+Last session: 2026-08-14 (sessão atual, interrompida por reinício do notebook)
+Stopped at: `/gsd-plan-phase 11` em andamento — ainda na fase de inicialização/leitura do orquestrador, NENHUM agente (pattern-mapper/planner/checker) foi disparado ainda. Nenhum arquivo novo foi escrito nesta etapa (só leituras: `gsd-sdk query init.plan-phase 11`, `roadmap.get-phase 11`, `phase.mvp-mode 11`, e configs de workflow).
+Resume file: .planning/phases/11-painel-de-m-tricas-e-relat-rio-de-motivos-de-perda/11-UI-SPEC.md (já aprovado, existe também 11-CONTEXT.md, 11-RESEARCH.md, 11-VALIDATION.md — falta 11-PLAN.md)
+
+**Como retomar:** rodar `/gsd-plan-phase 11` de novo do zero — é seguro, nada foi criado ainda nesta tentativa. O comando vai: (1) reusar RESEARCH.md/CONTEXT.md/VALIDATION.md/UI-SPEC.md já existentes (sem re-perguntar), (2) disparar `gsd-pattern-mapper` (PATTERNS.md ainda não existe), (3) disparar `gsd-planner` (modo standard, MVP_MODE=false, TDD_MODE=false), (4) rodar `gsd-plan-checker`. Config relevante já confirmada: `security_enforcement=true` (ASVS L1, block_on=high), `ui_safety_gate=true` (UI-SPEC já existe, não vai bloquear), `pattern_mapper=true`, `ai_integration_phase=true` (mas goal da Fase 11 não tem keywords de IA, não deve disparar gate).
+
+Servidor de dev: nenhum processo node ativo ao final desta sessão.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
