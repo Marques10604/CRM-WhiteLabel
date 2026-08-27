@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: executing
-last_updated: "2026-08-27T23:38:57.628Z"
+status: verifying
+last_updated: "2026-08-27T23:48:40.596Z"
 last_activity: 2026-08-27
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 22
-  completed_plans: 21
-  percent: 75
+  completed_plans: 22
+  percent: 88
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
 Plan: 5 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-27
 
-Progress: [██████████] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [██████████] 95%
 | Phase 11 P02 | 30min | 2 tasks | 9 files |
 | Phase 11 P03 | 45min | 3 tasks | 15 files |
 | Phase 11 P04 | ~25min | 3 tasks | 3 files |
+| Phase 11 P05 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 11-03]: motivoPerdaExists tambem em updateLeadStage (T-11-13, sem try/catch de FK ali); prop motivosPerda threadada pelas 4 superficies do LeadFormDialog
 - [Phase ?]: [Phase 11-04]: getContagemPorMotivoPerda tipa retorno como motivoPerdaId number|null — Drizzle nao estreita coluna da tabela-base em innerJoin; tipagem honesta em vez de assercao
 - [Phase ?]: [Phase 11-04]: teste de integracao de query monta schema por DDL cru em os.tmpdir() (so as 3 tabelas + colunas que as queries tocam), nao replay das migrations
+- [Phase ?]: [Phase 11-05]: PeriodoSelector recebe value já normalizado pela página; servidor decide default (30d ausente) e fallback (tudo inválido), cliente é só o router.push
+- [Phase ?]: [Phase 11-05]: gate verify:motivos-perda-schema do PLAN.md não existe — Onda 1 estendeu verify-schema.cjs; cobertura dentro de verify:schema
 
 ### Pending Todos
 
@@ -239,7 +242,7 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-27T23:37:44.693Z
+Last session: 2026-08-27T23:48:40.566Z
 
 **Estado da Fase 11 (execução):**
 
