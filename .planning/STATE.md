@@ -229,13 +229,21 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-14 (sessão atual, interrompida por reinício do notebook)
-Stopped at: `/gsd-plan-phase 11` em andamento — ainda na fase de inicialização/leitura do orquestrador, NENHUM agente (pattern-mapper/planner/checker) foi disparado ainda. Nenhum arquivo novo foi escrito nesta etapa (só leituras: `gsd-sdk query init.plan-phase 11`, `roadmap.get-phase 11`, `phase.mvp-mode 11`, e configs de workflow).
-Resume file: .planning/phases/11-painel-de-m-tricas-e-relat-rio-de-motivos-de-perda/11-UI-SPEC.md (já aprovado, existe também 11-CONTEXT.md, 11-RESEARCH.md, 11-VALIDATION.md — falta 11-PLAN.md)
+Last session: 2026-08-27 — Fase 11 planejada e execução iniciada; **interrompida por LIMITE DE SESSÃO** (429, reset 15:10 America/Sao_Paulo) no meio do executor da Onda 1.
 
-**Como retomar:** rodar `/gsd-plan-phase 11` de novo do zero — é seguro, nada foi criado ainda nesta tentativa. O comando vai: (1) reusar RESEARCH.md/CONTEXT.md/VALIDATION.md/UI-SPEC.md já existentes (sem re-perguntar), (2) disparar `gsd-pattern-mapper` (PATTERNS.md ainda não existe), (3) disparar `gsd-planner` (modo standard, MVP_MODE=false, TDD_MODE=false), (4) rodar `gsd-plan-checker`. Config relevante já confirmada: `security_enforcement=true` (ASVS L1, block_on=high), `ui_safety_gate=true` (UI-SPEC já existe, não vai bloquear), `pattern_mapper=true`, `ai_integration_phase=true` (mas goal da Fase 11 não tem keywords de IA, não deve disparar gate).
+**Estado da Fase 11 (execução):**
+- Planejamento COMPLETO e commitado: 5 planos (11-01…11-05), 5 ondas sequenciais, `18d4b13` + `248877d`. Plan-checker: 0 bloqueadores. Decision Coverage Gate: 12/12. `11-VALIDATION.md` reconciliado (`status: reconciled`, `nyquist_compliant: true`).
+- **Onda 1 (11-01): COMPLETA e verificada.** Commits `9d7661f` (schema `motivosPerda` + FK `leads.motivoPerdaId` + tipos + `motivoPerdaSchema` + guard estendido), `3adaf93` (`scripts/migrate-motivos-perda.cjs` — rodou no banco real, 6 motivos de D-02 semeados, coluna `leads.motivo_perda_id` criada), `2a24f9c` (`verify-schema.cjs` estendido). `11-01-SUMMARY.md` escrito pelo orquestrador (executor morreu antes). `npx tsc --noEmit` limpo, `guard:no-hard-delete` OK, `verify-schema` OK. ROADMAP marca `[x] 11-01`.
+- **Ondas 2–5 (11-02, 11-03, 11-04, 11-05): NÃO INICIADAS.**
 
-Servidor de dev: nenhum processo node ativo ao final desta sessão.
+**Config de execução ativa** (`.planning/config.json`): `mode: yolo`, `parallelization: false`, `workflow.use_worktrees: false`, `workflow._auto_chain_active: true`. Ou seja: execução SEQUENCIAL inline no working tree, sem worktree (decisão deliberada — host 4GB).
+
+**Como retomar (após 15:10 São Paulo):** rodar `/gsd-execute-phase 11 --auto --no-transition`. O `phase-plan-index` vai pular 11-01 (tem SUMMARY) e começar da Onda 2 (11-02). Executores sonnet, 1 por onda, sequencial. Depois: `gsd-verifier`, depois a **revisão cross-AI do código pedida pelo usuário** — `/gsd-code-review 11` + `/gsd-review --phase 11` (Codex + Gemini via CLI; na Fase 8 só o Codex respondeu — checar `which codex gemini` antes).
+
+**Pendências abertas do usuário nesta sessão (fora da Fase 11):**
+- Produto novo "Prospector Inteligente AI" — pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI` com `IDEIA.md` commitado. Usuário vai abrir sessão nova lá e rodar `/gsd-new-project @IDEIA.md`. Decisões já fechadas: híbrido/SaaS-ready desde o dia 1, VPS único hospeda CRM + Prospector. Ver memória `project_prospector_inteligente_ai`.
+
+Branch: `worktree-agent-ad346cc0697623e0c`. Servidor de dev: nenhum processo node ativo.
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
