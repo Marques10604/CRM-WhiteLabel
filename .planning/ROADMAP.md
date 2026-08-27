@@ -222,7 +222,7 @@ Plans:
   2. Admin visualiza, na mesma tela, a contagem de leads agrupados por sub-nicho
   3. Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`), com o campo normalizado/governado o suficiente para não fragmentar o relatório em variações de texto livre equivalentes
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 **Wave 1**
@@ -231,7 +231,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 11-02-PLAN.md — Server Actions de CRUD governado (criar/renomear/soft-delete com reativação-por-nome) e tela `/motivos-perda` espelhando `/subnichos`, com item novo no menu lateral
+- [x] 11-02-PLAN.md — Server Actions de CRUD governado (criar/renomear/soft-delete com reativação-por-nome) e tela `/motivos-perda` espelhando `/subnichos`, com item novo no menu lateral
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -279,5 +279,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
-| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 1/5 | In Progress|  |
+| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 2/5 | In Progress|  |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

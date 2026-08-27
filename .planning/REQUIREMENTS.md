@@ -31,7 +31,7 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 ### Relatório de Motivos de Perda
 
-- [ ] **PERDA-01**: Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`)
+- [x] **PERDA-01**: Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`)
 
 ### Agenda / Tarefas Soltas
 
@@ -85,7 +85,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | SEQ-03 | Phase 10 | Complete |
 | METRICAS-01 | Phase 11 | Pending |
 | METRICAS-02 | Phase 11 | Pending |
-| PERDA-01 | Phase 11 | Pending |
+| PERDA-01 | Phase 11 | Complete |
 | TAREFA-01 | Phase 12 | Pending |
 | TAREFA-02 | Phase 12 | Pending |
 

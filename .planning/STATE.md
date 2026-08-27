@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-27T16:20:36.252Z"
-last_activity: 2026-08-27 -- Phase 11 execution started
+last_updated: "2026-08-27T22:28:29.341Z"
+last_activity: 2026-08-27
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 22
-  completed_plans: 17
+  completed_plans: 19
   percent: 75
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
-Plan: 1 of 5
-Status: Executing Phase 11
-Last activity: 2026-08-27 -- Phase 11 execution started
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-08-27
 
-Progress: [██████████] 100%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -78,6 +78,7 @@ Progress: [██████████] 100%
 | Phase 10 P02 | 10min | 3 tasks | 3 files |
 | Phase 10 P03 | 12min | 2 tasks | 2 files |
 | Phase 10 P04 | 55min | 3 tasks | 5 files |
+| Phase 11 P02 | 30min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Recent decisions affecting current work:
 - [Phase 10-03]: saveConfiguracoes le a lista dinamica via formData.getAll (nao mais Object.fromEntries), configuracoesServerSchema como contrato autoritativo
 - [Phase 10-03]: Ids de linha da lista dinamica: indice do array na carga inicial, contador em useRef (seeded pelo tamanho inicial) para linhas novas, so lido/escrito em event handlers para evitar falso-positivo react-hooks/refs do React Compiler
 - [Phase 10-04]: Gate de build (npm run build) documentado como pendencia de infraestrutura (host 4GB RAM), nao defeito de codigo - npx tsc --noEmit isolado passou limpo 2x, 9/10 gates automatizados verdes
+- [Phase 11-02]: createMotivoPerda/renameMotivoPerda/softDeleteMotivoPerda devolvem shape homogêneo { success: true; id }; rename/softDelete ecoam o id recebido, só o combobox criável de 11-03 consome o id
+- [Phase 11-02]: harnesses de teste ganham stub no-op de next/cache (scripts/test-support/) para asserir o retorno de Server Actions fora do runtime do Next; molde test-lead-actions.cjs só tolerava o throw de revalidatePath
+- [Phase 11-02]: revalidatePath('/relatorios') ja disparado por todas as mutacoes de motivo antes da rota existir (no-op seguro) para nao reabrir motivo-perda-actions.ts no plano 11-05
 
 ### Pending Todos
 
@@ -229,9 +233,10 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-27 — Fase 11 planejada e execução iniciada; **interrompida por LIMITE DE SESSÃO** (429, reset 15:10 America/Sao_Paulo) no meio do executor da Onda 1.
+Last session: 2026-08-27T22:23:30.375Z
 
 **Estado da Fase 11 (execução):**
+
 - Planejamento COMPLETO e commitado: 5 planos (11-01…11-05), 5 ondas sequenciais, `18d4b13` + `248877d`. Plan-checker: 0 bloqueadores. Decision Coverage Gate: 12/12. `11-VALIDATION.md` reconciliado (`status: reconciled`, `nyquist_compliant: true`).
 - **Onda 1 (11-01): COMPLETA e verificada.** Commits `9d7661f` (schema `motivosPerda` + FK `leads.motivoPerdaId` + tipos + `motivoPerdaSchema` + guard estendido), `3adaf93` (`scripts/migrate-motivos-perda.cjs` — rodou no banco real, 6 motivos de D-02 semeados, coluna `leads.motivo_perda_id` criada), `2a24f9c` (`verify-schema.cjs` estendido). `11-01-SUMMARY.md` escrito pelo orquestrador (executor morreu antes). `npx tsc --noEmit` limpo, `guard:no-hard-delete` OK, `verify-schema` OK. ROADMAP marca `[x] 11-01`.
 - **Ondas 2–5 (11-02, 11-03, 11-04, 11-05): NÃO INICIADAS.**
@@ -241,6 +246,7 @@ Last session: 2026-08-27 — Fase 11 planejada e execução iniciada; **interrom
 **Como retomar (após 15:10 São Paulo):** rodar `/gsd-execute-phase 11 --auto --no-transition`. O `phase-plan-index` vai pular 11-01 (tem SUMMARY) e começar da Onda 2 (11-02). Executores sonnet, 1 por onda, sequencial. Depois: `gsd-verifier`, depois a **revisão cross-AI do código pedida pelo usuário** — `/gsd-code-review 11` + `/gsd-review --phase 11` (Codex + Gemini via CLI; na Fase 8 só o Codex respondeu — checar `which codex gemini` antes).
 
 **Pendências abertas do usuário nesta sessão (fora da Fase 11):**
+
 - Produto novo "Prospector Inteligente AI" — pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI` com `IDEIA.md` commitado. Usuário vai abrir sessão nova lá e rodar `/gsd-new-project @IDEIA.md`. Decisões já fechadas: híbrido/SaaS-ready desde o dia 1, VPS único hospeda CRM + Prospector. Ver memória `project_prospector_inteligente_ai`.
 
 Branch: `worktree-agent-ad346cc0697623e0c`. Servidor de dev: nenhum processo node ativo.
