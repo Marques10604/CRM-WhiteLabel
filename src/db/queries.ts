@@ -1,7 +1,7 @@
-import { and, asc, eq, isNull, ne, notInArray, sql } from "drizzle-orm";
+import { and, asc, eq, gte, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { addDays, isBefore, isToday, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
-import { configuracoes, interacoes, leads } from "@/db/schema";
+import { configuracoes, interacoes, leads, motivosPerda, subnichos } from "@/db/schema";
 import type { Lead } from "@/types";
 
 /**
@@ -229,4 +229,128 @@ export function buildLinhasOrigem(
     const fechados = encontrada?.fechados ?? 0;
     return { origemTipo, label, total, fechados, taxa: computeTaxaConversao({ total, fechados }) };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Painel de Relatórios — as três agregações SQL (GROUP BY)
+// ---------------------------------------------------------------------------
+//
+// Todas seguem o padrão de `getUltimaInteracaoWhatsAppPorLead` acima:
+// agregação em SQL via `.groupBy()` + `sql<number>`, NUNCA
+// `db.select().from(leads)` seguido de `.reduce()` em JS — a base de leads
+// cresce com o histórico, não com o número de leads ativos, e os índices
+// `leads_stage_idx`/`leads_subnicho_id_idx`/`leads_motivo_perda_id_idx` já
+// cobrem estes agrupamentos. Nenhuma delas formata porcentagem nem ordena em
+// JS — formatação é responsabilidade da página `/relatorios`.
+
+/**
+ * Contagem e fechados por tipo de origem, no período (METRICAS-01).
+ *
+ * Filtro de período por `leads.createdAt` (D-09 — "quando o lead entrou no
+ * funil"). `isNull(leads.deletedAt)` exclui a Lixeira (T-11-21). `fechados` é um
+ * `sum(case ...)` no MESMO passo do `count(*)`, não uma segunda query.
+ */
+export async function getContagemPorOrigem(
+  range: PeriodRange
+): Promise<{ origemTipo: "inbound" | "outbound"; total: number; fechados: number }[]> {
+  return db
+    .select({
+      origemTipo: leads.origemTipo,
+      total: sql<number>`count(*)`,
+      fechados: sql<number>`sum(case when ${leads.stage} = 'fechado' then 1 else 0 end)`,
+    })
+    .from(leads)
+    .where(
+      and(
+        isNull(leads.deletedAt),
+        gte(leads.createdAt, range.start),
+        lte(leads.createdAt, range.end)
+      )
+    )
+    .groupBy(leads.origemTipo);
+}
+
+/**
+ * Contagem de leads por sub-nicho, no período (METRICAS-02).
+ *
+ * Filtro de período por `leads.createdAt` (D-09), igual à seção de origem.
+ * Ordenado por total DESC, desempate por nome ASC (11-UI-SPEC.md linha 171).
+ *
+ * D-12: "A categorizar" NÃO recebe nenhum tratamento especial — é uma linha
+ * normal da tabela `subnichos` e aparece misturada com os sub-nichos de
+ * negócio, ordenada só pela sua contagem. Não há nenhum filtro nem destaque por
+ * nome de sub-nicho aqui de propósito.
+ *
+ * `subnichos.deletedAt` NÃO é filtrado: um sub-nicho removido que ainda tem
+ * leads históricos precisa continuar aparecendo no relatório (mesmo raciocínio
+ * de `subnichoExists` em lead-actions.ts).
+ */
+export async function getContagemPorSubnicho(
+  range: PeriodRange
+): Promise<{ subnichoId: number; nome: string; total: number }[]> {
+  return db
+    .select({
+      subnichoId: leads.subnichoId,
+      nome: subnichos.nome,
+      total: sql<number>`count(*)`,
+    })
+    .from(leads)
+    .innerJoin(subnichos, eq(leads.subnichoId, subnichos.id))
+    .where(
+      and(
+        isNull(leads.deletedAt),
+        gte(leads.createdAt, range.start),
+        lte(leads.createdAt, range.end)
+      )
+    )
+    .groupBy(leads.subnichoId, subnichos.nome)
+    .orderBy(sql`count(*) desc`, asc(subnichos.nome));
+}
+
+/**
+ * Contagem de leads PERDIDOS por motivo de perda, no período (PERDA-01).
+ *
+ * D-11 — COMENTÁRIO-ÂNCORA: esta é a ÚNICA das três agregações que filtra por
+ * `leads.stageChangedAt`, NUNCA por `leads.createdAt`. "Motivos de perda dos
+ * últimos 30 dias" tem que significar leads que foram MOVIDOS PARA "perdido"
+ * nesse período — não leads criados nesse período que por acaso foram perdidos
+ * depois (Pitfall 4 de 11-RESEARCH.md). Copiar o filtro `createdAt` das outras
+ * duas seções para cá é o erro esperado.
+ *
+ * Duas consequências DELIBERADAS deste desenho:
+ *
+ *   (1) Leads perdidos com `stageChangedAt` NULO (anteriores a qualquer
+ *       `updateLeadStage`) ficam de fora de TODOS os períodos, inclusive
+ *       "tudo" (`NULL >= <qualquer data>` é `NULL`/falso em SQL).
+ *
+ *   (2) O `innerJoin` exclui leads perdidos SEM `motivoPerdaId` — cenário
+ *       impossível para leads perdidos depois de D-04 (motivo obrigatório), e
+ *       hoje inexistente (zero leads em `stage='perdido'` no banco real).
+ *
+ * `isNull(leads.deletedAt)` exclui a Lixeira (T-11-21). Ordenado por total DESC,
+ * desempate por nome ASC (11-UI-SPEC.md linha 175). `motivosPerda.deletedAt` NÃO
+ * é filtrado — um motivo soft-deletado com leads perdidos históricos continua
+ * contando (mesmo raciocínio do `innerJoin` de sub-nicho acima).
+ */
+export async function getContagemPorMotivoPerda(
+  range: PeriodRange
+): Promise<{ motivoPerdaId: number | null; nome: string; total: number }[]> {
+  return db
+    .select({
+      motivoPerdaId: leads.motivoPerdaId,
+      nome: motivosPerda.nome,
+      total: sql<number>`count(*)`,
+    })
+    .from(leads)
+    .innerJoin(motivosPerda, eq(leads.motivoPerdaId, motivosPerda.id))
+    .where(
+      and(
+        isNull(leads.deletedAt),
+        eq(leads.stage, "perdido"),
+        gte(leads.stageChangedAt, range.start),
+        lte(leads.stageChangedAt, range.end)
+      )
+    )
+    .groupBy(leads.motivoPerdaId, motivosPerda.nome)
+    .orderBy(sql`count(*) desc`, asc(motivosPerda.nome));
 }
