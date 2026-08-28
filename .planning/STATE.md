@@ -242,23 +242,35 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-27T23:48:40.566Z
+Last session: 2026-08-28 (madrugada — usuário foi dormir)
 
-**Estado da Fase 11 (execução):**
+**Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
 
-- Planejamento COMPLETO e commitado: 5 planos (11-01…11-05), 5 ondas sequenciais, `18d4b13` + `248877d`. Plan-checker: 0 bloqueadores. Decision Coverage Gate: 12/12. `11-VALIDATION.md` reconciliado (`status: reconciled`, `nyquist_compliant: true`).
-- **Onda 1 (11-01): COMPLETA e verificada.** Commits `9d7661f` (schema `motivosPerda` + FK `leads.motivoPerdaId` + tipos + `motivoPerdaSchema` + guard estendido), `3adaf93` (`scripts/migrate-motivos-perda.cjs` — rodou no banco real, 6 motivos de D-02 semeados, coluna `leads.motivo_perda_id` criada), `2a24f9c` (`verify-schema.cjs` estendido). `11-01-SUMMARY.md` escrito pelo orquestrador (executor morreu antes). `npx tsc --noEmit` limpo, `guard:no-hard-delete` OK, `verify-schema` OK. ROADMAP marca `[x] 11-01`.
-- **Ondas 2–5 (11-02, 11-03, 11-04, 11-05): NÃO INICIADAS.**
+- **5/5 planos executados e commitados** (11-01…11-05), todos sequenciais inline (sem worktree — host 4GB). Commits das ondas 3–5 nesta sessão:
+  - 11-03 (motivo de perda obrigatório, `MotivoPerdaCombobox` criável, `.refine` server-side): `975ebc7` `fc2ef31` `74c0f13` `aebe9d3` — 5 deviations, todas auto-fixed.
+  - 11-04 (3 agregações SQL `GROUP BY` + funções puras em `src/db/queries.ts`): `1193dea` `ac6acea` `dddbb36` `c27a1e9` `cdb8c56` — 0 deviations de comportamento.
+  - 11-05 (tela `/relatorios` + `periodo-selector` + item na sidebar): `8097aca` `403642c` `ef5a395` `9e6d455`.
+- **gsd-verifier: `human_needed`** — 3/3 success criteria satisfeitas na camada de código e de dados. Todos os gates exit 0 (`tsc --noEmit`, `verify:schema`, `verify:motivo-perda`, `test:relatorios` 38 checagens, `test:motivo-perda-actions` 7, `guard:no-hard-delete`). `11-VERIFICATION.md` commitado. Banco real inspecionado: 6 motivos-semente verbatim, FK presente, 37 leads intactos, backup datado em disco.
+- **`11-HUMAN-UAT.md` criado e commitado (`d967c8f`)** — 8 itens pendentes (`status: partial`): render de `/relatorios`, taxa "0%" nunca "NaN%", seletor de período em tempo real (scroll:false), fallback `?period=xyz`, fluxo drag→modal obrigatório→reversão no Cancelar, combobox criável, end-to-end captura→agregação, posição dos itens no menu.
+- STATE `status: ready_for_uat` (`74fedaf`). ROADMAP já marcava Fase 11 `[x]` (executor marcou cedo) — só fecha de verdade após o UAT passar.
 
-**Config de execução ativa** (`.planning/config.json`): `mode: yolo`, `parallelization: false`, `workflow.use_worktrees: false`, `workflow._auto_chain_active: true`. Ou seja: execução SEQUENCIAL inline no working tree, sem worktree (decisão deliberada — host 4GB).
+**2 WARNINGS do verificador (não bloqueiam o goal — candidatos a gap-closure):**
+1. `scripts/verify-motivos-perda-schema.cjs` **nunca foi criado** (estava nos must_haves de 11-01). A cobertura foi "folded" em `verify-schema.cjs`, que só checa tabela/índice/coluna — NÃO checa FK, colunas exatas, 6 seeds, nullability nem órfãos. Verificado à mão nesta sessão, mas sem gate automático de regressão.
+2. **Drift FK schema↔banco**: `leads.motivo_perda_id` está `ON DELETE NO ACTION` no banco real vs. `onDelete: "restrict"` no `schema.ts` (a DDL da migração de 11-01 omitiu `ON DELETE RESTRICT`). 2ª barreira anti-remoção-destrutiva inativa; a primária (`guard-no-hard-delete`) está verde e há 0 referências hoje.
 
-**Como retomar (após 15:10 São Paulo):** rodar `/gsd-execute-phase 11 --auto --no-transition`. O `phase-plan-index` vai pular 11-01 (tem SUMMARY) e começar da Onda 2 (11-02). Executores sonnet, 1 por onda, sequencial. Depois: `gsd-verifier`, depois a **revisão cross-AI do código pedida pelo usuário** — `/gsd-code-review 11` + `/gsd-review --phase 11` (Codex + Gemini via CLI; na Fase 8 só o Codex respondeu — checar `which codex gemini` antes).
+**Config de execução ativa** (`.planning/config.json`): `parallelization: false`, `workflow.use_worktrees: false`. Execução SEQUENCIAL inline no working tree (host 4GB — [[feedback_4gb_ram_avoid_parallel]]).
+
+**Como retomar:**
+1. `/gsd-verify-work 11` — rodar os 8 itens de UAT no navegador (precisa `npm run dev` — porta 3000/3001; nenhum processo node ativo agora). Atualizar `11-HUMAN-UAT.md` com os resultados.
+2. Se UAT passar: `/close-phase 11` (extract-learnings → PR).
+3. Alternativa pros 2 warnings: `/gsd-plan-phase 11 --gaps` cria planos de gap-closure (script de schema + regenerar a FK com a cláusula certa).
+4. Ainda pendente do pedido do usuário: **revisão cross-AI do código** — `/gsd-code-review 11` + `/gsd-review --phase 11` (Codex + Gemini via CLI; na Fase 8 só o Codex respondeu — checar `which codex gemini` antes).
 
 **Pendências abertas do usuário nesta sessão (fora da Fase 11):**
 
 - Produto novo "Prospector Inteligente AI" — pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI` com `IDEIA.md` commitado. Usuário vai abrir sessão nova lá e rodar `/gsd-new-project @IDEIA.md`. Decisões já fechadas: híbrido/SaaS-ready desde o dia 1, VPS único hospeda CRM + Prospector. Ver memória `project_prospector_inteligente_ai`.
 
-Branch: `worktree-agent-ad346cc0697623e0c`. Servidor de dev: nenhum processo node ativo.
+Branch: `worktree-agent-ad346cc0697623e0c` (branching_strategy=none — trabalho da Fase 11 todo aqui). Servidor de dev: nenhum processo node ativo. Working tree limpo (só `.claude/` untracked, pré-existente).
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 
