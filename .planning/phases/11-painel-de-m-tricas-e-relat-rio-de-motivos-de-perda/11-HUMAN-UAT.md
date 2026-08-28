@@ -9,7 +9,7 @@ tested_by: Claude (automação de navegador — claude-in-chrome)
 
 ## Current Test
 
-[testing paused — 1 item não verificável por automação (Teste 5 — drag)]
+[testing complete — 6 pass, 1 bug confirmado (Teste 5: drag → modal Perdido) que precisa de gap-closure antes de fechar a Fase 11]
 
 ## Tests
 
@@ -42,10 +42,17 @@ fixed_by: quick 260828-flg (5ae841b)
 ### 5. No /pipeline, arrastar um lead para a coluna "Perdido"
 expected: Modal "Mover para Perdido" abre; NÃO tem botão X nem "Pular"; clicar fora / Esc não fecham; "Cancelar" reverte o card à etapa anterior sem persistir; escolher/criar um motivo e "Salvar motivo" persiste
 result: issue
-blocked_by: needs-human-confirmation
-reported: "SUSPEITA DE BUG REAL, mas não 100% confirmável por automação. Em ~6 tentativas de drag para 'Perdido' (eventos de ponteiro sintéticos + left_click_drag real do agente), o padrão dominante: o card se move para 'Perdido' de forma otimista MAS o modal 'Mover para Perdido' NUNCA aparece (polling de 0 a 2000ms). Sem modal → sem persistência (banco intacto) e sem forma de reverter pela UI: o card fica ENCALHADO em 'Perdido' até dar reload. Console limpo (nenhum erro/warning de transição durante o drag). CONTRAPONTO: durante os testes, um lead (dra.marcellavalladares, id 21) ACABOU persistido em perdido+motivo=2 — o que só é possível se o modal tiver aberto e 'Salvar motivo' tiver sido clicado em ALGUM momento (provável artefato de um left_click_drag cego meu acertando o modal). Artefatos de teste revertidos (ids 17→negociacao, 21→novo). NÃO foi possível dar veredito definitivo pela automação — dnd-kit + eventos sintéticos são notoriamente não-confiáveis. PRECISA de 1 drag manual humano."
 severity: major
-suspected_root_cause: "pipeline-board.tsx: setMotivoPerdaState({open:true}) é chamado DENTRO de startTransition(async () => { ... await new Promise(...) }). Hipótese: no React 19 esse setState fica preso na mesma transição async suspensa que aguarda a Promise do modal — deadlock: o modal não renderiza porque o update está preso na transição, e a transição não assenta porque espera o modal. O caminho /leads funciona porque usa render condicional síncrono (stage==='perdido' mostra o combobox), sem transição+promise."
+reported: "BUG CONFIRMADO. Reproduzido com drag REAL (left_click_drag do agente = eventos de ponteiro reais do SO) + MutationObserver instalado observando todo o body por dialog/modal/toast. Ao arrastar um card (dentista_juliaxavier) para 'Perdido':
+  1. O card se move para 'Perdido' de forma otimista.
+  2. O RENDERER DO CHROME CONGELA por ~30s (CDP screenshot deu timeout 'renderer may be frozen or unresponsive'), depois se recupera.
+  3. O modal 'Mover para Perdido' NUNCA é adicionado ao DOM — o MutationObserver não registrou NENHUMA adição de dialog/modal/toast. Nenhum erro no console.
+  4. Nada persiste (banco: id 17 e id 18 seguem 'negociacao', 0 perdidos). O card fica ENCALHADO visualmente em 'Perdido' — sem modal, sem 'Cancelar', sem 'Salvar', sem reversão — só reload volta ao normal.
+Confirma a hipótese de deadlock: com o modal preso, a transição async nunca assenta e o renderer trava. O contraexemplo anterior (lead persistido em perdido+motivo durante testes cegos) foi artefato de left_click_drag cego acertando o formulário de /leads, NÃO o modal do pipeline.
+Artefatos de teste revertidos; banco limpo (contatado 1, negociacao 3, novo 19)."
+root_cause: "pipeline-board.tsx handleDragEnd: quando newStage==='perdido', setMotivoPerdaState({open:true}) é chamado DENTRO de startTransition(async () => { setOptimisticStage(...); await new Promise(resolve => { ...; setMotivoPerdaState({open:true}) }) }). No React 19 esse setState de abrir o modal fica preso na transição async suspensa que aguarda a Promise do modal — DEADLOCK: o modal não renderiza (update preso na transição) → o usuário não responde → a Promise não resolve → a transição não assenta → renderer trava. O caminho /leads funciona porque usa render condicional SÍNCRONO (stage==='perdido' mostra o combobox no próprio form), sem transição+promise."
+impact: "PERDA-01 (motivo de perda governado) NÃO funciona pela UX primária do pipeline (drag). Só funciona pelo formulário de /leads. Além disso: risco de o admin achar que 'perdeu' um lead (card em Perdido) quando na verdade nada foi salvo, e a aba trava por ~30s."
+fix_direction: "Tirar setMotivoPerdaState({open:true}) de dentro do startTransition async. Padrão: guardar o drag pendente em useState (urgente), abrir o modal com update urgente, e só disparar setOptimisticStage + updateLeadStage numa NOVA transição quando o usuário clicar 'Salvar motivo'. 'Cancelar' apenas fecha o modal (o card nunca chegou a mover). Requer trocar o useOptimistic por um overlay de estado gerenciado à mão para o card pendente, OU mover o card só no save."
 
 ### 6. No combobox de motivo de perda, digitar um nome novo e selecionar 'Criar "..."'
 expected: Linha de ação em teal com ícone +; ao selecionar, cria o motivo e já o deixa selecionado; erro mantém o popup aberto
@@ -70,7 +77,7 @@ issues: 1
 pending: 0
 skipped: 0
 blocked: 0
-notes: "Testes 1/3/4 (rótulo do seletor) fechados pelo quick 260828-flg. Teste 5 (drag → modal) = issue com suspeita de bug real (deadlock startTransition+Promise); precisa de 1 drag manual humano para veredito final."
+notes: "Testes 1/3/4 (rótulo do seletor) fechados pelo quick 260828-flg. Teste 5 (drag → modal Perdido) = BUG CONFIRMADO por automação (drag real + MutationObserver): modal nunca abre, renderer congela ~30s, card encalha em Perdido, nada persiste. Deadlock startTransition(async)+Promise em pipeline-board.tsx. Fecha PERDA-01 só pelo /leads. Precisa de gap-closure antes de fechar a fase."
 
 ## Gaps
 
@@ -84,16 +91,16 @@ notes: "Testes 1/3/4 (rótulo do seletor) fechados pelo quick 260828-flg. Teste 
 
 - truth: "Arrastar um card para a coluna 'Perdido' no /pipeline abre o modal OBRIGATÓRIO de motivo da perda, não-dispensável, com 'Cancelar' revertendo o card"
   status: failed
-  reason: "Automação (sintética + left_click_drag real) reproduziu ~6x: card vai para Perdido de forma otimista, modal 'Mover para Perdido' NUNCA aparece (polling 0–2000ms), sem persistência, card encalhado até reload. Console limpo. 1 contraexemplo circunstancial (lead persistido em perdido+motivo durante os testes) sugere que o modal PODE abrir num drag real bem-formado. Veredito definitivo depende de 1 drag manual humano."
+  reason: "BUG CONFIRMADO via drag real (left_click_drag = eventos de ponteiro do SO) + MutationObserver. Card move para Perdido de forma otimista; renderer do Chrome CONGELA ~30s; modal 'Mover para Perdido' NUNCA é adicionado ao DOM (observer não pegou nada); console limpo; nada persiste (banco intacto); card encalha em Perdido até reload — sem Cancelar/Salvar/reversão."
   severity: major
   test: 5
-  suspected_root_cause: "pipeline-board.tsx handleDragEnd: setMotivoPerdaState({open:true}) chamado DENTRO de startTransition(async () => { ... await new Promise(...) }). Hipótese React 19: o setState fica preso na transição async suspensa que aguarda a Promise do modal — deadlock render↔transição. O caminho /leads funciona por usar render condicional síncrono."
+  root_cause: "pipeline-board.tsx handleDragEnd: setMotivoPerdaState({open:true}) chamado DENTRO de startTransition(async () => { setOptimisticStage(...); await new Promise(resolve => { queue.push({resolve}); setMotivoPerdaState({open:true}) }) }). React 19: o update de abrir o modal fica preso na transição async suspensa que aguarda a Promise — DEADLOCK render↔transição, renderer trava. O caminho /leads funciona por usar render condicional síncrono."
   artifacts:
     - path: "src/components/pipeline-board.tsx"
-      issue: "modal aberto via setState dentro de startTransition(async). Se confirmado: mover o open para fora da transição (update urgente) ou reestruturar o padrão pending-drag."
+      issue: "handleDragEnd: modal aberto via setState dentro de startTransition(async). FIX: tirar o setMotivoPerdaState do bloco async; guardar o drag pendente em useState urgente, abrir o modal com update urgente, disparar setOptimisticStage+updateLeadStage numa NOVA transição só no 'Salvar motivo'. 'Cancelar' só fecha (card nunca moveu). Trocar useOptimistic por overlay de estado manual para o card pendente OU mover o card só no save."
   missing:
-    - "1 verificação humana: arrastar card → Perdido; confirmar modal abre, não fecha por Esc/clique-fora, Cancelar reverte, Salvar persiste"
-    - "Se confirmado: gap-closure em pipeline-board.tsx"
+    - "Gap-closure em pipeline-board.tsx (reestruturar o fluxo drag→Perdido→modal fora da transição async)"
+    - "Re-teste: arrastar card → Perdido; modal abre, não fecha por Esc/clique-fora, Cancelar reverte, Salvar persiste, sem freeze"
 
 ### WARNING 1 — `scripts/verify-motivos-perda-schema.cjs` nunca criado
 (inalterado — ver 11-VERIFICATION.md; candidato a gap-closure ou override documentado)
