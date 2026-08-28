@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: ready_for_uat
-last_updated: "2026-08-27T23:56:23.419Z"
-last_activity: 2026-08-27
+last_updated: "2026-08-28T00:00:00.000Z"
+last_activity: 2026-08-28
 progress:
   total_phases: 8
   completed_phases: 7
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
 Plan: 5 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
-Status: ready_for_uat
-Last activity: 2026-08-27
+Status: ready_for_uat (UAT parcial: 4 pass, 3 issues fechados via quick 260828-flg, 1 item aguarda drag manual)
+Last activity: 2026-08-28 - UAT via navegador + quick 260828-flg (rótulo do seletor)
 
 Progress: [██████████] 100%
 
@@ -226,6 +226,7 @@ Aberto, carregado para o v1.3:
 | 260811-pb1 | Corrigir WR-01 do 09-REVIEW.md: race condition em registerWhatsAppContact — reverificar stage no WHERE atômico da transação em vez de confiar num SELECT pré-transação | 2026-08-11 | 73b43b2 | [260811-pb1-corrigir-wr-01-race-condition-em-registe](./quick/260811-pb1-corrigir-wr-01-race-condition-em-registe/) |
 | 260811-ro5 | Corrigir IN-01 do 09-REVIEW.md: guard de in-flight no botão de excluir nota manual (mesmo padrão de salvandoEdicaoId) | 2026-08-11 | 5798a58 | [260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot](./quick/260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot/) |
 | 260808-h5i | Corrigir warning React 19 em lead-form-dialog.tsx: formAction (useActionState) chamado fora de startTransition — envolvido em startTransition(() => {...}), FormData montado antes a partir do DOM bruto (contrato da Phase 01 preservado). Efeito colateral positivo: botão "Salvando..."/disabled=pending passa a funcionar de verdade. Verificado ao vivo no navegador (warning sumiu do console, botão mostrou "Salvando...") | 2026-08-08 | 1b7dc04 | [260808-h5i-corrigir-warning-react-19-useactionstate](./quick/260808-h5i-corrigir-warning-react-19-useactionstate/) |
+| 260828-flg | Corrigir rótulo do seletor de período em /relatorios: PeriodoSelector passa `items` ao Select (Base UI) para o gatilho fechado exibir "Últimos 30 dias"/"Últimos 90 dias"/"Tudo" em vez do token cru (30d/90d/tudo). Mesmo idioma dos selects canal/origemTipo/stage. Fecha os 3 itens `issue` do UAT da Fase 11 (Testes 1/3/4). tsc limpo, verificado por SSR. | 2026-08-28 | 5ae841b | [260828-flg-corrigir-rotulo-do-seletor-de-periodo](./quick/260828-flg-corrigir-rotulo-do-seletor-de-periodo/) |
 
 ## Deferred Items
 
