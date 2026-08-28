@@ -176,9 +176,20 @@ export function PipelineBoard({
     );
   }
 
+  /** Remove o item da frente da fila + qualquer entrada duplicada do mesmo lead. */
+  function shiftMotivoQueue() {
+    const current = motivoQueueRef.current.shift();
+    if (current) {
+      motivoQueueRef.current = motivoQueueRef.current.filter(
+        (q) => q.leadId !== current.leadId
+      );
+    }
+    return current;
+  }
+
   /** "Salvar motivo": agora sim move o card para "Perdido" e persiste com o motivo. */
   function resolveMotivoPerda(motivoPerdaId: number) {
-    const current = motivoQueueRef.current.shift();
+    const current = shiftMotivoQueue();
     if (current) {
       commitStageChange(current.leadId, "perdido", motivoPerdaId);
     }
@@ -187,7 +198,7 @@ export function PipelineBoard({
 
   /** "Cancelar" / dismiss: descarta o item da fila. O card nunca moveu — nada a reverter. */
   function cancelMotivoPerda() {
-    motivoQueueRef.current.shift();
+    shiftMotivoQueue();
     advanceMotivoQueue();
   }
 
