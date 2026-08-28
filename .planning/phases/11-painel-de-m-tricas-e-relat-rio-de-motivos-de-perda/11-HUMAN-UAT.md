@@ -43,7 +43,8 @@ fixed_by: quick 260828-flg (5ae841b)
 expected: Modal "Mover para Perdido" abre; NÃO tem botão X nem "Pular"; clicar fora / Esc não fecham; "Cancelar" reverte o card à etapa anterior sem persistir; escolher/criar um motivo e "Salvar motivo" persiste
 result: issue
 severity: major
-reported: "BUG CONFIRMADO. Reproduzido com drag REAL (left_click_drag do agente = eventos de ponteiro reais do SO) + MutationObserver instalado observando todo o body por dialog/modal/toast. Ao arrastar um card (dentista_juliaxavier) para 'Perdido':
+fix_status: "CORRIGIDO no quick 260828-gna (fbf7abd) — setMotivoPerdaState saiu de dentro da transição async. Drop para Perdido agora só enfileira o lead + abre o modal com update urgente (sem mover o card). 'Salvar motivo' dispara uma NOVA startTransition normal que move (otimista) + persiste via updateLeadStage. 'Cancelar' só descarta o item da fila (o card nunca moveu). tsc --noEmit limpo; bundle do cliente confirmado com o novo código. RE-TESTE MANUAL DO DRAG AINDA PENDENTE: a captura de tela da extensão de navegador quebrou no meio da sessão (CDP clip.scale + viewport 0x0), impedindo o re-teste ao vivo por coordenadas. Verdict final depende de 1 drag manual humano."
+reported: "BUG CONFIRMADO (antes do fix). Reproduzido com drag REAL (left_click_drag do agente = eventos de ponteiro reais do SO) + MutationObserver instalado observando todo o body por dialog/modal/toast. Ao arrastar um card (dentista_juliaxavier) para 'Perdido':
   1. O card se move para 'Perdido' de forma otimista.
   2. O RENDERER DO CHROME CONGELA por ~30s (CDP screenshot deu timeout 'renderer may be frozen or unresponsive'), depois se recupera.
   3. O modal 'Mover para Perdido' NUNCA é adicionado ao DOM — o MutationObserver não registrou NENHUMA adição de dialog/modal/toast. Nenhum erro no console.
