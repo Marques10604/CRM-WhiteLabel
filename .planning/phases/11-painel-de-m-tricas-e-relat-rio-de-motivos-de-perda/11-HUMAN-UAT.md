@@ -15,9 +15,10 @@ tested_by: Claude (automação de navegador — claude-in-chrome)
 
 ### 1. Render de /relatorios sem ?period
 expected: 3 seções empilhadas em cards brancos com borda; seletor mostra "Últimos 30 dias"; h1 "Relatórios" e seletor na mesma linha
-result: issue
-reported: "Layout OK (3 seções em cards com borda, h1 e seletor na mesma linha). MAS o gatilho fechado do seletor mostra o token cru `30d` em vez do rótulo `Últimos 30 dias`. As opções abertas no dropdown mostram o texto certo (Últimos 30 dias / Últimos 90 dias / Tudo)."
+result: pass
+reported: "Layout OK. Bug do rótulo do seletor (mostrava `30d` cru) CORRIGIDO no quick 260828-flg — agora mostra 'Últimos 30 dias'. Verificado por SSR."
 severity: cosmetic
+fixed_by: quick 260828-flg (5ae841b)
 
 ### 2. Seção "Leads por origem" com dados reais
 expected: DUAS linhas sempre presentes (Inbound com 0 e Outbound); coluna Taxa de conversão mostra "0%" quando total 0, NUNCA "NaN%"; ênfase da taxa por peso da fonte, não por cor
@@ -26,21 +27,25 @@ reported: "Inbound (0) e Outbound (23 no recorte 'tudo') sempre presentes; Taxa 
 
 ### 3. Trocar o seletor de período para "Últimos 90 dias" e depois "Tudo"
 expected: URL vira ?period=90d / ?period=tudo; os números das 3 seções atualizam de forma consistente; a página NÃO rola ao topo (scroll: false)
-result: issue
-reported: "URL vira ?period=90d e ?period=tudo corretamente; os números das 3 seções atualizam de forma consistente (Outbound 1→23, sub-nichos idem); navegação não rola ao topo. MAS o gatilho do seletor passa a mostrar `90d` / `tudo` (token cru) em vez de `Últimos 90 dias` / `Tudo`. Mesmo bug do Teste 1."
+result: pass
+reported: "URL vira ?period=90d e ?period=tudo corretamente; os números das 3 seções atualizam de forma consistente (Outbound 1→23, sub-nichos idem); navegação não rola ao topo. Rótulo do seletor (mostrava `90d`/`tudo` cru) CORRIGIDO no quick 260828-flg."
 severity: cosmetic
+fixed_by: quick 260828-flg (5ae841b)
 
 ### 4. Acessar /relatorios?period=xyz (preset inválido)
 expected: Página carrega normalmente (sem 500), recorte "Tudo" aplicado, seletor mostra "Tudo"
-result: issue
-reported: "Carrega sem 500; recorte 'Tudo' aplicado (23 outbound, mesmos números de ?period=tudo). Seletor mostra `tudo` (token cru) em vez de `Tudo`. Mesmo bug do Teste 1."
+result: pass
+reported: "Carrega sem 500; recorte 'Tudo' aplicado (23 outbound). Seletor mostra 'Tudo' após o fix do quick 260828-flg (SSR verificado: ?period=xyz → gatilho 'Tudo')."
 severity: cosmetic
+fixed_by: quick 260828-flg (5ae841b)
 
 ### 5. No /pipeline, arrastar um lead para a coluna "Perdido"
 expected: Modal "Mover para Perdido" abre; NÃO tem botão X nem "Pular"; clicar fora / Esc não fecham; "Cancelar" reverte o card à etapa anterior sem persistir; escolher/criar um motivo e "Salvar motivo" persiste
-result: blocked
-blocked_by: automation-limitation
-reason: "O gesto de drag-and-drop do dnd-kit não responde de forma confiável a eventos de ponteiro sintéticos nem ao left_click_drag do agente (resultados contraditórios entre tentativas: ora o card se move para 'Perdido' sem abrir o modal, ora nada acontece). A coluna 'Perdido' também fica além da largura de captura de tela do agente, impedindo um drag real por coordenadas. PRECISA DE VALIDAÇÃO HUMANA. NOTA: o caminho equivalente pelo formulário de /leads (mudar Etapa → Perdido) foi testado e FUNCIONA — o campo obrigatório 'Motivo da perda' aparece condicionalmente e bloqueia o salvamento sem motivo. O código de pipeline-board.tsx / motivo-perda-dialog.tsx foi revisado e a lógica do modal obrigatório + fila + reversão otimista está presente e correta."
+result: issue
+blocked_by: needs-human-confirmation
+reported: "SUSPEITA DE BUG REAL, mas não 100% confirmável por automação. Em ~6 tentativas de drag para 'Perdido' (eventos de ponteiro sintéticos + left_click_drag real do agente), o padrão dominante: o card se move para 'Perdido' de forma otimista MAS o modal 'Mover para Perdido' NUNCA aparece (polling de 0 a 2000ms). Sem modal → sem persistência (banco intacto) e sem forma de reverter pela UI: o card fica ENCALHADO em 'Perdido' até dar reload. Console limpo (nenhum erro/warning de transição durante o drag). CONTRAPONTO: durante os testes, um lead (dra.marcellavalladares, id 21) ACABOU persistido em perdido+motivo=2 — o que só é possível se o modal tiver aberto e 'Salvar motivo' tiver sido clicado em ALGUM momento (provável artefato de um left_click_drag cego meu acertando o modal). Artefatos de teste revertidos (ids 17→negociacao, 21→novo). NÃO foi possível dar veredito definitivo pela automação — dnd-kit + eventos sintéticos são notoriamente não-confiáveis. PRECISA de 1 drag manual humano."
+severity: major
+suspected_root_cause: "pipeline-board.tsx: setMotivoPerdaState({open:true}) é chamado DENTRO de startTransition(async () => { ... await new Promise(...) }). Hipótese: no React 19 esse setState fica preso na mesma transição async suspensa que aguarda a Promise do modal — deadlock: o modal não renderiza porque o update está preso na transição, e a transição não assenta porque espera o modal. O caminho /leads funciona porque usa render condicional síncrono (stage==='perdido' mostra o combobox), sem transição+promise."
 
 ### 6. No combobox de motivo de perda, digitar um nome novo e selecionar 'Criar "..."'
 expected: Linha de ação em teal com ícone +; ao selecionar, cria o motivo e já o deixa selecionado; erro mantém o popup aberto
@@ -60,38 +65,35 @@ reported: "Ordem confirmada: Follow-ups, Leads, Importar, Pipeline, Relatórios,
 ## Summary
 
 total: 8
-passed: 4
-issues: 3
+passed: 6
+issues: 1
 pending: 0
 skipped: 0
-blocked: 1
+blocked: 0
+notes: "Testes 1/3/4 (rótulo do seletor) fechados pelo quick 260828-flg. Teste 5 (drag → modal) = issue com suspeita de bug real (deadlock startTransition+Promise); precisa de 1 drag manual humano para veredito final."
 
 ## Gaps
 
 - truth: "O seletor de período mostra o rótulo humano ('Últimos 30 dias' / 'Últimos 90 dias' / 'Tudo') no estado fechado"
-  status: failed
-  reason: "User reported (via automação): o <SelectValue /> do periodo-selector.tsx renderiza o value cru (30d / 90d / tudo) em vez do label do SelectItem correspondente. As opções abertas mostram o texto certo; só o gatilho fechado está errado. Afeta os Testes 1, 3 e 4."
+  status: fixed
+  reason: "<SelectValue /> do periodo-selector.tsx renderizava o value cru. CORRIGIDO no quick 260828-flg (5ae841b): adicionada a prop items ao <Select>, mesmo idioma dos selects canal/origemTipo/stage. Verificado por SSR nos 4 recortes. Afetava Testes 1, 3, 4."
   severity: cosmetic
   test: 1
-  root_cause: "provável: <SelectValue /> em src/components/periodo-selector.tsx (Base UI Select) precisa de render prop / mapa value→label, ou o Select precisa da prop `items`. As OPCOES têm os labels certos (linhas 29-33) mas não chegam ao trigger."
-  artifacts:
-    - path: "src/components/periodo-selector.tsx"
-      issue: "<SelectValue /> sem tradução value→label (linha 53)"
-  missing:
-    - "Fazer o SelectValue exibir OPCOES.find(o => o.value === value)?.label"
+  root_cause: "<Select> do periodo-selector.tsx não passava a prop items — Base UI Select.Value precisa dela para resolver value→label."
+  fixed_by: "quick 260828-flg (5ae841b)"
 
 - truth: "Arrastar um card para a coluna 'Perdido' no /pipeline abre o modal OBRIGATÓRIO de motivo da perda, não-dispensável, com 'Cancelar' revertendo o card"
-  status: blocked
-  reason: "Não verificável por automação de navegador (dnd-kit não responde a eventos sintéticos de forma confiável; coluna Perdido fora da área de captura). Caminho equivalente por /leads (Etapa → Perdido) verificado e funcionando. Código revisado e correto. PRECISA de 1 drag real feito por humano."
+  status: failed
+  reason: "Automação (sintética + left_click_drag real) reproduziu ~6x: card vai para Perdido de forma otimista, modal 'Mover para Perdido' NUNCA aparece (polling 0–2000ms), sem persistência, card encalhado até reload. Console limpo. 1 contraexemplo circunstancial (lead persistido em perdido+motivo durante os testes) sugere que o modal PODE abrir num drag real bem-formado. Veredito definitivo depende de 1 drag manual humano."
   severity: major
   test: 5
+  suspected_root_cause: "pipeline-board.tsx handleDragEnd: setMotivoPerdaState({open:true}) chamado DENTRO de startTransition(async () => { ... await new Promise(...) }). Hipótese React 19: o setState fica preso na transição async suspensa que aguarda a Promise do modal — deadlock render↔transição. O caminho /leads funciona por usar render condicional síncrono."
   artifacts:
     - path: "src/components/pipeline-board.tsx"
-      issue: "não testado ao vivo — lógica presente e revisada (handleDragEnd + fila motivoQueueRef + reversão via useOptimistic)"
-    - path: "src/components/motivo-perda-dialog.tsx"
-      issue: "não testado ao vivo — showCloseButton={false} + onOpenChange interceptado presente"
+      issue: "modal aberto via setState dentro de startTransition(async). Se confirmado: mover o open para fora da transição (update urgente) ou reestruturar o padrão pending-drag."
   missing:
     - "1 verificação humana: arrastar card → Perdido; confirmar modal abre, não fecha por Esc/clique-fora, Cancelar reverte, Salvar persiste"
+    - "Se confirmado: gap-closure em pipeline-board.tsx"
 
 ### WARNING 1 — `scripts/verify-motivos-perda-schema.cjs` nunca criado
 (inalterado — ver 11-VERIFICATION.md; candidato a gap-closure ou override documentado)
