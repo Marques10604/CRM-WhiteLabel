@@ -48,7 +48,11 @@ export function PeriodoSelector({ value }: { value: string }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-[14px] text-muted-foreground">Período:</span>
-      <Select value={value} onValueChange={handleChange}>
+      <Select
+        items={OPCOES as unknown as { value: string; label: string }[]}
+        value={value}
+        onValueChange={handleChange}
+      >
         <SelectTrigger className={ACCENT_FOCUS_RING}>
           <SelectValue />
         </SelectTrigger>
