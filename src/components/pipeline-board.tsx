@@ -151,17 +151,18 @@ export function PipelineBoard({
     if (!newStage) return; // soltou fora de qualquer coluna — no-op
 
     const lead = optimisticLeads.find((l) => l.id === leadId);
-    if (lead && lead.stage === newStage) return; // soltou na própria coluna — no-op
+    if (!lead) return; // lead não encontrado (id inválido) — ignora
+    if (lead.stage === newStage) return; // soltou na própria coluna — no-op
 
     if (newStage === "perdido") {
       // Modal OBRIGATÓRIO (D-04). NÃO move o card e NÃO entra numa transição
       // async: só enfileira o lead (CR-02, dedupe por id) e abre o modal com
       // update urgente. O card só se move em `resolveMotivoPerda` ("Salvar").
       if (!motivoQueueRef.current.some((q) => q.leadId === leadId)) {
-        motivoQueueRef.current.push({ leadId, leadNome: lead?.nome ?? "" });
+        motivoQueueRef.current.push({ leadId, leadNome: lead.nome });
       }
       const head = motivoQueueRef.current[0];
-      setMotivoPerdaState({ open: true, leadNome: head?.leadNome ?? "" });
+      setMotivoPerdaState({ open: true, leadNome: head?.leadNome ?? lead.nome });
       return;
     }
 

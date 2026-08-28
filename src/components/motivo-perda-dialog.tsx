@@ -49,11 +49,20 @@ export function MotivoPerdaDialog({
   return (
     <Dialog
       open={open}
-      onOpenChange={(next: boolean, eventDetails?: { cancel: () => void }) => {
+      onOpenChange={(
+        next: boolean,
+        eventDetails?: { reason?: string; cancel: () => void }
+      ) => {
         if (!next) {
-          // Clique fora / Esc: bloqueia o fechamento. Só "Cancelar" (que
-          // reverte o drag) ou "Salvar motivo" fecham o modal.
-          eventDetails?.cancel();
+          // Bloqueia SÓ o dismiss por gesto (Esc / clique fora). Um
+          // `eventDetails.cancel()` incondicional dessincroniza o Base UI
+          // quando o pai fecha o modal via prop `open` (reason "none") —
+          // o modal fica preso aberto. "Cancelar"/"Salvar motivo" fecham
+          // mudando o estado no pai (onCancel/onSave), não por aqui.
+          const reason = eventDetails?.reason;
+          if (reason === "escape-key" || reason === "outside-press") {
+            eventDetails?.cancel();
+          }
           return;
         }
         onOpenChange(next);
