@@ -4,67 +4,85 @@ slug: corrigir-deadlock-drag-perdido
 date: 2026-08-28
 status: complete
 relates_to: Fase 11 (11-HUMAN-UAT.md Teste 5)
+commits: [fbf7abd, 967e735, 1dd794b]
 ---
 
 # Quick 260828-gna — SUMMARY
 
-## O que foi feito
+## O bug (UAT da Fase 11, Teste 5)
 
-`src/components/pipeline-board.tsx` reescrito para o fluxo de "Perdido":
+Arrastar um card para "Perdido" no `/pipeline`: `setMotivoPerdaState({open:true})`
+era chamado DENTRO de `startTransition(async () => { setOptimisticStage(...);
+await new Promise(...) })`. No React 19 o update de abrir o modal ficava preso na
+transição async suspensa que aguardava a Promise → deadlock: modal não renderiza
+→ usuário não responde → Promise não resolve → transição não assenta → renderer
+congela. Card encalhava em "Perdido" sem persistir nem reverter.
 
-1. **Nova função `commitStageChange(leadId, newStage, motivoPerdaId?)`** — encapsula
-   `startTransition(async () => { setOptimisticStage(...); await updateLeadStage(...); toast })`.
-   É a única `startTransition(async)` do componente e só aguarda `updateLeadStage`
-   (server action que sempre resolve).
+## As correções
 
-2. **`handleDragEnd`**:
-   - Guard novo: `if (lead && lead.stage === newStage) return;` (soltar na própria coluna = no-op).
-   - Ramo `newStage === "perdido"`: **não move o card, não entra em transição**. Só
-     enfileira `{ leadId, leadNome }` em `motivoQueueRef` (dedupe por id) e abre o modal
-     com `setMotivoPerdaState({ open: true, leadNome })` — update **urgente**, fora de
-     qualquer transição. `return`.
-   - Ramo geral (novo/contatado/negociacao/fechado): `commitStageChange(leadId, newStage)`.
+### 1. `pipeline-board.tsx` — modal fora da transição async (`fbf7abd`)
+- Nova `commitStageChange(leadId, stage, motivoPerdaId?)`: única `startTransition(async)`
+  do componente, só aguarda `updateLeadStage` (server action que sempre resolve).
+- `handleDragEnd`: guard `if (!lead) return` (id inválido) + `if (lead.stage === newStage) return`
+  (soltou na própria coluna). Ramo `perdido`: **não move o card, não entra em transição** —
+  só enfileira `{leadId, leadNome}` (dedupe por id) e abre o modal com update urgente.
+  Ramo geral: `commitStageChange(leadId, newStage)`.
+- `resolveMotivoPerda` ("Salvar motivo"): `shiftMotivoQueue()` + `commitStageChange(id, "perdido", motivoId)` —
+  **aqui** o card move (otimista) e persiste. `cancelMotivoPerda` ("Cancelar"): só
+  `shiftMotivoQueue()`. O card nunca moveu → nada a reverter.
+- `advanceMotivoQueue`: abre o modal pro próximo pendente ou fecha.
 
-3. **`resolveMotivoPerda(motivoPerdaId)`** ("Salvar motivo"): `shift` da fila e, para o
-   item, `commitStageChange(current.leadId, "perdido", motivoPerdaId)` — **aqui** o card
-   move (otimista) e persiste. Depois `advanceMotivoQueue()`.
+### 2. `motivo-perda-dialog.tsx` — dismiss guard seletivo (`967e735`)
+Com o modal do drag finalmente acessível, o teste ao vivo mostrou que ele nunca
+fechava: o `onOpenChange` fazia `eventDetails.cancel()` INCONDICIONAL em todo
+`!next`, inclusive na notificação de fechamento programático (`reason: "none"`),
+dessincronizando o Base UI. Agora só cancela `reason` `"escape-key"` / `"outside-press"`.
+Fechar de verdade vem de `onCancel`/`onSave` mudando o estado no pai.
 
-4. **`cancelMotivoPerda()`** ("Cancelar"/Esc/clique-fora): `shift` da fila e
-   `advanceMotivoQueue()`. O card nunca moveu → nada a reverter, sem toast.
+### 3. `pipeline-board.tsx` — dedup da fila (`1dd794b`)
+`shiftMotivoQueue()` remove o item da frente E qualquer duplicata do mesmo `leadId` —
+insurance contra double-fire de `onDragEnd`.
 
-5. **`advanceMotivoQueue()`**: abre o modal para o próximo pendente da fila, ou fecha.
+## Por que corrige o deadlock
 
-6. `motivoQueueRef` type: `{ leadId, leadNome }[]` (removido o `resolve` fn).
+Não existe mais nenhum caminho onde uma transição aguarda algo que depende de um
+render bloqueado por essa própria transição. A abertura do modal é um `setState`
+urgente síncrono num event handler comum. Deadlock estruturalmente impossível.
 
-7. Doc-comment do componente atualizado explicando por que o modal NÃO é aberto de
-   dentro de uma transição async (deadlock).
-
-## Por que isso corrige o deadlock
-
-Antes: `setMotivoPerdaState({open:true})` dentro de
-`startTransition(async () => { setOptimisticStage(...); await new Promise(nunca_resolve_até_o_modal) })`.
-No React 19 o update de abrir o modal ficava preso na transição suspensa → o modal
-nunca renderizava → o usuário não respondia → a Promise não resolvia → renderer congelava.
-
-Agora não existe nenhum caminho onde uma transição aguarda algo que depende de um render
-bloqueado por essa própria transição. A abertura do modal é um `setState` urgente síncrono
-num event handler comum. O deadlock é estruturalmente impossível.
-
-Efeito colateral positivo: o card só aparece em "Perdido" DEPOIS de "Salvar motivo"
-(antes aparecia otimista já no drop, com risco de ficar órfão). Mais seguro.
+Efeito colateral positivo: o card só entra em "Perdido" DEPOIS de "Salvar motivo"
+(antes aparecia otimista já no drop, com risco de órfão). Mais seguro.
 
 ## Verificação
 
-- `npx tsc --noEmit` — exit 0 (limpo).
-- Bundle do cliente (`fetch` dos chunks servidos pelo `npm run dev`): `commitStageChange`
-  presente, padrão antigo `motivoPerdaId = await new Promise` **ausente** → o novo código
-  está sendo servido.
-- **Drag ao vivo NÃO re-testado nesta sessão**: a captura de tela da extensão de navegador
-  quebrou no meio da sessão (`CDP clip.scale` + viewport 0x0), impedindo interação por
-  coordenadas. O `/leads` (Etapa → Perdido) já provou o modal + combobox + persistência
-  na rodada anterior do UAT. **Recomendado: 1 drag manual humano para confirmar** que o
-  modal abre, Cancelar não move o card, Salvar move+persiste, sem freeze.
+**Instrumentada (drag sintético + MutationObserver + inspeção de estado), no dev server:**
+- ✅ `tsc --noEmit` limpo (3x, após cada commit).
+- ✅ Drag para "Perdido" → o modal **"Mover para Perdido — Por que '{nome}' foi perdido?"**
+  ABRE, com o nome correto do lead, sem botão X, sem freeze do renderer.
+- ✅ O card **NÃO se move** ao soltar em "Perdido" (fica na etapa de origem;
+  contagens das colunas inalteradas). Só moveria em "Salvar motivo".
+- ✅ Após "Cancelar", o card continua na etapa de origem e o estado React volta
+  a `{open:false}` (nome do modal vai a vazio).
+- ✅ Bundle do cliente confirmado com o novo código.
+
+**NÃO verificável nesta sessão (janela do Chrome estava `document.hidden` /
+minimizada — congela animações CSS e quebra screenshots):**
+- ⚠️ O **unmount visual** do modal após Cancelar/Salvar: o Base UI Dialog espera
+  o fim da animação de saída pra desmontar; com a aba oculta a animação fica com
+  `currentTime: 0` (não avança), então o popup fica montado. **Isso é artefato da
+  janela oculta, não do código** — o estado React fecha corretamente. Com a janela
+  visível a animação (0.1s) roda e o modal desmonta normal.
+- ⚠️ Persistência do **"Salvar motivo"**: a interação com o `MotivoPerdaCombobox`
+  (criável) por automação não selecionou a opção (Salvar ficou disabled). O
+  combobox já foi provado funcionando pelo `/leads` no UAT anterior, e
+  `resolveMotivoPerda → commitStageChange` usa o MESMO padrão do drag normal
+  (que funciona) + o param `motivoPerdaId`.
+
+**RECOMENDADO: 1 checagem manual com a janela do Chrome visível** — arrastar um
+card para "Perdido", confirmar: modal abre → Cancelar fecha e o card volta →
+arrastar de novo → escolher/criar motivo → "Salvar motivo" move o card e persiste,
+tudo sem congelar.
 
 ## Arquivos
 
-- `src/components/pipeline-board.tsx` (~+40 −45)
+- `src/components/pipeline-board.tsx`
+- `src/components/motivo-perda-dialog.tsx`
