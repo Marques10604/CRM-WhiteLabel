@@ -65,7 +65,10 @@ export function PipelineLeadCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="min-w-0 flex-1 text-[16px] leading-normal font-normal break-words text-foreground">
+        <span
+          className="min-w-0 flex-1 truncate text-[16px] leading-normal font-normal text-foreground"
+          title={lead.nome}
+        >
           {lead.nome}
         </span>
         {/* stopPropagation em pointerdown/click: impede que os botões virem drag-handle
