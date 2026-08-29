@@ -13,8 +13,10 @@ type PipelineColumnProps = {
 
 /**
  * Coluna do board (D-11/D-14/D-15) — cabeçalho fixo (`sticky top-0`) com
- * "{label} · {count}" (apenas contagem, sem soma de valor). Largura mínima
- * de 288px, nunca encolhe (`shrink-0`) — o board pai rola horizontalmente.
+ * "{label} · {count}" (apenas contagem, sem soma de valor). `flex-1` faz as
+ * 5 colunas dividirem a largura disponível e caberem juntas na tela; abaixo
+ * de `min-w-[200px]` por coluna o `overflow-x-auto` do board pai volta a
+ * rolar horizontalmente (fallback para telas estreitas).
  * Estado vazio: texto muted, sem CTA (diferente da lista, D-13/01-CONTEXT).
  * `useDroppable` (id = stage) torna a coluna um alvo de drop (03-03).
  */
@@ -26,7 +28,7 @@ export function PipelineColumn({ stage, label, count, children }: PipelineColumn
     <div
       ref={setNodeRef}
       className={cn(
-        "flex min-w-[288px] shrink-0 flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2 transition-colors",
+        "flex min-w-[200px] flex-1 flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2 transition-colors",
         isOver ? "bg-[#E4E4E7]" : null
       )}
     >

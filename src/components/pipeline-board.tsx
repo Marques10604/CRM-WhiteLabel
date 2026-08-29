@@ -214,7 +214,7 @@ export function PipelineBoard({
       </div>
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="flex gap-6 overflow-x-auto pb-8">
+        <div className="flex gap-3 overflow-x-auto pb-8">
           {STAGE_OPTIONS.map((option) => {
             const columnLeads = leadsByStage.get(option.value) ?? [];
             return (

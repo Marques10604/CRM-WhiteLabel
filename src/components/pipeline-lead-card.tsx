@@ -65,7 +65,7 @@ export function PipelineLeadCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[16px] leading-normal font-normal text-foreground">
+        <span className="min-w-0 flex-1 text-[16px] leading-normal font-normal break-words text-foreground">
           {lead.nome}
         </span>
         {/* stopPropagation em pointerdown/click: impede que os botões virem drag-handle
@@ -95,7 +95,7 @@ export function PipelineLeadCard({
       <span className="text-[14px] leading-normal text-muted-foreground">
         {subnichoNome}
       </span>
-      <div className="flex items-center gap-1 text-[14px] leading-normal text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] leading-normal text-muted-foreground">
         <span>{format(lead.followUpDate, "dd/MM/yyyy")}</span>
         {isEsfriando ? (
           <span className="flex items-center gap-1 text-[#B45309]">
