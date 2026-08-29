@@ -261,9 +261,20 @@ Plans:
 **Plans**: 4 plans (4 ondas sequenciais)
 
 Plans:
+**Wave 1**
+
 - [ ] 12-01-PLAN.md — Tabela `tarefas` (sem FK, sem `deletedAt`), migração manual [BLOCKING] via better-sqlite3, tipos, `tarefaSchema` e os gates `verify:schema` / `guard:no-hard-delete` (exceção D-08)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 12-02-PLAN.md — 4 Server Actions de tarefa (criar/editar/concluir/excluir em hard-delete), `groupByUrgency<T>` genérica + `getTarefasPendentes` + `buildDashboardItems`, com 2 harnesses automatizados
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 12-03-PLAN.md — Componentes: `DeleteTarefaDialog`, `TarefaFormDialog` (2 campos, Calendar, toast com Desfazer) e `TarefaCard` enxuto com botão-ícone de concluir
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 12-04-PLAN.md — Integração no dashboard `/`: intercalação lead+tarefa por data, botão "Nova tarefa", estado vazio atualizado + suíte completa de gates e UAT ponta a ponta
 
 **UI hint**: yes
