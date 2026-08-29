@@ -213,3 +213,30 @@ export const sequenciaIntervalosSchema = z
 export const configuracoesServerSchema = configuracoesSchema.extend({
   sequenciaIntervalosDias: sequenciaIntervalosSchema,
 });
+
+/**
+ * Contrato da agenda de tarefas soltas (TAREFA-01, Fase 12) — espelho de
+ * `motivoPerdaSchema`/`subnichoSchema`. Só 2 campos (D-06): `descricao` (serve
+ * de título — sem título separado) e `data` (só o dia — sem hora, o
+ * agrupamento de urgência do dashboard é por dia).
+ *
+ * `data` usa `z.coerce.date()` (não `z.date()`) porque o valor chega como
+ * string ISO do `<input type="hidden">` do date-picker — mesmo idioma de
+ * `leadBaseSchema.followUpDate`.
+ *
+ * Mensagens de erro VERBATIM do 12-UI-SPEC.md §Copywriting Contract.
+ */
+export const tarefaSchema = z.object({
+  descricao: z.string().trim().min(1, "Descreva a tarefa."),
+  data: z.coerce.date({ error: "Escolha uma data." }),
+});
+
+/**
+ * `.extend` sobre o schema base (nunca cópia paralela de campos — mesma regra
+ * DRY de `interacaoManualSchema`). Consumido por `updateTarefa`.
+ */
+export const tarefaUpdateSchema = tarefaSchema.extend({
+  id: z.coerce.number().int().positive(),
+});
+
+export type TarefaFormValues = z.input<typeof tarefaSchema>;

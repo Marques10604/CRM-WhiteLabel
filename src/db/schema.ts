@@ -136,6 +136,44 @@ export const interacoes = sqliteTable(
 );
 
 /**
+ * Agenda de tarefas soltas (TAREFA-01/02, Fase 12) — tabela DESACOPLADA de
+ * `leads` por design: TAREFA-01 pede registrar um compromisso/lembrete que
+ * NÃO está amarrado a nenhum lead ("ligar pro cowork sobre o CSV de agosto").
+ * Por isso: SEM FK, SEM `references(...)`.
+ *
+ * `concluidaEm` NULL = pendente (D-01). É o filtro que alimenta as 3 seções
+ * de urgência do dashboard (`WHERE concluida_em IS NULL`, D-02) — mesmo idioma
+ * "timestamp nullable, sem default" de `interacoes.updatedAt` e
+ * `leads.stageChangedAt`. Tarefa concluída some do dashboard na hora.
+ *
+ * Exclusão de tarefa é HARD-DELETE por D-08 (tarefa é descartável por
+ * natureza — lembrete cumprido ou cancelado): NÃO existe `deletedAt`, NÃO há
+ * Lixeira. `src/actions/tarefa-actions.ts` é a ÚNICA exceção documentada em
+ * `scripts/guard-no-hard-delete.cjs` (ALLOWLIST), a única superfície do
+ * projeto onde `DELETE FROM` / `.delete()` é permitido.
+ *
+ * A migração vive em `scripts/migrate-tarefas.cjs` (manual, idempotente, via
+ * better-sqlite3) — NUNCA `drizzle-kit push`/`generate`: o snapshot do
+ * drizzle-kit está divergente do banco real desde a Fase 4 (dois incidentes
+ * destrutivos, Fases 06-01/07-01).
+ */
+export const tarefas = sqliteTable(
+  "tarefas",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    descricao: text("descricao").notNull(), // serve de título (D-06)
+    data: integer("data", { mode: "timestamp" }).notNull(), // só o dia, sem hora (D-06)
+    concluidaEm: integer("concluida_em", { mode: "timestamp" }), // nullable, SEM default — NULL = pendente (D-01)
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("tarefas_concluida_em_idx").on(table.concluidaEm),
+    index("tarefas_data_idx").on(table.data),
+  ]
+);
+
+/**
  * Tabela singleton (CONFIG-01/CONFIG-02) — sempre uma única linha, `id` fixo
  * = 1, nunca autoIncrement. A invariante "uma linha" é garantida em código
  * de aplicação (getConfiguracoes/saveConfiguracoes), mesmo precedente de
