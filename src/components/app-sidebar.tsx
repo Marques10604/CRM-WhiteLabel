@@ -8,8 +8,10 @@ import {
   Users,
   Upload,
   Kanban,
+  BarChart3,
   MessageSquare,
   Tag,
+  ListX,
   Trash2,
   Settings,
 } from "lucide-react";
@@ -19,8 +21,10 @@ const NAV_ITEMS = [
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/importar", label: "Importar", icon: Upload },
   { href: "/pipeline", label: "Pipeline", icon: Kanban },
+  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/templates", label: "Templates", icon: MessageSquare },
   { href: "/subnichos", label: "Sub-nichos", icon: Tag },
+  { href: "/motivos-perda", label: "Motivos de Perda", icon: ListX },
   { href: "/lixeira", label: "Lixeira", icon: Trash2 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;

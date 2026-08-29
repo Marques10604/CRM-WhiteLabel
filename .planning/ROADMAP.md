@@ -41,8 +41,8 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 
 - [x] **Phase 8: Origem Governada + Separação Inbound × Outbound** - Cada lead ganha um campo dedicado (`origemTipo`) para classificação Inbound/Outbound, com backfill explícito dos leads existentes, sem depender do texto livre de `origem` (completed 2026-08-07)
 - [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
-- [ ] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação
-- [ ] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo
+- [x] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação (completed 2026-08-13)
+- [x] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo (completed 2026-08-27)
 - [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
 
 ## Phase Details
@@ -193,7 +193,21 @@ Plans:
   3. Um lead classificado como Inbound (Phase 8) nunca recebe essa sugestão automática de próxima data de reabordagem — a automação de reabordagem fria não roda sobre lead que já chegou "quente"
   4. Templates de mensagem de reforço de valor/prova social ficam disponíveis para o admin usar ao reabordar um lead que está na sequência
 
-**Plans**: TBD
+**Plans:** 4/4 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 10-01-PLAN.md — Colunas `leads.sequenciaPosicao` e `configuracoes.sequenciaIntervalosDias` + contratos Zod + migração manual [BLOCKING] via better-sqlite3 + cálculo puro `computeSequenciaSugestao` com os gates ORIGEM-03/D-09/D-10
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 10-02-PLAN.md — Avanço automático da posição em `registerWhatsAppContact` (template follow_up) e reset ao voltar para "Novo", com guarda de regressão `verify:sequencia`
+- [x] 10-03-PLAN.md — Seção "Sequência de reabordagem" em `/configuracoes` com lista dinâmica de intervalos + `saveConfiguracoes` lendo N valores via `formData.getAll`
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 10-04-PLAN.md — Indicador "Sugestão: dd/MM" no dashboard e no card do pipeline (cálculo server-side) + gates finais e verificação humana ponta a ponta
 
 **UI hint**: yes
 
@@ -208,7 +222,28 @@ Plans:
   2. Admin visualiza, na mesma tela, a contagem de leads agrupados por sub-nicho
   3. Admin visualiza a contagem de leads perdidos agrupada por motivo de perda (`motivoPerda`), com o campo normalizado/governado o suficiente para não fragmentar o relatório em variações de texto livre equivalentes
 
-**Plans**: TBD
+**Plans:** 5/5 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 11-01-PLAN.md — Tabela `motivos_perda` + FK `leads.motivoPerdaId` + tipos/contrato Zod base, migração manual [BLOCKING] via better-sqlite3 com seed dos 6 motivos de D-02, guard e gates de schema estendidos
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 11-02-PLAN.md — Server Actions de CRUD governado (criar/renomear/soft-delete com reativação-por-nome) e tela `/motivos-perda` espelhando `/subnichos`, com item novo no menu lateral
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 11-03-PLAN.md — Captura obrigatória do motivo (D-04) nas duas superfícies: `MotivoPerdaCombobox` com criação-na-hora (D-03), contratos Zod condicionais, servidor autoritativo e modal de drag com Cancelar que reverte
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 11-04-PLAN.md — Três agregações SQL `GROUP BY` (origem/sub-nicho/motivo) com os filtros de período de D-09 e D-11, mais as funções puras `resolvePeriodRange`/`computeTaxaConversao`/`buildLinhasOrigem` e o gate `test:relatorios`
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 11-05-PLAN.md — Tela `/relatorios` com as 3 seções empilhadas, seletor de período por querystring, item novo no menu lateral e suíte completa de gates + verificação humana ponta a ponta
 
 **UI hint**: yes
 
@@ -243,6 +278,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Configuração de Dias-Parado por Etapa | v1.2 | 2/2 | Complete   | 2026-07-31 |
 | 8. Origem Governada + Separação Inbound × Outbound | v1.3 | 3/3 | Complete   | 2026-08-07 |
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
-| 10. Sequência de Follow-up Escalonada | v1.3 | 0/TBD | Not started | - |
-| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 0/TBD | Not started | - |
+| 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
+| 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
 | 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |

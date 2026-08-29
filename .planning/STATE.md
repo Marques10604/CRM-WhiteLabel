@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: "Phase 9 shipped — PR #1"
-stopped_at: Completed 09-04-PLAN.md (final plan of Phase 09)
-last_updated: "2026-08-11T21:06:48.754Z"
-last_activity: 2026-08-11
+status: ready_to_plan
+last_updated: 2026-08-29T00:00:00.000Z
+last_activity: 2026-08-29
 progress:
   total_phases: 8
-  completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
-  percent: 63
+  completed_phases: 7
+  total_plans: 22
+  completed_plans: 37
+  percent: 88
+stopped_at: Fases 10 e 11 fechadas e shipadas — PR #2 (aguarda merge). Próximo: discutir Fase 12 (agenda / tarefas soltas)
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 09 — timeline-de-intera-es
+**Current focus:** Phase 12 — agenda / tarefas soltas
 
 ## Current Position
 
-Phase: 09 (timeline-de-intera-es) — EXECUTING
-Plan: 4 of 4
-Status: Phase 9 shipped — PR #1
-Last activity: 2026-08-11 - Completed quick task 260811-ro5: Corrigir IN-01 (guard de in-flight no botão de excluir nota manual)
+Phase: 12
+Plan: Not started
+Status: Ready to plan — Fases 10-11 shipadas no PR #2 (https://github.com/Marques10604/CRM-WhiteLabel/pull/2), aguarda merge
+Last activity: 2026-08-29
 
 Progress: [██████████] 100%
 
@@ -36,7 +36,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 8
+- Total plans completed: 13
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -47,6 +47,7 @@ Progress: [██████████] 100%
 | 03 | 4 | - | - |
 | 05 | 2 | - | - |
 | 06 | 2 | - | - |
+| 11 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -75,6 +76,14 @@ Progress: [██████████] 100%
 | Phase 09-timeline-de-intera-es P02 | 8min | 2 tasks | 4 files |
 | Phase 09 P03 | 15min | 3 tasks | 2 files |
 | Phase 09 P04 | ~15min | 3 tasks | 6 files |
+| Phase 10 P01 | 10min | 3 tasks | 6 files |
+| Phase 10 P02 | 10min | 3 tasks | 3 files |
+| Phase 10 P03 | 12min | 2 tasks | 2 files |
+| Phase 10 P04 | 55min | 3 tasks | 5 files |
+| Phase 11 P02 | 30min | 2 tasks | 9 files |
+| Phase 11 P03 | 45min | 3 tasks | 15 files |
+| Phase 11 P04 | ~25min | 3 tasks | 3 files |
+| Phase 11 P05 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -141,6 +150,24 @@ Recent decisions affecting current work:
 - [Phase 09-03]: DeleteNotaDialog renderizado como irmao do Dialog da timeline (fragment no retorno do componente), nao aninhado dentro do DialogContent - segue instrucao literal do plano e precedente de lead-table.tsx
 - [Phase 09-04]: Icone History sempre inserido DENTRO de wrappers de stopPropagation ja existentes (lead-table.tsx linha inteira, pipeline-lead-card.tsx wrapper do WhatsAppSendButton), nunca em um novo wrapper irmao
 - [Phase 09-04]: eslint-disable-next-line react-hooks/set-state-in-effect adicionado em whatsapp-preview-dialog.tsx (setTipo dentro do efeito de reset) para destravar o gate eslint escopado da Task 3 — mesmo padrao ja aceito no projeto (STATE.md decisao 07-02), ja aplicado em lead-timeline-dialog.tsx (09-03) para o mesmo falso-positivo do React Compiler
+- [Phase 10-01]: D-11: semente de configuracoes.sequenciaIntervalosDias e [4,10,20], nao [] - lista vazia bloquearia o salvamento dos 3 campos de dias-parado ja existentes por causa da validacao min(1) do 10-UI-SPEC.md
+- [Phase 10-01]: D-12: reset de sequenciaPosicao para 0 ao voltar para stage=novo vale tanto para updateLeadStage quanto para updateLead (implementado no plano 10-02); motivoPerda ja segue esse padrao hoje
+- [Phase 10-01]: computeSequenciaSugestao ganhou um 4o gate (stage terminal) alem dos 3 esbocados em 10-RESEARCH.md, exigido pelo 10-UI-SPEC.md - amplitude deliberada, nao divergencia acidental
+- [Phase ?]: [Phase 10-02]: avancaSequencia em registerWhatsAppContact e independente de advanced - so follow_up avanca sequenciaPosicao, primeiro_contato/prova_valor nunca alteram
+- [Phase ?]: [Phase 10-02]: reset de sequenciaPosicao usa idioma condicional-por-valor-alvo (stage===novo), nao condicional-por-mudanca - aplicado em updateLead e updateLeadStage
+- [Phase ?]: [Phase 10-02]: guardas .cjs em :memory: que testam SQL de leads devem usar ids unicos por cenario (freshLead), nunca DELETE FROM leads - guard-no-hard-delete.cjs faz match de linha e nao distingue producao de teste, nem codigo de comentario
+- [Phase 10-03]: saveConfiguracoes le a lista dinamica via formData.getAll (nao mais Object.fromEntries), configuracoesServerSchema como contrato autoritativo
+- [Phase 10-03]: Ids de linha da lista dinamica: indice do array na carga inicial, contador em useRef (seeded pelo tamanho inicial) para linhas novas, so lido/escrito em event handlers para evitar falso-positivo react-hooks/refs do React Compiler
+- [Phase 10-04]: Gate de build (npm run build) documentado como pendencia de infraestrutura (host 4GB RAM), nao defeito de codigo - npx tsc --noEmit isolado passou limpo 2x, 9/10 gates automatizados verdes
+- [Phase 11-02]: createMotivoPerda/renameMotivoPerda/softDeleteMotivoPerda devolvem shape homogêneo { success: true; id }; rename/softDelete ecoam o id recebido, só o combobox criável de 11-03 consome o id
+- [Phase 11-02]: harnesses de teste ganham stub no-op de next/cache (scripts/test-support/) para asserir o retorno de Server Actions fora do runtime do Next; molde test-lead-actions.cjs só tolerava o throw de revalidatePath
+- [Phase 11-02]: revalidatePath('/relatorios') ja disparado por todas as mutacoes de motivo antes da rota existir (no-op seguro) para nao reabrir motivo-perda-actions.ts no plano 11-05
+- [Phase ?]: [Phase 11-03]: leadSchema = leadBaseSchema (objeto puro) + .refine condicional D-04; mensagem verbatim compartilhada com stageUpdateSchema; motivoPerdaId usa z.preprocess('' -> undefined) porque o input oculto do combobox emite string vazia
+- [Phase ?]: [Phase 11-03]: motivoPerdaExists tambem em updateLeadStage (T-11-13, sem try/catch de FK ali); prop motivosPerda threadada pelas 4 superficies do LeadFormDialog
+- [Phase ?]: [Phase 11-04]: getContagemPorMotivoPerda tipa retorno como motivoPerdaId number|null — Drizzle nao estreita coluna da tabela-base em innerJoin; tipagem honesta em vez de assercao
+- [Phase ?]: [Phase 11-04]: teste de integracao de query monta schema por DDL cru em os.tmpdir() (so as 3 tabelas + colunas que as queries tocam), nao replay das migrations
+- [Phase ?]: [Phase 11-05]: PeriodoSelector recebe value já normalizado pela página; servidor decide default (30d ausente) e fallback (tudo inválido), cliente é só o router.push
+- [Phase ?]: [Phase 11-05]: gate verify:motivos-perda-schema do PLAN.md não existe — Onda 1 estendeu verify-schema.cjs; cobertura dentro de verify:schema
 
 ### Pending Todos
 
@@ -175,6 +202,17 @@ Aberto, carregado para o v1.3:
 - Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
 - Phase 10: reset de `sequenciaPosicao` (ao fechar/perder lead vs. voltar para "novo") é decisão de produto em aberto — resolver em `/gsd-discuss-phase` da própria Phase 10, não travar em pesquisa adicional.
 - Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
+- Fase 10 (10-04): npm run build sem confirmacao de exit 0 nesta sessao - host 4GB RAM esgota memoria na fase Running TypeScript do next build mesmo com dev server parado (3 tentativas, incluindo heap ampliado); npx tsc --noEmit isolado passou limpo. Rodar npm run build numa maquina com mais RAM antes de deploy/publicacao. Human-check de 10 passos da Fase 10 tambem pendente (sem navegador nesta sessao).
+
+### Direção de infraestrutura / operação (definida 2026-08-27)
+
+**Plano:** CRM + o produto novo "Prospector Inteligente AI" (topo de funil, pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI`) rodam num **VPS único** quando prontos.
+
+- Motivo principal é do Prospector (precisa rodar 24/7; WhatsApp não-oficial não roda serverless), o CRM pega carona.
+- **Resolve o Gap 4** (impasse "CRM local × prospecção pública") que trava a todo `Conectar captura de leads da prospecção ao CRM` — com os dois no mesmo VPS o handoff vira export/import de CSV (o CRM já importa CSV) ou API interna.
+- **Ordem:** Prospector sobe primeiro; CRM migra depois, sem pressa. Nenhuma ação necessária no v1.3 do CRM agora.
+- Ao migrar o CRM: ativar gate de senha no middleware (já previsto no `CLAUDE.md`, "Stack Patterns by Variant"), Litestream do `data/crm.db` pra backup, Caddy/Coolify pra HTTPS. Continua SQLite; Postgres só quando houver multi-tenant real.
+- Detalhes completos: `IDEIA.md` seção 6 na pasta do Prospector.
 
 ### Quick Tasks Completed
 
@@ -190,6 +228,10 @@ Aberto, carregado para o v1.3:
 | 260811-pb1 | Corrigir WR-01 do 09-REVIEW.md: race condition em registerWhatsAppContact — reverificar stage no WHERE atômico da transação em vez de confiar num SELECT pré-transação | 2026-08-11 | 73b43b2 | [260811-pb1-corrigir-wr-01-race-condition-em-registe](./quick/260811-pb1-corrigir-wr-01-race-condition-em-registe/) |
 | 260811-ro5 | Corrigir IN-01 do 09-REVIEW.md: guard de in-flight no botão de excluir nota manual (mesmo padrão de salvandoEdicaoId) | 2026-08-11 | 5798a58 | [260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot](./quick/260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot/) |
 | 260808-h5i | Corrigir warning React 19 em lead-form-dialog.tsx: formAction (useActionState) chamado fora de startTransition — envolvido em startTransition(() => {...}), FormData montado antes a partir do DOM bruto (contrato da Phase 01 preservado). Efeito colateral positivo: botão "Salvando..."/disabled=pending passa a funcionar de verdade. Verificado ao vivo no navegador (warning sumiu do console, botão mostrou "Salvando...") | 2026-08-08 | 1b7dc04 | [260808-h5i-corrigir-warning-react-19-useactionstate](./quick/260808-h5i-corrigir-warning-react-19-useactionstate/) |
+| 260828-flg | Corrigir rótulo do seletor de período em /relatorios: PeriodoSelector passa `items` ao Select (Base UI) para o gatilho fechado exibir "Últimos 30 dias"/"Últimos 90 dias"/"Tudo" em vez do token cru (30d/90d/tudo). Mesmo idioma dos selects canal/origemTipo/stage. Fecha os 3 itens `issue` do UAT da Fase 11 (Testes 1/3/4). tsc limpo, verificado por SSR. | 2026-08-28 | 5ae841b | [260828-flg-corrigir-rotulo-do-seletor-de-periodo](./quick/260828-flg-corrigir-rotulo-do-seletor-de-periodo/) |
+| 260828-gna | Corrigir deadlock ao arrastar card para "Perdido" no /pipeline (bug do UAT da Fase 11, Teste 5): setMotivoPerdaState({open:true}) saiu de dentro de startTransition(async → await new Promise); agora o drop para Perdido só enfileira + abre o modal (urgente), e "Salvar motivo" dispara uma nova transição normal que move+persiste. "Cancelar" só descarta (card nunca moveu). +MotivoPerdaDialog só bloqueia dismiss Esc/clique-fora, +dedup da fila. Verificado ao vivo (janela visível): modal abre sem freeze, card não move no drop, Cancelar fecha limpo. | 2026-08-28 | fbf7abd..1dd794b | [260828-gna-corrigir-deadlock-drag-perdido](./quick/260828-gna-corrigir-deadlock-drag-perdido/) |
+| 2026-08-29 | fast | Kanban do /pipeline cabe as 5 colunas na tela sem rolar pro lado: colunas flex-1 min-w-[200px] + gap-3, linha de badges do card com flex-wrap, <main> com min-w-0. Verificado no navegador (5 colunas visíveis, 0 scroll horizontal). | ✅ 5b52ffa |
+| 2026-08-29 | fast | Nome do lead no card do pipeline em 1 linha com reticências (truncate + title no hover), em vez de quebrar linha. | ✅ 0a72800 |
 
 ## Deferred Items
 
@@ -206,10 +248,35 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-09T00:07:19.665Z
-Stopped at: Completed 09-04-PLAN.md (final plan of Phase 09)
-Resume file: None
-Servidor de dev: nenhum processo node ativo ao final desta sessão. Próximo passo real: planejar Fase 9 (Timeline de interações), ou cobrir os human-checks restantes herdados da Fase 4 se prioridade for validação antes de avançar.
+Last session: 2026-08-28 (madrugada — usuário foi dormir)
+
+**Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
+
+- **5/5 planos executados e commitados** (11-01…11-05), todos sequenciais inline (sem worktree — host 4GB). Commits das ondas 3–5 nesta sessão:
+  - 11-03 (motivo de perda obrigatório, `MotivoPerdaCombobox` criável, `.refine` server-side): `975ebc7` `fc2ef31` `74c0f13` `aebe9d3` — 5 deviations, todas auto-fixed.
+  - 11-04 (3 agregações SQL `GROUP BY` + funções puras em `src/db/queries.ts`): `1193dea` `ac6acea` `dddbb36` `c27a1e9` `cdb8c56` — 0 deviations de comportamento.
+  - 11-05 (tela `/relatorios` + `periodo-selector` + item na sidebar): `8097aca` `403642c` `ef5a395` `9e6d455`.
+- **gsd-verifier: `human_needed`** — 3/3 success criteria satisfeitas na camada de código e de dados. Todos os gates exit 0 (`tsc --noEmit`, `verify:schema`, `verify:motivo-perda`, `test:relatorios` 38 checagens, `test:motivo-perda-actions` 7, `guard:no-hard-delete`). `11-VERIFICATION.md` commitado. Banco real inspecionado: 6 motivos-semente verbatim, FK presente, 37 leads intactos, backup datado em disco.
+- **`11-HUMAN-UAT.md` criado e commitado (`d967c8f`)** — 8 itens pendentes (`status: partial`): render de `/relatorios`, taxa "0%" nunca "NaN%", seletor de período em tempo real (scroll:false), fallback `?period=xyz`, fluxo drag→modal obrigatório→reversão no Cancelar, combobox criável, end-to-end captura→agregação, posição dos itens no menu.
+- STATE `status: ready_for_uat` (`74fedaf`). ROADMAP já marcava Fase 11 `[x]` (executor marcou cedo) — só fecha de verdade após o UAT passar.
+
+**2 WARNINGS do verificador (não bloqueiam o goal — candidatos a gap-closure):**
+1. `scripts/verify-motivos-perda-schema.cjs` **nunca foi criado** (estava nos must_haves de 11-01). A cobertura foi "folded" em `verify-schema.cjs`, que só checa tabela/índice/coluna — NÃO checa FK, colunas exatas, 6 seeds, nullability nem órfãos. Verificado à mão nesta sessão, mas sem gate automático de regressão.
+2. **Drift FK schema↔banco**: `leads.motivo_perda_id` está `ON DELETE NO ACTION` no banco real vs. `onDelete: "restrict"` no `schema.ts` (a DDL da migração de 11-01 omitiu `ON DELETE RESTRICT`). 2ª barreira anti-remoção-destrutiva inativa; a primária (`guard-no-hard-delete`) está verde e há 0 referências hoje.
+
+**Config de execução ativa** (`.planning/config.json`): `parallelization: false`, `workflow.use_worktrees: false`. Execução SEQUENCIAL inline no working tree (host 4GB — [[feedback_4gb_ram_avoid_parallel]]).
+
+**Como retomar:**
+1. `/gsd-verify-work 11` — rodar os 8 itens de UAT no navegador (precisa `npm run dev` — porta 3000/3001; nenhum processo node ativo agora). Atualizar `11-HUMAN-UAT.md` com os resultados.
+2. Se UAT passar: `/close-phase 11` (extract-learnings → PR).
+3. Alternativa pros 2 warnings: `/gsd-plan-phase 11 --gaps` cria planos de gap-closure (script de schema + regenerar a FK com a cláusula certa).
+4. Ainda pendente do pedido do usuário: **revisão cross-AI do código** — `/gsd-code-review 11` + `/gsd-review --phase 11` (Codex + Gemini via CLI; na Fase 8 só o Codex respondeu — checar `which codex gemini` antes).
+
+**Pendências abertas do usuário nesta sessão (fora da Fase 11):**
+
+- Produto novo "Prospector Inteligente AI" — pasta `C:\Users\Vencedor\Desktop\Prospector Inteligente AI` com `IDEIA.md` commitado. Usuário vai abrir sessão nova lá e rodar `/gsd-new-project @IDEIA.md`. Decisões já fechadas: híbrido/SaaS-ready desde o dia 1, VPS único hospeda CRM + Prospector. Ver memória `project_prospector_inteligente_ai`.
+
+Branch: `worktree-agent-ad346cc0697623e0c` (branching_strategy=none — trabalho da Fase 11 todo aqui). Servidor de dev: nenhum processo node ativo. Working tree limpo (só `.claude/` untracked, pré-existente).
 
 ### Retomada exata da Fase 8 (`/go-and-do 8`)
 

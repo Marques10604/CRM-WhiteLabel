@@ -10,7 +10,7 @@
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { interacoes, leads, subnichos } from "@/db/schema";
+import { interacoes, leads, motivosPerda, subnichos } from "@/db/schema";
 import { leadSchema, stageUpdateSchema, whatsappContactSchema } from "@/lib/validations";
 import type { Lead, Template } from "@/types";
 
@@ -46,6 +46,22 @@ async function subnichoExists(subnichoId: number): Promise<boolean> {
   return existing.length > 0;
 }
 
+/**
+ * Checagem de existência real do motivoPerdaId no banco (D-04, PERDA-01) —
+ * cópia linha-a-linha de `subnichoExists`. Mesmo raciocínio: PROPOSITALMENTE
+ * indiferente a `deletedAt` — editar/salvar um lead perdido cujo motivo foi
+ * removido (soft-delete) não pode falhar. Fecha o vetor de mass-assignment de
+ * FK forjada (T-11-13) antes de qualquer escrita, junto do backstop
+ * `isForeignKeyViolation` nos catch de FK.
+ */
+async function motivoPerdaExists(motivoPerdaId: number): Promise<boolean> {
+  const existing = await db
+    .select({ id: motivosPerda.id })
+    .from(motivosPerda)
+    .where(eq(motivosPerda.id, motivoPerdaId));
+  return existing.length > 0;
+}
+
 export async function createLead(
   _prevState: ActionState,
   formData: FormData
@@ -59,6 +75,15 @@ export async function createLead(
     return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
   }
 
+  // D-04: com stage "perdido", o `.refine` de leadSchema já garante que
+  // motivoPerdaId veio preenchido — aqui checamos que o id existe de fato.
+  if (
+    parsed.data.stage === "perdido" &&
+    !(await motivoPerdaExists(parsed.data.motivoPerdaId as number))
+  ) {
+    return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
+  }
+
   let inserted: Lead;
   try {
     // Stampa stageChangedAt na criação (WR-01): sem isso, um lead criado
@@ -68,13 +93,24 @@ export async function createLead(
     // updateLead/updateLeadStage.
     [inserted] = await db
       .insert(leads)
-      .values({ ...parsed.data, stageChangedAt: new Date() })
+      .values({
+        ...parsed.data,
+        // D-04 / idioma condicional-por-VALOR-ALVO: só grava motivoPerdaId
+        // quando o stage é "perdido"; qualquer outro destino força null.
+        motivoPerdaId:
+          parsed.data.stage === "perdido" ? parsed.data.motivoPerdaId ?? null : null,
+        stageChangedAt: new Date(),
+      })
       .returning();
   } catch (err) {
-    // Backstop de FK: sub-nicho apagado ENTRE a pré-checagem acima e este
-    // insert (janela de corrida check-then-write). onDelete:"restrict" no
-    // schema faz o SQLite lançar SQLITE_CONSTRAINT_FOREIGNKEY nesse caso.
+    // Backstop de FK: sub-nicho OU motivo de perda apagado ENTRE a
+    // pré-checagem acima e este insert (janela de corrida check-then-write).
+    // onDelete:"restrict" no schema faz o SQLite lançar
+    // SQLITE_CONSTRAINT_FOREIGNKEY nesse caso.
     if (isForeignKeyViolation(err)) {
+      if (parsed.data.stage === "perdido") {
+        return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
+      }
       return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
     }
     throw err;
@@ -104,6 +140,15 @@ export async function updateLead(
     return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
   }
 
+  // D-04: mesmo gate de createLead — motivo obrigatório e existente quando o
+  // stage submetido é "perdido".
+  if (
+    parsed.data.stage === "perdido" &&
+    !(await motivoPerdaExists(parsed.data.motivoPerdaId as number))
+  ) {
+    return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
+  }
+
   // Guard isNull(deletedAt): impede editar um lead soft-deletado via
   // chamada direta — leads na Lixeira só podem ser restaurados (01-04).
   // SELECT-then-compare (mesmo padrão de updateLeadStage): só grava
@@ -125,17 +170,35 @@ export async function updateLead(
       .update(leads)
       .set({
         ...parsed.data,
-        // WR-02: quando a etapa submetida não é "perdido", o campo
-        // "Motivo da perda" nem chega a ser renderizado no form (some do
-        // DOM), então não vem em parsed.data — sem isto, o valor antigo
-        // ficaria preso no banco indefinidamente ao reativar um lead.
-        motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
+        // WR-02: quando a etapa submetida não é "perdido", o
+        // <MotivoPerdaCombobox> nem chega a ser renderizado no form (some do
+        // DOM), então não vem em parsed.data — sem isto, o id antigo ficaria
+        // preso no banco indefinidamente ao reativar um lead. Idioma
+        // condicional-por-VALOR-ALVO.
+        motivoPerdaId:
+          parsed.data.stage === "perdido" ? parsed.data.motivoPerdaId ?? null : null,
+        // D-02/D-12 (SEQ-02): reset de sequenciaPosicao para 0 sempre que o
+        // DESTINO da edição é "novo" — o ciclo de reabordagem reinicia
+        // porque o lead esfriou e voltou ao início do funil, seja por drag
+        // no board ou por edição manual da etapa no formulário (a
+        // justificativa de produto é o destino, não o mecanismo). Idioma
+        // condicional-por-VALOR-ALVO (igual motivoPerdaId acima), não
+        // condicional-por-MUDANÇA (stageChanged, usado por stageChangedAt
+        // abaixo): resetar um lead que já está em "novo" é um no-op
+        // idempotente e seguro. Posicionado DEPOIS de ...parsed.data para
+        // nunca ser sobrescrito por ele. NÃO há reset ao fechar/perder
+        // (D-02): fora do funil ativo a posição simplesmente para de ser
+        // lida por computeSequenciaSugestao.
+        ...(parsed.data.stage === "novo" ? { sequenciaPosicao: 0 } : {}),
         ...(stageChanged ? { stageChangedAt: new Date() } : {}),
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
   } catch (err) {
-    // Mesmo backstop de FK do createLead.
+    // Mesmo backstop de FK do createLead (sub-nicho ou motivo de perda).
     if (isForeignKeyViolation(err)) {
+      if (parsed.data.stage === "perdido") {
+        return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
+      }
       return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
     }
     throw err;
@@ -156,9 +219,9 @@ export async function updateLead(
 export async function updateLeadStage(
   id: number,
   stage: Lead["stage"],
-  motivoPerda?: string
+  motivoPerdaId?: number
 ): Promise<ActionState> {
-  const parsed = stageUpdateSchema.safeParse({ id, stage, motivoPerda });
+  const parsed = stageUpdateSchema.safeParse({ id, stage, motivoPerdaId });
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors };
   }
@@ -171,17 +234,34 @@ export async function updateLeadStage(
     return { errors: { id: ["Lead inválido."] } };
   }
 
+  // D-04 / T-11-13: `updateLeadStage` não tem try/catch de FK — a checagem de
+  // existência ANTES da escrita é o que impede um motivoPerdaId forjado de
+  // bater na FK `onDelete: "restrict"` e derrubar a action com erro não
+  // tratado. Indiferente a `deletedAt` (mesmo motivo de `motivoPerdaExists`).
+  if (
+    parsed.data.stage === "perdido" &&
+    !(await motivoPerdaExists(parsed.data.motivoPerdaId as number))
+  ) {
+    return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
+  }
+
   const stageChanged = current.stage !== parsed.data.stage;
 
   await db
     .update(leads)
     .set({
       stage: parsed.data.stage,
-      // WR-02: limpa motivoPerda sempre que o destino não é "perdido" —
-      // antes só era sobrescrito quando o chamador passava um valor
-      // explicitamente, então mover um lead de volta para "Perdido" para
-      // outra etapa via drag nunca limpava o motivo antigo.
-      motivoPerda: parsed.data.stage === "perdido" ? parsed.data.motivoPerda : null,
+      // WR-02: limpa motivoPerdaId sempre que o destino não é "perdido" —
+      // tirar um lead de "Perdido" via drag zera o motivo gravado
+      // (motivoPerdaId volta a null). Idioma condicional-por-VALOR-ALVO.
+      motivoPerdaId:
+        parsed.data.stage === "perdido" ? parsed.data.motivoPerdaId ?? null : null,
+      // D-02/D-12 (SEQ-02): mesmo reset de updateLead acima, aplicado ao
+      // gesto de arrastar no board — condicional-por-VALOR-ALVO (destino
+      // "novo"), não condicional-por-MUDANÇA. Vale tanto para drag quanto
+      // para edição manual porque a justificativa de produto é o destino,
+      // não o mecanismo. Sem reset ao fechar/perder (D-02).
+      ...(parsed.data.stage === "novo" ? { sequenciaPosicao: 0 } : {}),
       ...(stageChanged ? { stageChangedAt: new Date() } : {}),
     })
     .where(and(eq(leads.id, parsed.data.id), isNull(leads.deletedAt)));
@@ -195,7 +275,7 @@ export async function updateLeadStage(
  * Registra um clique real em "Abrir WhatsApp" (WA-08) e, condicionalmente,
  * avança a etapa novo → contatado (WA-06/WA-07). Função dedicada — não uma
  * extensão de updateLeadStage — porque essa recebe uma etapa-alvo explícita
- * do chamador e carrega semântica de motivoPerda amarrada a movimentos
+ * do chamador e carrega semântica de motivoPerdaId amarrada a movimentos
  * arbitrários, enquanto este avanço é estritamente unidirecional e
  * condicional, com a guarda pertencendo ao servidor.
  *
@@ -229,6 +309,18 @@ export async function updateLeadStage(
  * primeiro_contato (Pitfall 4 do RESEARCH.md). `texto` agora é obrigatório
  * (`whatsappContactSchema.texto`, D-04): uma caixa de mensagem vazia falha o
  * safeParse e não grava tentativa nem interação, por design.
+ *
+ * SEQ-02 (D-01): além do avanço de etapa acima, `sequenciaPosicao` avança um
+ * degrau só quando `tipo === "follow_up"` — `avancaSequencia` é uma variável
+ * DELIBERADAMENTE independente de `advanced`: o auto-avanço de etapa
+ * (primeiro contato → "contatado") e o avanço da sequência escalonada
+ * (reabordagem programada) são regras diferentes que só por acaso
+ * compartilham o mesmo clique. `primeiro_contato` inaugura a relação e não é
+ * reabordagem; `prova_valor` é material de apoio, não um degrau da cadência
+ * — só `follow_up` avança a posição. O gate Inbound (ORIGEM-03) NÃO mora
+ * aqui: é de LEITURA e vive só em `computeSequenciaSugestao` (Pitfall 4 do
+ * RESEARCH.md) — incrementar a posição de um lead Inbound aqui é inofensivo
+ * porque esse valor nunca é lido para exibição desse tipo de lead.
  */
 export async function registerWhatsAppContact(
   leadId: number,
@@ -249,6 +341,7 @@ export async function registerWhatsAppContact(
   }
 
   let advanced = parsed.data.tipo === "primeiro_contato" && current.stage === "novo";
+  const avancaSequencia = parsed.data.tipo === "follow_up";
 
   await db.transaction(async (tx) => {
     const stageGuard = advanced ? [eq(leads.stage, "novo")] : [];
@@ -256,6 +349,7 @@ export async function registerWhatsAppContact(
       .update(leads)
       .set({
         contactAttempts: sql`${leads.contactAttempts} + 1`,
+        ...(avancaSequencia ? { sequenciaPosicao: sql`${leads.sequenciaPosicao} + 1` } : {}),
         ...(advanced ? { stage: "contatado", stageChangedAt: new Date() } : {}),
       })
       .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt), ...stageGuard))
@@ -265,11 +359,16 @@ export async function registerWhatsAppContact(
       // Stage mudou concorrentemente (ex.: drag-and-drop) entre o SELECT
       // acima e este UPDATE — a guarda barrou o avanço automático. Registra
       // só a tentativa (sem a mudança de stage), sem sobrescrever o stage
-      // manual definido pela corrida.
+      // manual definido pela corrida. O avanço de sequenciaPosicao é
+      // repetido aqui pelo mesmo motivo de contactAttempts já ser repetido:
+      // nenhuma tentativa de follow-up pode ser perdida sob corrida (T-10-07).
       advanced = false;
       await tx
         .update(leads)
-        .set({ contactAttempts: sql`${leads.contactAttempts} + 1` })
+        .set({
+          contactAttempts: sql`${leads.contactAttempts} + 1`,
+          ...(avancaSequencia ? { sequenciaPosicao: sql`${leads.sequenciaPosicao} + 1` } : {}),
+        })
         .where(and(eq(leads.id, parsed.data.leadId), isNull(leads.deletedAt)));
     }
 

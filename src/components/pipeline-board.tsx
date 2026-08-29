@@ -18,13 +18,15 @@ import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
 
 type PipelineBoardProps = {
   leads: Lead[];
   subnichos: Subnicho[];
+  motivosPerda: MotivoPerda[];
   esfriandoLeadIds: number[];
   templates: Template[];
+  sugestaoPorLead: { leadId: number; data: Date }[];
 };
 
 type DialogState =
@@ -53,28 +55,40 @@ const STAGE_LABEL_BY_VALUE = new Map(
  * que o drag engula o clique-para-editar (Pitfall 4). `useOptimistic` move
  * o card instantaneamente; se `updateLeadStage` falhar, o estado base nunca
  * muda e o React reverte o otimista sozinho ao assentar a transição
- * (RESEARCH.md Pattern 2). Soltar em "Perdido" abre um modal opcional e
- * não-bloqueante de motivo da perda (D-04): o card já se moveu de forma
- * otimista e a mesma transição fica pendente aguardando a decisão do modal
- * (Pular/Salvar motivo) antes de chamar `updateLeadStage` uma única vez.
+ * (RESEARCH.md Pattern 2).
+ *
+ * Soltar em "Perdido" abre um modal OBRIGATÓRIO de motivo da perda (D-04).
+ * O modal NÃO é aberto de dentro de uma transição async: fazer
+ * `setMotivoPerdaState({open:true})` dentro de `startTransition(async () =>
+ * await new Promise(...))` prende o update na transição suspensa e o modal
+ * nunca renderiza — deadlock que congela o renderer (bug do UAT da Fase 11,
+ * quick 260828-gna). Em vez disso: o drop para "Perdido" só enfileira o lead
+ * e abre o modal com update urgente, SEM mover o card. Só "Salvar motivo"
+ * dispara `startTransition(async () => { setOptimisticStage(...);
+ * updateLeadStage(id, "perdido", motivoPerdaId) })` — aí o card move (otimista)
+ * e persiste numa transição normal. "Cancelar" apenas descarta o item da fila:
+ * o card nunca chegou a mover, então não há nada a reverter.
  */
-export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }: PipelineBoardProps) {
+export function PipelineBoard({
+  leads,
+  subnichos,
+  motivosPerda,
+  esfriandoLeadIds,
+  templates,
+  sugestaoPorLead,
+}: PipelineBoardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [motivoPerdaState, setMotivoPerdaState] = useState<MotivoPerdaState>({
     open: false,
   });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
   const [timelineState, setTimelineState] = useState<TimelineState>({ open: false });
-  // Fila de resolvers pendentes do modal "motivo da perda" (CR-02): um
-  // `useRef` único era sobrescrito quando um segundo lead era solto em
-  // "Perdido" antes do primeiro modal ser fechado, perdendo o `resolve` da
-  // primeira transição (que nunca chamava `updateLeadStage`). Agora cada
-  // drag para "Perdido" entra numa fila; o modal exibe um lead por vez e
-  // avança para o próximo pendente ao resolver o atual, garantindo que
-  // nenhuma transição de estágio fique órfã.
-  const motivoQueueRef = useRef<
-    { leadId: number; leadNome: string; resolve: (motivo: string | undefined) => void }[]
-  >([]);
+  // Fila de leads soltos em "Perdido" aguardando motivo (CR-02): se um segundo
+  // card é solto em "Perdido" antes do primeiro modal ser resolvido, ele entra
+  // na fila; o modal exibe um lead por vez e avança para o próximo pendente ao
+  // resolver o atual. Sem função `resolve` — o modal não é mais dirigido por
+  // uma Promise dentro de uma transição (ver doc-comment do componente).
+  const motivoQueueRef = useRef<{ leadId: number; leadNome: string }[]>([]);
 
   const [optimisticLeads, setOptimisticStage] = useOptimistic(
     leads,
@@ -98,6 +112,8 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
 
   const esfriandoSet = useMemo(() => new Set(esfriandoLeadIds), [esfriandoLeadIds]);
 
+  const sugestaoPorLeadId = useMemo(() => new Map(sugestaoPorLead.map((s) => [s.leadId, s.data])), [sugestaoPorLead]);
+
   const leadsByStage = useMemo(() => {
     const grouped = new Map<Lead["stage"], Lead[]>();
     for (const option of STAGE_OPTIONS) {
@@ -111,33 +127,15 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
 
-  function handleDragEnd(event: DragEndEvent) {
-    const leadId = Number(event.active.id);
-    const newStage = event.over?.id as Lead["stage"] | undefined;
-    if (!newStage) return; // soltou fora de qualquer coluna — no-op
-
-    const lead = optimisticLeads.find((l) => l.id === leadId);
-
+  /** Move o card (otimista) e persiste numa transição normal — sem Promise presa. */
+  function commitStageChange(
+    leadId: number,
+    newStage: Lead["stage"],
+    motivoPerdaId?: number
+  ) {
     startTransition(async () => {
       setOptimisticStage({ id: leadId, stage: newStage });
-
-      let motivoPerda: string | undefined;
-      if (newStage === "perdido") {
-        // Modal opcional/não-bloqueante (D-04): o card já se moveu acima.
-        // A transição fica pendente até o admin clicar Pular/Salvar motivo.
-        // Enfileira este lead (CR-02) em vez de assumir que é o único drag
-        // pendente — se o modal já estiver aberto para outro lead, este
-        // apenas aguarda sua vez na fila.
-        motivoPerda = await new Promise<string | undefined>((resolve) => {
-          const leadNome = lead?.nome ?? "";
-          motivoQueueRef.current.push({ leadId, leadNome, resolve });
-          if (motivoQueueRef.current.length === 1) {
-            setMotivoPerdaState({ open: true, leadNome });
-          }
-        });
-      }
-
-      const result = await updateLeadStage(leadId, newStage, motivoPerda);
+      const result = await updateLeadStage(leadId, newStage, motivoPerdaId);
       if (result && "errors" in result) {
         toast.error("Não foi possível mover o lead. Tente novamente.");
         return;
@@ -147,18 +145,61 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
     });
   }
 
-  function resolveMotivoPerda(motivo: string | undefined) {
-    const current = motivoQueueRef.current.shift();
-    current?.resolve(motivo);
-    const next = motivoQueueRef.current[0];
-    if (next) {
-      // Outro lead já está aguardando (CR-02): avança a fila em vez de
-      // fechar o modal, evitando que a promessa dele fique presa sem
-      // resolver.
-      setMotivoPerdaState({ open: true, leadNome: next.leadNome });
-    } else {
-      setMotivoPerdaState({ open: false });
+  function handleDragEnd(event: DragEndEvent) {
+    const leadId = Number(event.active.id);
+    const newStage = event.over?.id as Lead["stage"] | undefined;
+    if (!newStage) return; // soltou fora de qualquer coluna — no-op
+
+    const lead = optimisticLeads.find((l) => l.id === leadId);
+    if (!lead) return; // lead não encontrado (id inválido) — ignora
+    if (lead.stage === newStage) return; // soltou na própria coluna — no-op
+
+    if (newStage === "perdido") {
+      // Modal OBRIGATÓRIO (D-04). NÃO move o card e NÃO entra numa transição
+      // async: só enfileira o lead (CR-02, dedupe por id) e abre o modal com
+      // update urgente. O card só se move em `resolveMotivoPerda` ("Salvar").
+      if (!motivoQueueRef.current.some((q) => q.leadId === leadId)) {
+        motivoQueueRef.current.push({ leadId, leadNome: lead.nome });
+      }
+      const head = motivoQueueRef.current[0];
+      setMotivoPerdaState({ open: true, leadNome: head?.leadNome ?? lead.nome });
+      return;
     }
+
+    commitStageChange(leadId, newStage);
+  }
+
+  function advanceMotivoQueue() {
+    const next = motivoQueueRef.current[0];
+    setMotivoPerdaState(
+      next ? { open: true, leadNome: next.leadNome } : { open: false }
+    );
+  }
+
+  /** Remove o item da frente da fila + qualquer entrada duplicada do mesmo lead. */
+  function shiftMotivoQueue() {
+    const current = motivoQueueRef.current.shift();
+    if (current) {
+      motivoQueueRef.current = motivoQueueRef.current.filter(
+        (q) => q.leadId !== current.leadId
+      );
+    }
+    return current;
+  }
+
+  /** "Salvar motivo": agora sim move o card para "Perdido" e persiste com o motivo. */
+  function resolveMotivoPerda(motivoPerdaId: number) {
+    const current = shiftMotivoQueue();
+    if (current) {
+      commitStageChange(current.leadId, "perdido", motivoPerdaId);
+    }
+    advanceMotivoQueue();
+  }
+
+  /** "Cancelar" / dismiss: descarta o item da fila. O card nunca moveu — nada a reverter. */
+  function cancelMotivoPerda() {
+    shiftMotivoQueue();
+    advanceMotivoQueue();
   }
 
   return (
@@ -173,7 +214,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
       </div>
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="flex gap-6 overflow-x-auto pb-8">
+        <div className="flex gap-3 overflow-x-auto pb-8">
           {STAGE_OPTIONS.map((option) => {
             const columnLeads = leadsByStage.get(option.value) ?? [];
             return (
@@ -189,6 +230,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
                     lead={lead}
                     subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
                     isEsfriando={esfriandoSet.has(lead.id)}
+                    sugestao={sugestaoPorLeadId.get(lead.id)}
                     onClick={() => setDialogState({ mode: "edit", lead })}
                     onSendWhatsApp={() =>
                       setPreviewState({
@@ -213,6 +255,7 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
           if (!open) setDialogState({ mode: "closed" });
         }}
         subnichos={subnichos}
+        motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}
@@ -221,11 +264,12 @@ export function PipelineBoard({ leads, subnichos, esfriandoLeadIds, templates }:
       <MotivoPerdaDialog
         open={motivoPerdaState.open}
         leadNome={motivoPerdaState.open ? motivoPerdaState.leadNome : ""}
+        motivosPerda={motivosPerda}
         onOpenChange={(open) => {
-          if (!open) resolveMotivoPerda(undefined);
+          if (!open) cancelMotivoPerda();
         }}
-        onSkip={() => resolveMotivoPerda(undefined)}
-        onSave={(motivo) => resolveMotivoPerda(motivo)}
+        onCancel={cancelMotivoPerda}
+        onSave={(motivoPerdaId) => resolveMotivoPerda(motivoPerdaId)}
       />
 
       <WhatsAppPreviewDialog

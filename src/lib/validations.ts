@@ -7,7 +7,30 @@ export const subnichoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
 });
 
-export const leadSchema = z.object({
+/**
+ * Contrato de CRUD de motivo de perda (D-01/D-02/D-03, PERDA-01) — espelho
+ * exato de `subnichoSchema`.
+ */
+export const motivoPerdaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório."),
+});
+
+/**
+ * D-04 (PERDA-01): `motivoPerdaId` substitui o texto livre `motivoPerda`. É a
+ * FK governada (`leads.motivoPerdaId` -> `motivos_perda.id`), condicionalmente
+ * OBRIGATÓRIA quando `stage === "perdido"` — a obrigatoriedade mora no
+ * `.refine` de `leadSchema`/`stageUpdateSchema` (server-side autoritativo),
+ * nunca só no `disabled` do botão ou no `zodResolver` do cliente.
+ *
+ * `leadBaseSchema` é o objeto não-refinado — só objeto puro tem `.omit()`,
+ * usado por `csvRowSchema`. `leadSchema` é `leadBaseSchema` + `.refine`.
+ *
+ * O `z.preprocess` em `motivoPerdaId` normaliza `""`/`null` para `undefined`:
+ * o input nativo oculto do `<MotivoPerdaCombobox>` emite string vazia quando
+ * nada está selecionado, e sem isso `z.coerce.number()` transformaria `""` em
+ * `0` e a mensagem de erro seria a genérica do Zod, não a copy de D-04.
+ */
+const leadBaseSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
   telefone: z
     .string()
@@ -41,8 +64,19 @@ export const leadSchema = z.object({
   stage: z
     .enum(["novo", "contatado", "negociacao", "fechado", "perdido"])
     .default("novo"),
-  motivoPerda: z.string().trim().optional(),
+  motivoPerdaId: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().positive().optional()
+  ),
 });
+
+/** Mensagem VERBATIM de D-04 (11-UI-SPEC.md linha 120) — reutilizada em leadSchema e stageUpdateSchema. */
+const MOTIVO_PERDA_OBRIGATORIO_MSG = "Selecione o motivo da perda.";
+
+export const leadSchema = leadBaseSchema.refine(
+  (d) => d.stage !== "perdido" || d.motivoPerdaId != null,
+  { path: ["motivoPerdaId"], message: MOTIVO_PERDA_OBRIGATORIO_MSG }
+);
 
 export type LeadFormValues = z.input<typeof leadSchema>;
 
@@ -60,20 +94,36 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * fonte única compartilhada com os demais defaults do import CSV (WR-01);
  * em `leadSchema` o campo fica sem default (D-04), já que o formulário
  * manual precisa forçar uma escolha consciente do admin.
+ *
+ * Deriva de `leadBaseSchema` (não de `leadSchema`): `.omit()` só existe em
+ * objeto não-refinado. `motivoPerdaId` é omitido porque o CSV nunca traz
+ * motivo de perda — leads importados nascem sempre em "novo", nunca em
+ * "perdido" (D-04).
  */
-export const csvRowSchema = leadSchema.omit({ subnichoId: true, followUpDate: true }).extend({
-  subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
-  origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),
-});
+export const csvRowSchema = leadBaseSchema
+  .omit({ subnichoId: true, followUpDate: true, motivoPerdaId: true })
+  .extend({
+    subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
+    origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),
+  });
 
 export type CsvRowValues = z.infer<typeof csvRowSchema>;
 
-/** Contrato enxuto para a mudança de etapa via drag-and-drop (03-03, updateLeadStage). */
-export const stageUpdateSchema = z.object({
-  id: z.coerce.number().int().positive(),
-  stage: z.enum(["novo", "contatado", "negociacao", "fechado", "perdido"]),
-  motivoPerda: z.string().trim().optional(),
-});
+/**
+ * Contrato enxuto para a mudança de etapa via drag-and-drop (03-03,
+ * updateLeadStage). D-04: `motivoPerdaId` condicionalmente obrigatório quando
+ * o destino é "perdido" — mesmo `.refine` de `leadSchema`.
+ */
+export const stageUpdateSchema = z
+  .object({
+    id: z.coerce.number().int().positive(),
+    stage: z.enum(["novo", "contatado", "negociacao", "fechado", "perdido"]),
+    motivoPerdaId: z.coerce.number().int().positive().optional(),
+  })
+  .refine((d) => d.stage !== "perdido" || d.motivoPerdaId != null, {
+    path: ["motivoPerdaId"],
+    message: MOTIVO_PERDA_OBRIGATORIO_MSG,
+  });
 
 /**
  * Contrato de registerWhatsAppContact (WA-06/07/08) — toda Server Action é
@@ -136,3 +186,30 @@ export const configuracoesSchema = z.object({
 });
 
 export type ConfiguracoesFormValues = z.input<typeof configuracoesSchema>;
+
+/**
+ * Contratos da sequência de follow-up escalonada (SEQ-01). `configuracoesSchema`
+ * acima continua sendo o contrato do FORMULÁRIO (só os 3 campos escalares de
+ * dias-parado, validados no cliente pelo `zodResolver`) — não ganhou um campo
+ * de array porque `configuracoes-form.tsx` usa os dois exports acima hoje via
+ * `zodResolver`, e acrescentar um campo obrigatório que o react-hook-form não
+ * registra faria `form.handleSubmit` reprovar o submit inteiro para sempre.
+ *
+ * `sequenciaIntervalosSchema` é exportado isoladamente (não só embutido em
+ * `configuracoesServerSchema`) porque o formulário precisa validar a lista
+ * dinâmica de intervalos no cliente (plano 10-03) com exatamente as mesmas
+ * regras do servidor, sem duplicar as mensagens de erro. As duas mensagens
+ * abaixo são literais do `10-UI-SPEC.md` §Copywriting Contract.
+ *
+ * `configuracoesServerSchema` é o contrato AUTORITATIVO do servidor,
+ * consumido por `saveConfiguracoes` — mesmo idioma de derivação em camada já
+ * usado por `interacaoManualSchema` acima (`.extend` sobre um schema base,
+ * nunca uma cópia paralela de campos).
+ */
+export const sequenciaIntervalosSchema = z
+  .array(z.coerce.number().int().min(1, "Mínimo de 1 dia."))
+  .min(1, "Adicione ao menos um intervalo.");
+
+export const configuracoesServerSchema = configuracoesSchema.extend({
+  sequenciaIntervalosDias: sequenciaIntervalosSchema,
+});

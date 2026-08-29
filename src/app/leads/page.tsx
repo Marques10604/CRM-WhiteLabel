@@ -1,6 +1,6 @@
 import { asc, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, subnichos, templates } from "@/db/schema";
+import { leads, motivosPerda, subnichos, templates } from "@/db/schema";
 import { LeadTable } from "@/components/lead-table";
 
 /**
@@ -11,7 +11,7 @@ import { LeadTable } from "@/components/lead-table";
  * disparado pelo `LeadFormDialog` ao criar um lead manualmente aqui.
  */
 export default async function LeadsPage() {
-  const [activeLeads, allSubnichos, allTemplates] = await Promise.all([
+  const [activeLeads, allSubnichos, allMotivosPerda, allTemplates] = await Promise.all([
     db
       .select()
       .from(leads)
@@ -23,13 +23,22 @@ export default async function LeadsPage() {
     // para um sub-nicho removido. O filtro de seleção fica só no combobox e
     // no dropdown da toolbar (quick task 260725-lai).
     db.select().from(subnichos),
+    // Sem filtro de deletedAt: mesmo motivo do array de sub-nichos acima — o
+    // <MotivoPerdaCombobox> precisa poder exibir o motivo de um lead perdido
+    // cujo motivo foi removido (filtro `deletedAt === null || id === value`).
+    db.select().from(motivosPerda),
     db.select().from(templates),
   ]);
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-[28px] font-semibold leading-tight">Leads</h1>
-      <LeadTable leads={activeLeads} subnichos={allSubnichos} templates={allTemplates} />
+      <LeadTable
+        leads={activeLeads}
+        subnichos={allSubnichos}
+        motivosPerda={allMotivosPerda}
+        templates={allTemplates}
+      />
     </div>
   );
 }

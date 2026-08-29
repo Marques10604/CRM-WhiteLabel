@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { MotivoPerdaCombobox } from "@/components/motivo-perda-combobox";
 import {
   Dialog,
   DialogContent,
@@ -11,63 +11,90 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import type { MotivoPerda } from "@/types";
 
 type MotivoPerdaDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   leadNome: string;
-  onSkip: () => void;
-  onSave: (motivo: string) => void;
+  motivosPerda: MotivoPerda[];
+  /** Cancela: reverte o drag (o card volta à etapa anterior, updateLeadStage NÃO é chamado). */
+  onCancel: () => void;
+  onSave: (motivoPerdaId: number) => void;
 };
 
 /**
- * Modal opcional/não-bloqueante (D-04) exibido quando um card é solto na
- * coluna Perdido — o movimento já ocorreu de forma otimista ANTES deste
- * modal abrir (ver pipeline-board.tsx). "Pular" apenas fecha sem gravar
- * motivo (não reverte o drag); "Salvar motivo" grava o texto livre.
+ * Modal OBRIGATÓRIO (D-04) exibido quando um card é solto na coluna Perdido —
+ * o card já se moveu de forma otimista ANTES deste modal abrir (ver
+ * pipeline-board.tsx). Não há mais atalho para ignorar o motivo: ou o admin
+ * escolhe/cria um motivo da lista governada e clica "Salvar motivo", ou clica
+ * "Cancelar" e o drag é revertido.
+ *
+ * O modal NÃO é dispensável por clique fora / Esc sem uma decisão explícita
+ * (`showCloseButton={false}` + `onOpenChange` interceptado com
+ * `eventDetails.cancel()`, mesmo idioma de `lead-form-dialog.tsx`) — sem isso
+ * um drag ficaria "órfão" (etapa mudou visualmente mas nunca persistiu nem
+ * reverteu).
  */
 export function MotivoPerdaDialog({
   open,
   onOpenChange,
   leadNome,
-  onSkip,
+  motivosPerda,
+  onCancel,
   onSave,
 }: MotivoPerdaDialogProps) {
-  const [motivo, setMotivo] = useState("");
+  const [motivoPerdaId, setMotivoPerdaId] = useState<number | null>(null);
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(next) => {
-        if (!next) setMotivo("");
+      onOpenChange={(
+        next: boolean,
+        eventDetails?: { reason?: string; cancel: () => void }
+      ) => {
+        if (!next) {
+          // Bloqueia SÓ o dismiss por gesto (Esc / clique fora). Um
+          // `eventDetails.cancel()` incondicional dessincroniza o Base UI
+          // quando o pai fecha o modal via prop `open` (reason "none") —
+          // o modal fica preso aberto. "Cancelar"/"Salvar motivo" fecham
+          // mudando o estado no pai (onCancel/onSave), não por aqui.
+          const reason = eventDetails?.reason;
+          if (reason === "escape-key" || reason === "outside-press") {
+            eventDetails?.cancel();
+          }
+          return;
+        }
         onOpenChange(next);
       }}
     >
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Mover para Perdido</DialogTitle>
-          <DialogDescription>{`Por que "${leadNome}" foi perdido? (opcional)`}</DialogDescription>
+          <DialogDescription>{`Por que "${leadNome}" foi perdido?`}</DialogDescription>
         </DialogHeader>
-        <Textarea
-          value={motivo}
-          onChange={(event) => setMotivo(event.target.value)}
-          placeholder="Ex: sem orçamento, escolheu concorrente, não respondeu mais..."
+        <MotivoPerdaCombobox
+          motivosPerda={motivosPerda}
+          value={motivoPerdaId}
+          onValueChange={setMotivoPerdaId}
         />
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => {
-              setMotivo("");
-              onSkip();
+              setMotivoPerdaId(null);
+              onCancel();
             }}
           >
-            Pular
+            Cancelar
           </Button>
           <Button
             className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
+            disabled={motivoPerdaId == null}
             onClick={() => {
-              onSave(motivo);
-              setMotivo("");
+              if (motivoPerdaId == null) return;
+              onSave(motivoPerdaId);
+              setMotivoPerdaId(null);
             }}
           >
             Salvar motivo

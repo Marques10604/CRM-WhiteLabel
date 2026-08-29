@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
-import { Clock, History, MessageCircle } from "lucide-react";
+import { CalendarClock, Clock, History, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ type PipelineLeadCardProps = {
   lead: Lead;
   subnichoNome: string;
   isEsfriando: boolean;
+  sugestao?: Date;
   onClick: () => void;
   onSendWhatsApp: () => void;
   onViewHistory: () => void;
@@ -31,6 +32,7 @@ export function PipelineLeadCard({
   lead,
   subnichoNome,
   isEsfriando,
+  sugestao,
   onClick,
   onSendWhatsApp,
   onViewHistory,
@@ -63,7 +65,10 @@ export function PipelineLeadCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[16px] leading-normal font-normal text-foreground">
+        <span
+          className="min-w-0 flex-1 truncate text-[16px] leading-normal font-normal text-foreground"
+          title={lead.nome}
+        >
           {lead.nome}
         </span>
         {/* stopPropagation em pointerdown/click: impede que os botões virem drag-handle
@@ -93,7 +98,7 @@ export function PipelineLeadCard({
       <span className="text-[14px] leading-normal text-muted-foreground">
         {subnichoNome}
       </span>
-      <div className="flex items-center gap-1 text-[14px] leading-normal text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] leading-normal text-muted-foreground">
         <span>{format(lead.followUpDate, "dd/MM/yyyy")}</span>
         {isEsfriando ? (
           <span className="flex items-center gap-1 text-[#B45309]">
@@ -107,6 +112,16 @@ export function PipelineLeadCard({
           >
             <MessageCircle className="size-3.5" />
             {lead.contactAttempts}x
+          </span>
+        ) : null}
+        {sugestao ? (
+          <span
+            className="flex items-center gap-1"
+            aria-label={`Próxima reabordagem sugerida em ${format(sugestao, "dd/MM/yyyy")}`}
+            title="Sugestão calculada a partir da última interação registrada. Não altera a data de follow-up real — o campo Follow-up continua sendo a fonte oficial."
+          >
+            <CalendarClock className="size-3.5" />
+            Sugestão: {format(sugestao, "dd/MM")}
           </span>
         ) : null}
       </div>

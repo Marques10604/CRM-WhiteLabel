@@ -29,7 +29,7 @@ import {
 import { EtapaBadge } from "@/components/etapa-badge";
 import { normalizePhone } from "@/lib/phone";
 import { softDeleteLead } from "@/actions/lead-actions";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
 
 /**
  * Iniciais do avatar circular da linha (sketch 002-C): até 2 primeiras
@@ -71,6 +71,7 @@ const SORTABLE_HEADERS: { id: "nome" | "subnichoNome" | "stage" | "followUpDate"
 type LeadTableProps = {
   leads: Lead[];
   subnichos: Subnicho[];
+  motivosPerda: MotivoPerda[];
   templates: Template[];
 };
 
@@ -98,7 +99,7 @@ type TimelineState = { open: false } | { open: true; lead: Lead };
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
  * `<LeadFormDialog>` pré-preenchido (D-07). Estado vazio com CTA (D-13).
  */
-export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
+export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
@@ -354,6 +355,7 @@ export function LeadTable({ leads, subnichos, templates }: LeadTableProps) {
           if (!open) setDialogState({ mode: "closed" });
         }}
         subnichos={subnichos}
+        motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}

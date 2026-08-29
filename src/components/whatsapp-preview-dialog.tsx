@@ -114,7 +114,14 @@ export function WhatsAppPreviewDialog({
   // fechar), arrancando o modal antes de ele rodar a própria animação de
   // fechamento — diferente de todo outro dialog do app.
   const tel = lead ? normalizePhone(lead.telefone) : undefined;
-  const waHref = lead && tel ? buildWaLink(tel, texto) : undefined;
+  // WA-VAZIO: registerWhatsAppContact exige texto não-vazio (D-04) e falha
+  // SILENCIOSAMENTE (sem exceção) quando a caixa está vazia — sem template
+  // padrão cadastrado para o tipo, a textarea some vazia e, sem este gate,
+  // o link abria o WhatsApp mesmo assim, sem gravar tentativa/interação e
+  // sem avisar o admin. `mensagemVazia` bloqueia isso no client, mesmo
+  // padrão do aviso de telefone inválido logo abaixo.
+  const mensagemVazia = texto.trim().length === 0;
+  const waHref = lead && tel && !mensagemVazia ? buildWaLink(tel, texto) : undefined;
 
   return (
     <Dialog open={open && !!lead} onOpenChange={onOpenChange}>
@@ -163,6 +170,11 @@ export function WhatsAppPreviewDialog({
 
               {!tel ? (
                 <p className="text-sm text-[#B91C1C]">Telefone inválido — edite o lead.</p>
+              ) : null}
+              {tel && mensagemVazia ? (
+                <p className="text-sm text-[#B91C1C]">
+                  Mensagem vazia — escreva algo antes de abrir o WhatsApp.
+                </p>
               ) : null}
             </div>
 
