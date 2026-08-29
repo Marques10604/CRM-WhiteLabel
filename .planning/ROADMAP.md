@@ -267,7 +267,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 12-02-PLAN.md — 4 Server Actions de tarefa (criar/editar/concluir/excluir em hard-delete), `groupByUrgency<T>` genérica + `getTarefasPendentes` + `buildDashboardItems`, com 2 harnesses automatizados
+- [x] 12-02-PLAN.md — 4 Server Actions de tarefa (criar/editar/concluir/excluir em hard-delete), `groupByUrgency<T>` genérica + `getTarefasPendentes` + `buildDashboardItems`, com 2 harnesses automatizados
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -297,4 +297,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
-| 12. Agenda / Tarefas Soltas | v1.3 | 1/4 | In Progress | - |
+| 12. Agenda / Tarefas Soltas | v1.3 | 2/4 | In Progress|  |

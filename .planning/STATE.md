@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-29T18:43:00.000Z"
-last_activity: 2026-08-29 -- Phase 12 Plan 01 executado (tabela tarefas viva)
+last_updated: "2026-08-29T21:05:21.868Z"
+last_activity: 2026-08-29
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
   percent: 88
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 12 (agenda-tarefas-soltas) — EXECUTING
-Plan: 2 of 4
-Status: Executing Phase 12 — Wave 1 (12-01) completa
-Last activity: 2026-08-29 -- Phase 12 Plan 01 executado (tabela tarefas viva em data/crm.db)
+Plan: 3 of 4
+Status: Ready to execute
+Last activity: 2026-08-29
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -84,6 +84,7 @@ Progress: [█████████░] 88%
 | Phase 11 P04 | ~25min | 3 tasks | 3 files |
 | Phase 11 P05 | 20min | 3 tasks | 3 files |
 | Phase 12 P01 | 12min | 3 tasks | 7 files |
+| Phase 12 P02 | 16min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,10 @@ Recent decisions affecting current work:
 - [Phase 12-01]: `tarefas` é a PRIMEIRA e única entrada na ALLOWLIST do guard-no-hard-delete (D-08) — oposto das extensões de bloqueio das Fases 9/11; CODE_PATTERNS/CODE_SQL_PATTERNS ficam intocados, então DELETE FROM leads segue bloqueado inclusive dentro de tarefa-actions.ts
 - [Phase 12-01]: verify:schema usa conjunto ESTRITO de colunas para `tarefas` (molde de interacoes, não de leads) — tabela nova não acumula colunas por fase; mutação provada (gate falha sem a tabela)
 - [Phase 12-01]: migração `scripts/migrate-tarefas.cjs` rodada 2x contra data/crm.db — tabela criada, 37 leads intactos, idempotência confirmada; zero comandos drizzle-kit
+- [Phase ?]: [Phase 12-02]: groupByUrgency<T> genérico; groupLeadsByUrgency vira wrapper de 1 linha — call-sites preservados
+- [Phase ?]: [Phase 12-02]: updateTarefa não filtra isNull(concluidaEm) no WHERE (D-07 edita tarefa concluída); concluirTarefa idempotente via isNull, desfazer via isNotNull
+- [Phase ?]: [Phase 12-02]: buildDashboardItems mora em queries.ts e é pura — ordenar cada bucket por date ASC materializa D-04 (lead+tarefa intercalados)
+- [Phase ?]: [Phase 12-02]: 1ª cobertura automatizada da régua de urgência (lacuna de groupLeadsByUrgency fechada); hard-delete D-08 provado por ausência da linha + teste de mutação
 
 ### Pending Todos
 
@@ -252,7 +257,7 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-29T18:01:24.551Z
+Last session: 2026-08-29T20:33:56.297Z
 
 **Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
 
