@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: ready_to_plan
-last_updated: 2026-08-29T00:00:00.000Z
+status: planning
+last_updated: "2026-08-29T16:26:23.663Z"
 last_activity: 2026-08-29
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 22
-  completed_plans: 37
+  completed_plans: 22
   percent: 88
-stopped_at: Fases 10 e 11 fechadas, shipadas e MERGEADAS na main (PR #2, merge 1d4cbad). Falta só a Fase 12 (agenda / tarefas soltas) pra fechar o milestone v1.3
 ---
 
 # Project State
@@ -248,7 +247,7 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-28 (madrugada — usuário foi dormir)
+Last session: 2026-08-29T16:26:23.610Z
 
 **Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
 
@@ -261,12 +260,14 @@ Last session: 2026-08-28 (madrugada — usuário foi dormir)
 - STATE `status: ready_for_uat` (`74fedaf`). ROADMAP já marcava Fase 11 `[x]` (executor marcou cedo) — só fecha de verdade após o UAT passar.
 
 **2 WARNINGS do verificador (não bloqueiam o goal — candidatos a gap-closure):**
+
 1. `scripts/verify-motivos-perda-schema.cjs` **nunca foi criado** (estava nos must_haves de 11-01). A cobertura foi "folded" em `verify-schema.cjs`, que só checa tabela/índice/coluna — NÃO checa FK, colunas exatas, 6 seeds, nullability nem órfãos. Verificado à mão nesta sessão, mas sem gate automático de regressão.
 2. **Drift FK schema↔banco**: `leads.motivo_perda_id` está `ON DELETE NO ACTION` no banco real vs. `onDelete: "restrict"` no `schema.ts` (a DDL da migração de 11-01 omitiu `ON DELETE RESTRICT`). 2ª barreira anti-remoção-destrutiva inativa; a primária (`guard-no-hard-delete`) está verde e há 0 referências hoje.
 
 **Config de execução ativa** (`.planning/config.json`): `parallelization: false`, `workflow.use_worktrees: false`. Execução SEQUENCIAL inline no working tree (host 4GB — [[feedback_4gb_ram_avoid_parallel]]).
 
 **Como retomar:**
+
 1. `/gsd-verify-work 11` — rodar os 8 itens de UAT no navegador (precisa `npm run dev` — porta 3000/3001; nenhum processo node ativo agora). Atualizar `11-HUMAN-UAT.md` com os resultados.
 2. Se UAT passar: `/close-phase 11` (extract-learnings → PR).
 3. Alternativa pros 2 warnings: `/gsd-plan-phase 11 --gaps` cria planos de gap-closure (script de schema + regenerar a FK com a cláusula certa).
