@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: ready_for_uat
-last_updated: "2026-08-28T00:00:00.000Z"
+status: ready_to_plan
+last_updated: 2026-08-29T14:17:03.854Z
 last_activity: 2026-08-28
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 22
-  completed_plans: 22
+  completed_plans: 37
   percent: 88
+stopped_at: Phase 11 complete (5/5) — ready to discuss Phase 12
 ---
 
 # Project State
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 11 — painel-de-m-tricas-e-relat-rio-de-motivos-de-perda
+**Current focus:** Phase 12 — agenda / tarefas soltas
 
 ## Current Position
 
-Phase: 11 (painel-de-m-tricas-e-relat-rio-de-motivos-de-perda) — EXECUTING
-Plan: 5 of 5 (11-01, 11-02, 11-03 completos; 11-04 e 11-05 pendentes)
-Status: ready_for_uat (UAT parcial: 4 pass, 3 issues fechados via quick 260828-flg, 1 item aguarda drag manual)
-Last activity: 2026-08-28 - UAT via navegador + quick 260828-flg (rótulo do seletor)
+Phase: 12
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-29
 
 Progress: [██████████] 100%
 
@@ -35,7 +36,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 8
+- Total plans completed: 13
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -46,6 +47,7 @@ Progress: [██████████] 100%
 | 03 | 4 | - | - |
 | 05 | 2 | - | - |
 | 06 | 2 | - | - |
+| 11 | 5 | - | - |
 
 **Recent Trend:**
 

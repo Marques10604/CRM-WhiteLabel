@@ -1,7 +1,7 @@
 ---
 phase: 11-painel-de-m-tricas-e-relat-rio-de-motivos-de-perda
 verified: 2026-08-27T00:00:00Z
-status: human_needed
+status: passed
 score: 3/3 must-haves verified (code-level)
 overrides_applied: 0
 re_verification:
@@ -41,7 +41,7 @@ human_verification:
 
 **Phase Goal:** Admin enxerga de onde vêm as vendas (origem, sub-nicho) e por que perde negócios (motivo de perda), numa única tela de relatórios, sem precisar cruzar dados manualmente na planilha antiga.
 **Verified:** 2026-08-27
-**Status:** human_needed
+**Status:** passed *(promovido — ver § Promoção de status)*
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -205,3 +205,8 @@ Alternativamente, criar o script como especificado fecharia o WARNING sem overri
 
 _Verified: 2026-08-27_
 _Verifier: Claude (gsd-verifier)_
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-08-29.
+Evidência: UAT via automação de navegador (claude-in-chrome) concluído — 8/8 testes pass, 11-HUMAN-UAT.md em `complete`, 0 issues/pending/blocked. O Teste 5 pegou um bug real (deadlock no drag→modal Perdido), corrigido nos quicks 260828-flg + 260828-gna e re-verificado ao vivo. Itens de julgamento visual e o bloqueio de Esc/clique-fora têm cobertura por código (mudança inequívoca); os 2 warnings do verificador não bloqueiam o goal.
