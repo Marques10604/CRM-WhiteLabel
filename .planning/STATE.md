@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: ready_to_plan
-last_updated: 2026-08-29T14:17:03.854Z
-last_activity: 2026-08-28
+last_updated: 2026-08-29T00:00:00.000Z
+last_activity: 2026-08-29
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 22
   completed_plans: 37
   percent: 88
-stopped_at: Phase 11 complete (5/5) — ready to discuss Phase 12
+stopped_at: Fases 10 e 11 fechadas e shipadas — PR #2 (aguarda merge). Próximo: discutir Fase 12 (agenda / tarefas soltas)
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 12
 Plan: Not started
-Status: Ready to plan
+Status: Ready to plan — Fases 10-11 shipadas no PR #2 (https://github.com/Marques10604/CRM-WhiteLabel/pull/2), aguarda merge
 Last activity: 2026-08-29
 
 Progress: [██████████] 100%
