@@ -202,7 +202,7 @@ Aberto, carregado para o v1.3:
 - Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
 - Phase 10: reset de `sequenciaPosicao` (ao fechar/perder lead vs. voltar para "novo") é decisão de produto em aberto — resolver em `/gsd-discuss-phase` da própria Phase 10, não travar em pesquisa adicional.
 - Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
-- Fase 10 (10-04): npm run build sem confirmacao de exit 0 nesta sessao - host 4GB RAM esgota memoria na fase Running TypeScript do next build mesmo com dev server parado (3 tentativas, incluindo heap ampliado); npx tsc --noEmit isolado passou limpo. Rodar npm run build numa maquina com mais RAM antes de deploy/publicacao. Human-check de 10 passos da Fase 10 tambem pendente (sem navegador nesta sessao).
+- ~~Fase 10 (10-04): npm run build esgota memoria no host 4GB~~ — **RESOLVIDO 2026-08-29**: `npm run build` passou limpo (exit 0). O Next 16.2 usa **Turbopack** no `next build` (não mais webpack) — muito mais leve, a fase "Running TypeScript" que dava OOM passou em 33s. 13 páginas geradas. `next build` volta a ser gate normal das próximas fases. (Ainda ajuda fechar processos node antes.)
 
 ### Direção de infraestrutura / operação (definida 2026-08-27)
 
