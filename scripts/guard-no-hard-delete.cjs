@@ -26,6 +26,14 @@
  * exclusão de lead/subnicho/interação/motivo de perda é SEMPRE
  * soft-delete/restrict — nunca hard-delete.
  *
+ * EXCEÇÃO (D-08, Fase 12): a tabela `tarefas` está FORA do escopo protegido —
+ * tarefa é descartável por natureza (lembrete cumprido ou cancelado), a
+ * exclusão é hard-delete intencional, SEM `deletedAt`, SEM Lixeira. O único
+ * arquivo autorizado a fazê-lo (`src/actions/tarefa-actions.ts`) está na
+ * ALLOWLIST abaixo. `tarefas` NÃO aparece em CODE_PATTERNS/CODE_SQL_PATTERNS —
+ * ausência deliberada, esta é a primeira PERMISSÃO do guard (o oposto das
+ * extensões de bloqueio das Fases 9 e 11).
+ *
  * Exit 0 = árvore limpa. Exit 1 = achou hard-delete/SQL destrutivo (imprime
  * "<arquivo>:<linha>: <trecho>" em stderr para cada ocorrência).
  */
@@ -44,7 +52,15 @@ const SQL_MIGRATIONS_DIR = path.join("src", "db", "migrations");
 // próprio guard, que contém os padrões como string-literal para procurá-los
 // e, sem esta allowlist, se auto-acusaria como falso-positivo. Futuras
 // exceções legítimas (ex.: uma migração de schema específica) entram aqui.
-const ALLOWLIST = [path.join("scripts", "guard-no-hard-delete.cjs")];
+const ALLOWLIST = [
+  path.join("scripts", "guard-no-hard-delete.cjs"),
+  // D-08 (Fase 12): `tarefas` é descartável por natureza (lembrete cumprido
+  // ou cancelado) — hard-delete é intencional, SEM deletedAt, SEM Lixeira.
+  // ÚNICA tabela do projeto onde `DELETE FROM` / `.delete()` é permitido, e
+  // só neste arquivo. (O arquivo pode ainda não existir em disco — a entrada
+  // é um caminho relativo e nunca falha por ausência.)
+  path.join("src", "actions", "tarefa-actions.ts"),
+];
 
 // Escopo LEAD-04 (estendido pela Fase 9 a `interacoes`, pela Fase 11 a
 // `motivos_perda`): hard-delete de leads/subnichos/interacoes/motivosPerda
@@ -157,6 +173,6 @@ if (findings.length > 0) {
 }
 
 console.log(
-  "OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações (escopo protegido: leads, subnichos, interacoes, motivos_perda)"
+  "OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações (escopo protegido: leads, subnichos, interacoes, motivos_perda; `tarefas` está FORA do escopo por D-08 — hard-delete permitido só em src/actions/tarefa-actions.ts)"
 );
 process.exit(0);
