@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
 status: executing
-last_updated: "2026-08-29T18:33:33.565Z"
-last_activity: 2026-08-29 -- Phase 12 planning complete
+last_updated: "2026-08-29T18:43:00.000Z"
+last_activity: 2026-08-29 -- Phase 12 Plan 01 executado (tabela tarefas viva)
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 26
-  completed_plans: 22
-  percent: 85
+  completed_plans: 23
+  percent: 88
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 12 — agenda / tarefas soltas
+**Current focus:** Phase 12 — agenda-tarefas-soltas
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-08-29 -- Phase 12 planning complete
+Phase: 12 (agenda-tarefas-soltas) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 12 — Wave 1 (12-01) completa
+Last activity: 2026-08-29 -- Phase 12 Plan 01 executado (tabela tarefas viva em data/crm.db)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Progress: [██████████] 100%
 | Phase 11 P03 | 45min | 3 tasks | 15 files |
 | Phase 11 P04 | ~25min | 3 tasks | 3 files |
 | Phase 11 P05 | 20min | 3 tasks | 3 files |
+| Phase 12 P01 | 12min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -167,6 +168,10 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 11-04]: teste de integracao de query monta schema por DDL cru em os.tmpdir() (so as 3 tabelas + colunas que as queries tocam), nao replay das migrations
 - [Phase ?]: [Phase 11-05]: PeriodoSelector recebe value já normalizado pela página; servidor decide default (30d ausente) e fallback (tudo inválido), cliente é só o router.push
 - [Phase ?]: [Phase 11-05]: gate verify:motivos-perda-schema do PLAN.md não existe — Onda 1 estendeu verify-schema.cjs; cobertura dentro de verify:schema
+- [Phase 12-01]: tabela `tarefas` totalmente desacoplada — sem FK, sem `deletedAt`; `concluida_em` nullable e SEM default físico (NULL = pendente, D-01), mesmo idioma de interacoes.updatedAt / leads.stageChangedAt
+- [Phase 12-01]: `tarefas` é a PRIMEIRA e única entrada na ALLOWLIST do guard-no-hard-delete (D-08) — oposto das extensões de bloqueio das Fases 9/11; CODE_PATTERNS/CODE_SQL_PATTERNS ficam intocados, então DELETE FROM leads segue bloqueado inclusive dentro de tarefa-actions.ts
+- [Phase 12-01]: verify:schema usa conjunto ESTRITO de colunas para `tarefas` (molde de interacoes, não de leads) — tabela nova não acumula colunas por fase; mutação provada (gate falha sem a tabela)
+- [Phase 12-01]: migração `scripts/migrate-tarefas.cjs` rodada 2x contra data/crm.db — tabela criada, 37 leads intactos, idempotência confirmada; zero comandos drizzle-kit
 
 ### Pending Todos
 

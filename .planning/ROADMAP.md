@@ -263,7 +263,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 12-01-PLAN.md — Tabela `tarefas` (sem FK, sem `deletedAt`), migração manual [BLOCKING] via better-sqlite3, tipos, `tarefaSchema` e os gates `verify:schema` / `guard:no-hard-delete` (exceção D-08)
+- [x] 12-01-PLAN.md — Tabela `tarefas` (sem FK, sem `deletedAt`), migração manual [BLOCKING] via better-sqlite3, tipos, `tarefaSchema` e os gates `verify:schema` / `guard:no-hard-delete` (exceção D-08)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -297,4 +297,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
-| 12. Agenda / Tarefas Soltas | v1.3 | 0/4 | Planned | - |
+| 12. Agenda / Tarefas Soltas | v1.3 | 1/4 | In Progress | - |
