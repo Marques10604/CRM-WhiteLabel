@@ -11,7 +11,7 @@ progress:
   total_plans: 22
   completed_plans: 37
   percent: 88
-stopped_at: Fases 10 e 11 fechadas e shipadas — PR #2 (aguarda merge). Próximo: discutir Fase 12 (agenda / tarefas soltas)
+stopped_at: Fases 10 e 11 fechadas, shipadas e MERGEADAS na main (PR #2, merge 1d4cbad). Falta só a Fase 12 (agenda / tarefas soltas) pra fechar o milestone v1.3
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 Phase: 12
 Plan: Not started
-Status: Ready to plan — Fases 10-11 shipadas no PR #2 (https://github.com/Marques10604/CRM-WhiteLabel/pull/2), aguarda merge
+Status: Ready to plan — Fases 10-11 MERGEADAS na main (PR #2). Fase 12 é a última do milestone v1.3.
 Last activity: 2026-08-29
 
 Progress: [██████████] 100%
