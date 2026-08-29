@@ -18,6 +18,7 @@
     "test:mutation-guard": "node scripts/test-mutation-guard.cjs",
     "test:compute-sequencia": "node scripts/test-compute-sequencia-sugestao.cjs",
     "test:motivo-perda-actions": "node scripts/test-motivo-perda-actions.cjs",
+    "test:tarefa-actions": "node scripts/test-tarefa-actions.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs"
   },
   "dependencies": {
