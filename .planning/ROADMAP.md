@@ -258,7 +258,13 @@ Plans:
   2. Tarefas aparecem no dashboard de follow-up, agrupadas por urgência (Vencidas/Hoje/Próximos 7 dias) — mesmo padrão já usado para follow-ups de lead
   3. Tarefas soltas ficam visualmente distinguíveis dos follow-ups de lead dentro do mesmo agrupamento por urgência, sem exigir uma tela/rota separada para o admin achar o que precisa fazer hoje
 
-**Plans**: TBD
+**Plans**: 4 plans (4 ondas sequenciais)
+
+Plans:
+- [ ] 12-01-PLAN.md — Tabela `tarefas` (sem FK, sem `deletedAt`), migração manual [BLOCKING] via better-sqlite3, tipos, `tarefaSchema` e os gates `verify:schema` / `guard:no-hard-delete` (exceção D-08)
+- [ ] 12-02-PLAN.md — 4 Server Actions de tarefa (criar/editar/concluir/excluir em hard-delete), `groupByUrgency<T>` genérica + `getTarefasPendentes` + `buildDashboardItems`, com 2 harnesses automatizados
+- [ ] 12-03-PLAN.md — Componentes: `DeleteTarefaDialog`, `TarefaFormDialog` (2 campos, Calendar, toast com Desfazer) e `TarefaCard` enxuto com botão-ícone de concluir
+- [ ] 12-04-PLAN.md — Integração no dashboard `/`: intercalação lead+tarefa por data, botão "Nova tarefa", estado vazio atualizado + suíte completa de gates e UAT ponta a ponta
 
 **UI hint**: yes
 
@@ -280,4 +286,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
-| 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
+| 12. Agenda / Tarefas Soltas | v1.3 | 0/4 | Planned | - |
