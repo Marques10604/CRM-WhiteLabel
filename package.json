@@ -19,6 +19,7 @@
     "test:compute-sequencia": "node scripts/test-compute-sequencia-sugestao.cjs",
     "test:motivo-perda-actions": "node scripts/test-motivo-perda-actions.cjs",
     "test:tarefa-actions": "node scripts/test-tarefa-actions.cjs",
+    "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs"
   },
   "dependencies": {

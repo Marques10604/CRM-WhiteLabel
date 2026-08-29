@@ -1,8 +1,8 @@
 import { and, asc, eq, gte, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { addDays, isBefore, isToday, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
-import { configuracoes, interacoes, leads, motivosPerda, subnichos } from "@/db/schema";
-import type { Lead } from "@/types";
+import { configuracoes, interacoes, leads, motivosPerda, subnichos, tarefas } from "@/db/schema";
+import type { Lead, Tarefa } from "@/types";
 
 /**
  * Leads ativos para o dashboard de follow-ups (D-04) — exclui soft-deleted
@@ -26,32 +26,113 @@ export type LeadsByUrgency = {
 };
 
 /**
- * Agrupamento puro por urgência (D-02) — sem I/O, testável isoladamente.
- * `now` é injetável para testes; usa `startOfDay` para normalizar "hoje" e
- * `addDays(today, 8)` como limite superior (exclusivo) de "Próximos 7 dias",
- * de forma que um lead com vencimento em `today + 7` (o 7º dia futuro) ainda
- * seja incluído no grupo. Leads com follow-up 8+ dias no futuro não aparecem
- * em nenhum grupo.
+ * Agrupamento puro por urgência (D-02) — GENÉRICO sobre qualquer item que
+ * exponha uma data via `getDate`. Sem I/O, `now` injetável para testes.
+ *
+ * Usa `startOfDay` para normalizar "hoje" e `addDays(today, 8)` como limite
+ * superior (EXCLUSIVO) de "Próximos 7 dias", de forma que um item com data em
+ * `today + 7` (o 7º dia futuro) ainda seja incluído no grupo. Itens com data
+ * 8+ dias no futuro não aparecem em nenhum grupo.
+ *
+ * `groupLeadsByUrgency` é preservada como wrapper fino (call-sites atuais
+ * intocados); `buildDashboardItems` reusa esta função para fundir a régua de
+ * urgência de follow-ups de lead e tarefas soltas (D-04).
  */
-export function groupLeadsByUrgency(activeLeads: Lead[], now?: Date): LeadsByUrgency {
+export function groupByUrgency<T>(
+  items: T[],
+  getDate: (item: T) => Date,
+  now?: Date
+): { vencidos: T[]; hoje: T[]; proximos7Dias: T[] } {
   const today = startOfDay(now ?? new Date());
   const in7Days = addDays(today, 8);
 
-  const vencidos: Lead[] = [];
-  const hoje: Lead[] = [];
-  const proximos7Dias: Lead[] = [];
+  const vencidos: T[] = [];
+  const hoje: T[] = [];
+  const proximos7Dias: T[] = [];
 
-  for (const lead of activeLeads) {
-    if (isBefore(lead.followUpDate, today)) {
-      vencidos.push(lead);
-    } else if (isToday(lead.followUpDate)) {
-      hoje.push(lead);
-    } else if (isBefore(lead.followUpDate, in7Days)) {
-      proximos7Dias.push(lead);
+  for (const item of items) {
+    const d = getDate(item);
+    if (isBefore(d, today)) {
+      vencidos.push(item);
+    } else if (isToday(d)) {
+      hoje.push(item);
+    } else if (isBefore(d, in7Days)) {
+      proximos7Dias.push(item);
     }
   }
 
   return { vencidos, hoje, proximos7Dias };
+}
+
+/**
+ * Wrapper fino de `groupByUrgency` para leads (D-02) — a assinatura pública e
+ * o tipo `LeadsByUrgency` permanecem intocados para não quebrar nenhum
+ * call-site existente.
+ */
+export function groupLeadsByUrgency(activeLeads: Lead[], now?: Date): LeadsByUrgency {
+  return groupByUrgency(activeLeads, (lead) => lead.followUpDate, now);
+}
+
+/**
+ * Tarefas pendentes para o dashboard de follow-up (TAREFA-02, D-02) — o
+ * filtro `concluida_em IS NULL` implementa "tarefa concluída some do
+ * dashboard na hora". Encapsulado aqui (e não inline em `src/app/page.tsx`)
+ * pelo mesmo motivo já documentado em `getActiveDashboardLeads`: não vazar
+ * SQL para a página nem deixar o escopo divergir entre superfícies.
+ */
+export async function getTarefasPendentes(): Promise<Tarefa[]> {
+  return db
+    .select()
+    .from(tarefas)
+    .where(isNull(tarefas.concluidaEm))
+    .orderBy(asc(tarefas.data));
+}
+
+/**
+ * Item unificado do dashboard de follow-up (D-04) — união discriminada por
+ * `kind`, com `date` já normalizado, para intercalar follow-ups de lead e
+ * tarefas soltas por ordem cronológica DENTRO de cada seção de urgência.
+ */
+export type DashboardItem =
+  | { kind: "lead"; date: Date; lead: Lead }
+  | { kind: "tarefa"; date: Date; tarefa: Tarefa };
+
+export type DashboardItemsByUrgency = {
+  vencidos: DashboardItem[];
+  hoje: DashboardItem[];
+  proximos7Dias: DashboardItem[];
+};
+
+/**
+ * Funde leads ativos + tarefas pendentes numa única lista de `DashboardItem`,
+ * bucketiza pela MESMA régua de urgência (`groupByUrgency`) e ordena CADA
+ * bucket por `date` ascendente. É essa ordenação que materializa D-04:
+ * tarefas e follow-ups aparecem intercalados por data, nunca em blocos
+ * separados. Função PURA — sem I/O, `now` injetável.
+ */
+export function buildDashboardItems(
+  activeLeads: Lead[],
+  tarefasPendentes: Tarefa[],
+  now?: Date
+): DashboardItemsByUrgency {
+  const items: DashboardItem[] = [
+    ...activeLeads.map(
+      (lead): DashboardItem => ({ kind: "lead", date: lead.followUpDate, lead })
+    ),
+    ...tarefasPendentes.map(
+      (tarefa): DashboardItem => ({ kind: "tarefa", date: tarefa.data, tarefa })
+    ),
+  ];
+
+  const grouped = groupByUrgency(items, (item) => item.date, now);
+  const byDateAsc = (a: DashboardItem, b: DashboardItem) =>
+    a.date.getTime() - b.date.getTime();
+
+  return {
+    vencidos: [...grouped.vencidos].sort(byDateAsc),
+    hoje: [...grouped.hoje].sort(byDateAsc),
+    proximos7Dias: [...grouped.proximos7Dias].sort(byDateAsc),
+  };
 }
 
 export type Configuracoes = typeof configuracoes.$inferSelect;
