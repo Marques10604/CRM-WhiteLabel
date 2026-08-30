@@ -271,7 +271,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 12-03-PLAN.md — Componentes: `DeleteTarefaDialog`, `TarefaFormDialog` (2 campos, Calendar, toast com Desfazer) e `TarefaCard` enxuto com botão-ícone de concluir
+- [x] 12-03-PLAN.md — Componentes: `DeleteTarefaDialog`, `TarefaFormDialog` (2 campos, Calendar, toast com Desfazer) e `TarefaCard` enxuto com botão-ícone de concluir
 
 **Wave 4** *(blocked on Wave 3 completion)*
 

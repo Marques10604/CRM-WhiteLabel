@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 ## Current Position
 
 Phase: 12 (agenda-tarefas-soltas) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
+Plan: 4 of 4
+Status: 12-03 completo (3 componentes de UI da tarefa, commits 3211dcf/9528807); 12-04 (integração no dashboard + gates + UAT) pendente
 Last activity: 2026-08-29
 
 Progress: [█████████░] 92%
@@ -85,6 +85,7 @@ Progress: [█████████░] 92%
 | Phase 11 P05 | 20min | 3 tasks | 3 files |
 | Phase 12 P01 | 12min | 3 tasks | 7 files |
 | Phase 12 P02 | 16min | 3 tasks | 5 files |
+| Phase 12 P03 | ~20min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -257,7 +258,11 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-29T20:33:56.297Z
+Last session: 2026-08-29 (resume) — Fase 12 retomada. Estado detectado: planos 12-01/12-02 commitados; **plano 12-03 INTERROMPIDO** — Task 1 gravou `src/components/delete-tarefa-dialog.tsx` + `src/components/tarefa-form-dialog.tsx` (untracked, sem commit, sem `tsc`/eslint rodados); Task 2 (`src/components/tarefa-card.tsx`) não iniciada; sem `12-03-SUMMARY.md`. Plano 12-04 não iniciado. Sem agente interrompido, sem HANDOFF.json, sem `.continue-here` da Fase 12. Ação: `/gsd-execute-phase 12` para completar 12-03 (verificar/commitar Task 1, fazer Task 2) e depois 12-04.
+
+---
+
+Sessão anterior: 2026-08-29T20:33:56.297Z
 
 **Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
 
