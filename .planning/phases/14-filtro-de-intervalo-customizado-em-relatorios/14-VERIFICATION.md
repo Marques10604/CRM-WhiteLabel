@@ -1,7 +1,7 @@
 ---
 phase: 14-filtro-de-intervalo-customizado-em-relatorios
 verified: 2026-08-30T20:15:00Z
-status: human_needed
+status: passed
 score: 4/4 critérios de sucesso do ROADMAP verificados no código (19/19 truths de plano verificáveis por código)
 overrides_applied: 0
 re_verification:
@@ -44,7 +44,7 @@ human_verification:
 
 **Phase Goal:** O admin avalia a performance de um nicho (ou origem, ou motivo de perda) em qualquer janela de tempo que ele escolher, informando data de início e data de fim — o produto não impõe duração de janela.
 **Verified:** 2026-08-30T20:15:00Z
-**Status:** human_needed
+**Status:** passed *(promovido — ver § Promoção de status)*
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -169,3 +169,8 @@ Recomendação: rodar `/gsd-verify-work 14` no navegador para os 8 itens visuais
 
 _Verified: 2026-08-30T20:15:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-08-30.
+Evidência: UAT humano (`/gsd-verify-work`) concluído — `14-HUMAN-UAT.md` em `complete`, 11/11 pass, 0 issues, 0 pending/blocked, 0 skipped. Testes 7/8/9 via HTTP; 6/10/11 via automação de navegador (fixes CR-01/WR-01/WR-02 confirmados na tela).
