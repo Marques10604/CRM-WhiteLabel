@@ -1,5 +1,5 @@
 import { and, asc, eq, gte, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
-import { addDays, isBefore, isToday, startOfDay, subDays } from "date-fns";
+import { addDays, endOfDay, isBefore, isToday, isValid, parseISO, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
 import { configuracoes, interacoes, leads, motivosPerda, nichos, tarefas } from "@/db/schema";
 import type { Lead, Tarefa } from "@/types";
@@ -264,6 +264,128 @@ export function resolvePeriodRange(preset: string | undefined, now = new Date())
   if (preset === "90d") return { start: subDays(startOfDay(now), 90), end: now };
   if (preset === "30d") return { start: subDays(startOfDay(now), 30), end: now };
   return { start: new Date(0), end: now }; // "tudo" e QUALQUER valor inválido/adulterado (fallback seguro)
+}
+
+/**
+ * Forma de retorno de `resolvePeriodoRelatorios` — o preset resolvido (para o
+ * `value` do `<PeriodoSelector>`), o `PeriodRange` concreto (para as 3
+ * agregações), a flag de "o intervalo custom foi rejeitado" (para a faixa de
+ * aviso da página, D-07) e — só quando `preset === "custom"` e válido — as
+ * strings `from`/`to` originais `yyyy-MM-dd` (o 14-02 pré-preenche os date
+ * pickers com elas).
+ */
+export type PeriodoRelatoriosResolvido = {
+  preset: "30d" | "90d" | "tudo" | "custom";
+  range: PeriodRange;
+  customInvalido: boolean;
+  from?: string;
+  to?: string;
+};
+
+/** Guarda de formato ISO `yyyy-MM-dd` — 1ª barreira antes de `parseISO`/`isValid`. */
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Resolve o período da tela `/relatorios` a partir dos 3 parâmetros CRUS da
+ * querystring (`period`, `from`, `to`) — função PURA, sem I/O, `now` injetável,
+ * **NUNCA lança** (nenhum caminho joga exceção, nenhum gera 500).
+ *
+ * Os três parâmetros vêm de `searchParams` — território não-confiável: podem ser
+ * `undefined`, strings adulteradas, payloads de SQLi, datas absurdas. `from`/`to`
+ * são guardados por regex `^\d{4}-\d{2}-\d{2}$` + `isValid` e convertidos para
+ * `Date` AQUI, antes de virarem parâmetro `?` do Drizzle (`gte`/`lte`) nas 3
+ * agregações — nunca interpolados em SQL (mitigação de T-14-01 SQLi / T-14-02
+ * DoS, herdando o modelo de `resolvePeriodRange` para `period`, T-11-19/T-11-20).
+ *
+ * `customInvalido` distingue DOIS cenários que caem no mesmo fallback `30d`:
+ *   • `true`  → o usuário PEDIU `period=custom` e errou as datas (fim antes do
+ *     início, só uma data, data ilegível/impossível). A página mostra a faixa de
+ *     aviso server-rendered (D-04/D-05/D-07).
+ *   • `false` com `period` adulterado (ex: `"'; DROP"`) → fallback SILENCIOSO
+ *     para `"tudo"`, idêntico ao que a página já fazia hoje (T-11-19). Sem faixa.
+ *
+ * Datas no FUTURO NÃO invalidam (D-06): são APARADAS para hoje
+ * (`from` futuro → `startOfDay(now)`, `to` futuro → `endOfDay(now)`). Se depois
+ * de aparar `start > end`, aí sim cai no fallback `30d` + `customInvalido: true`.
+ *
+ * `from` = `startOfDay` / `to` = `endOfDay` (D-09/D-10 — o intervalo inclui o
+ * dia inteiro das duas pontas), sempre via `date-fns`, nunca aritmética de ms.
+ */
+export function resolvePeriodoRelatorios(
+  params: { period?: string; from?: string; to?: string },
+  now: Date = new Date()
+): PeriodoRelatoriosResolvido {
+  const { period, from, to } = params;
+
+  // 1. `period` ausente → default de primeiro acesso (inalterado da Fase 11)
+  if (period === undefined) {
+    return { preset: "30d", range: resolvePeriodRange("30d", now), customInvalido: false };
+  }
+
+  // 2. presets clássicos → delega para `resolvePeriodRange`
+  if (period === "30d" || period === "90d" || period === "tudo") {
+    return { preset: period, range: resolvePeriodRange(period, now), customInvalido: false };
+  }
+
+  // 3. intervalo personalizado
+  if (period === "custom") {
+    const fallback30: PeriodoRelatoriosResolvido = {
+      preset: "30d",
+      range: resolvePeriodRange("30d", now),
+      customInvalido: true,
+    };
+
+    // a. guarda de formato + presença — qualquer falha → fallback (D-05)
+    if (
+      typeof from !== "string" ||
+      typeof to !== "string" ||
+      !ISO_DATE_RE.test(from) ||
+      !ISO_DATE_RE.test(to)
+    ) {
+      return fallback30;
+    }
+
+    // parse "à prova de exceção": `parseISO` de string ilegível/impossível
+    // devolve Invalid Date (não lança); `isValid` pega isso. O try/catch é
+    // barreira extra, não o mecanismo principal.
+    let fromDate: Date;
+    let toDate: Date;
+    try {
+      fromDate = startOfDay(parseISO(from));
+      toDate = endOfDay(parseISO(to));
+    } catch {
+      return fallback30;
+    }
+    if (!isValid(fromDate) || !isValid(toDate)) {
+      return fallback30;
+    }
+
+    // b. clamp de data futura (D-06) — apara, não invalida
+    const inicioHoje = startOfDay(now);
+    const fimHoje = endOfDay(now);
+    if (fromDate.getTime() > inicioHoje.getTime()) fromDate = inicioHoje;
+    if (toDate.getTime() > fimHoje.getTime()) toDate = fimHoje;
+
+    // c. inconsistente mesmo após o clamp (cobre "to antes de from") → fallback
+    if (fromDate.getTime() > toDate.getTime()) {
+      return fallback30;
+    }
+
+    // d. ok — `from`/`to` são as strings ORIGINAIS (não clampadas): o 14-02
+    //    pré-preenche o picker com elas; se a data foi clampada, o próximo
+    //    submit do picker corrige.
+    return {
+      preset: "custom",
+      range: { start: fromDate, end: toDate },
+      customInvalido: false,
+      from,
+      to,
+    };
+  }
+
+  // 4. qualquer outro valor de `period` (adulterado) → fallback SILENCIOSO
+  //    "tudo", idêntico ao comportamento atual da página. NÃO é `customInvalido`.
+  return { preset: "tudo", range: resolvePeriodRange("tudo", now), customInvalido: false };
 }
 
 /**
