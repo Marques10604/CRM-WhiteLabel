@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — roadmap aprovado (3 fases, 13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **CONTEXT.md pronto** (`13-CONTEXT.md`, commit 419822b)
-Plan: — (próximo: `/gsd-plan-phase 13`)
-Status: pronto para `/gsd-plan-phase 13`
-Last activity: 2026-08-30 — discuss-phase 13 concluído (D-01..D-09 travados)
+Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **3 planos escritos** (13-01/02/03), não executados
+Plan: 0 of 3
+Status: pronto para `/gsd-execute-phase 13`
+Last activity: 2026-08-30 — plan-phase 13 concluído inline (3 ondas: dados → UI → copy)
 
 ## Performance Metrics
 
@@ -263,7 +263,9 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 (despivô) — Fase 13 com CONTEXT.md pronto. Próximo: `/gsd-plan-phase 13`.**
+**Milestone v1.4 (despivô) — Fase 13 PLANEJADA (3 planos). Próximo: `/gsd-execute-phase 13`.**
+
+`13-01/02/03-PLAN.md` escritos inline (sem cadeia de subagentes — host 4GB; sem research — D-01 tirou o risco; sem UI-SPEC — rename não é design). 3 ondas sequenciais: (1) camada de dados, (2) superfícies de UI + `tsc`/`build` verdes, (3) varredura de copy + gate de grep COPY-01. Cada onda tem `<threat_model>`.
 
 Fase 13 = rename `sub-nicho → nicho` + reframe. Decisões travadas em `.planning/phases/13-rename-sub-nicho-nicho-reframe/13-CONTEXT.md` (commit 419822b):
 

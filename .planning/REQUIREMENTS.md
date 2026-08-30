@@ -56,9 +56,9 @@ Reconhecidos, não neste milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NICHO-01 | Phase 13 | Pending |
-| NICHO-02 | Phase 13 | Pending |
-| COPY-01 | Phase 13 | Pending |
+| NICHO-01 | Phase 13 (13-01, 13-02) | Pending |
+| NICHO-02 | Phase 13 (13-02) | Pending |
+| COPY-01 | Phase 13 (13-03) | Pending |
 | METRICAS-03 | Phase 14 | Pending |
 | LEAD-06 | Phase 15 | Pending |
 

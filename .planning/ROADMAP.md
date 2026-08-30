@@ -67,17 +67,28 @@ Detalhes completos: `.planning/milestones/v1.3-ROADMAP.md`
 ### Phase 13: Rename `sub-nicho → nicho` + reframe
 
 **Goal**: O admin usa o CRM sem ver nenhuma referência a "sub-nicho" ou "área da saúde" — o campo se chama "nicho" em toda tela e a ferramenta se apresenta como agnóstica de nicho, sem perder a categorização dos leads existentes.
-**Depends on**: Nada (rename mecânico sobre a estrutura da Fase 1; a coluna `sub_nicho` já é lista livre extensível). Backup de `data/crm.db` antes da migração de coluna.
+**Depends on**: Nada. Rename **só na camada de código** (D-01 do `13-CONTEXT.md`): o Drizzle mapeia `nichos = sqliteTable("subnichos")` / `nichoId: integer("subnicho_id")`, o banco `data/crm.db` fica intocado — **sem migração, sem backup**, não esbarra no snapshot divergente do drizzle-kit.
 **Requirements**: NICHO-01, NICHO-02, COPY-01
 **Success Criteria** (o que precisa ser verdade):
 
   1. Em toda tela onde antes aparecia "sub-nicho" (formulário de lead, filtro/coluna da lista `/leads`, seção do `/relatorios`, passo de mapeamento do wizard de importação), agora aparece "nicho"
-  2. A rota `/nichos` gerencia a lista (criar, renomear, remover com soft-delete, reativar por nome) e tem item no menu lateral; `/subnichos` deixa de existir (ou redireciona para `/nichos`)
-  3. Todos os leads existentes mantêm sua categorização — a migração da coluna não perde nem embaralha nenhum valor de nicho
+  2. A rota `/nichos` gerencia a lista (criar, renomear, remover com soft-delete, reativar por nome) e tem item no menu lateral; `/subnichos` faz redirect 301 para `/nichos`
+  3. Todos os leads existentes mantêm sua categorização — o rename (só de código) não toca nenhum dado
   4. Nenhum label, placeholder, texto de ajuda, exemplo ou estado vazio visível no app menciona "área da saúde", usa "nutricionista"/"terapeuta" como categoria fixa, ou pressupõe um nicho-pai
   5. Importar um CSV mapeando uma coluna para "nicho" cria os leads com o nicho certo, igual ao que funcionava para "sub-nicho"
 
-**Plans**: 2-3 planos (coarse) — provável: (a) migração de coluna `sub_nicho → nicho` + tipos + Zod + queries + guard/verify-schema; (b) varredura das superfícies de UI (form, lista, filtro, `/relatorios`, wizard) + rota `/nichos`; (c) varredura de copy + estados vazios + PROJECT-facing strings
+Plans:
+**Wave 1**
+
+- [ ] 13-01-PLAN.md — Camada de dados: schema (`nichos` lógico / `subnichos` físico + doc-comment) + tipos + Zod + queries + `subnicho-actions.ts`→`nicho-actions.ts` + pattern do `guard-no-hard-delete.cjs`
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 13-02-PLAN.md — Superfícies de UI: rota `app/subnichos/`→`app/nichos/` + redirect 301 no `next.config.ts` + 3 componentes `subnicho-*`→`nicho-*` + sidebar + ~15 consumidores; `tsc` e `build` exit 0
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 13-03-PLAN.md — Varredura de copy: os 3 pontos "saúde" + texto de ajuda genérico + `layout.tsx` metadata + `"sub-nicho"` visível em toda superfície + harnesses `.cjs` + gate de grep COPY-01
 
 **UI hint**: yes
 
@@ -127,6 +138,6 @@ Detalhes completos: `.planning/milestones/v1.3-ROADMAP.md`
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 0/? | Not started | — |
+| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 0/3 | Planned | — |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/? | Not started | — |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |
