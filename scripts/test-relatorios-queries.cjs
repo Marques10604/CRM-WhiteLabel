@@ -218,6 +218,14 @@ const SCHEMA_DDL = `
       invertido.preset === "30d" && invertido.customInvalido === true,
       `resolvePeriodoRelatorios(custom "to" antes de "from") → fallback "30d", customInvalido true`
     );
+    // WR-05: o `range` do fallback de custom-inválido usa EXATAMENTE o mesmo
+    // `now` de `resolvePeriodRange("30d")` — sem dois "agoras" independentes
+    // entre o clamp e o range de fallback (armadilha do default duplo de `now`).
+    check(
+      invertido.range.start.getTime() === resolvePeriodRange("30d", now).start.getTime() &&
+        invertido.range.end.getTime() === resolvePeriodRange("30d", now).end.getTime(),
+      `resolvePeriodoRelatorios(fallback) → range idêntico a resolvePeriodRange("30d", now), mesma referência de tempo (WR-05)`
+    );
 
     const semTo = resolvePeriodoRelatorios({ period: "custom", from: "2026-06-01" }, now);
     check(
