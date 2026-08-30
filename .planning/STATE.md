@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: verifying
-last_updated: "2026-08-30T22:36:02.606Z"
+status: "Phase 14 shipped — PR #4"
+last_updated: "2026-08-30T22:38:25.436Z"
 last_activity: 2026-08-30
 progress:
   total_phases: 3
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
 Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
 Plan: 2 of 2
-Status: Phase complete — ready for verification
+Status: Phase 14 shipped — PR #4
 Last activity: 2026-08-30
 
 ## Performance Metrics
