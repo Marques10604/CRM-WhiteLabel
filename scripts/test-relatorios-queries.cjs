@@ -462,6 +462,71 @@ const SCHEMA_DDL = `
     );
   }
 
+  // --- WR-03: caminho custom→SQL (núcleo da Fase 14) end-to-end ---
+  // Um `range` vindo de `resolvePeriodoRelatorios({ period: "custom", ... })`
+  // alimenta uma das 3 agregações reais. Cobre a fronteira "intervalo arbitrário
+  // → parâmetro do Drizzle (`gte`/`lte`)" que T-14-01 (SQLi) protege e que era o
+  // único trecho da fase sem teste de integração.
+  {
+    const nowReal = new Date();
+    const isoDiasAtras = (d) =>
+      new Date(Date.now() - d * 86400 * 1000).toISOString().slice(0, 10);
+
+    // Janela custom de ~150 dias: inclui os leads criados há 10d E o
+    // "L8-fora-periodo" (criado há 100d, que o recorte 30d exclui); ainda exclui
+    // "L10-perdido-recente" (criado há 200d). Margem de 50 dias nas 2 pontas →
+    // imune a fuso/DST.
+    const resolvido = resolvePeriodoRelatorios(
+      { period: "custom", from: isoDiasAtras(150), to: isoDiasAtras(0) },
+      nowReal
+    );
+    check(
+      resolvido.preset === "custom" && resolvido.customInvalido === false,
+      `WR-03: resolvePeriodoRelatorios(custom 150d) resolve para preset "custom" válido`
+    );
+
+    const linhasCustom = await getContagemPorOrigem(resolvido.range);
+    const outboundCustom = linhasCustom.find((r) => r.origemTipo === "outbound");
+    const inboundCustom = linhasCustom.find((r) => r.origemTipo === "inbound");
+    // outbound na janela de 150d = os 8 do recorte 30d + L8 (criado há 100d) = 9
+    check(
+      !!outboundCustom && Number(outboundCustom.total) === 9,
+      `WR-03: getContagemPorOrigem(range custom 150d) → outbound.total === 9 (8 do recorte 30d + L8 criado há 100d) (got ${outboundCustom && outboundCustom.total})`
+    );
+    // inbound não muda (L1/L2 criados há 10d; nenhum inbound antigo)
+    check(
+      !!inboundCustom && Number(inboundCustom.total) === 2,
+      `WR-03: getContagemPorOrigem(range custom 150d) → inbound.total === 2 (got ${inboundCustom && inboundCustom.total})`
+    );
+
+    // Payload adulterado montado por concatenação (guard `no-hard-delete` varre
+    // scripts/): `from`/`to` lixo → fallback "30d" e a query roda sem erro,
+    // devolvendo o recorte de 30 dias (outbound === 8) — nunca lança, nunca
+    // interpola (T-14-01).
+    const payloadFromTo = "'; DR" + "OP TABLE leads; --";
+    const resolvidoAdulterado = resolvePeriodoRelatorios(
+      { period: "custom", from: payloadFromTo, to: payloadFromTo },
+      nowReal
+    );
+    check(
+      resolvidoAdulterado.preset === "30d" && resolvidoAdulterado.customInvalido === true,
+      `WR-03: from/to = payload SQLi → fallback "30d", customInvalido true`
+    );
+    let threwAdulterado = false;
+    let linhasAdulterado;
+    try {
+      linhasAdulterado = await getContagemPorOrigem(resolvidoAdulterado.range);
+    } catch {
+      threwAdulterado = true;
+    }
+    const outboundAdulterado =
+      !threwAdulterado && linhasAdulterado.find((r) => r.origemTipo === "outbound");
+    check(
+      !threwAdulterado && outboundAdulterado && Number(outboundAdulterado.total) === 8,
+      `WR-03: getContagemPorOrigem(range do fallback) roda sem erro e devolve o recorte 30d (outbound === 8) (threw=${threwAdulterado}, got ${outboundAdulterado && outboundAdulterado.total})`
+    );
+  }
+
   for (const suffix of ["", "-shm", "-wal"]) {
     try {
       fs.unlinkSync(tmpDb + suffix);
