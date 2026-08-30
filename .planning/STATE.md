@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: planning
-last_updated: "2026-08-30T13:14:46.481Z"
-last_activity: 2026-08-30
+status: pronto para `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`
+last_updated: "2026-08-30T13:55:24.496Z"
+last_activity: 2026-08-30 — milestone v1.4 iniciado, requisitos (5) e roadmap definidos e aprovados
 progress:
   total_phases: 3
   completed_phases: 0
@@ -266,6 +266,7 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 **Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — iniciado.** Requisitos + roadmap sendo definidos nesta sessão.
 
 Escopo confirmado com o usuário (3 direções, "fecha com isso, pode seguir"):
+
 1. **Rename `sub-nicho → nicho`** — lista plana (sem hierarquia), migração de coluna + tipos + Zod + `/subnichos` → `/nichos` + varredura de toda a copy que menciona "área da saúde"
 2. **Filtro de intervalo customizado (início–fim) em `/relatorios`** — além dos presets 30d/90d/tudo; o produto NÃO impõe duração de janela de teste de nicho
 3. **Campo "interesse / serviço desejado" no lead** — opcional, útil manual hoje pra empresa de serviços, pronto pro Prospector depois
@@ -278,7 +279,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`, archives em `.planning/milestones/v1.3
 
 ---
 
-Last session: 2026-08-29→30 (resume + execução + UAT) — Fase 12 retomada de plano interrompido, LEVADA ATÉ O FIM e com UAT de navegador concluída.
+Last session: 2026-08-30T13:55:24.440Z
 
 **O que foi feito nesta sessão:**
 
