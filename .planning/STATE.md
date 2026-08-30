@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: pronto para `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`
-last_updated: "2026-08-30T13:55:24.496Z"
-last_activity: 2026-08-30 — milestone v1.4 iniciado, requisitos (5) e roadmap definidos e aprovados
+status: executing
+last_updated: "2026-08-30T15:50:00.000Z"
+last_activity: 2026-08-30 — Fase 13 UAT navegador 8/8 pass
 progress:
   total_phases: 3
   completed_phases: 0
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
 Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **EXECUTADA** (3/3 ondas, commits 0c80822/f30bd18/2733b10)
 Plan: 3 of 3
-Status: código 100% (build + 8 harnesses + grep gate COPY-01 verdes). Falta `/gsd-verify-work 13` (UAT de navegador, 8 itens).
-Last activity: 2026-08-30 — execute-phase 13 inline (3 ondas)
+Status: UAT de navegador COMPLETO (8/8 pass, 0 issues). Falta `/gsd-secure-phase 13` → `/close-phase 13`.
+Last activity: 2026-08-30 — UAT de navegador 13 (8/8)
 
 ## Performance Metrics
 

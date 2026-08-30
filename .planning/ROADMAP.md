@@ -138,6 +138,6 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | Executed (UAT pendente) | — |
+| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | UAT passed (secure+close pendentes) | — |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/? | Not started | — |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |
