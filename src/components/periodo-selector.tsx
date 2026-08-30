@@ -79,6 +79,11 @@ export function PeriodoSelector({
   const [inicioPopoverOpen, setInicioPopoverOpen] = useState(false);
   const [fimPopoverOpen, setFimPopoverOpen] = useState(false);
 
+  // Feedback imediato no picker: datas futuras ficam desabilitadas (IN-03). O
+  // clamp server-side (D-06) continua sendo a barreira real; isto só evita a
+  // classe de confusão de "escolhi 2027 e o relatório mostrou outra coisa".
+  const hoje = new Date();
+
   // Fonte de verdade do modo custom: a decisão do SERVIDOR (`value === "custom"`,
   // só verdadeiro quando o intervalo foi validado) OU um gesto local ainda não
   // navegado (D-15: escolheu "Intervalo personalizado" mas ainda não preencheu
@@ -194,6 +199,7 @@ export function PeriodoSelector({
                   mode="single"
                   selected={dataInicio}
                   onSelect={handleInicioChange}
+                  disabled={{ after: hoje }}
                 />
               </PopoverContent>
             </Popover>
@@ -218,6 +224,7 @@ export function PeriodoSelector({
                   mode="single"
                   selected={dataFim}
                   onSelect={handleFimChange}
+                  disabled={{ after: hoje }}
                 />
               </PopoverContent>
             </Popover>
