@@ -58,7 +58,7 @@ Detalhes completos: `.planning/milestones/v1.3-ROADMAP.md`
 
 **Meta do milestone:** Tirar o CRM da amarra "área da saúde" — o admin usa a mesma ferramenta pra leads de qualquer nicho (empresa de serviços de automação/IA, nichos rotativos), e o relatório responde "esse nicho converteu na janela que testei?". É rename + reframe + 2 adições pequenas, não rebuild.
 
-- [x] **Fase 13: Rename `sub-nicho → nicho` + reframe** — NICHO-01, NICHO-02, COPY-01 (executada 2026-08-30 — UAT de navegador pendente)
+- [x] **Fase 13: Rename `sub-nicho → nicho` + reframe** — NICHO-01, NICHO-02, COPY-01 (fechada 2026-08-30 — UAT 8/8, security 9/9, verification passed)
 - [ ] **Fase 14: Filtro de intervalo customizado em `/relatorios`** — METRICAS-03
 - [ ] **Fase 15: Campo "interesse / serviço desejado" no lead** — LEAD-06
 
@@ -138,6 +138,6 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | UAT passed (secure+close pendentes) | — |
+| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/? | Not started | — |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |

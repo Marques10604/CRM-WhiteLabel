@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
 status: executing
-last_updated: "2026-08-30T15:50:00.000Z"
-last_activity: 2026-08-30 — Fase 13 UAT navegador 8/8 pass
+last_updated: "2026-08-30T16:25:00.000Z"
+last_activity: 2026-08-30 — Fase 13 FECHADA (extract-learnings + verification passed + docs)
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 3
+  completed_plans: 3
+  percent: 33
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **EXECUTADA** (3/3 ondas, commits 0c80822/f30bd18/2733b10)
+Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **FECHADA** (3/3 ondas + UAT 8/8 + security 9/9 + verification passed + learnings extraídos)
 Plan: 3 of 3
-Status: UAT de navegador COMPLETO (8/8 pass, 0 issues). Falta `/gsd-secure-phase 13` → `/close-phase 13`.
-Last activity: 2026-08-30 — UAT de navegador 13 (8/8)
+Status: Fase 13 completa. Próximo: `/gsd-plan-phase 14` (filtro de intervalo em `/relatorios`, METRICAS-03).
+Last activity: 2026-08-30 — `/close-phase 13`
 
 ## Performance Metrics
 
@@ -263,11 +263,19 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 (despivô) — Fase 13 EXECUTADA. Próximo: `/gsd-verify-work 13` (UAT navegador).**
+**Milestone v1.4 (despivô) — Fase 13 FECHADA. Próximo: `/gsd-plan-phase 14`.**
 
-3 ondas rodadas inline (commits `0c80822` dados / `f30bd18` UI / `2733b10` copy; docs `621a1a8` + 13-02/03-SUMMARY). D-01 (rename só de código) confirmado: `data/crm.db` intocado, 37 leads mantêm categorização, `verify:schema` verde sem editar o script. `npm run build` exit 0 (`/nichos`, sem `/subnichos`). 8 harnesses `.cjs` + guard + grep gate COPY-01 (vazio) verdes. `<human-check>` de 8 itens (menu "Nichos", redirect, CRUD `/nichos`, campo do form, coluna/filtro `/leads`, seção `/relatorios`, wizard CSV, sem "saúde") PENDENTE — precisa de navegador. Requisitos NICHO-01/02 + COPY-01 ficam `Pending` até o UAT.
+Fase 13 completa ponta a ponta nesta sessão:
+- 3 ondas de código (`0c80822` dados / `f30bd18` UI / `2733b10` copy) — D-01 (rename só de código) confirmado no banco: `SELECT FROM subnichos` mostra tabela física intocada, 3 nichos + 37 leads preservados.
+- `13-UAT.md` `status: complete` — 8/8 pass, 0 issues (1 cosmética pré-existente da Fase 1 anotada).
+- `13-SECURITY.md` `status: verified` — 9/9 threats closed, 0 open.
+- `13-VERIFICATION.md` `status: passed` — promovido de `human_needed` pelo `/close-phase` (UAT limpa).
+- `13-LEARNINGS.md` — 6 decisões / 4 lições / 4 padrões / 3 surpresas.
+- REQUIREMENTS.md: NICHO-01, NICHO-02, COPY-01 → **Done**.
 
-Fase 14 = filtro de intervalo em `/relatorios` (METRICAS-03). Fase 15 = campo "interesse" no lead (LEAD-06).
+**Trabalho commitado direto em `main`** (`branching_strategy: none`), já em `origin/main` — sem PR próprio da Fase 13 (deviation do padrão branch-por-lote das Fases 10-12, aceitável por `branching_strategy: none`).
+
+Fase 14 = filtro de intervalo customizado em `/relatorios` (METRICAS-03) — 1-2 planos. Fase 15 = campo "interesse / serviço desejado" no lead (LEAD-06) — 1-2 planos. Depois: `/gsd-complete-milestone` do v1.4.
 
 Fase 13 = rename `sub-nicho → nicho` + reframe. Decisões travadas em `.planning/phases/13-rename-sub-nicho-nicho-reframe/13-CONTEXT.md` (commit 419822b):
 

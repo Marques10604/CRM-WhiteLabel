@@ -10,12 +10,12 @@ Escopo do milestone v1.4 — despivotar o CRM de "área da saúde" para uma ferr
 
 ### Nicho
 
-- [ ] **NICHO-01**: O campo hoje chamado "sub-nicho" passa a se chamar "nicho" em todo o sistema — coluna do banco, tipos, filtro da lista de leads, formulário de lead, wizard de importação CSV e relatórios — como lista plana, sem hierarquia nicho-pai/nicho-filho
-- [ ] **NICHO-02**: A rota `/subnichos` passa a ser `/nichos`, mantendo o CRUD atual: criar, renomear, remover com soft-delete e reativar por nome; o item do menu lateral acompanha
+- [x] **NICHO-01**: O campo hoje chamado "sub-nicho" passa a se chamar "nicho" em todo o sistema — coluna do banco, tipos, filtro da lista de leads, formulário de lead, wizard de importação CSV e relatórios — como lista plana, sem hierarquia nicho-pai/nicho-filho
+- [x] **NICHO-02**: A rota `/subnichos` passa a ser `/nichos`, mantendo o CRUD atual: criar, renomear, remover com soft-delete e reativar por nome; o item do menu lateral acompanha
 
 ### Copy
 
-- [ ] **COPY-01**: Nenhum label, placeholder, texto de ajuda, exemplo ou estado vazio visível no app menciona "área da saúde", usa "nutricionista"/"terapeuta" como categoria fixa, ou pressupõe um nicho-pai — a copy serve qualquer nicho
+- [x] **COPY-01**: Nenhum label, placeholder, texto de ajuda, exemplo ou estado vazio visível no app menciona "área da saúde", usa "nutricionista"/"terapeuta" como categoria fixa, ou pressupõe um nicho-pai — a copy serve qualquer nicho
 
 ### Relatórios
 
@@ -56,9 +56,9 @@ Reconhecidos, não neste milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NICHO-01 | Phase 13 (13-01, 13-02) | Pending |
-| NICHO-02 | Phase 13 (13-02) | Pending |
-| COPY-01 | Phase 13 (13-03) | Pending |
+| NICHO-01 | Phase 13 (13-01, 13-02) | Done (2026-08-30) |
+| NICHO-02 | Phase 13 (13-02) | Done (2026-08-30) |
+| COPY-01 | Phase 13 (13-03) | Done (2026-08-30) |
 | METRICAS-03 | Phase 14 | Pending |
 | LEAD-06 | Phase 15 | Pending |
 
@@ -66,7 +66,9 @@ Reconhecidos, não neste milestone.
 - v1.4 requirements: 5 total
 - Mapped to phases: 5
 - Unmapped: 0 ✓
+- Done: 3 (NICHO-01, NICHO-02, COPY-01 — Fase 13)
+- Pending: 2 (METRICAS-03 → Fase 14, LEAD-06 → Fase 15)
 
 ---
 *Requirements defined: 2026-08-30*
-*Last updated: 2026-08-30 after initial definition (milestone v1.4)*
+*Last updated: 2026-08-30 — Fase 13 fechada, NICHO-01/02 + COPY-01 marcados Done*
