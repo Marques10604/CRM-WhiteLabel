@@ -1,11 +1,12 @@
 import { db } from "@/db/client";
 import { motivosPerda, subnichos, templates } from "@/db/schema";
 import {
+  buildDashboardItems,
   computeSequenciaSugestao,
   getActiveDashboardLeads,
   getConfiguracoes,
+  getTarefasPendentes,
   getUltimaInteracaoWhatsAppPorLead,
-  groupLeadsByUrgency,
 } from "@/db/queries";
 import { FollowupDashboard } from "@/components/followup-dashboard";
 
@@ -13,7 +14,9 @@ import { FollowupDashboard } from "@/components/followup-dashboard";
  * Rota raiz `/` (REMIND-01, D-01/D-02/D-03) — dashboard de follow-ups
  * agrupado por urgência (Vencidos/Hoje/Próximos 7 dias), sem filtro manual.
  * A lista completa de leads foi movida para `/leads`. Agrupamento é
- * computado no servidor via `groupLeadsByUrgency` (função pura, testável).
+ * computado no servidor via `buildDashboardItems` (função pura, testável) —
+ * funde follow-ups de lead e tarefas soltas pendentes na mesma régua de
+ * urgência, intercalados por data dentro de cada seção (TAREFA-02, D-04).
  * `templates` alimenta o botão inline "Enviar WhatsApp" (WA-05) — modal de
  * preview com tipo pré-selecionado "Follow-up" (D-15).
  *
@@ -24,6 +27,7 @@ import { FollowupDashboard } from "@/components/followup-dashboard";
 export default async function Home() {
   const [
     activeLeads,
+    tarefasPendentes,
     allSubnichos,
     allMotivosPerda,
     allTemplates,
@@ -31,6 +35,7 @@ export default async function Home() {
     ultimaInteracaoPorLead,
   ] = await Promise.all([
     getActiveDashboardLeads(),
+    getTarefasPendentes(),
     db.select().from(subnichos),
     db.select().from(motivosPerda),
     db.select().from(templates),
@@ -38,7 +43,10 @@ export default async function Home() {
     getUltimaInteracaoWhatsAppPorLead(),
   ]);
 
-  const { vencidos, hoje, proximos7Dias } = groupLeadsByUrgency(activeLeads);
+  const { vencidos, hoje, proximos7Dias } = buildDashboardItems(
+    activeLeads,
+    tarefasPendentes
+  );
 
   const sugestaoPorLead = activeLeads
     .map((lead) => ({

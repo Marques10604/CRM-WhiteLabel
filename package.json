@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs",
+    "migrate:tarefas": "node scripts/migrate-tarefas.cjs",
     "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",
@@ -17,6 +18,8 @@
     "test:mutation-guard": "node scripts/test-mutation-guard.cjs",
     "test:compute-sequencia": "node scripts/test-compute-sequencia-sugestao.cjs",
     "test:motivo-perda-actions": "node scripts/test-motivo-perda-actions.cjs",
+    "test:tarefa-actions": "node scripts/test-tarefa-actions.cjs",
+    "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs"
   },
   "dependencies": {

@@ -35,8 +35,8 @@ Requisitos para o milestone v1.3 (Qualificação e Histórico de Leads). Cada um
 
 ### Agenda / Tarefas Soltas
 
-- [ ] **TAREFA-01**: Admin cria uma tarefa com data e descrição, sem vínculo a nenhum lead
-- [ ] **TAREFA-02**: Tarefas aparecem no dashboard de follow-up, agrupadas por urgência — mesmo padrão já usado para follow-ups de lead
+- [x] **TAREFA-01**: Admin cria uma tarefa com data e descrição, sem vínculo a nenhum lead
+- [x] **TAREFA-02**: Tarefas aparecem no dashboard de follow-up, agrupadas por urgência — mesmo padrão já usado para follow-ups de lead
 
 ## v2 Requirements
 
@@ -86,8 +86,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | METRICAS-01 | Phase 11 | Complete |
 | METRICAS-02 | Phase 11 | Complete |
 | PERDA-01 | Phase 11 | Complete |
-| TAREFA-01 | Phase 12 | Pending |
-| TAREFA-02 | Phase 12 | Pending |
+| TAREFA-01 | Phase 12 | Done |
+| TAREFA-02 | Phase 12 | Done |
 
 **Coverage:**
 - v1.3 requirements: 13 total

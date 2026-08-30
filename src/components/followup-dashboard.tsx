@@ -7,15 +7,18 @@ import { CalendarClock } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
+import { TarefaCard } from "@/components/tarefa-card";
+import { TarefaFormDialog } from "@/components/tarefa-form-dialog";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
-import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
+import type { DashboardItem } from "@/db/queries";
+import type { Lead, MotivoPerda, Subnicho, Tarefa, Template } from "@/types";
 
 type FollowupDashboardProps = {
-  vencidos: Lead[];
-  hoje: Lead[];
-  proximos7Dias: Lead[];
+  vencidos: DashboardItem[];
+  hoje: DashboardItem[];
+  proximos7Dias: DashboardItem[];
   subnichos: Subnicho[];
   motivosPerda: MotivoPerda[];
   templates: Template[];
@@ -27,6 +30,11 @@ type DialogState =
   | { mode: "create" }
   | { mode: "edit"; lead: Lead };
 
+type TarefaDialogState =
+  | { mode: "closed" }
+  | { mode: "create" }
+  | { mode: "edit"; tarefa: Tarefa };
+
 type PreviewState =
   | { open: false }
   | { open: true; lead: Lead; subnichoNome: string };
@@ -34,19 +42,20 @@ type PreviewState =
 type UrgencySection = {
   key: string;
   label: string;
-  leads: Lead[];
+  items: DashboardItem[];
   headerBg: string;
   headerText: string;
   dateClassName: string;
 };
 
 /**
- * Dashboard de follow-ups (REMIND-01, D-01/D-02/D-03) — 3 seções por
+ * Dashboard de follow-ups (REMIND-01 / TAREFA-02, D-01..D-08) — 3 seções por
  * urgência (Vencidos → Hoje → Próximos 7 dias), seção vazia é omitida
- * (D-02/copywriting). Clicar num item reabre `LeadFormDialog` em modo
- * edição (D-05); "Novo lead" abre o mesmo diálogo em modo criação local,
- * sem navegar para `/leads` (D-03) — esta superfície de criação é
- * reutilizada pelo auto-gatilho WA-04 do 04-04.
+ * (D-02/copywriting). Cada seção intercala follow-ups de lead e tarefas
+ * soltas pendentes ordenados por data (D-04) — a ordem já vem pronta de
+ * `buildDashboardItems` no servidor, nunca reordenada aqui. Clicar num item
+ * reabre o dialog de edição (`LeadFormDialog` ou `TarefaFormDialog`); "Novo
+ * lead" / "Nova tarefa" abrem os mesmos dialogs em modo criação local.
  */
 export function FollowupDashboard({
   vencidos,
@@ -58,6 +67,9 @@ export function FollowupDashboard({
   sugestaoPorLead,
 }: FollowupDashboardProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
+  const [tarefaDialogState, setTarefaDialogState] = useState<TarefaDialogState>({
+    mode: "closed",
+  });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
 
   const subnichoNameById = useMemo(
@@ -81,7 +93,7 @@ export function FollowupDashboard({
     {
       key: "vencidos",
       label: "Vencidos",
-      leads: vencidos,
+      items: vencidos,
       headerBg: "#FEE2E2",
       headerText: "#B91C1C",
       dateClassName: "text-[#B91C1C]",
@@ -89,7 +101,7 @@ export function FollowupDashboard({
     {
       key: "hoje",
       label: "Hoje",
-      leads: hoje,
+      items: hoje,
       headerBg: "#FEF3C7",
       headerText: "#B45309",
       dateClassName: "text-[#B45309]",
@@ -97,7 +109,7 @@ export function FollowupDashboard({
     {
       key: "proximos7Dias",
       label: "Próximos 7 dias",
-      leads: proximos7Dias,
+      items: proximos7Dias,
       headerBg: "#F4F4F5",
       headerText: "#3F3F46",
       dateClassName: "text-muted-foreground",
@@ -105,15 +117,23 @@ export function FollowupDashboard({
   ];
 
   const dialogLead = dialogState.mode === "edit" ? dialogState.lead : undefined;
+  const dialogTarefa =
+    tarefaDialogState.mode === "edit" ? tarefaDialogState.tarefa : undefined;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
         <Button
           className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
           onClick={() => setDialogState({ mode: "create" })}
         >
           Novo lead
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setTarefaDialogState({ mode: "create" })}
+        >
+          Nova tarefa
         </Button>
       </div>
 
@@ -121,12 +141,18 @@ export function FollowupDashboard({
         <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed py-16 text-center">
           <h2 className="text-[20px] leading-tight font-semibold">Tudo em dia!</h2>
           <p className="max-w-sm text-sm text-muted-foreground">
-            Nenhum follow-up pendente.
+            Nenhum follow-up ou tarefa pendente.
           </p>
           <div className="flex items-center gap-2">
             <Link href="/leads" className={buttonVariants({ variant: "outline" })}>
               Ver todos os leads
             </Link>
+            <Button
+              variant="outline"
+              onClick={() => setTarefaDialogState({ mode: "create" })}
+            >
+              Nova tarefa
+            </Button>
             <Button
               className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
               onClick={() => setDialogState({ mode: "create" })}
@@ -138,7 +164,7 @@ export function FollowupDashboard({
       ) : (
         <div className="flex flex-col gap-6">
           {sections
-            .filter((section) => section.leads.length > 0)
+            .filter((section) => section.items.length > 0)
             .map((section) => (
               <div
                 key={section.key}
@@ -158,15 +184,29 @@ export function FollowupDashboard({
                     className="text-[14px] leading-normal"
                     style={{ color: section.headerText }}
                   >
-                    · {section.leads.length}
+                    · {section.items.length}
                   </span>
                 </div>
                 <div className="flex flex-col gap-2 px-1 pb-1">
-                  {section.leads.map((lead) => {
+                  {section.items.map((item) => {
+                    if (item.kind === "tarefa") {
+                      return (
+                        <TarefaCard
+                          key={`tarefa-${item.tarefa.id}`}
+                          tarefa={item.tarefa}
+                          dateClassName={section.dateClassName}
+                          onEdit={(tarefa) =>
+                            setTarefaDialogState({ mode: "edit", tarefa })
+                          }
+                        />
+                      );
+                    }
+
+                    const lead = item.lead;
                     const sugestao = sugestaoPorLeadId.get(lead.id);
                     return (
                     <div
-                      key={lead.id}
+                      key={`lead-${lead.id}`}
                       role="button"
                       tabIndex={0}
                       onClick={() => setDialogState({ mode: "edit", lead })}
@@ -238,6 +278,19 @@ export function FollowupDashboard({
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}
+      />
+
+      <TarefaFormDialog
+        key={
+          tarefaDialogState.mode === "edit"
+            ? `tarefa-edit-${tarefaDialogState.tarefa.id}`
+            : "tarefa-create"
+        }
+        open={tarefaDialogState.mode !== "closed"}
+        onOpenChange={(open) => {
+          if (!open) setTarefaDialogState({ mode: "closed" });
+        }}
+        tarefa={dialogTarefa}
       />
 
       <WhatsAppPreviewDialog

@@ -43,7 +43,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 - [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
 - [x] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação (completed 2026-08-13)
 - [x] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo (completed 2026-08-27)
-- [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
+- [x] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads (completed 2026-08-30)
 
 ## Phase Details
 
@@ -258,7 +258,24 @@ Plans:
   2. Tarefas aparecem no dashboard de follow-up, agrupadas por urgência (Vencidas/Hoje/Próximos 7 dias) — mesmo padrão já usado para follow-ups de lead
   3. Tarefas soltas ficam visualmente distinguíveis dos follow-ups de lead dentro do mesmo agrupamento por urgência, sem exigir uma tela/rota separada para o admin achar o que precisa fazer hoje
 
-**Plans**: TBD
+**Plans**: 4 plans (4 ondas sequenciais)
+
+Plans:
+**Wave 1**
+
+- [x] 12-01-PLAN.md — Tabela `tarefas` (sem FK, sem `deletedAt`), migração manual [BLOCKING] via better-sqlite3, tipos, `tarefaSchema` e os gates `verify:schema` / `guard:no-hard-delete` (exceção D-08)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 12-02-PLAN.md — 4 Server Actions de tarefa (criar/editar/concluir/excluir em hard-delete), `groupByUrgency<T>` genérica + `getTarefasPendentes` + `buildDashboardItems`, com 2 harnesses automatizados
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 12-03-PLAN.md — Componentes: `DeleteTarefaDialog`, `TarefaFormDialog` (2 campos, Calendar, toast com Desfazer) e `TarefaCard` enxuto com botão-ícone de concluir
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 12-04-PLAN.md — Integração no dashboard `/`: intercalação lead+tarefa por data, botão "Nova tarefa", estado vazio atualizado + suíte completa de gates e UAT ponta a ponta
 
 **UI hint**: yes
 
@@ -280,4 +297,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
-| 12. Agenda / Tarefas Soltas | v1.3 | 0/TBD | Not started | - |
+| 12. Agenda / Tarefas Soltas | v1.3 | 4/4 | Complete   | 2026-08-30 |

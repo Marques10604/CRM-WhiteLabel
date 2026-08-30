@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: ready_to_plan
-last_updated: 2026-08-29T00:00:00.000Z
-last_activity: 2026-08-29
+status: shipped
+last_updated: "2026-08-30T01:40:00.000Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 8
-  completed_phases: 7
-  total_plans: 22
-  completed_plans: 37
-  percent: 88
-stopped_at: Fases 10 e 11 fechadas e shipadas — PR #2 (aguarda merge). Próximo: discutir Fase 12 (agenda / tarefas soltas)
+  completed_phases: 8
+  total_plans: 28
+  completed_plans: 28
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +20,16 @@ stopped_at: Fases 10 e 11 fechadas e shipadas — PR #2 (aguarda merge). Próxim
 See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 12 — agenda / tarefas soltas
+**Current focus:** Phase 12 — agenda-tarefas-soltas
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
-Status: Ready to plan — Fases 10-11 shipadas no PR #2 (https://github.com/Marques10604/CRM-WhiteLabel/pull/2), aguarda merge
-Last activity: 2026-08-29
+Phase: 12 (agenda-tarefas-soltas) — FECHADA E SHIPADA (PR #3)
+Plan: 4 of 4 — todos executados, commitados e mergeados no branch
+Status: fase completa. 12-VERIFICATION.md `passed`, 12-SECURITY.md 23/23 closed, 12-LEARNINGS.md extraído, 12-UAT.md `complete` (14/15). PR #3 aberto: https://github.com/Marques10604/CRM-WhiteLabel/pull/3 (branch `worktree-agent-ad346cc0697623e0c` → `main`). **Última fase do v1.3** — falta só aprovar/mergear o PR e rodar `/gsd-complete-milestone`.
+Last activity: 2026-08-30
 
-Progress: [██████████] 100%
+Progress: [██████████] 100% (código) · UAT pendente
 
 ## Performance Metrics
 
@@ -84,6 +83,10 @@ Progress: [██████████] 100%
 | Phase 11 P03 | 45min | 3 tasks | 15 files |
 | Phase 11 P04 | ~25min | 3 tasks | 3 files |
 | Phase 11 P05 | 20min | 3 tasks | 3 files |
+| Phase 12 P01 | 12min | 3 tasks | 7 files |
+| Phase 12 P02 | 16min | 3 tasks | 5 files |
+| Phase 12 P03 | ~20min | 2 tasks | 3 files |
+| Phase 12 P04 | ~15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -168,6 +171,14 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 11-04]: teste de integracao de query monta schema por DDL cru em os.tmpdir() (so as 3 tabelas + colunas que as queries tocam), nao replay das migrations
 - [Phase ?]: [Phase 11-05]: PeriodoSelector recebe value já normalizado pela página; servidor decide default (30d ausente) e fallback (tudo inválido), cliente é só o router.push
 - [Phase ?]: [Phase 11-05]: gate verify:motivos-perda-schema do PLAN.md não existe — Onda 1 estendeu verify-schema.cjs; cobertura dentro de verify:schema
+- [Phase 12-01]: tabela `tarefas` totalmente desacoplada — sem FK, sem `deletedAt`; `concluida_em` nullable e SEM default físico (NULL = pendente, D-01), mesmo idioma de interacoes.updatedAt / leads.stageChangedAt
+- [Phase 12-01]: `tarefas` é a PRIMEIRA e única entrada na ALLOWLIST do guard-no-hard-delete (D-08) — oposto das extensões de bloqueio das Fases 9/11; CODE_PATTERNS/CODE_SQL_PATTERNS ficam intocados, então DELETE FROM leads segue bloqueado inclusive dentro de tarefa-actions.ts
+- [Phase 12-01]: verify:schema usa conjunto ESTRITO de colunas para `tarefas` (molde de interacoes, não de leads) — tabela nova não acumula colunas por fase; mutação provada (gate falha sem a tabela)
+- [Phase 12-01]: migração `scripts/migrate-tarefas.cjs` rodada 2x contra data/crm.db — tabela criada, 37 leads intactos, idempotência confirmada; zero comandos drizzle-kit
+- [Phase ?]: [Phase 12-02]: groupByUrgency<T> genérico; groupLeadsByUrgency vira wrapper de 1 linha — call-sites preservados
+- [Phase ?]: [Phase 12-02]: updateTarefa não filtra isNull(concluidaEm) no WHERE (D-07 edita tarefa concluída); concluirTarefa idempotente via isNull, desfazer via isNotNull
+- [Phase ?]: [Phase 12-02]: buildDashboardItems mora em queries.ts e é pura — ordenar cada bucket por date ASC materializa D-04 (lead+tarefa intercalados)
+- [Phase ?]: [Phase 12-02]: 1ª cobertura automatizada da régua de urgência (lacuna de groupLeadsByUrgency fechada); hard-delete D-08 provado por ausência da linha + teste de mutação
 
 ### Pending Todos
 
@@ -202,7 +213,7 @@ Aberto, carregado para o v1.3:
 - Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
 - Phase 10: reset de `sequenciaPosicao` (ao fechar/perder lead vs. voltar para "novo") é decisão de produto em aberto — resolver em `/gsd-discuss-phase` da própria Phase 10, não travar em pesquisa adicional.
 - Phase 11: governança de `motivoPerda` (enum vs. normalização leve) é decisão explícita em aberto — resolver na discussão da própria Phase 11.
-- Fase 10 (10-04): npm run build sem confirmacao de exit 0 nesta sessao - host 4GB RAM esgota memoria na fase Running TypeScript do next build mesmo com dev server parado (3 tentativas, incluindo heap ampliado); npx tsc --noEmit isolado passou limpo. Rodar npm run build numa maquina com mais RAM antes de deploy/publicacao. Human-check de 10 passos da Fase 10 tambem pendente (sem navegador nesta sessao).
+- ~~Fase 10 (10-04): npm run build esgota memoria no host 4GB~~ — **RESOLVIDO 2026-08-29**: `npm run build` passou limpo (exit 0). O Next 16.2 usa **Turbopack** no `next build` (não mais webpack) — muito mais leve, a fase "Running TypeScript" que dava OOM passou em 33s. 13 páginas geradas. `next build` volta a ser gate normal das próximas fases. (Ainda ajuda fechar processos node antes.)
 
 ### Direção de infraestrutura / operação (definida 2026-08-27)
 
@@ -248,7 +259,37 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-28 (madrugada — usuário foi dormir)
+### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
+
+Fase 12 (agenda/tarefas soltas): **código + gates + UAT de navegador 100% feitos**. Faltam 2 passos pra fechar o milestone v1.3:
+
+1. `/gsd-secure-phase 12` — não existe `12-SECURITY.md` e `security_enforcement: true`. Os threat models T-12-01..T-12-SC já estão nos 4 PLANs; é só verificar as mitigações no código.
+2. `/close-phase 12` — extract-learnings → bridge do verification gate → PR. Promove TAREFA-01/02 pra Done. **Fecha o v1.3.**
+
+Working tree limpo (só `.planning/config.json` M e `.claude/` untracked, ambos pré-existentes/irrelevantes). Branch `worktree-agent-ad346cc0697623e0c`. Nenhum processo node ativo. Último commit: `eabf81f`.
+
+---
+
+Last session: 2026-08-29→30 (resume + execução + UAT) — Fase 12 retomada de plano interrompido, LEVADA ATÉ O FIM e com UAT de navegador concluída.
+
+**O que foi feito nesta sessão:**
+- **12-03 concluído**: Task 1 (`delete-tarefa-dialog.tsx` + `tarefa-form-dialog.tsx`) estava no working tree sem commit — verificada (`tsc` 0, adicionado `eslint-disable react-hooks/refs` documentado), commit `3211dcf`. Task 2 (`tarefa-card.tsx`) construída do zero — commit `9528807`. Docs `d1dfcab`. `12-03-SUMMARY.md` criado.
+- **12-04 concluído**: `page.tsx` (`getTarefasPendentes` + `buildDashboardItems`) + `followup-dashboard.tsx` (7 mudanças: props `DashboardItem[]`, `.map` ramifica por `item.kind`, botão "Nova tarefa", estado vazio, `TarefaFormDialog` irmão) — commit `42efb8d`. `12-04-SUMMARY.md` criado.
+- **Suíte de gates 100% verde** (rodada em sequência, dev server parado): `tsc --noEmit`, `eslint` (10 arquivos), `verify:schema`, `guard:no-hard-delete`, `test:tarefa-actions` (7), `test:group-by-urgency`, `test:compute-sequencia`, `test:lead-actions`, `test:relatorios` (38), **`npm run build` exit 0** (Turbopack, 47s compile + 28.5s TS, 13 páginas, rota `/`).
+
+**UAT da Fase 12 — FEITA (2026-08-30, automação de navegador):** `12-UAT.md` `status: complete`, 14/15 pass, 0 issues, 1 skip (estado vazio — precisa banco sem leads, cópia+ramo verificados no código/build). Todos os comportamentos observáveis confirmados: criar/editar/concluir/excluir tarefa, intercalação por data nas 3 seções, contagem somada, distinção visual do card, hard-delete provado no banco (D-08), sem rota nova. Extensão do Chrome teve instabilidades de screenshot (mesmo sintoma da Fase 11) — contornadas, sem afetar resultados.
+
+**Pendências da Fase 12:**
+1. `/gsd-secure-phase 12` — `workflow.security_enforcement: true` e não existe `12-SECURITY.md`. Requerido antes de fechar. (Threat models T-12-* já estão nos PLANs.)
+2. `/close-phase 12` (extract-learnings → bridge do verification gate → PR). Fecha o milestone v1.3.
+
+REQUIREMENTS.md: TAREFA-01/02 ainda `Pending` no disco — `/close-phase` promove após o gate.
+
+Branch: `worktree-agent-ad346cc0697623e0c`. Dev server: nenhum processo node ativo. Working tree limpo após os commits de docs.
+
+---
+
+Sessão anterior: 2026-08-29T20:33:56.297Z
 
 **Estado da Fase 11 — EXECUÇÃO COMPLETA, UAT HUMANO PENDENTE:**
 
@@ -261,12 +302,14 @@ Last session: 2026-08-28 (madrugada — usuário foi dormir)
 - STATE `status: ready_for_uat` (`74fedaf`). ROADMAP já marcava Fase 11 `[x]` (executor marcou cedo) — só fecha de verdade após o UAT passar.
 
 **2 WARNINGS do verificador (não bloqueiam o goal — candidatos a gap-closure):**
+
 1. `scripts/verify-motivos-perda-schema.cjs` **nunca foi criado** (estava nos must_haves de 11-01). A cobertura foi "folded" em `verify-schema.cjs`, que só checa tabela/índice/coluna — NÃO checa FK, colunas exatas, 6 seeds, nullability nem órfãos. Verificado à mão nesta sessão, mas sem gate automático de regressão.
 2. **Drift FK schema↔banco**: `leads.motivo_perda_id` está `ON DELETE NO ACTION` no banco real vs. `onDelete: "restrict"` no `schema.ts` (a DDL da migração de 11-01 omitiu `ON DELETE RESTRICT`). 2ª barreira anti-remoção-destrutiva inativa; a primária (`guard-no-hard-delete`) está verde e há 0 referências hoje.
 
 **Config de execução ativa** (`.planning/config.json`): `parallelization: false`, `workflow.use_worktrees: false`. Execução SEQUENCIAL inline no working tree (host 4GB — [[feedback_4gb_ram_avoid_parallel]]).
 
 **Como retomar:**
+
 1. `/gsd-verify-work 11` — rodar os 8 itens de UAT no navegador (precisa `npm run dev` — porta 3000/3001; nenhum processo node ativo agora). Atualizar `11-HUMAN-UAT.md` com os resultados.
 2. Se UAT passar: `/close-phase 11` (extract-learnings → PR).
 3. Alternativa pros 2 warnings: `/gsd-plan-phase 11 --gaps` cria planos de gap-closure (script de schema + regenerar a FK com a cláusula certa).

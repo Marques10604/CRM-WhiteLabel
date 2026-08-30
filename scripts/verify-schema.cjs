@@ -26,12 +26,14 @@ const rows = db
 const tableNames = new Set(rows.filter((r) => r.type === "table").map((r) => r.name));
 const indexNames = new Set(rows.filter((r) => r.type === "index").map((r) => r.name));
 
-const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda"];
+const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda", "tarefas"];
 const requiredIndexes = [
   "subnicho_nome_unique_idx",
   "interacoes_lead_id_idx",
   "interacoes_deleted_at_idx",
   "motivo_perda_nome_unique_idx",
+  "tarefas_concluida_em_idx",
+  "tarefas_data_idx",
 ];
 
 const missingTables = requiredTables.filter((t) => !tableNames.has(t));
@@ -74,6 +76,38 @@ if (tableNames.has("interacoes")) {
   }
 }
 
+// Gate de sync de schema para a tabela tarefas (Fase 12, TAREFA-01): exige
+// exatamente o conjunto de colunas físicas, nem a mais nem a menos. Conjunto
+// estrito é seguro aqui porque a tabela nasce nesta fase e não acumula
+// colunas por fase (diferente de 'leads') — mesmo idioma do bloco de
+// 'interacoes' acima.
+const REQUIRED_TAREFAS_COLUMNS = [
+  "id",
+  "descricao",
+  "data",
+  "concluida_em",
+  "created_at",
+  "updated_at",
+];
+
+if (tableNames.has("tarefas")) {
+  const tarefasColumns = db
+    .prepare("PRAGMA table_info(tarefas)")
+    .all()
+    .map((c) => c.name);
+  const columnSet = new Set(tarefasColumns);
+  const requiredSet = new Set(REQUIRED_TAREFAS_COLUMNS);
+
+  const missingColumns = REQUIRED_TAREFAS_COLUMNS.filter((c) => !columnSet.has(c));
+  const extraColumns = tarefasColumns.filter((c) => !requiredSet.has(c));
+
+  if (missingColumns.length > 0 || extraColumns.length > 0) {
+    fail(
+      `colunas de 'tarefas' divergentes — faltando: [${missingColumns.join(", ")}], extras: [${extraColumns.join(", ")}]`
+    );
+  }
+}
+
 // Gate permanente de PRESENÇA para as duas colunas da Sequência de
 // Follow-up Escalonada (Fase 10, SEQ-01/SEQ-02). Deliberadamente checagem de
 // PRESENÇA, não de conjunto estrito (diferente do bloco de 'interacoes'
@@ -99,7 +133,7 @@ if (tableNames.has("configuracoes")) {
 
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id' presentes em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id' presentes e conjunto estrito de colunas de 'tarefas' conferido em",
   DB_PATH
 );
 process.exit(0);
