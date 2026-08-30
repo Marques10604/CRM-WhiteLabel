@@ -104,9 +104,12 @@ Plans:
   3. Um intervalo inválido (fim antes do início, campo vazio, data no futuro) não quebra a tela — cai num fallback claro (ex: volta ao preset padrão) com aviso
   4. O intervalo selecionado sobrevive a um refresh da página (querystring, mesmo padrão dos presets atuais, `scroll: false`)
 
-**Plans**: 1-2 planos (coarse) — provável: (a) as 3 funções de query aceitam `{ from, to }` além do preset + resolução/validação do intervalo; (b) `PeriodoSelector` ganha o modo intervalo (2 date inputs) + página lê da querystring
+**Plans** (2, coarse — planejados 2026-08-30):
 
-**UI hint**: yes
+- [ ] 14-01-PLAN.md (Wave 1) — Camada de servidor: função pura `resolvePeriodoRelatorios({period,from,to})` → `{preset, range, customInvalido, from?, to?}` (valida, apara data futura pra hoje, nunca lança) + `/relatorios` alimenta as 3 agregações com o range resolvido + faixa de aviso server-rendered quando `customInvalido` + cobertura no harness. Custom já funciona pela URL.
+- [ ] 14-02-PLAN.md (Wave 2, dep. 14-01) — `PeriodoSelector` ganha 4ª opção "Intervalo personalizado" + 2 date pickers (`Popover`+`Calendar`, padrão do `lead-table-toolbar`) + navegação automática ao ter as 2 datas + página passa `from`/`to` como props.
+
+**UI hint**: yes (sem UI-SPEC dedicada — contrato visual herdado de `11-UI-SPEC.md` + `lead-table-toolbar.tsx`)
 
 ### Phase 15: Campo "interesse / serviço desejado" no lead
 
@@ -139,5 +142,5 @@ Plans:
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
 | 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
-| 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/? | Not started | — |
+| 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/2 | Planned | — |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |

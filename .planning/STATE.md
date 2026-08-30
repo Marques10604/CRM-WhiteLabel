@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: "Fase 13 completa. Próximo: `/gsd-plan-phase 14` (filtro de intervalo em `/relatorios`, METRICAS-03)."
-last_updated: "2026-08-30T17:59:03.205Z"
-last_activity: 2026-08-30 — `/close-phase 13`
+status: "Fase 14 planejada (2 planos, CONTEXT+PLANs commitados). Próximo: `/gsd-execute-phase 14`."
+last_updated: "2026-08-30T18:30:00.000Z"
+last_activity: 2026-08-30 — discuss + plan Fase 14
 progress:
   total_phases: 3
   completed_phases: 1
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **FECHADA** (3/3 ondas + UAT 8/8 + security 9/9 + verification passed + learnings extraídos)
-Plan: 3 of 3
-Status: Fase 13 completa. Próximo: `/gsd-plan-phase 14` (filtro de intervalo em `/relatorios`, METRICAS-03).
-Last activity: 2026-08-30 — `/close-phase 13`
+Phase: 14 (Filtro de intervalo customizado em `/relatorios`) — **PLANEJADA** (2 planos, `14-CONTEXT.md` + `14-01/02-PLAN.md` commitados)
+Plan: 0 of 2
+Status: Fase 13 FECHADA. Fase 14 planejada inline (sem cadeia de subagentes — host 4GB; sem UI-SPEC — contrato visual herdado da Fase 11). Próximo: `/gsd-execute-phase 14`.
+Last activity: 2026-08-30 — discuss-phase 14 + plan-phase 14
 
 ## Performance Metrics
 
@@ -263,9 +263,24 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 (despivô) — Fase 13 FECHADA. Próximo: `/gsd-plan-phase 14`.**
+**Milestone v1.4 (despivô) — Fase 14 PLANEJADA. Próximo: `/gsd-execute-phase 14`.**
 
-Fase 13 completa ponta a ponta nesta sessão:
+**Fase 14 — filtro de intervalo customizado em `/relatorios` (METRICAS-03).** `14-CONTEXT.md` (D-01..D-17) + `14-01-PLAN.md` + `14-02-PLAN.md` commitados (`38d323b` context, plan commit a seguir). Planejada INLINE (host 4GB — sem researcher/pattern-mapper/planner/checker; sem UI-SPEC — contrato visual = `11-UI-SPEC.md` + `lead-table-toolbar.tsx`).
+
+Decisões-chave:
+- `?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD` — `period` é a chave; datas ISO; voltar a preset remove `from`/`to`.
+- Fallback pra `30d` + faixa de aviso server-rendered ("Intervalo inválido — mostrando os últimos 30 dias.") quando o custom é rejeitado. Data futura é aparada pra hoje, não rejeitada.
+- `from` = `startOfDay`, `to` = `endOfDay` (dia inteiro). O `range` custom flui igual pras 3 seções (assimetria `createdAt`/`stageChangedAt` da Fase 11 mantida).
+- Seletor: 4ª opção "Intervalo personalizado" no `<Select>` → revela 2 date pickers (`Popover`+`Calendar`); recalcula automático quando as 2 datas estão preenchidas, sem botão "Aplicar".
+
+**14-01 (Wave 1):** função pura `resolvePeriodoRelatorios` em `queries.ts` (valida/apara/nunca-lança) + `relatorios/page.tsx` alimenta as 3 queries com o range + faixa de aviso + cobertura no `test-relatorios-queries.cjs`. Custom já funciona pela URL.
+**14-02 (Wave 2, dep. 14-01):** `periodo-selector.tsx` ganha o modo custom + 2 date pickers + navegação automática; página passa `from`/`to` como props.
+
+Sem migração, sem schema, sem Server Action nova. `security_enforcement: true` → cada PLAN tem `<threat_model>` (T-14-01..08).
+
+---
+
+Fase 13 completa ponta a ponta na sessão anterior:
 
 - 3 ondas de código (`0c80822` dados / `f30bd18` UI / `2733b10` copy) — D-01 (rename só de código) confirmado no banco: `SELECT FROM subnichos` mostra tabela física intocada, 3 nichos + 37 leads preservados.
 - `13-UAT.md` `status: complete` — 8/8 pass, 0 issues (1 cosmética pré-existente da Fase 1 anotada).
