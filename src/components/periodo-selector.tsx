@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { format, isValid, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -79,6 +79,26 @@ export function PeriodoSelector({
   const [inicioPopoverOpen, setInicioPopoverOpen] = useState(false);
   const [fimPopoverOpen, setFimPopoverOpen] = useState(false);
 
+  // Fonte de verdade do modo custom: a decisão do SERVIDOR (`value === "custom"`,
+  // só verdadeiro quando o intervalo foi validado) OU um gesto local ainda não
+  // navegado (D-15: escolheu "Intervalo personalizado" mas ainda não preencheu
+  // as 2 datas). Derivar em vez de espelhar em state evita o flash de "pickers
+  // somem" em navegação soft (Voltar/Avançar entre 2 URLs de /relatorios), que
+  // mantém o componente montado (CR-01).
+  const emModoCustom = value === "custom" || customMode;
+
+  // Ressincroniza os pickers e o gesto local sempre que a URL (props) muda —
+  // navegação soft do Next: `router.push`, `<Link>`, botão Voltar/Avançar. Sem
+  // isso os date pickers exibem datas velhas após a navegação (CR-01) e o modo
+  // custom "gruda" mesmo quando o servidor fez fallback para 30d por intervalo
+  // inválido (WR-04): `value` volta a "30d", `emModoCustom` acompanha e a faixa
+  // de aviso fica coerente com o seletor.
+  useEffect(() => {
+    setCustomMode(value === "custom");
+    setDataInicio(parseDataInicial(from));
+    setDataFim(parseDataInicial(to));
+  }, [value, from, to]);
+
   /** Volta para um preset (30d/90d/tudo) — copia todos os params e REMOVE from/to (D-03). */
   function navegarPreset(next: string) {
     const params = new URLSearchParams(searchParams);
@@ -137,7 +157,7 @@ export function PeriodoSelector({
       <span className="text-[14px] text-muted-foreground">Período:</span>
       <Select
         items={OPCOES as unknown as { value: string; label: string }[]}
-        value={customMode ? "custom" : value}
+        value={emModoCustom ? "custom" : value}
         onValueChange={handleSelectChange}
       >
         <SelectTrigger className={ACCENT_FOCUS_RING}>
@@ -152,7 +172,7 @@ export function PeriodoSelector({
         </SelectContent>
       </Select>
 
-      {customMode ? (
+      {emModoCustom ? (
         <>
           <div className="flex items-center gap-1.5">
             <span className="text-[14px] text-muted-foreground">Início</span>
