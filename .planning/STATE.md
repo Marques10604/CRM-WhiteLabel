@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 ## Current Position
 
-Phase: 12 (agenda-tarefas-soltas) — EXECUÇÃO COMPLETA, UAT + verificação pendentes
+Phase: 12 (agenda-tarefas-soltas) — EXECUÇÃO + UAT COMPLETAS, falta secure + close
 Plan: 4 of 4 — todos executados e commitados
-Status: 12-03 (commits 3211dcf/9528807) + 12-04 (commit 42efb8d) completos. Suíte de gates 100% verde incluindo `npm run build` (Turbopack, exit 0). Falta: `/gsd-verify-work 12` (UAT navegador 17 itens) → gsd-verifier → `/close-phase 12`.
-Last activity: 2026-08-29
+Status: 12-01..12-04 completos, gates 100% verdes (incl. `npm run build`). UAT de navegador `complete` (14/15 pass, 0 issues). Falta `/gsd-secure-phase 12` → `/close-phase 12` → fecha v1.3.
+Last activity: 2026-08-30
 
 Progress: [██████████] 100% (código) · UAT pendente
 
@@ -266,12 +266,13 @@ Last session: 2026-08-29 (resume + execução) — Fase 12 retomada de plano int
 - **12-04 concluído**: `page.tsx` (`getTarefasPendentes` + `buildDashboardItems`) + `followup-dashboard.tsx` (7 mudanças: props `DashboardItem[]`, `.map` ramifica por `item.kind`, botão "Nova tarefa", estado vazio, `TarefaFormDialog` irmão) — commit `42efb8d`. `12-04-SUMMARY.md` criado.
 - **Suíte de gates 100% verde** (rodada em sequência, dev server parado): `tsc --noEmit`, `eslint` (10 arquivos), `verify:schema`, `guard:no-hard-delete`, `test:tarefa-actions` (7), `test:group-by-urgency`, `test:compute-sequencia`, `test:lead-actions`, `test:relatorios` (38), **`npm run build` exit 0** (Turbopack, 47s compile + 28.5s TS, 13 páginas, rota `/`).
 
-**Pendências da Fase 12:**
-1. `/gsd-verify-work 12` — UAT de navegador, 17 itens do `<human-check>` do 12-04-PLAN.md (precisa `npm run dev`). NÃO rodado (sem navegador nesta sessão). Cria/atualiza `12-HUMAN-UAT.md`.
-2. gsd-verifier (`/gsd-verify-work` ou verificação de fase) → `12-VERIFICATION.md`.
-3. `/close-phase 12` (extract-learnings → PR). Fecha o milestone v1.3.
+**UAT da Fase 12 — FEITA (2026-08-30, automação de navegador):** `12-UAT.md` `status: complete`, 14/15 pass, 0 issues, 1 skip (estado vazio — precisa banco sem leads, cópia+ramo verificados no código/build). Todos os comportamentos observáveis confirmados: criar/editar/concluir/excluir tarefa, intercalação por data nas 3 seções, contagem somada, distinção visual do card, hard-delete provado no banco (D-08), sem rota nova. Extensão do Chrome teve instabilidades de screenshot (mesmo sintoma da Fase 11) — contornadas, sem afetar resultados.
 
-REQUIREMENTS.md: TAREFA-01/02 permanecem `Pending` de propósito até o UAT passar (mesmo padrão das fases anteriores).
+**Pendências da Fase 12:**
+1. `/gsd-secure-phase 12` — `workflow.security_enforcement: true` e não existe `12-SECURITY.md`. Requerido antes de fechar. (Threat models T-12-* já estão nos PLANs.)
+2. `/close-phase 12` (extract-learnings → bridge do verification gate → PR). Fecha o milestone v1.3.
+
+REQUIREMENTS.md: TAREFA-01/02 ainda `Pending` no disco — `/close-phase` promove após o gate.
 
 Branch: `worktree-agent-ad346cc0697623e0c`. Dev server: nenhum processo node ativo. Working tree limpo após os commits de docs.
 
