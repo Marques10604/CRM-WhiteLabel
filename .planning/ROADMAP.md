@@ -43,7 +43,7 @@ Detalhes completos (goals, success criteria, plano-a-plano) arquivados em
 - [x] **Phase 9: Timeline de Interações** - Todo clique de WhatsApp e nota manual vira um registro cronológico visível na tela do lead — histórico completo, não só o contador atual (completed 2026-08-09)
 - [x] **Phase 10: Sequência de Follow-up Escalonada** - Admin configura intervalos crescentes de reabordagem com templates de reforço de valor, o sistema sugere a próxima data (cálculo na leitura, nunca agendado), e leads Inbound ficam de fora dessa automação (completed 2026-08-13)
 - [x] **Phase 11: Painel de Métricas e Relatório de Motivos de Perda** - Tela de relatórios com contagem/conversão por origem e sub-nicho, e contagem de leads perdidos por motivo (completed 2026-08-27)
-- [ ] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads
+- [x] **Phase 12: Agenda / Tarefas Soltas** - Tarefa avulsa com data e descrição, sem vínculo a lead, aparecendo no dashboard de follow-up junto com os leads (completed 2026-08-30)
 
 ## Phase Details
 
@@ -297,4 +297,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Timeline de Interações | v1.3 | 4/4 | Complete   | 2026-08-09 |
 | 10. Sequência de Follow-up Escalonada | v1.3 | 4/4 | Complete   | 2026-08-13 |
 | 11. Painel de Métricas e Relatório de Motivos de Perda | v1.3 | 5/5 | Complete    | 2026-08-29 |
-| 12. Agenda / Tarefas Soltas | v1.3 | 2/4 | In Progress|  |
+| 12. Agenda / Tarefas Soltas | v1.3 | 4/4 | Complete   | 2026-08-30 |
