@@ -24,12 +24,12 @@ See: .planning/PROJECT.md (updated 2026-08-01)
 
 ## Current Position
 
-Phase: 12 (agenda-tarefas-soltas) — EXECUTING
-Plan: 4 of 4
-Status: 12-03 completo (3 componentes de UI da tarefa, commits 3211dcf/9528807); 12-04 (integração no dashboard + gates + UAT) pendente
+Phase: 12 (agenda-tarefas-soltas) — EXECUÇÃO COMPLETA, UAT + verificação pendentes
+Plan: 4 of 4 — todos executados e commitados
+Status: 12-03 (commits 3211dcf/9528807) + 12-04 (commit 42efb8d) completos. Suíte de gates 100% verde incluindo `npm run build` (Turbopack, exit 0). Falta: `/gsd-verify-work 12` (UAT navegador 17 itens) → gsd-verifier → `/close-phase 12`.
 Last activity: 2026-08-29
 
-Progress: [█████████░] 92%
+Progress: [██████████] 100% (código) · UAT pendente
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: [█████████░] 92%
 | Phase 12 P01 | 12min | 3 tasks | 7 files |
 | Phase 12 P02 | 16min | 3 tasks | 5 files |
 | Phase 12 P03 | ~20min | 2 tasks | 3 files |
+| Phase 12 P04 | ~15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -258,7 +259,21 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-29 (resume) — Fase 12 retomada. Estado detectado: planos 12-01/12-02 commitados; **plano 12-03 INTERROMPIDO** — Task 1 gravou `src/components/delete-tarefa-dialog.tsx` + `src/components/tarefa-form-dialog.tsx` (untracked, sem commit, sem `tsc`/eslint rodados); Task 2 (`src/components/tarefa-card.tsx`) não iniciada; sem `12-03-SUMMARY.md`. Plano 12-04 não iniciado. Sem agente interrompido, sem HANDOFF.json, sem `.continue-here` da Fase 12. Ação: `/gsd-execute-phase 12` para completar 12-03 (verificar/commitar Task 1, fazer Task 2) e depois 12-04.
+Last session: 2026-08-29 (resume + execução) — Fase 12 retomada de plano interrompido e LEVADA ATÉ O FIM DA EXECUÇÃO.
+
+**O que foi feito nesta sessão:**
+- **12-03 concluído**: Task 1 (`delete-tarefa-dialog.tsx` + `tarefa-form-dialog.tsx`) estava no working tree sem commit — verificada (`tsc` 0, adicionado `eslint-disable react-hooks/refs` documentado), commit `3211dcf`. Task 2 (`tarefa-card.tsx`) construída do zero — commit `9528807`. Docs `d1dfcab`. `12-03-SUMMARY.md` criado.
+- **12-04 concluído**: `page.tsx` (`getTarefasPendentes` + `buildDashboardItems`) + `followup-dashboard.tsx` (7 mudanças: props `DashboardItem[]`, `.map` ramifica por `item.kind`, botão "Nova tarefa", estado vazio, `TarefaFormDialog` irmão) — commit `42efb8d`. `12-04-SUMMARY.md` criado.
+- **Suíte de gates 100% verde** (rodada em sequência, dev server parado): `tsc --noEmit`, `eslint` (10 arquivos), `verify:schema`, `guard:no-hard-delete`, `test:tarefa-actions` (7), `test:group-by-urgency`, `test:compute-sequencia`, `test:lead-actions`, `test:relatorios` (38), **`npm run build` exit 0** (Turbopack, 47s compile + 28.5s TS, 13 páginas, rota `/`).
+
+**Pendências da Fase 12:**
+1. `/gsd-verify-work 12` — UAT de navegador, 17 itens do `<human-check>` do 12-04-PLAN.md (precisa `npm run dev`). NÃO rodado (sem navegador nesta sessão). Cria/atualiza `12-HUMAN-UAT.md`.
+2. gsd-verifier (`/gsd-verify-work` ou verificação de fase) → `12-VERIFICATION.md`.
+3. `/close-phase 12` (extract-learnings → PR). Fecha o milestone v1.3.
+
+REQUIREMENTS.md: TAREFA-01/02 permanecem `Pending` de propósito até o UAT passar (mesmo padrão das fases anteriores).
+
+Branch: `worktree-agent-ad346cc0697623e0c`. Dev server: nenhum processo node ativo. Working tree limpo após os commits de docs.
 
 ---
 

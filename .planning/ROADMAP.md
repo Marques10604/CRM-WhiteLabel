@@ -275,7 +275,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 12-04-PLAN.md — Integração no dashboard `/`: intercalação lead+tarefa por data, botão "Nova tarefa", estado vazio atualizado + suíte completa de gates e UAT ponta a ponta
+- [x] 12-04-PLAN.md — Integração no dashboard `/`: intercalação lead+tarefa por data, botão "Nova tarefa", estado vazio atualizado + suíte completa de gates e UAT ponta a ponta
 
 **UI hint**: yes
 
