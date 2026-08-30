@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: executing
-last_updated: "2026-08-30T16:25:00.000Z"
-last_activity: 2026-08-30 — Fase 13 FECHADA (extract-learnings + verification passed + docs)
+status: "Fase 13 completa. Próximo: `/gsd-plan-phase 14` (filtro de intervalo em `/relatorios`, METRICAS-03)."
+last_updated: "2026-08-30T17:59:03.205Z"
+last_activity: 2026-08-30 — `/close-phase 13`
 progress:
   total_phases: 3
   completed_phases: 1
@@ -266,6 +266,7 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 **Milestone v1.4 (despivô) — Fase 13 FECHADA. Próximo: `/gsd-plan-phase 14`.**
 
 Fase 13 completa ponta a ponta nesta sessão:
+
 - 3 ondas de código (`0c80822` dados / `f30bd18` UI / `2733b10` copy) — D-01 (rename só de código) confirmado no banco: `SELECT FROM subnichos` mostra tabela física intocada, 3 nichos + 37 leads preservados.
 - `13-UAT.md` `status: complete` — 8/8 pass, 0 issues (1 cosmética pré-existente da Fase 1 anotada).
 - `13-SECURITY.md` `status: verified` — 9/9 threats closed, 0 open.
@@ -290,7 +291,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T13:55:24.440Z
+Last session: 2026-08-30T17:59:03.162Z
 
 **O que foi feito nesta sessão:**
 
