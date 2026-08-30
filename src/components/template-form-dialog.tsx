@@ -126,7 +126,7 @@ export function TemplateFormDialog({
             <FieldContent>
               <Input
                 id="nome"
-                placeholder="Ex: Primeiro contato — nutricionista"
+                placeholder="Ex: Primeiro contato — dentista"
                 aria-invalid={!!errors.nome}
                 {...form.register("nome")}
               />

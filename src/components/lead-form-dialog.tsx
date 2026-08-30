@@ -336,7 +336,7 @@ export function LeadFormDialog({
                     )}
                   />
                   <FieldDescription>
-                    Categoria do lead (ex: nutricionista, terapeuta).
+                    Nicho do lead (ex: dentista, e-commerce de roupa, academia).
                   </FieldDescription>
                   <FieldError errors={[errors.nichoId]} />
                 </FieldContent>

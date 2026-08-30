@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CRM de Leads",
-  description: "CRM pessoal para organizar leads da área da saúde",
+  description: "CRM pessoal para organizar leads e o funil de vendas.",
 };
 
 export default function RootLayout({
