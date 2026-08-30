@@ -131,24 +131,25 @@ export function PeriodoSelector({
     navegarPreset(next);
   }
 
-  // Cuidado com o closure: computa o próximo valor dos DOIS locais e navega só
-  // quando ambos estão preenchidos — mesmo idioma de `applyDateRange` em
-  // `lead-table-toolbar.tsx`.
+  // Navega só quando as DUAS datas estão preenchidas. Usa o valor NOVO
+  // diretamente — nunca faz fallback para o estado anterior: desmarcar um dia
+  // no `<Calendar>` (clicar de novo no dia já marcado) dispara
+  // `onSelect(undefined)`, e navegar com a data que o usuário acabou de limpar
+  // deixava o picker vazio enquanto os relatórios seguiam no intervalo antigo
+  // (WR-02). Se um dos campos ficar vazio, não navega — a URL antiga permanece.
   function handleInicioChange(date: Date | undefined) {
     setDataInicio(date);
     setInicioPopoverOpen(false);
-    const proxInicio = date ?? dataInicio;
-    if (proxInicio && dataFim) {
-      navegarCustom(proxInicio, dataFim);
+    if (date && dataFim) {
+      navegarCustom(date, dataFim);
     }
   }
 
   function handleFimChange(date: Date | undefined) {
     setDataFim(date);
     setFimPopoverOpen(false);
-    const proxFim = date ?? dataFim;
-    if (dataInicio && proxFim) {
-      navegarCustom(dataInicio, proxFim);
+    if (dataInicio && date) {
+      navegarCustom(dataInicio, date);
     }
   }
 
