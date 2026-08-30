@@ -50,7 +50,7 @@ export default async function RelatoriosPage({
   //   • `period` adulterado → fallback SILENCIOSO "tudo" (T-11-24), sem faixa.
   // `preset` alimenta o `value` do <PeriodoSelector>; `range` alimenta as 3
   // agregações; `customInvalido` decide a faixa de aviso server-rendered (D-07).
-  const { preset, range, customInvalido } = resolvePeriodoRelatorios({
+  const { preset, range, customInvalido, from, to } = resolvePeriodoRelatorios({
     period,
     from: fromParam,
     to: toParam,
@@ -70,7 +70,7 @@ export default async function RelatoriosPage({
       <div className="flex items-center justify-between">
         <h1 className="text-[28px] font-semibold leading-tight">Relatórios</h1>
         <Suspense fallback={null}>
-          <PeriodoSelector value={preset} />
+          <PeriodoSelector value={preset} from={from} to={to} />
         </Suspense>
       </div>
 
