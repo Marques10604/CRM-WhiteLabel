@@ -34,12 +34,26 @@ function formatarTaxa(taxa: number): string {
   return `${Math.round(taxa * 100)}%`;
 }
 
+/**
+ * No App Router um param repetido na URL (`?period=custom&period=30d`) chega
+ * como `string[]`, não `string` — o tipo do Next reflete isso. Normalizamos
+ * para o primeiro valor antes de passar para `resolvePeriodoRelatorios` (IN-04):
+ * assim `?period=custom` repetido resolve para `custom`, não cai no fallback
+ * silencioso "tudo" por comparação contra um array.
+ */
+function primeiro(valor: string | string[] | undefined): string | undefined {
+  return Array.isArray(valor) ? valor[0] : valor;
+}
+
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string; from?: string; to?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { period, from: fromParam, to: toParam } = await searchParams;
+  const params = await searchParams;
+  const period = primeiro(params.period);
+  const fromParam = primeiro(params.from);
+  const toParam = primeiro(params.to);
 
   // NORMALIZAÇÃO DO PERÍODO — delegada INTEIRAMENTE a `resolvePeriodoRelatorios`
   // (função pura de `queries.ts`, nunca lança). Ela cobre as 3 políticas:
