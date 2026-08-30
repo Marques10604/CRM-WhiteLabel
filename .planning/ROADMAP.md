@@ -58,7 +58,7 @@ Detalhes completos: `.planning/milestones/v1.3-ROADMAP.md`
 
 **Meta do milestone:** Tirar o CRM da amarra "área da saúde" — o admin usa a mesma ferramenta pra leads de qualquer nicho (empresa de serviços de automação/IA, nichos rotativos), e o relatório responde "esse nicho converteu na janela que testei?". É rename + reframe + 2 adições pequenas, não rebuild.
 
-- [ ] **Fase 13: Rename `sub-nicho → nicho` + reframe** — NICHO-01, NICHO-02, COPY-01
+- [x] **Fase 13: Rename `sub-nicho → nicho` + reframe** — NICHO-01, NICHO-02, COPY-01 (executada 2026-08-30 — UAT de navegador pendente)
 - [ ] **Fase 14: Filtro de intervalo customizado em `/relatorios`** — METRICAS-03
 - [ ] **Fase 15: Campo "interesse / serviço desejado" no lead** — LEAD-06
 
@@ -80,15 +80,15 @@ Detalhes completos: `.planning/milestones/v1.3-ROADMAP.md`
 Plans:
 **Wave 1**
 
-- [ ] 13-01-PLAN.md — Camada de dados: schema (`nichos` lógico / `subnichos` físico + doc-comment) + tipos + Zod + queries + `subnicho-actions.ts`→`nicho-actions.ts` + pattern do `guard-no-hard-delete.cjs`
+- [x] 13-01-PLAN.md — Camada de dados: schema (`nichos` lógico / `subnichos` físico + doc-comment) + tipos + Zod + queries + `subnicho-actions.ts`→`nicho-actions.ts` + pattern do `guard-no-hard-delete.cjs`
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 13-02-PLAN.md — Superfícies de UI: rota `app/subnichos/`→`app/nichos/` + redirect 301 no `next.config.ts` + 3 componentes `subnicho-*`→`nicho-*` + sidebar + ~15 consumidores; `tsc` e `build` exit 0
+- [x] 13-02-PLAN.md — Superfícies de UI: rota `app/subnichos/`→`app/nichos/` + redirect 301 no `next.config.ts` + 3 componentes `subnicho-*`→`nicho-*` + sidebar + ~15 consumidores; `tsc` e `build` exit 0
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 13-03-PLAN.md — Varredura de copy: os 3 pontos "saúde" + texto de ajuda genérico + `layout.tsx` metadata + `"sub-nicho"` visível em toda superfície + harnesses `.cjs` + gate de grep COPY-01
+- [x] 13-03-PLAN.md — Varredura de copy: os 3 pontos "saúde" + texto de ajuda genérico + `layout.tsx` metadata + `"sub-nicho"` visível em toda superfície + harnesses `.cjs` + gate de grep COPY-01
 
 **UI hint**: yes
 
@@ -138,6 +138,6 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 0/3 | Planned | — |
+| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | Executed (UAT pendente) | — |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 0/? | Not started | — |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |

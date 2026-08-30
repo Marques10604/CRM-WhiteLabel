@@ -24,11 +24,11 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 
 ## Current Position
 
-Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — roadmap aprovado (3 fases, 13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **3 planos escritos** (13-01/02/03), não executados
-Plan: 0 of 3
-Status: pronto para `/gsd-execute-phase 13`
-Last activity: 2026-08-30 — plan-phase 13 concluído inline (3 ondas: dados → UI → copy)
+Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
+Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **EXECUTADA** (3/3 ondas, commits 0c80822/f30bd18/2733b10)
+Plan: 3 of 3
+Status: código 100% (build + 8 harnesses + grep gate COPY-01 verdes). Falta `/gsd-verify-work 13` (UAT de navegador, 8 itens).
+Last activity: 2026-08-30 — execute-phase 13 inline (3 ondas)
 
 ## Performance Metrics
 
@@ -263,9 +263,11 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 (despivô) — Fase 13 PLANEJADA (3 planos). Próximo: `/gsd-execute-phase 13`.**
+**Milestone v1.4 (despivô) — Fase 13 EXECUTADA. Próximo: `/gsd-verify-work 13` (UAT navegador).**
 
-`13-01/02/03-PLAN.md` escritos inline (sem cadeia de subagentes — host 4GB; sem research — D-01 tirou o risco; sem UI-SPEC — rename não é design). 3 ondas sequenciais: (1) camada de dados, (2) superfícies de UI + `tsc`/`build` verdes, (3) varredura de copy + gate de grep COPY-01. Cada onda tem `<threat_model>`.
+3 ondas rodadas inline (commits `0c80822` dados / `f30bd18` UI / `2733b10` copy; docs `621a1a8` + 13-02/03-SUMMARY). D-01 (rename só de código) confirmado: `data/crm.db` intocado, 37 leads mantêm categorização, `verify:schema` verde sem editar o script. `npm run build` exit 0 (`/nichos`, sem `/subnichos`). 8 harnesses `.cjs` + guard + grep gate COPY-01 (vazio) verdes. `<human-check>` de 8 itens (menu "Nichos", redirect, CRUD `/nichos`, campo do form, coluna/filtro `/leads`, seção `/relatorios`, wizard CSV, sem "saúde") PENDENTE — precisa de navegador. Requisitos NICHO-01/02 + COPY-01 ficam `Pending` até o UAT.
+
+Fase 14 = filtro de intervalo em `/relatorios` (METRICAS-03). Fase 15 = campo "interesse" no lead (LEAD-06).
 
 Fase 13 = rename `sub-nicho → nicho` + reframe. Decisões travadas em `.planning/phases/13-rename-sub-nicho-nicho-reframe/13-CONTEXT.md` (commit 419822b):
 
