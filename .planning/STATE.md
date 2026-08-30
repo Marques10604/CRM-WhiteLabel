@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: "Fase 14 planejada (2 planos, CONTEXT+PLANs commitados). Próximo: `/gsd-execute-phase 14`."
-last_updated: "2026-08-30T18:30:00.000Z"
-last_activity: 2026-08-30 — discuss + plan Fase 14
+status: executing
+last_updated: "2026-08-30T18:59:44.085Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
   percent: 33
 ---
 
@@ -20,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — definindo requisitos e roadmap. Fases 13-15. Rename `sub-nicho → nicho` + neutralizar copy "saúde" + filtro de intervalo em `/relatorios` + campo "interesse/serviço desejado" no lead.
+**Current focus:** Phase 14 — filtro-de-intervalo-customizado-em-relatorios
 
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 14 (Filtro de intervalo customizado em `/relatorios`) — **PLANEJADA** (2 planos, `14-CONTEXT.md` + `14-01/02-PLAN.md` commitados)
-Plan: 0 of 2
-Status: Fase 13 FECHADA. Fase 14 planejada inline (sem cadeia de subagentes — host 4GB; sem UI-SPEC — contrato visual herdado da Fase 11). Próximo: `/gsd-execute-phase 14`.
-Last activity: 2026-08-30 — discuss-phase 14 + plan-phase 14
+Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-08-30
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Last activity: 2026-08-30 — discuss-phase 14 + plan-phase 14
 | Phase 12 P02 | 16min | 3 tasks | 5 files |
 | Phase 12 P03 | ~20min | 2 tasks | 3 files |
 | Phase 12 P04 | ~15min | 2 tasks | 2 files |
+| Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
 
 ## Accumulated Context
 
@@ -178,6 +179,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 12-02]: updateTarefa não filtra isNull(concluidaEm) no WHERE (D-07 edita tarefa concluída); concluirTarefa idempotente via isNull, desfazer via isNotNull
 - [Phase ?]: [Phase 12-02]: buildDashboardItems mora em queries.ts e é pura — ordenar cada bucket por date ASC materializa D-04 (lead+tarefa intercalados)
 - [Phase ?]: [Phase 12-02]: 1ª cobertura automatizada da régua de urgência (lacuna de groupLeadsByUrgency fechada); hard-delete D-08 provado por ausência da linha + teste de mutação
+- [Phase 14]: resolvePeriodoRelatorios é função IRMÃ de resolvePeriodRange (não extensão) — resolvePeriodRange fica intacta e é reusada internamente para presets clássicos e todos os fallbacks; comportamento custom fica isolado
+- [Phase 14]: faixa de aviso de intervalo inválido em /relatorios usa classes amber-* (paleta default Tailwind v4 intacta); customInvalido distingue 'usuário pediu custom e errou' (mostra faixa) de 'period adulterado' (fallback silencioso tudo, sem faixa)
 
 ### Pending Todos
 
@@ -268,6 +271,7 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 **Fase 14 — filtro de intervalo customizado em `/relatorios` (METRICAS-03).** `14-CONTEXT.md` (D-01..D-17) + `14-01-PLAN.md` + `14-02-PLAN.md` commitados (`38d323b` context, plan commit a seguir). Planejada INLINE (host 4GB — sem researcher/pattern-mapper/planner/checker; sem UI-SPEC — contrato visual = `11-UI-SPEC.md` + `lead-table-toolbar.tsx`).
 
 Decisões-chave:
+
 - `?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD` — `period` é a chave; datas ISO; voltar a preset remove `from`/`to`.
 - Fallback pra `30d` + faixa de aviso server-rendered ("Intervalo inválido — mostrando os últimos 30 dias.") quando o custom é rejeitado. Data futura é aparada pra hoje, não rejeitada.
 - `from` = `startOfDay`, `to` = `endOfDay` (dia inteiro). O `range` custom flui igual pras 3 seções (assimetria `createdAt`/`stageChangedAt` da Fase 11 mantida).
@@ -306,7 +310,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T17:59:03.162Z
+Last session: 2026-08-30T18:59:44.061Z
 
 **O que foi feito nesta sessão:**
 
