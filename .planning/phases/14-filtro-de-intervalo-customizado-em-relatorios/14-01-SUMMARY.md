@@ -115,6 +115,13 @@ Nenhuma superfície nova fora do `<threat_model>` do plano. `from`/`to` são o �
 - **14-02 destravado:** `resolvePeriodoRelatorios` exporta `preset` (para o `value` do `<Select>`), `from`/`to` validados/clampados (para pré-preencher os 2 date pickers) e `customInvalido`. O 14-02 só precisa adicionar o gesto no `PeriodoSelector` (4ª opção "Intervalo personalizado" + `Popover`/`Calendar` + navegação automática quando as 2 datas estão preenchidas) e threadar `from`/`to` como props novas da página para o componente.
 - Sem migração, sem schema, sem Server Action nova — inalterado.
 
+## Self-Check: PASSED
+
+- Arquivos criados/modificados: todos presentes (`queries.ts`, `page.tsx`, `test-relatorios-queries.cjs`, `14-01-SUMMARY.md`)
+- Commits verificados no git log: `51807fa`, `8ff0a05`, `8b03070`, `8bf2877`, `850a1aa`
+- Gates: `npm run build` exit 0 (`/relatorios` presente) · `npm run test:relatorios` exit 0 (50/50) · `npm run guard:no-hard-delete` exit 0 · `npm run verify:schema` exit 0
+- `grep resolvePeriodoRelatorios` presente em `page.tsx` e `queries.ts`; `isNull(leads.deletedAt)` = 7 ocorrências (≥3, T-11-21 intacto)
+
 ---
 *Phase: 14-filtro-de-intervalo-customizado-em-relatorios*
 *Completed: 2026-08-30*
