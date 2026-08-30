@@ -1,7 +1,7 @@
 ---
 phase: 12-agenda-tarefas-soltas
 verified: 2026-08-30T01:15:00Z
-status: human_needed
+status: passed
 score: 3/3 success criteria verified (code + build + UAT)
 overrides_applied: 0
 re_verification:
@@ -21,7 +21,7 @@ decision_coverage:
 
 **Goal (ROADMAP):** Admin registra um compromisso ou lembrete que não está amarrado a nenhum lead e ainda assim recebe destaque de urgência igual aos follow-ups de lead.
 
-**Verdict:** `human_needed` — 3/3 success criteria verificados na camada de código, dados, build e teste automatizado. Fase é user-facing → itens de verificação humana existem; **já cobertos pela UAT de navegador** (`12-UAT.md` `status: complete`, 14/15 pass, 0 issues, 1 skip documentado). Aguarda a ponte de promoção do `/close-phase`.
+**Verdict:** `passed` *(promovido — ver § Promoção de status)* — 3/3 success criteria verificados na camada de código, dados, build e teste automatizado. Fase é user-facing → itens de verificação humana existem; **cobertos pela UAT de navegador** (`12-UAT.md` `status: complete`, 14/15 pass, 0 issues, 1 skip aceito pelo humano no fechamento).
 
 ---
 
@@ -170,3 +170,8 @@ Nenhum gap. Nenhum plano de correção necessário.
 - Verificação conduzida inline (contexto completo da sessão de execução + UAT), sem subagente.
 - Registro de ameaças: `12-SECURITY.md` — 23/23 closed, 0 open.
 - Método: goal-backward contra os 3 Success Criteria do ROADMAP + must_haves dos 4 PLANs.
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-08-30.
+Evidência: UAT humano via automação de navegador (Claude in Chrome) concluído — `12-UAT.md` em `complete`, 14/15 pass, 0 issues, 0 pending/blocked. Teste 14 (estado vazio) pulado — aceito explicitamente pelo humano no fechamento (comportamento NÃO verificado no navegador; cópia + ramo verificados no código e no `npm run build`).
