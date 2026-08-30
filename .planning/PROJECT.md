@@ -1,24 +1,30 @@
 # CRM de Leads — Área da Saúde
 
-## Current Milestone: v1.3 Qualificação e Histórico de Leads
+## Current State
 
-**Goal:** Qualificar leads por origem e dar visibilidade ao histórico de interação e ao resultado do funil — tráfego pago (quente) e prospecção fria deixam de receber o mesmo tratamento automático, e o admin passa a enxergar de onde vêm as vendas (e as perdas).
+**Shipado:** v1.3 Qualificação e Histórico de Leads (2026-08-30) — Fases 8-12, 20 planos. PRs #1/#2/#3 mergeados em `main`.
 
-**Target features (ordem de prioridade, ver `.planning/todos/pending/2026-08-01-*.md` para o raciocínio completo por trás da ordem):**
-1. Separação Inbound × Outbound — fila/tratamento diferente por origem do lead, pra automação não tratar lead quente (tráfego pago) como frio (prospecção)
-2. Timeline de interações por lead — histórico do que foi dito em cada tentativa, não só o contador atual
-3. Sequência de follow-up escalonada — intervalos crescentes configuráveis, com templates de reforço de valor/prova social
-4. Painel de métricas por origem e sub-nicho — depende dos itens 1-2 já estarem entregando dado confiável
-5. Relatório de motivos de perda — agrega o campo `motivoPerda` (já existe desde a Fase 3, sem relatório hoje)
-6. Agenda/tarefas soltas — tarefa avulsa não amarrada a nenhum lead
+**O que o v1.3 entregou:**
+- **Origem governada** — cada lead tem um campo dedicado `origemTipo` (Inbound/Outbound) separado do texto livre `origem`; a automação de sequência não trata lead quente (tráfego pago) como frio.
+- **Timeline de interações** — todo clique de WhatsApp e toda nota manual viram registro cronológico visível na tela do lead; eventos automáticos imutáveis, notas manuais editáveis.
+- **Sequência de follow-up escalonada** — intervalos crescentes configuráveis, `sequenciaPosicao` anda sozinho por clique de template `follow_up`, sugestão da próxima data calculada na leitura (nunca agendada); leads Inbound de fora.
+- **Painel `/relatorios`** — leads/conversão por origem e sub-nicho + contagem de perdidos por motivo; motivo de perda virou lista governada obrigatória (`/motivos-perda`), não mais texto livre.
+- **Agenda / tarefas soltas** — tarefa avulsa com data e descrição, sem vínculo a lead, intercalada por data com os follow-ups no dashboard.
 
-**Fora deste milestone (backlog registrado, não descartado):** ideias PME (tags, temperatura automática, busca global, export CSV, anexo, campo de vendedor no banco, meta mensal) seguem em `.planning/todos/pending/`; roadmap pós-cliente-pagante e infra white label seguem como seeds (`SEED-001`, `SEED-002`) até o gatilho de "primeiro cliente pagante".
+**Próximo milestone:** a definir via `/gsd-new-milestone`. Candidato principal registrado: **despivô saúde → CRM pessoal genérico multi-nicho** (o modelo de dados já é agnóstico de nicho por constraint permanente). Backlog PME em `.planning/todos/pending/`.
 
-**Milestone anterior (v1.2 Follow-up Automático):** concluído e publicado no GitHub em 2026-08-01 (Fases 6-7 — auto-avanço de etapa, contador de tentativas, configuração de dias-parado por etapa). Ver Validated abaixo.
+<details>
+<summary>Milestones anteriores</summary>
+
+- **v1.0 MVP** (2026-07-29, Fases 1-4) — pipeline Kanban, import CSV, dashboard de follow-up por urgência, templates de WhatsApp com wa.me.
+- **v1.1 Importação Inteligente** (2026-07-30, Fase 5) — wizard aceita mapear múltiplas colunas de inteligência do CSV do cowork concatenadas em notas.
+- **v1.2 Follow-up Automático** (2026-08-01, Fases 6-7) — auto-avanço Novo→Contatado ao abrir WhatsApp, contador de tentativas, `/configuracoes` de dias-parado por etapa.
+
+</details>
 
 ## What This Is
 
-CRM pessoal para um único usuário (o admin) organizar leads da área da saúde, recebidos em lote via CSV de um cowork parceiro. Os leads são categorizados por sub-nicho (nutricionista, terapeuta, etc.) e avançam por um pipeline de vendas simples até o fechamento. O admin aborda os leads pelo Instagram e WhatsApp, usando templates de mensagem prontos para agilizar o contato.
+CRM pessoal para um único usuário (o admin) organizar leads da área da saúde, recebidos em lote via CSV de um cowork parceiro. Os leads são categorizados por sub-nicho (nutricionista, terapeuta, etc.), classificados por origem (Inbound/Outbound), e avançam por um pipeline de vendas simples até o fechamento. O admin aborda os leads pelo Instagram e WhatsApp usando templates prontos; cada abordagem fica registrada numa timeline por lead. Uma sequência de follow-up escalonada sugere quando reabordar, e uma tela de relatórios mostra de onde vêm as vendas e as perdas.
 
 ## Core Value
 
@@ -30,96 +36,93 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 <!-- Shipped and confirmed valuable. -->
 
-- Cada lead segue um pipeline com etapas: Novo → Contatado → Negociação → Fechado / Perdido (Validado na Fase 3 — etapa combinada desmembrada em Fechado e Perdido distintos, decisão D-01 em `03-CONTEXT.md`)
-- Admin pode mover um lead entre etapas do pipeline (Validado na Fase 3 — drag-and-drop com @dnd-kit e reversão automática em falha)
-- Admin visualiza o funil de vendas (quantos leads em cada etapa) de forma rápida (Validado na Fase 3 — board Kanban em `/pipeline`, contagem ao vivo por coluna)
-- ✓ Admin pode importar uma lista de leads via CSV do cowork, com mapeamento de colunas, preview e detecção automática de separador/codificação — v1.0 (Fase 2)
-- ✓ Cada lead tem um sub-nicho da área da saúde numa lista administrável e extensível, com remoção reversível (soft-delete) — v1.0 (Fase 1 + quick task 260725-lai)
-- ✓ Admin pode cadastrar novos sub-nichos livremente — v1.0 (Fase 1)
-- ✓ Admin pode filtrar/organizar leads por sub-nicho — v1.0 (Fase 1)
+- Cada lead segue um pipeline com etapas: Novo → Contatado → Negociação → Fechado / Perdido — v1.0 (Fase 3)
+- Admin pode mover um lead entre etapas do pipeline (drag-and-drop, reversão automática em falha) — v1.0 (Fase 3)
+- Admin visualiza o funil de vendas de forma rápida (board Kanban `/pipeline`, contagem ao vivo) — v1.0 (Fase 3)
+- ✓ Admin pode importar leads via CSV do cowork, com mapeamento de colunas, preview e detecção de separador/codificação — v1.0 (Fase 2)
+- ✓ Cada lead tem um sub-nicho numa lista administrável e extensível, com remoção reversível — v1.0 (Fase 1 + quick 260725-lai)
+- ✓ Admin pode cadastrar/filtrar/organizar por sub-nicho — v1.0 (Fase 1)
 - ✓ Cada lead registra notas, data de follow-up, canal, origem, valor estimado — v1.0 (Fase 1)
-- ✓ Admin recebe destaque visual de follow-up vencido/próximo, via dashboard agrupado por urgência como tela inicial — v1.0 (Fase 4)
-- ✓ Admin pode cadastrar templates de WhatsApp com variáveis — v1.0 (Fase 4)
-- ✓ Ao criar/importar um lead novo, o sistema sugere abrir o WhatsApp com o template de primeiro contato preenchido — v1.0 (Fase 4)
-- ✓ Dashboard e pipeline oferecem botão inline "Enviar WhatsApp" com preview editável, disparo sempre por clique manual — v1.0 (Fase 4)
-- ✓ Wizard de importação aceita mapear múltiplas colunas de origem (score/sinal_dor/trecho_dor/observação) concatenadas em notas, sem perder a inteligência de priorização do CSV do cowork — v1.1 (Fase 5), IMPORT-04/IMPORT-05, confirmado por teste real de navegador (todos os 7 passos do human-check)
-- ✓ Auto-avançar etapa Novo→Contatado ao clicar em "Abrir WhatsApp" com o template de primeiro contato, em todas as telas com o botão, sem regredir/re-avançar leads já além de Contatado, com toast de confirmação — v1.2 (Fase 6)
-- ✓ Contador de tentativas de contato por lead — incrementa a todo clique em "Abrir WhatsApp" (qualquer template), exibido no card do pipeline — v1.2 (Fase 6)
-- ✓ Tela `/configuracoes` para definir dias-parado por etapa (Novo/Contatado/Negociação), generalizando o "esfriando" hardcoded (antes só Contatado, 5 dias fixo) — v1.2 (Fase 7), UAT humano 6/6 via browser real em 2026-08-01
+- ✓ Dashboard agrupado por urgência como tela inicial, com destaque de follow-up vencido/próximo — v1.0 (Fase 4)
+- ✓ Templates de WhatsApp com variáveis; sugestão de primeiro contato ao criar/importar lead; botão inline "Enviar WhatsApp" com preview editável e disparo por clique manual — v1.0 (Fase 4)
+- ✓ Wizard de importação aceita mapear múltiplas colunas de inteligência do CSV concatenadas em notas — v1.1 (Fase 5)
+- ✓ Auto-avançar Novo→Contatado ao abrir WhatsApp com o template de primeiro contato, sem regredir/re-avançar leads além de Contatado — v1.2 (Fase 6)
+- ✓ Contador de tentativas de contato por lead, exibido no card do pipeline — v1.2 (Fase 6)
+- ✓ Tela `/configuracoes` para dias-parado por etapa (Novo/Contatado/Negociação) — v1.2 (Fase 7)
+- ✓ Campo dedicado `origemTipo` (Inbound/Outbound) governado, separado do texto livre `origem`, com backfill dos leads existentes; exposto no modal de lead e persistido em todo import CSV — v1.3 (Fase 8), ORIGEM-01/02
+- ✓ Timeline de interações por lead — todo clique de WhatsApp e nota manual viram registro cronológico visível; eventos automáticos imutáveis, notas manuais editáveis/apagáveis — v1.3 (Fase 9), TIMELINE-01/02
+- ✓ Sequência de follow-up escalonada — intervalos crescentes configuráveis, `sequenciaPosicao` avança por clique de template `follow_up`, sugestão da próxima reabordagem calculada na leitura (nunca agendada); leads Inbound de fora — v1.3 (Fase 10), SEQ-01/02/03 + ORIGEM-03
+- ✓ Painel `/relatorios` — leads/conversão por origem e por sub-nicho, contagem de perdidos por motivo, seletor de período por querystring — v1.3 (Fase 11), METRICAS-01/02
+- ✓ Motivo de perda como lista governada obrigatória (`/motivos-perda`, soft-delete + reativação-por-nome), reforçado no servidor via `.refine` do Zod — v1.3 (Fase 11), PERDA-01
+- ✓ Agenda / tarefas soltas — tarefa avulsa com data e descrição sem vínculo a lead, intercalada por data com os follow-ups no dashboard, na mesma régua de urgência — v1.3 (Fase 12), TAREFA-01/02
 
 ### Active
 
-Escopo do milestone v1.3 em andamento (ver `Current Milestone` acima) — vira roadmap de fases via `/gsd-new-milestone`:
+Nenhum milestone ativo. Escopo do próximo vira roadmap de fases via `/gsd-new-milestone` (numeração continua em 13).
 
-- [ ] Separação Inbound × Outbound (fila/tratamento diferente por origem do lead) — [todo](.planning/todos/pending/2026-08-01-separa-o-inbound-x-outbound.md)
-- [ ] Timeline de interações por lead — [todo](.planning/todos/pending/2026-08-01-timeline-de-intera-es-por-lead.md)
-- [ ] Sequência de follow-up escalonada (intervalos crescentes configuráveis) com templates de reforço de valor/prova social — [todo](.planning/todos/pending/2026-07-21-sequencia-follow-up-escalonada.md) (pendência original de 2026-07-21, reordenada nesta varredura)
-- [ ] Painel de métricas por origem e sub-nicho — [todo](.planning/todos/pending/2026-08-01-painel-de-m-tricas-por-origem-e-sub-nicho.md)
-- [ ] Relatório de motivos de perda — [todo](.planning/todos/pending/2026-08-01-relat-rio-de-motivos-de-perda.md)
-- [ ] Agenda/tarefas soltas (não amarradas a um lead) — [todo](.planning/todos/pending/2026-08-01-agenda-e-tarefas-soltas.md)
+**Candidato principal:** despivô saúde → CRM pessoal genérico multi-nicho — o modelo de dados já é agnóstico de nicho (constraint permanente de nomenclatura); falta a camada de configuração/nomenclatura visível ao admin.
 
-Backlog registrado em 2026-08-01 (`C:\Users\Vencedor\Desktop\Ideias.txt`), fora do escopo deste milestone:
+**Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora de qualquer milestone ainda:**
 
-*Ideias PME — avaliar prioridade, não urgentes:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco, sem UI), meta mensal com barra de progresso — todos individuais em `.planning/todos/pending/2026-08-01-*.md`
+*Ideias PME — avaliar prioridade:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco), meta mensal com barra de progresso — individuais em `.planning/todos/pending/2026-08-01-*.md`
 
-*Fora do milestone atual, também herdadas de sessões anteriores:*
-- [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads automaticamente — decisão já tomada: só local, sem deploy
-- [ ] Conectar a landing page pública (Vercel) ao CRM — adiado deliberadamente pelo usuário até haver tráfego pago; quando chegar a hora, será junto da migração de todos os projetos dele para uma VPS própria com domínio, não uma integração isolada (IMPORT-V2-02)
+*Herdadas de sessões anteriores:*
+- [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads — decisão: só local, sem deploy
+- [ ] Conectar a landing page pública (Vercel) ao CRM — adiado até haver tráfego pago; será junto da migração de todos os projetos do usuário para uma VPS própria (IMPORT-V2-02), não uma integração isolada
 
-*Adiado com gatilho explícito (seeds, surgem automaticamente em `/gsd-new-milestone`):*
-- Roadmap pós-cliente-pagante (proposta/orçamento, catálogo de produtos, pós-venda) — [SEED-001](.planning/seeds/SEED-001-roadmap-p-s-cliente-pagante.md)
-- Infra white label / multi-tenant (login, feature flags por nicho, nomenclatura dinâmica, theming, cobrança recorrente, agentes de IA por empresa) — [SEED-002](.planning/seeds/SEED-002-infra-white-label.md), tratado como **outro produto**, não como fase deste CRM
+*Adiado com gatilho explícito (seeds, surgem em `/gsd-new-milestone`):*
+- Roadmap pós-cliente-pagante (proposta/orçamento, catálogo, pós-venda) — [SEED-001](.planning/seeds/SEED-001-roadmap-p-s-cliente-pagante.md)
+- Infra white label / multi-tenant — [SEED-002](.planning/seeds/SEED-002-infra-white-label.md), tratado como **outro produto**
 
 ### Out of Scope
 
-- Envio automático de WhatsApp via API (Business API/Twilio) sem clique manual — usuário decidiu por link pronto (wa.me) em vez de envio automatizado, mais simples e sem custo/burocracia de API oficial
-- Mensagem gerada por IA em tempo real personalizada por lead — usuário considerou, mas decidiu começar com templates fixos no v1; IA fica como possível v2
-- Múltiplos usuários/equipe — é uma ferramenta pessoal de um único admin, sem necessidade de contas/permissões de time
+- Envio automático de WhatsApp via API (Business API/Twilio) sem clique manual — link pronto wa.me é mais simples e sem custo/burocracia
+- Mensagem gerada por IA em tempo real personalizada por lead — começou com templates fixos; usuário quer eventualmente que a IA rascunhe as mensagens de WhatsApp (não é v1.3, sem milestone ainda)
+- Múltiplos usuários/equipe — ferramenta pessoal de um único admin
 - Uso mobile nativo — uso previsto é via navegador no computador
+- Sistema de tarefas completo (subtarefas, prioridade, recorrência) — TAREFA-01/02 cobrem a necessidade real (tarefa solta com data); o resto é overkill de PM tool pra 1 usuário
 
 ## Context
 
-- Usuário é o próprio profissional (admin) que atua na área da saúde, atendendo diferentes sub-nichos (nutricionista, terapeuta, e outros que podem surgir)
-- Hoje os leads são organizados manualmente em planilha do Google Sheets — processo desorganizado, com esquecimento frequente de follow-up
-- Leads chegam em lote via CSV, entregues por um cowork parceiro
-- Abordagem dos leads acontece via Instagram e WhatsApp
-- Usuário quer aumentar produtividade substituindo a planilha por uma ferramenta dedicada
-- **Estado pós-v1.0 (2026-07-29):** app rodando localmente (`localhost:3000`), ~7.300 linhas TS/TSX em `src/`, Next.js 16 + Drizzle/SQLite + shadcn-on-Base-UI. Usuário já começou a prospectar de verdade a partir de 2026-07-27, mas a captura de leads ainda não conecta automaticamente ao CRM (cadastro manual por enquanto — ver Active acima). Débito conhecido: Fases 1 e 2 nunca tiveram checagem manual no navegador; Fase 4 tem 7 cenários de UAT ainda não confirmados no navegador (ver `STATE.md` Deferred Items).
+- Usuário é o próprio profissional (admin) da área da saúde, atendendo diferentes sub-nichos
+- Leads chegam em lote via CSV entregue por um cowork parceiro; abordagem via Instagram e WhatsApp
+- Hoje os leads eram organizados em planilha do Google Sheets — processo desorganizado, esquecimento frequente de follow-up
+- **Estado pós-v1.3 (2026-08-30):** app roda localmente (`localhost:3000`), ~11.100 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. `npm run build` voltou a ser gate normal desde a Fase 10 (Turbopack resolveu o OOM que travava webpack no host de 4GB). Repo publicado em `github.com/Marques10604/CRM-WhiteLabel`, branch `main`.
+- **Fluxo GSD maduro nesta milestone:** `/gsd-secure-phase` → `/close-phase` → PR exercitado pela 1ª vez (Fase 12); UAT de navegador real via extensão Claude no Chrome (Fases 9/11/12) — antes disso o projeto nunca tinha acesso a navegador.
+- **Débito conhecido (herdado do v1.0, ainda aberto):** Fases 1/2/4 nunca tiveram `/gsd-verify-work` formal / checagem manual no navegador; 5 cenários de UAT da Fase 4 e 3 verification_gaps seguem em `STATE.md` §Deferred Items. Teste 14 da UAT da Fase 12 (estado vazio) pulado — não testável sem banco sem leads.
+- **Direção de infraestrutura (definida 2026-08-27):** CRM + o produto novo "Prospector Inteligente AI" (topo de funil, pasta própria) rodam num VPS único quando prontos. O Prospector sobe primeiro; o CRM migra depois, ativando gate de senha no middleware + Litestream. Continua SQLite; Postgres só com multi-tenant real.
 
 ## Constraints
 
-- **Escopo de uso**: Ferramenta solo (um único admin), sem necessidade de autenticação multi-usuário — evita complexidade desnecessária de contas/permissões
-- **Plataforma**: Acesso via navegador no computador — não é necessário app mobile nativo
-- **WhatsApp**: Sem integração com API oficial de envio — usar link wa.me com mensagem pré-preenchida, evitando custo e burocracia de conta WhatsApp Business API
-- **Nomenclatura de schema**: Nunca cravar termos específicos do nicho de saúde (ex. "paciente", "consulta") direto em nomes de tabela/coluna — usar nomes genéricos ("lead", "contato", etc.), mesmo o projeto sendo single-nicho hoje. Custo de seguir essa regra é zero agora; custo de não seguir é uma reescrita de banco inteira se um dia isso virar white label (ver [[SEED-002]]). Regra permanente, não um item de backlog a ser "concluído".
+- **Escopo de uso**: Ferramenta solo (um único admin), sem autenticação multi-usuário
+- **Plataforma**: Acesso via navegador no computador — sem app mobile nativo
+- **WhatsApp**: Sem API oficial de envio — link wa.me com mensagem pré-preenchida
+- **Nomenclatura de schema**: Nunca cravar termos do nicho de saúde (ex. "paciente", "consulta") em nomes de tabela/coluna — usar nomes genéricos ("lead", "contato"). Custo de seguir é zero agora; custo de não seguir é reescrita de banco se virar white label ([[SEED-002]]) ou CRM genérico. Regra permanente.
+- **Host de desenvolvimento 4GB RAM**: comandos de verificação sempre sequenciais, nunca em paralelo/background — builds/dev-server simultâneos já causaram OOM e crash de worktrees isolados.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Templates fixos de WhatsApp (não IA generativa) no v1 | Mais simples e rápido de construir; IA personalizada por lead considerada mas adiada para reduzir complexidade inicial | ✓ Good — shipado na Fase 4, IA segue em v2 |
-| Link wa.me pré-preenchido em vez de envio automático via API | Evita custo e burocracia de conta WhatsApp Business API; usuário confirma e envia manualmente | ✓ Good — shipado na Fase 4 |
-| Sub-nichos como lista extensível (não fixa) | Usuário atende diferentes sub-nichos da área da saúde e espera que a lista cresça com o tempo | ✓ Good — shipado na Fase 1, remoção soft-delete adicionada depois |
-| Instalação do GSD local por projeto (não global) | Preferência do usuário por manter cada projeto isolado e explícito | ✓ Good |
-| Nunca hard-delete — soft-delete (`deletedAt`) é o padrão do projeto para toda entidade removível | Recuperação sempre possível, guard automatizado (`npm run guard:no-hard-delete`) impede regressão | ✓ Good — aplicado a leads (LEAD-04) e sub-nichos (quick 260725-lai) |
-| Host de desenvolvimento com 4GB de RAM — comandos de verificação sempre sequenciais, nunca em paralelo/background | Builds/dev-server simultâneos já causaram OOM e crash de worktrees isolados mais de uma vez durante o v1.0 | ✓ Good — seguido à risca desde então |
+| Templates fixos de WhatsApp (não IA generativa) no v1 | Mais simples e rápido; IA personalizada adiada | ✓ Good — shipado na Fase 4; usuário quer IA de rascunho eventualmente |
+| Link wa.me pré-preenchido em vez de envio automático via API | Evita custo e burocracia de WhatsApp Business API | ✓ Good — Fase 4 |
+| Sub-nichos como lista extensível (não fixa) | Lista cresce com o tempo | ✓ Good — Fase 1 + soft-delete |
+| GSD local por projeto (não global) | Isolamento explícito | ✓ Good |
+| Soft-delete (`deletedAt`) como padrão para toda entidade removível, guard automatizado | Recuperação sempre possível | ✓ Good — leads, sub-nichos, motivos de perda. **Exceção deliberada:** `tarefas` (Fase 12, D-08) — descartável por natureza, hard-delete real, exceção cirúrgica na ALLOWLIST do guard |
+| Host 4GB RAM → verificação sempre sequencial | OOM/crash recorrentes no v1.0 | ✓ Good — seguido à risca; `npm run build` voltou a ser barato com Turbopack (Fase 10) |
+| `origemTipo` como coluna enum dedicada, não parse do texto livre `origem` | `origem` já estava suja ("insta", "Teste", "Importação CSV"); classificação precisa ser confiável para a automação diferenciar Inbound/Outbound | ✓ Good — Fase 8, backfill uniforme dos 33 leads |
+| Eventos de interação automáticos (WhatsApp) imutáveis; só notas manuais editáveis/apagáveis | Timeline é histórico de fato, não rascunho; imutabilidade garantida no WHERE do servidor, não só na UI | ✓ Good — Fase 9 |
+| Sugestão de próxima reabordagem calculada na leitura de cada request, nunca persistida nem agendada | Sem job scheduler, sem estado a sincronizar; `followUpDate` continua sendo a fonte oficial | ✓ Good — Fase 10 |
+| Motivo de perda: lista governada obrigatória em vez de texto livre opcional | Relatório de perdas exige valores normalizados; obrigatoriedade reforçada no servidor via `.refine` condicional do Zod | ✓ Good — Fase 11 |
+| `buildDashboardItems` / `groupByUrgency<T>` — generalização de função pura + wrapper preservado | Tarefas e follow-ups precisam da mesma régua de urgência sem regredir call-sites existentes | ✓ Good — Fase 12 |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd-transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
+**After each phase transition:** requisitos invalidados → Out of Scope; validados → Validated com ref de fase; novos → Active; decisões → Key Decisions; "What This Is" ainda preciso?
 
-**After each milestone** (via `/gsd-complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+**After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-08-01 — milestone v1.3 (Qualificação e Histórico de Leads) iniciado via /gsd-new-milestone*
+*Last updated: 2026-08-30 — após o milestone v1.3 (Qualificação e Histórico de Leads) shipado*

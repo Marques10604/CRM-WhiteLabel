@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Qualificação e Histórico de Leads
-status: shipped
-last_updated: "2026-08-30T01:40:00.000Z"
-last_activity: 2026-08-30
+status: Awaiting next milestone
+last_updated: "2026-08-30T12:25:42.192Z"
+last_activity: 2026-08-30 — Milestone v1.3 completed and archived
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 28
-  completed_plans: 28
+  total_plans: 26
+  completed_plans: 26
   percent: 100
 ---
 
@@ -17,19 +17,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-01)
+See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 12 — agenda-tarefas-soltas
+**Current focus:** Nenhum milestone ativo. Rodar `/gsd-new-milestone` para o próximo (candidato: despivô saúde → CRM genérico multi-nicho; ou backlog PME).
 
 ## Current Position
 
-Phase: 12 (agenda-tarefas-soltas) — FECHADA E SHIPADA (PR #3)
-Plan: 4 of 4 — todos executados, commitados e mergeados no branch
-Status: fase completa. 12-VERIFICATION.md `passed`, 12-SECURITY.md 23/23 closed, 12-LEARNINGS.md extraído, 12-UAT.md `complete` (14/15). PR #3 aberto: https://github.com/Marques10604/CRM-WhiteLabel/pull/3 (branch `worktree-agent-ad346cc0697623e0c` → `main`). **Última fase do v1.3** — falta só aprovar/mergear o PR e rodar `/gsd-complete-milestone`.
-Last activity: 2026-08-30
-
-Progress: [██████████] 100% (código) · UAT pendente
+Milestone: v1.3 Qualificação e Histórico de Leads — **SHIPADO e arquivado** 2026-08-30
+Fases: 12/12 completas (v1.0–v1.3). Tag `v1.3` criada. PRs #1/#2/#3 mergeados em `main`.
+Status: aguardando definição do próximo milestone (`/gsd-new-milestone`)
+Last activity: 2026-08-30 — milestone v1.3 fechado (archive + PROJECT.md evolution + retrospectiva + tag)
 
 ## Performance Metrics
 
@@ -246,33 +244,40 @@ Aberto, carregado para o v1.3:
 
 ## Deferred Items
 
-Items acknowledged and carried forward from previous milestone close:
+Items acknowledged and carried forward. Re-reconhecidos no fechamento do v1.3 (2026-08-30) — nenhum resolvido neste milestone, nenhum novo bloqueador.
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes: dashboard 3 seções, CRUD de templates, botão WhatsApp (preview/link ao vivo/anti-conflito com drag), auto-trigger de 1º contato nas 3 superfícies, boundary de 7 dias, race condition de "Perdido" em sequência, stageChangedAt/motivoPerda | partial — nunca testado no navegador (sem acesso a browser em nenhuma sessão até agora) | 2026-07-29 (fechamento v1.0) |
-| verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo do uat_gap acima | 2026-07-29 (fechamento v1.0) |
-| todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4) não resolvido | 2026-07-29 (fechamento v1.0) |
-| verification_gap | Fases 1 e 2 **nunca tiveram `/gsd-verify-work` formal rodado** — nenhum `VERIFICATION.md` existe pra elas (só a Fase 3 tem, `passed`). Múltiplos `SUMMARY.md` (01-02, 01-03, 01-04, 02-02, 02-03) registram "sem acesso a navegador nesta sessão, clique real recomendado antes de considerar pronto pra uso real" | nunca verificado no navegador, apenas por leitura de código/`tsc`/`build` | 2026-07-29 (fechamento v1.0) |
+| uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes | partial — nunca testado no navegador (v1.0) | 2026-07-29 |
+| verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo | 2026-07-29 |
+| verification_gap | Fases 1 e 2 nunca tiveram `/gsd-verify-work` formal (nenhum `VERIFICATION.md`). SUMMARYs registram "clique real recomendado antes de uso real" | nunca verificado no navegador, só código/`tsc`/`build` | 2026-07-29 |
+| todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4); resolve na migração pra VPS | 2026-07-29 |
+| uat_gap | Fase 12 Teste 14 (estado vazio do dashboard) | skipped — não testável sem banco sem os 23 leads reais; cópia + ramo verificados no código e no `npm run build` | 2026-08-30 |
+| todo (×5) | Backlog PME: tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal | pending — fora de qualquer milestone, aguardam priorização | 2026-08-01 |
+| seed (×2) | SEED-001 (roadmap pós-cliente-pagante), SEED-002 (infra white label) | pending — gatilho "primeiro cliente pagante" | 2026-08-01 |
 
-Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missing" — falso positivo verificado manualmente (todas as 5 pastas têm SUMMARY.md; o checker procura um campo `status:` no frontmatter que quick tasks fora do modo `--validate` não preenchem). Não são débito real, não listados acima.
+Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso positivo conhecido (todas têm SUMMARY.md; o checker procura um campo `status:` que quick tasks fora de `--validate` não preenchem). Não é débito real.
 
 ## Session Continuity
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-Fase 12 (agenda/tarefas soltas): **código + gates + UAT de navegador 100% feitos**. Faltam 2 passos pra fechar o milestone v1.3:
+**Milestone v1.3 FECHADO E ARQUIVADO.** Não há trabalho em andamento.
 
-1. `/gsd-secure-phase 12` — não existe `12-SECURITY.md` e `security_enforcement: true`. Os threat models T-12-01..T-12-SC já estão nos 4 PLANs; é só verificar as mitigações no código.
-2. `/close-phase 12` — extract-learnings → bridge do verification gate → PR. Promove TAREFA-01/02 pra Done. **Fecha o v1.3.**
+- Fase 12 shipada (PR #3 mergeado em `main`, merge `a61ab0b`). `/gsd-secure-phase 12` (23/23 threats) e `/close-phase 12` rodados. `/gsd-complete-milestone` rodado: archives em `.planning/milestones/v1.3-*`, PROJECT.md evoluído, RETROSPECTIVE.md atualizado, tag `v1.3` criada.
+- `.planning/REQUIREMENTS.md` foi removido (`git rm`) — o próximo milestone cria um novo via `/gsd-new-milestone`.
+- Branch atual: `main` (as branches de trabalho foram mergeadas/deletadas). Working tree: só `.claude/` untracked (pré-existente).
 
-Working tree limpo (só `.planning/config.json` M e `.claude/` untracked, ambos pré-existentes/irrelevantes). Branch `worktree-agent-ad346cc0697623e0c`. Nenhum processo node ativo. Último commit: `eabf81f`.
+**Próximo passo:** `/gsd-new-milestone` — questioning → research → requirements → roadmap. Numeração de fases continua em **13**. Candidato principal registrado: despivô saúde → CRM pessoal genérico multi-nicho. Alternativa: itens do backlog PME (`.planning/todos/pending/`).
+
+Ver `.planning/PROJECT.md` §Current State e `.planning/MILESTONES.md` (entrada v1.3) para o resumo do que foi entregue.
 
 ---
 
 Last session: 2026-08-29→30 (resume + execução + UAT) — Fase 12 retomada de plano interrompido, LEVADA ATÉ O FIM e com UAT de navegador concluída.
 
 **O que foi feito nesta sessão:**
+
 - **12-03 concluído**: Task 1 (`delete-tarefa-dialog.tsx` + `tarefa-form-dialog.tsx`) estava no working tree sem commit — verificada (`tsc` 0, adicionado `eslint-disable react-hooks/refs` documentado), commit `3211dcf`. Task 2 (`tarefa-card.tsx`) construída do zero — commit `9528807`. Docs `d1dfcab`. `12-03-SUMMARY.md` criado.
 - **12-04 concluído**: `page.tsx` (`getTarefasPendentes` + `buildDashboardItems`) + `followup-dashboard.tsx` (7 mudanças: props `DashboardItem[]`, `.map` ramifica por `item.kind`, botão "Nova tarefa", estado vazio, `TarefaFormDialog` irmão) — commit `42efb8d`. `12-04-SUMMARY.md` criado.
 - **Suíte de gates 100% verde** (rodada em sequência, dev server parado): `tsc --noEmit`, `eslint` (10 arquivos), `verify:schema`, `guard:no-hard-delete`, `test:tarefa-actions` (7), `test:group-by-urgency`, `test:compute-sequencia`, `test:lead-actions`, `test:relatorios` (38), **`npm run build` exit 0** (Turbopack, 47s compile + 28.5s TS, 13 páginas, rota `/`).
@@ -280,6 +285,7 @@ Last session: 2026-08-29→30 (resume + execução + UAT) — Fase 12 retomada d
 **UAT da Fase 12 — FEITA (2026-08-30, automação de navegador):** `12-UAT.md` `status: complete`, 14/15 pass, 0 issues, 1 skip (estado vazio — precisa banco sem leads, cópia+ramo verificados no código/build). Todos os comportamentos observáveis confirmados: criar/editar/concluir/excluir tarefa, intercalação por data nas 3 seções, contagem somada, distinção visual do card, hard-delete provado no banco (D-08), sem rota nova. Extensão do Chrome teve instabilidades de screenshot (mesmo sintoma da Fase 11) — contornadas, sem afetar resultados.
 
 **Pendências da Fase 12:**
+
 1. `/gsd-secure-phase 12` — `workflow.security_enforcement: true` e não existe `12-SECURITY.md`. Requerido antes de fechar. (Threat models T-12-* já estão nos PLANs.)
 2. `/close-phase 12` (extract-learnings → bridge do verification gate → PR). Fecha o milestone v1.3.
 
@@ -396,6 +402,4 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 ## Operator Next Steps
 
-- Rodar `/gsd-plan-phase 8` para detalhar o(s) plano(s) da Phase 8 (Origem Governada + Separação Inbound × Outbound) — ORIGEM-01/02, decisão de schema (`origemTipo` coluna nova) já resolvida, backfill precisa de query real contra `data/crm.db` (valores sujos conhecidos: `"Importação CSV"`, `"Teste"`, `"insta"`).
-- Considerar `/gsd-discuss-phase 8` antes do plano, dado que a fase mexe em dado real de produção via `drizzle-kit push` sem migration history versionado (mesmo padrão de risco já visto na Fase 6/7).
-- Fases 9 (Timeline) e 12 (Tarefas) não têm dependência técnica dura de Phase 8 e podem ser planejadas/executadas em paralelo ou adiantadas, se preferir por ordem de valor de negócio (ver `PROJECT.md` "Target features").
+- Start the next milestone with /gsd-new-milestone

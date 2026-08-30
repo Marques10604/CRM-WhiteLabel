@@ -1,5 +1,24 @@
 # Milestones
 
+## v1.3 Qualificação e Histórico de Leads (Shipped: 2026-08-30)
+
+**Phases completed:** 5 fases (Fase 8–12), 20 planos, ~62 tasks
+**Git:** `824ac48` (contexto Fase 8, 2026-08-01) → PR #3 mergeado (`a61ab0b`, 2026-08-30) · ~29 dias · 57 arquivos em `src/`+`scripts/`, ~6.7k inserções
+**PRs mergeados nesta milestone:** #1 (Fase 9), #2 (Fases 10–11), #3 (Fase 12)
+
+**Key accomplishments:**
+
+- **Fase 8 — Origem governada (Inbound × Outbound):** campo dedicado `origemTipo` (enum) separado do texto livre `origem`, aplicado em produção via ALTER TABLE manual idempotente com backfill uniforme dos 33 leads existentes; exposto no modal de lead (sem pré-seleção na criação) e persistido como `outbound` em todo lote importado via CSV; guarda permanente `verify-origem-tipo.cjs` provada por teste de mutação.
+- **Fase 9 — Timeline de interações:** tabela `interacoes` (guarda anti hard-delete estendida), todo clique de WhatsApp + toda nota manual vira registro cronológico visível na tela do lead via `LeadTimelineDialog` (3 pontos de entrada: `/leads`, `/pipeline`, rodapé do modal); eventos automáticos imutáveis no WHERE do servidor, notas manuais editáveis/apagáveis; `registerWhatsAppContact` grava contador + interação numa única transação atômica.
+- **Fase 10 — Sequência de follow-up escalonada:** intervalos crescentes configuráveis em `/configuracoes` (lista dinâmica), `leads.sequenciaPosicao` avança sozinho a cada clique real de template `follow_up` e reseta ao voltar para "novo"; sugestão da próxima reabordagem ("Sugestão: dd/MM") calculada inteiramente na leitura de cada request (nunca agendada, nunca persistida) e exibida no card do pipeline e na linha do dashboard; leads Inbound ficam de fora da automação.
+- **Fase 11 — Painel de métricas + relatório de motivos de perda:** tela `/relatorios` (Server Component, seletor de período por querystring sem scroll) com leads/conversão por origem, por sub-nicho ("A categorizar" como linha normal), e contagem de perdidos por motivo; captura de motivo de perda migrou de texto livre opcional para **seleção obrigatória de uma lista governada** (`/motivos-perda`, soft-delete + reativação-por-nome), com a obrigatoriedade reforçada no servidor via `.refine` condicional do Zod nas 2 superfícies (form de edição + modal de drag). 6 funções de query provadas por `test:relatorios` (38 checagens) antes de qualquer pixel.
+- **Fase 12 — Agenda / tarefas soltas:** tabela `tarefas` totalmente desacoplada (sem FK, sem `deletedAt`); tarefa avulsa com data + descrição, sem vínculo a lead, intercalada por data com os follow-ups de lead dentro das 3 seções de urgência do dashboard `/` (mesma régua, sem tela nova); `deleteTarefa` é o único hard-delete legítimo do `src/` (D-08, exceção cirúrgica na ALLOWLIST do guard).
+- **Processo:** `npm run build` (Next 16.2 Turbopack) voltou a ser gate normal desde a Fase 10 (débito "build nunca rodou" das Fases 06–11 quitado); UAT de navegador via extensão Claude no Chrome nas Fases 9/11/12; fluxo completo `/gsd-secure-phase` → `/close-phase` → PR exercitado pela 1ª vez nesta milestone (Fase 12: `12-SECURITY.md` 23/23 threats closed, verificação promovida pela ponte UAT).
+
+**Known deferred items at close:** itens pré-existentes reconhecidos e mantidos como débito (ver STATE.md §Deferred Items) — 5 uat_gaps + 3 verification_gaps das Fases 1/2/4 (nunca tiveram browser/verify formal no v1.0), 5 todos PME fora do roadmap, 2 seeds (SEED-001/002), e o Teste 14 da UAT da Fase 12 (estado vazio, não testável sem banco sem leads — cópia+ramo verificados no código/build). Os 12 quick_tasks marcados "missing" pelo audit são falso-positivo conhecido (todos têm SUMMARY.md; o checker procura um campo `status:` que quick tasks fora de `--validate` não preenchem).
+
+---
+
 ## v1.0 MVP (Shipped: 2026-07-29)
 
 **Phases completed:** 4 phases, 15 plans, 38 tasks
