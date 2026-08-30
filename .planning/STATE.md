@@ -259,7 +259,18 @@ Nota: a auditoria pré-fechamento também sinalizou os 5 quick tasks como "missi
 
 ## Session Continuity
 
-Last session: 2026-08-29 (resume + execução) — Fase 12 retomada de plano interrompido e LEVADA ATÉ O FIM DA EXECUÇÃO.
+### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
+
+Fase 12 (agenda/tarefas soltas): **código + gates + UAT de navegador 100% feitos**. Faltam 2 passos pra fechar o milestone v1.3:
+
+1. `/gsd-secure-phase 12` — não existe `12-SECURITY.md` e `security_enforcement: true`. Os threat models T-12-01..T-12-SC já estão nos 4 PLANs; é só verificar as mitigações no código.
+2. `/close-phase 12` — extract-learnings → bridge do verification gate → PR. Promove TAREFA-01/02 pra Done. **Fecha o v1.3.**
+
+Working tree limpo (só `.planning/config.json` M e `.claude/` untracked, ambos pré-existentes/irrelevantes). Branch `worktree-agent-ad346cc0697623e0c`. Nenhum processo node ativo. Último commit: `eabf81f`.
+
+---
+
+Last session: 2026-08-29→30 (resume + execução + UAT) — Fase 12 retomada de plano interrompido, LEVADA ATÉ O FIM e com UAT de navegador concluída.
 
 **O que foi feito nesta sessão:**
 - **12-03 concluído**: Task 1 (`delete-tarefa-dialog.tsx` + `tarefa-form-dialog.tsx`) estava no working tree sem commit — verificada (`tsc` 0, adicionado `eslint-disable react-hooks/refs` documentado), commit `3211dcf`. Task 2 (`tarefa-card.tsx`) construída do zero — commit `9528807`. Docs `d1dfcab`. `12-03-SUMMARY.md` criado.
