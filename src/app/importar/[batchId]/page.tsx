@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, subnichos, templates } from "@/db/schema";
+import { leads, nichos, templates } from "@/db/schema";
 import { PostImportLeadList } from "@/components/post-import-lead-list";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,13 +19,13 @@ export default async function ImportBatchPage({
 }) {
   const { batchId } = await params;
 
-  const [importedLeads, allSubnichos, allTemplates] = await Promise.all([
+  const [importedLeads, allNichos, allTemplates] = await Promise.all([
     db
       .select()
       .from(leads)
       .where(and(eq(leads.importBatchId, batchId), isNull(leads.deletedAt)))
       .orderBy(asc(leads.nome)),
-    db.select().from(subnichos),
+    db.select().from(nichos),
     db.select().from(templates),
   ]);
 
@@ -49,7 +49,7 @@ export default async function ImportBatchPage({
           {importedLeads.length} leads importados. Envie a primeira mensagem por WhatsApp quando quiser.
         </p>
       </div>
-      <PostImportLeadList leads={importedLeads} subnichos={allSubnichos} templates={allTemplates} />
+      <PostImportLeadList leads={importedLeads} nichos={allNichos} templates={allTemplates} />
       <Link href="/leads" className={cn(buttonVariants({ variant: "outline" }), "w-fit")}>
         Ver todos os leads
       </Link>

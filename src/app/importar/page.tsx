@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { subnichos, templates } from "@/db/schema";
+import { nichos, templates } from "@/db/schema";
 import { CsvImportWizard } from "@/components/csv-import-wizard";
 
 /**
@@ -9,15 +9,15 @@ import { CsvImportWizard } from "@/components/csv-import-wizard";
  * `leads` — o CSV é a fonte de dados do wizard, não o banco.
  */
 export default async function ImportarPage() {
-  const [allSubnichos, allTemplates] = await Promise.all([
-    db.select().from(subnichos),
+  const [allNichos, allTemplates] = await Promise.all([
+    db.select().from(nichos),
     db.select().from(templates),
   ]);
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-[28px] font-semibold leading-tight">Importar leads</h1>
-      <CsvImportWizard subnichos={allSubnichos} templates={allTemplates} />
+      <CsvImportWizard nichos={allNichos} templates={allTemplates} />
     </div>
   );
 }

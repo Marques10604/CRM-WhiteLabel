@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { STAGE_OPTIONS, type Stage } from "@/components/etapa-badge";
 import { DEFAULT_SORTING, type FollowUpDateRange, type LeadRow } from "@/components/lead-table-columns";
-import type { Subnicho } from "@/types";
+import type { Nicho } from "@/types";
 
 const ALL_VALUE = "__all__";
 
@@ -27,7 +27,7 @@ const ACCENT_FOCUS_RING =
 
 type LeadTableToolbarProps = {
   table: Table<LeadRow>;
-  subnichos: Subnicho[];
+  nichos: Nicho[];
 };
 
 /**
@@ -37,19 +37,19 @@ type LeadTableToolbarProps = {
  * prop de `lead-table.tsx`. Trocar qualquer filtro reseta a paginação para a
  * primeira página (`table.setPageIndex(0)`, must_have do plano 01-03).
  */
-export function LeadTableToolbar({ table, subnichos }: LeadTableToolbarProps) {
-  const [subnichoValue, setSubnichoValue] = useState<string>(ALL_VALUE);
+export function LeadTableToolbar({ table, nichos }: LeadTableToolbarProps) {
+  const [nichoValue, setNichoValue] = useState<string>(ALL_VALUE);
   const [stageValue, setStageValue] = useState<string>(ALL_VALUE);
   const [rangeStart, setRangeStart] = useState<Date | undefined>(undefined);
   const [rangeEnd, setRangeEnd] = useState<Date | undefined>(undefined);
   const [startPopoverOpen, setStartPopoverOpen] = useState(false);
   const [endPopoverOpen, setEndPopoverOpen] = useState(false);
 
-  function handleSubnichoChange(value: string | null) {
+  function handleNichoChange(value: string | null) {
     const nextValue = value ?? ALL_VALUE;
-    setSubnichoValue(nextValue);
+    setNichoValue(nextValue);
     table
-      .getColumn("subnichoNome")
+      .getColumn("nichoNome")
       ?.setFilterValue(nextValue === ALL_VALUE ? undefined : Number(nextValue));
     table.setPageIndex(0);
   }
@@ -81,7 +81,7 @@ export function LeadTableToolbar({ table, subnichos }: LeadTableToolbarProps) {
 
   function handleClearFilters() {
     table.resetColumnFilters();
-    setSubnichoValue(ALL_VALUE);
+    setNichoValue(ALL_VALUE);
     setStageValue(ALL_VALUE);
     setRangeStart(undefined);
     setRangeEnd(undefined);
@@ -92,18 +92,18 @@ export function LeadTableToolbar({ table, subnichos }: LeadTableToolbarProps) {
   return (
     <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-[#F4F4F5] p-4">
       <div className="flex flex-col gap-1.5">
-        <span className="text-[14px] leading-normal text-muted-foreground">Sub-nicho</span>
-        <Select value={subnichoValue} onValueChange={handleSubnichoChange}>
+        <span className="text-[14px] leading-normal text-muted-foreground">Nicho</span>
+        <Select value={nichoValue} onValueChange={handleNichoChange}>
           <SelectTrigger className={ACCENT_FOCUS_RING}>
-            <SelectValue placeholder="Todos os sub-nichos" />
+            <SelectValue placeholder="Todos os nichos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_VALUE}>Todos os sub-nichos</SelectItem>
-            {subnichos
-              .filter((subnicho) => subnicho.deletedAt === null)
-              .map((subnicho) => (
-                <SelectItem key={subnicho.id} value={String(subnicho.id)}>
-                  {subnicho.nome}
+            <SelectItem value={ALL_VALUE}>Todos os nichos</SelectItem>
+            {nichos
+              .filter((nicho) => nicho.deletedAt === null)
+              .map((nicho) => (
+                <SelectItem key={nicho.id} value={String(nicho.id)}>
+                  {nicho.nome}
                 </SelectItem>
               ))}
           </SelectContent>

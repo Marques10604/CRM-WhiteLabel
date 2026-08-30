@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import type { Lead } from "@/types";
 
-/** Lead com o nome do sub-nicho já resolvido (join client-side em lead-table.tsx). */
-export type LeadRow = Lead & { subnichoNome: string };
+/** Lead com o nome do nicho já resolvido (join client-side em lead-table.tsx). */
+export type LeadRow = Lead & { nichoNome: string };
 
 /**
  * Callbacks de ação de linha (D-08) injetados via `meta` do `useReactTable`
@@ -62,13 +62,13 @@ export function SortableColumnHeader<TData>({
 }
 
 /**
- * Colunas padrão D-06 (Nome, Sub-nicho, Etapa, Follow-up, Telefone) — valor,
+ * Colunas padrão D-06 (Nome, Nicho, Etapa, Follow-up, Telefone) — valor,
  * canal, origem e notas ficam só no modal de edição, não na lista base.
  *
- * Sort (01-03): Nome, Sub-nicho, Etapa e Follow-up são ordenáveis pelo
+ * Sort (01-03): Nome, Nicho, Etapa e Follow-up são ordenáveis pelo
  * cabeçalho; Telefone não participa do sort.
  *
- * Filtro (01-03, D-11): Sub-nicho filtra por `subnichoId` (comparação por id,
+ * Filtro (01-03, D-11): Nicho filtra por `nichoId` (comparação por id,
  * não por texto, para não depender de unicidade de nome exibido); Etapa
  * filtra por igualdade de `stage`; Follow-up usa `filterFn` de intervalo
  * inclusivo nas duas pontas, normalizando com `startOfDay`/`endOfDay`
@@ -90,12 +90,12 @@ export const leadTableColumns: ColumnDef<LeadRow>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "subnichoNome",
-    header: ({ column }) => <SortableColumnHeader column={column} label="Sub-nicho" />,
+    accessorKey: "nichoNome",
+    header: ({ column }) => <SortableColumnHeader column={column} label="Nicho" />,
     enableSorting: true,
     filterFn: (row, _columnId, filterValue: number | undefined) => {
       if (filterValue === undefined) return true;
-      return row.original.subnichoId === filterValue;
+      return row.original.nichoId === filterValue;
     },
   },
   {

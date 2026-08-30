@@ -11,7 +11,7 @@ import type { Lead } from "@/types";
 
 type PipelineLeadCardProps = {
   lead: Lead;
-  subnichoNome: string;
+  nichoNome: string;
   isEsfriando: boolean;
   sugestao?: Date;
   onClick: () => void;
@@ -20,7 +20,7 @@ type PipelineLeadCardProps = {
 };
 
 /**
- * Card de lead do board (D-09) — Nome (Body, mais proeminente) + Sub-nicho +
+ * Card de lead do board (D-09) — Nome (Body, mais proeminente) + Nicho +
  * data de follow-up (Label). SEM `EtapaBadge` (a etapa já é implícita pela
  * coluna). Quando `isEsfriando`, borda âmbar de 2px + rótulo "Esfriando" com
  * ícone `Clock` (D-08). `onClick` reabre o modal de edição (D-10). Arrastável
@@ -30,7 +30,7 @@ type PipelineLeadCardProps = {
  */
 export function PipelineLeadCard({
   lead,
-  subnichoNome,
+  nichoNome,
   isEsfriando,
   sugestao,
   onClick,
@@ -96,7 +96,7 @@ export function PipelineLeadCard({
         </div>
       </div>
       <span className="text-[14px] leading-normal text-muted-foreground">
-        {subnichoNome}
+        {nichoNome}
       </span>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] leading-normal text-muted-foreground">
         <span>{format(lead.followUpDate, "dd/MM/yyyy")}</span>

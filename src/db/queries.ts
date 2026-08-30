@@ -292,7 +292,7 @@ export function computeTaxaConversao(row: { total: number; fechados: number }): 
  * `computeTaxaConversao`.
  *
  * `origemTipo` é um enum FECHADO de 2 valores (11-UI-SPEC.md linha 167),
- * diferente de sub-nicho/motivo, que são listas abertas onde o `GROUP BY`
+ * diferente de nicho/motivo, que são listas abertas onde o `GROUP BY`
  * naturalmente omite grupos vazios. Omitir a linha "Inbound" quando não há
  * nenhum lead inbound esconderia exatamente o dado que o admin mais precisa ver
  * hoje (23/23 leads são Outbound).
@@ -411,7 +411,7 @@ export async function getContagemPorNicho(
  * `isNull(leads.deletedAt)` exclui a Lixeira (T-11-21). Ordenado por total DESC,
  * desempate por nome ASC (11-UI-SPEC.md linha 175). `motivosPerda.deletedAt` NÃO
  * é filtrado — um motivo soft-deletado com leads perdidos históricos continua
- * contando (mesmo raciocínio do `innerJoin` de sub-nicho acima).
+ * contando (mesmo raciocínio do `innerJoin` de nicho acima).
  */
 export async function getContagemPorMotivoPerda(
   range: PeriodRange

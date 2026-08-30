@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { motivosPerda, subnichos, templates } from "@/db/schema";
+import { motivosPerda, nichos, templates } from "@/db/schema";
 import {
   buildDashboardItems,
   computeSequenciaSugestao,
@@ -28,7 +28,7 @@ export default async function Home() {
   const [
     activeLeads,
     tarefasPendentes,
-    allSubnichos,
+    allNichos,
     allMotivosPerda,
     allTemplates,
     config,
@@ -36,7 +36,7 @@ export default async function Home() {
   ] = await Promise.all([
     getActiveDashboardLeads(),
     getTarefasPendentes(),
-    db.select().from(subnichos),
+    db.select().from(nichos),
     db.select().from(motivosPerda),
     db.select().from(templates),
     getConfiguracoes(),
@@ -66,7 +66,7 @@ export default async function Home() {
         vencidos={vencidos}
         hoje={hoje}
         proximos7Dias={proximos7Dias}
-        subnichos={allSubnichos}
+        nichos={allNichos}
         motivosPerda={allMotivosPerda}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}

@@ -3,7 +3,7 @@
 /**
  * DIVERGÊNCIA DE POLÍTICA (D-08, Fase 12) — espelho INVERTIDO da convenção
  * LEAD-04 documentada no cabeçalho de `src/actions/lead-actions.ts`: enquanto
- * lead/subnicho/interação/motivo de perda são SEMPRE soft-delete, a exclusão
+ * lead/nicho/interação/motivo de perda são SEMPRE soft-delete, a exclusão
  * de tarefa é HARD-DELETE. `tarefas` é descartável por natureza (lembrete
  * cumprido ou cancelado), NÃO tem coluna `deletedAt` e NÃO tem Lixeira.
  *

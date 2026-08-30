@@ -30,12 +30,12 @@ type MotivoPerdaComboboxProps = {
 /**
  * Combobox pesquisável de motivo de perda COM criação-na-hora (D-03) — o
  * primeiro "combobox criável" do projeto. Shell copiado de
- * `subnicho-combobox.tsx` (mesmos primitivos, mesmo input nativo oculto via
+ * `nicho-combobox.tsx` (mesmos primitivos, mesmo input nativo oculto via
  * `name` que alimenta o FormData de `lead-form-dialog.tsx`, e o MESMO filtro
  * anti-soft-delete `deletedAt === null || id === value` — sem a exceção
  * `id === value`, editar um lead perdido cujo motivo foi removido mostraria o
  * campo vazio, causa-raiz documentada em
- * `.planning/debug/resolved/subnicho-combobox-vazio.md`).
+ * `.planning/debug/resolved/nicho-combobox-vazio.md`).
  *
  * A novidade: quando o texto digitado (trim + case-insensitive) não casa com
  * nenhum motivo existente, a última linha da lista vira uma AÇÃO

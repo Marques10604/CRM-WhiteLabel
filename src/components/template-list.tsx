@@ -89,7 +89,7 @@ function TemplateRow({
 
 /**
  * Lista de templates de WhatsApp agrupada por tipo (WA-01, D-09/D-11/D-12/D-13).
- * Edição/criação em modal (não inline, ao contrário de subnicho-manager),
+ * Edição/criação em modal (não inline, ao contrário de nicho-manager),
  * mesma convenção de lead-table.tsx via DialogState discriminado.
  */
 export function TemplateList({ templates }: TemplateListProps) {

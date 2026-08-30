@@ -4,7 +4,7 @@ import {
   buildLinhasOrigem,
   getContagemPorMotivoPerda,
   getContagemPorOrigem,
-  getContagemPorSubnicho,
+  getContagemPorNicho,
   resolvePeriodRange,
 } from "@/db/queries";
 import {
@@ -23,7 +23,7 @@ import { PeriodoSelector } from "@/components/periodo-selector";
  * que resolve o preset de período, busca as três agregações num só
  * `Promise.all` e renderiza as três seções empilhadas.
  *
- * A diferença de base de data entre as seções (createdAt para origem/sub-nicho
+ * A diferença de base de data entre as seções (createdAt para origem/nicho
  * conforme D-09, stageChangedAt para motivos de perda conforme D-11) está
  * encapsulada dentro das funções de `queries.ts` — a página passa o MESMO
  * `range` para as três e não replica essa lógica.
@@ -59,9 +59,9 @@ export default async function RelatoriosPage({
 
   const range = resolvePeriodRange(presetNormalizado);
 
-  const [contagemOrigem, contagemSubnicho, contagemMotivoPerda] = await Promise.all([
+  const [contagemOrigem, contagemNicho, contagemMotivoPerda] = await Promise.all([
     getContagemPorOrigem(range),
-    getContagemPorSubnicho(range),
+    getContagemPorNicho(range),
     getContagemPorMotivoPerda(range),
   ]);
 
@@ -115,16 +115,16 @@ export default async function RelatoriosPage({
         </Table>
       </section>
 
-      {/* Seção 2 — Leads por sub-nicho (METRICAS-02) */}
+      {/* Seção 2 — Leads por nicho (METRICAS-02) */}
       <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6">
-        <h2 className="text-[20px] font-semibold leading-tight">Leads por sub-nicho</h2>
-        {contagemSubnicho.length === 0 ? (
+        <h2 className="text-[20px] font-semibold leading-tight">Leads por nicho</h2>
+        {contagemNicho.length === 0 ? (
           <p className="text-[14px] text-muted-foreground">Nenhum lead neste período.</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Sub-nicho</TableHead>
+                <TableHead>Nicho</TableHead>
                 <TableHead>Total de leads</TableHead>
               </TableRow>
             </TableHeader>
@@ -132,8 +132,8 @@ export default async function RelatoriosPage({
               {/* D-12: "A categorizar" é uma linha normal — sem estilo, posição
                   nem filtro especial. A ordenação (total desc, nome asc) já vem
                   pronta da query. */}
-              {contagemSubnicho.map((linha) => (
-                <TableRow key={linha.subnichoId}>
+              {contagemNicho.map((linha) => (
+                <TableRow key={linha.nichoId}>
                   <TableCell className="text-foreground">{linha.nome}</TableCell>
                   <TableCell className="text-foreground">{linha.total}</TableCell>
                 </TableRow>

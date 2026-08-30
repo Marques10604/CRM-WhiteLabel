@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { SubnichoCombobox } from "@/components/subnicho-combobox";
+import { NichoCombobox } from "@/components/nicho-combobox";
 import { MotivoPerdaCombobox } from "@/components/motivo-perda-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
@@ -41,12 +41,12 @@ import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
 import { useFirstContactTrigger } from "@/hooks/use-first-contact-trigger";
-import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 type LeadFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   /** Lista governada de motivos de perda (D-04) — alimenta o combobox do campo condicional "Motivo da perda". */
   motivosPerda: MotivoPerda[];
   /** Presença de `lead` decide o modo: undefined = criar, definido = editar (D-07). */
@@ -92,7 +92,7 @@ type ActionState =
 export function LeadFormDialog({
   open,
   onOpenChange,
-  subnichos,
+  nichos,
   motivosPerda,
   lead,
   firstContactTemplate,
@@ -108,9 +108,9 @@ export function LeadFormDialog({
   const formRef = useRef<HTMLFormElement>(null);
   const firstContact = useFirstContactTrigger(firstContactTemplate);
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   const form = useForm<LeadFormValues>({
@@ -132,7 +132,7 @@ export function LeadFormDialog({
       // barra o submit com "Invalid input: expected date, received Date"
       // porque followUpDate chega undefined em leadSchema (z.coerce.date()).
       followUpDate: lead?.followUpDate ?? startOfDay(new Date()),
-      subnichoId: lead?.subnichoId,
+      nichoId: lead?.nichoId,
       stage: lead?.stage ?? "novo",
       motivoPerdaId: lead?.motivoPerdaId ?? undefined,
     },
@@ -149,7 +149,7 @@ export function LeadFormDialog({
       if (!isEditMode && state.lead) {
         firstContact.trigger(
           state.lead,
-          subnichoNameById.get(state.lead.subnichoId) ?? "—"
+          nichoNameById.get(state.lead.nichoId) ?? "—"
         );
       }
     } else if (state && "errors" in state) {
@@ -320,25 +320,25 @@ export function LeadFormDialog({
             <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
               <h3 className="text-[20px] leading-tight font-semibold">Negócio</h3>
 
-              <Field data-invalid={!!errors.subnichoId}>
-                <FieldLabel htmlFor="subnichoId">Sub-nicho</FieldLabel>
+              <Field data-invalid={!!errors.nichoId}>
+                <FieldLabel htmlFor="nichoId">Nicho</FieldLabel>
                 <FieldContent>
                   <Controller
                     control={form.control}
-                    name="subnichoId"
+                    name="nichoId"
                     render={({ field }) => (
-                      <SubnichoCombobox
-                        subnichos={subnichos}
+                      <NichoCombobox
+                        nichos={nichos}
                         value={(field.value as number | null | undefined) ?? null}
                         onValueChange={(id) => field.onChange(id)}
-                        invalid={!!errors.subnichoId}
+                        invalid={!!errors.nichoId}
                       />
                     )}
                   />
                   <FieldDescription>
                     Categoria do lead (ex: nutricionista, terapeuta).
                   </FieldDescription>
-                  <FieldError errors={[errors.subnichoId]} />
+                  <FieldError errors={[errors.nichoId]} />
                 </FieldContent>
               </Field>
 
@@ -497,7 +497,7 @@ export function LeadFormDialog({
           if (!nextOpen) firstContact.close();
         }}
         lead={firstContact.lead}
-        subnichoNome={firstContact.subnichoNome ?? "—"}
+        nichoNome={firstContact.nichoNome ?? "—"}
         templates={templates ?? []}
         defaultTipo="primeiro_contato"
         subtitulo={`Sugestão: enviar mensagem de primeiro contato para ${firstContact.lead?.nome ?? ""}.`}

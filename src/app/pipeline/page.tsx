@@ -1,7 +1,7 @@
 import { asc, isNull } from "drizzle-orm";
 import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
-import { leads, motivosPerda, subnichos, templates } from "@/db/schema";
+import { leads, motivosPerda, nichos, templates } from "@/db/schema";
 import {
   computeSequenciaSugestao,
   getConfiguracoes,
@@ -30,7 +30,7 @@ import { PipelineBoard } from "@/components/pipeline-board";
 export default async function PipelinePage() {
   const [
     activeLeads,
-    allSubnichos,
+    allNichos,
     allMotivosPerda,
     allTemplates,
     config,
@@ -41,7 +41,7 @@ export default async function PipelinePage() {
       .from(leads)
       .where(isNull(leads.deletedAt))
       .orderBy(asc(leads.followUpDate)),
-    db.select().from(subnichos),
+    db.select().from(nichos),
     db.select().from(motivosPerda),
     db.select().from(templates),
     getConfiguracoes(),
@@ -84,7 +84,7 @@ export default async function PipelinePage() {
       <h1 className="text-[28px] font-semibold leading-tight">Pipeline</h1>
       <PipelineBoard
         leads={activeLeads}
-        subnichos={allSubnichos}
+        nichos={allNichos}
         motivosPerda={allMotivosPerda}
         esfriandoLeadIds={esfriandoLeadIds}
         templates={allTemplates}

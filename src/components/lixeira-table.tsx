@@ -22,18 +22,18 @@ import {
 } from "@/components/ui/table";
 import { EtapaBadge } from "@/components/etapa-badge";
 import { restoreLead } from "@/actions/lead-actions";
-import type { Lead, Subnicho } from "@/types";
+import type { Lead, Nicho } from "@/types";
 
 type LixeiraTableProps = {
   leads: Lead[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
 };
 
-type LixeiraRow = Lead & { subnichoNome: string };
+type LixeiraRow = Lead & { nichoNome: string };
 
 /**
  * Tabela de leads excluídos (D-17) — variante somente-leitura da lead-table
- * ativa: colunas de leitura Nome/Sub-nicho/Etapa/Follow-up/Telefone + uma
+ * ativa: colunas de leitura Nome/Nicho/Etapa/Follow-up/Telefone + uma
  * coluna extra "Excluído em" (deletedAt formatado). Diferenças
  * DELIBERADAS em relação à tabela ativa: (1) a ÚNICA ação é "Restaurar",
  * instantânea e sem confirmação (D-17 — restaurar é seguro/não-destrutivo);
@@ -42,22 +42,22 @@ type LixeiraRow = Lead & { subnichoNome: string };
  * (01-02): um lead na lixeira não tem caminho de edição nem no client nem
  * na action.
  */
-export function LixeiraTable({ leads, subnichos }: LixeiraTableProps) {
+export function LixeiraTable({ leads, nichos }: LixeiraTableProps) {
   const [isPending, startTransition] = useTransition();
   const [restoringId, setRestoringId] = useState<number | null>(null);
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   const data = useMemo<LixeiraRow[]>(
     () =>
       leads.map((lead) => ({
         ...lead,
-        subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+        nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
       })),
-    [leads, subnichoNameById]
+    [leads, nichoNameById]
   );
 
   function handleRestore(lead: LixeiraRow) {
@@ -72,7 +72,7 @@ export function LixeiraTable({ leads, subnichos }: LixeiraTableProps) {
   const columns = useMemo<ColumnDef<LixeiraRow>[]>(
     () => [
       { accessorKey: "nome", header: "Nome" },
-      { accessorKey: "subnichoNome", header: "Sub-nicho" },
+      { accessorKey: "nichoNome", header: "Nicho" },
       {
         accessorKey: "stage",
         header: "Etapa",

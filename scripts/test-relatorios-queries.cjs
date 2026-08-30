@@ -9,7 +9,7 @@
  *   computeTaxaConversao, resolvePeriodRange, buildLinhasOrigem.
  *
  * PARTE B — as 3 agregações SQL (`getContagemPorOrigem`,
- *   `getContagemPorSubnicho`, `getContagemPorMotivoPerda`) contra um banco
+ *   `getContagemPorNicho`, `getContagemPorMotivoPerda`) contra um banco
  *   SQLite TEMPORÁRIO e isolado em `os.tmpdir()` (NUNCA toca ./data/crm.db),
  *   montado por DDL cru idêntico ao de `scripts/migrate-motivos-perda.cjs` mais
  *   as colunas de `leads` que o snapshot do drizzle-kit não tem (mesmo débito
@@ -108,7 +108,7 @@ const SCHEMA_DDL = `
     resolvePeriodRange,
     buildLinhasOrigem,
     getContagemPorOrigem,
-    getContagemPorSubnicho,
+    getContagemPorNicho,
     getContagemPorMotivoPerda,
   } = await import("@/db/queries");
   const { subDays, startOfDay } = await import("date-fns");
@@ -233,7 +233,7 @@ const SCHEMA_DDL = `
       created_at: o.created_at,
     });
 
-  // --- Origem / sub-nicho (não-perdidos), criados dentro dos 30 dias ---
+  // --- Origem / nicho (não-perdidos), criados dentro dos 30 dias ---
   L({ nome: "L1", origem_tipo: "inbound", subnicho_id: 2, stage: "novo", created_at: ago(10) });
   L({ nome: "L2", origem_tipo: "inbound", subnicho_id: 2, stage: "fechado", created_at: ago(10) });
   L({ nome: "L3", origem_tipo: "outbound", subnicho_id: 2, stage: "novo", created_at: ago(10) });
@@ -282,29 +282,29 @@ const SCHEMA_DDL = `
     check(montadas[1].taxa === 1 / 8, `buildLinhasOrigem(resultado real): taxa outbound === 1/8 (got ${montadas[1].taxa})`);
   }
 
-  // --- getContagemPorSubnicho ---
+  // --- getContagemPorNicho ---
   {
-    const linhas = await getContagemPorSubnicho(range30);
-    const porId = new Map(linhas.map((r) => [r.subnichoId, r]));
+    const linhas = await getContagemPorNicho(range30);
+    const porId = new Map(linhas.map((r) => [r.nichoId, r]));
 
     // Nutricionista (id 2): L1,L2,L3,L4 + L11 + L12 = 6  (L8 fora do período, L10 fora, L13 Lixeira)
-    check(porId.get(2) && Number(porId.get(2).total) === 6, `getContagemPorSubnicho: Nutricionista.total === 6 (got ${porId.get(2) && porId.get(2).total})`);
+    check(porId.get(2) && Number(porId.get(2).total) === 6, `getContagemPorNicho: Nutricionista.total === 6 (got ${porId.get(2) && porId.get(2).total})`);
     // "A categorizar" (id 1): L5,L6,L7 = 3 — linha NORMAL, sem tratamento especial (D-12)
     check(
       porId.get(1) && porId.get(1).nome === "A categorizar" && Number(porId.get(1).total) === 3,
-      `getContagemPorSubnicho: "A categorizar" é linha normal com total 3 (D-12) (got ${porId.get(1) && porId.get(1).total})`
+      `getContagemPorNicho: "A categorizar" é linha normal com total 3 (D-12) (got ${porId.get(1) && porId.get(1).total})`
     );
     // Sub-nicho soft-deletado com leads históricos continua aparecendo
     check(
       porId.get(9) && porId.get(9).nome === "Sub-nicho removido" && Number(porId.get(9).total) === 1,
-      "getContagemPorSubnicho: sub-nicho soft-deletado com leads históricos ainda aparece"
+      "getContagemPorNicho: nicho soft-deletado com leads históricos ainda aparece"
     );
     // Ordenação: total DESC -> Nutricionista (6) é a primeira linha
-    check(linhas[0] && linhas[0].subnichoId === 2, `getContagemPorSubnicho: ordenado por total DESC (primeira = Nutricionista) (got ${linhas[0] && linhas[0].nome})`);
-    // Lead na Lixeira (L13, subnicho 2) não infla a contagem — já coberto pelo total === 6
+    check(linhas[0] && linhas[0].nichoId === 2, `getContagemPorNicho: ordenado por total DESC (primeira = Nutricionista) (got ${linhas[0] && linhas[0].nome})`);
+    // Lead na Lixeira (L13, nicho 2) não infla a contagem — já coberto pelo total === 6
     check(
       linhas.reduce((s, r) => s + Number(r.total), 0) === 10,
-      `getContagemPorSubnicho: soma dos totais === 10 (nenhum lead soft-deletado contado) (got ${linhas.reduce((s, r) => s + Number(r.total), 0)})`
+      `getContagemPorNicho: soma dos totais === 10 (nenhum lead soft-deletado contado) (got ${linhas.reduce((s, r) => s + Number(r.total), 0)})`
     );
   }
 

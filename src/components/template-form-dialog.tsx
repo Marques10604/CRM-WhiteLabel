@@ -169,7 +169,7 @@ export function TemplateFormDialog({
             <FieldContent>
               <Textarea id="corpo" aria-invalid={!!errors.corpo} {...form.register("corpo")} />
               <FieldDescription>
-                Use {"{nome}"}, {"{subnicho}"} ou {"{origem}"} para personalizar automaticamente.
+                Use {"{nome}"}, {"{nicho}"} ou {"{origem}"} para personalizar automaticamente.
               </FieldDescription>
               <FieldError errors={[errors.corpo]} />
             </FieldContent>

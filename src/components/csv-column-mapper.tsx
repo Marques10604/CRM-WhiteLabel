@@ -17,7 +17,7 @@ type FieldConfig = { key: CsvFieldKey; label: string; required: boolean };
 const FIELD_CONFIGS: FieldConfig[] = [
   { key: "nome", label: "Nome *", required: true },
   { key: "telefone", label: "Telefone *", required: true },
-  { key: "subnichoNome", label: "Sub-nicho", required: false },
+  { key: "nichoNome", label: "Nicho", required: false },
   { key: "canal", label: "Canal", required: false },
   { key: "origem", label: "Origem", required: false },
   { key: "valorEstimado", label: "Valor estimado", required: false },

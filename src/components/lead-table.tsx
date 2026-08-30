@@ -29,7 +29,7 @@ import {
 import { EtapaBadge } from "@/components/etapa-badge";
 import { normalizePhone } from "@/lib/phone";
 import { softDeleteLead } from "@/actions/lead-actions";
-import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 /**
  * Iniciais do avatar circular da linha (sketch 002-C): até 2 primeiras
@@ -54,23 +54,23 @@ function getInitials(nome: string): string {
  */
 const COL = {
   nome: "flex-[2] min-w-0",
-  subnicho: "flex-1 min-w-0",
+  nicho: "flex-1 min-w-0",
   etapa: "flex-1 min-w-0",
   followup: "flex-1 min-w-0",
   telefone: "flex-1 min-w-0",
   acoes: "w-[300px] shrink-0 justify-end",
 } as const;
 
-const SORTABLE_HEADERS: { id: "nome" | "subnichoNome" | "stage" | "followUpDate"; label: string; className: string }[] = [
+const SORTABLE_HEADERS: { id: "nome" | "nichoNome" | "stage" | "followUpDate"; label: string; className: string }[] = [
   { id: "nome", label: "Nome", className: COL.nome },
-  { id: "subnichoNome", label: "Sub-nicho", className: COL.subnicho },
+  { id: "nichoNome", label: "Nicho", className: COL.nicho },
   { id: "stage", label: "Etapa", className: COL.etapa },
   { id: "followUpDate", label: "Follow-up", className: COL.followup },
 ];
 
 type LeadTableProps = {
   leads: Lead[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   motivosPerda: MotivoPerda[];
   templates: Template[];
 };
@@ -89,7 +89,7 @@ type DeleteState = { open: false } | { open: true; lead: LeadRow };
  * (o botão de ícone-apenas compartilhado com outras telas fica fora de
  * escopo aqui, per decisão 4 do usuário).
  */
-type PreviewState = { open: false } | { open: true; lead: Lead; subnichoNome: string };
+type PreviewState = { open: false } | { open: true; lead: Lead; nichoNome: string };
 
 /** Estado da timeline de interações (D-03), mesma forma de `PreviewState`. */
 type TimelineState = { open: false } | { open: true; lead: Lead };
@@ -99,7 +99,7 @@ type TimelineState = { open: false } | { open: true; lead: Lead };
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
  * `<LeadFormDialog>` pré-preenchido (D-07). Estado vazio com CTA (D-13).
  */
-export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTableProps) {
+export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
@@ -108,9 +108,9 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [, startTransition] = useTransition();
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   const firstContactTemplate = useMemo(
@@ -122,9 +122,9 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
     () =>
       leads.map((lead) => ({
         ...lead,
-        subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+        nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
       })),
-    [leads, subnichoNameById]
+    [leads, nichoNameById]
   );
 
   const table = useReactTable({
@@ -185,7 +185,7 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
         </div>
       ) : (
         <>
-          <LeadTableToolbar table={table} subnichos={subnichos} />
+          <LeadTableToolbar table={table} nichos={nichos} />
 
           <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
             <div className="flex items-center gap-3.5 border-b bg-[#F4F4F5] px-4 py-3">
@@ -235,8 +235,8 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
                       </span>
                     </div>
 
-                    <span className={`truncate text-[14px] text-muted-foreground ${COL.subnicho}`}>
-                      {lead.subnichoNome}
+                    <span className={`truncate text-[14px] text-muted-foreground ${COL.nicho}`}>
+                      {lead.nichoNome}
                     </span>
 
                     <div className={COL.etapa}>
@@ -271,7 +271,7 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
                         }
                         onClick={(event) => {
                           event.stopPropagation();
-                          setPreviewState({ open: true, lead, subnichoNome: lead.subnichoNome });
+                          setPreviewState({ open: true, lead, nichoNome: lead.nichoNome });
                         }}
                       >
                         <MessageCircle className="size-4" />
@@ -354,7 +354,7 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
         onOpenChange={(open) => {
           if (!open) setDialogState({ mode: "closed" });
         }}
-        subnichos={subnichos}
+        nichos={nichos}
         motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
@@ -376,7 +376,7 @@ export function LeadTable({ leads, subnichos, motivosPerda, templates }: LeadTab
           if (!open) setPreviewState({ open: false });
         }}
         lead={previewState.open ? previewState.lead : undefined}
-        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        nichoNome={previewState.open ? previewState.nichoNome : ""}
         templates={templates}
         defaultTipo="primeiro_contato"
       />

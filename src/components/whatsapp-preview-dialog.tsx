@@ -31,7 +31,7 @@ type WhatsAppPreviewDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lead: Lead | undefined;
-  subnichoNome: string;
+  nichoNome: string;
   templates: Template[];
   defaultTipo: Template["tipo"];
   /** Subtítulo customizável (ex: auto-gatilho de 1º contato, D-19). Fallback: "Mensagem para {nome}". */
@@ -62,7 +62,7 @@ export function WhatsAppPreviewDialog({
   open,
   onOpenChange,
   lead,
-  subnichoNome,
+  nichoNome,
   templates,
   defaultTipo,
   subtitulo,
@@ -80,14 +80,14 @@ export function WhatsAppPreviewDialog({
     /* Mesmo falso-positivo pré-existente já documentado no projeto (STATE.md
        decisão 07-02, aplicado em lead-timeline-dialog.tsx/09-03): sincroniza
        `tipo`/`texto` com a prop `open`/`lead` ao abrir para um lead novo —
-       não é estado derivável sem efeito (depende de `templates`/`subnichoNome`
+       não é estado derivável sem efeito (depende de `templates`/`nichoNome`
        vindos de fora e de `pickTemplate`/`renderTemplate`). */
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTipo(defaultTipo);
     setTexto(
       renderTemplate(template?.corpo ?? "", {
         nome: lead.nome,
-        subnicho: subnichoNome,
+        nicho: nichoNome,
         origem: lead.origem,
       })
     );
@@ -101,7 +101,7 @@ export function WhatsAppPreviewDialog({
     setTexto(
       renderTemplate(template?.corpo ?? "", {
         nome: lead.nome,
-        subnicho: subnichoNome,
+        nicho: nichoNome,
         origem: lead.origem,
       })
     );

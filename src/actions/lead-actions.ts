@@ -2,7 +2,7 @@
 
 /**
  * Convenção LEAD-04: nenhum código em src/ ou scripts/ pode fazer hard-delete
- * de leads/subnichos (chamar o delete() do Drizzle direto nessas tabelas) e
+ * de leads/nichos (chamar o delete() do Drizzle direto nessas tabelas) e
  * nenhuma migração pode conter DELETE FROM/DROP TABLE — exclusão é sempre
  * soft-delete (deletedAt). Verificar com `npm run guard:no-hard-delete`.
  */
@@ -10,7 +10,7 @@
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { interacoes, leads, motivosPerda, subnichos } from "@/db/schema";
+import { interacoes, leads, motivosPerda, nichos } from "@/db/schema";
 import { leadSchema, stageUpdateSchema, whatsappContactSchema } from "@/lib/validations";
 import type { Lead, Template } from "@/types";
 
@@ -29,26 +29,26 @@ function isForeignKeyViolation(err: unknown): boolean {
 }
 
 /**
- * Checagem de existência real do subnichoId no banco — cobre sub-nicho
+ * Checagem de existência real do nichoId no banco — cobre nicho
  * apagado/id forjado que passaria pela validação de forma (inteiro positivo)
  * do Zod, mas não existe de fato.
  *
- * Propositalmente indiferente a `deletedAt` (soft-delete de sub-nicho,
+ * Propositalmente indiferente a `deletedAt` (soft-delete de nicho,
  * quick task 260725-lai): se filtrasse por `isNull(deletedAt)`, editar e
- * salvar um lead cujo sub-nicho foi removido passaria a falhar com
- * "Selecione um sub-nicho.", mesmo sem o usuário trocar nada no formulário.
+ * salvar um lead cujo nicho foi removido passaria a falhar com
+ * "Selecione um nicho.", mesmo sem o usuário trocar nada no formulário.
  */
-async function subnichoExists(subnichoId: number): Promise<boolean> {
+async function nichoExists(nichoId: number): Promise<boolean> {
   const existing = await db
-    .select({ id: subnichos.id })
-    .from(subnichos)
-    .where(eq(subnichos.id, subnichoId));
+    .select({ id: nichos.id })
+    .from(nichos)
+    .where(eq(nichos.id, nichoId));
   return existing.length > 0;
 }
 
 /**
  * Checagem de existência real do motivoPerdaId no banco (D-04, PERDA-01) —
- * cópia linha-a-linha de `subnichoExists`. Mesmo raciocínio: PROPOSITALMENTE
+ * cópia linha-a-linha de `nichoExists`. Mesmo raciocínio: PROPOSITALMENTE
  * indiferente a `deletedAt` — editar/salvar um lead perdido cujo motivo foi
  * removido (soft-delete) não pode falhar. Fecha o vetor de mass-assignment de
  * FK forjada (T-11-13) antes de qualquer escrita, junto do backstop
@@ -71,8 +71,8 @@ export async function createLead(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  if (!(await subnichoExists(parsed.data.subnichoId))) {
-    return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
+  if (!(await nichoExists(parsed.data.nichoId))) {
+    return { errors: { nichoId: ["Selecione um nicho."] } };
   }
 
   // D-04: com stage "perdido", o `.refine` de leadSchema já garante que
@@ -103,7 +103,7 @@ export async function createLead(
       })
       .returning();
   } catch (err) {
-    // Backstop de FK: sub-nicho OU motivo de perda apagado ENTRE a
+    // Backstop de FK: nicho OU motivo de perda apagado ENTRE a
     // pré-checagem acima e este insert (janela de corrida check-then-write).
     // onDelete:"restrict" no schema faz o SQLite lançar
     // SQLITE_CONSTRAINT_FOREIGNKEY nesse caso.
@@ -111,7 +111,7 @@ export async function createLead(
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
       }
-      return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
+      return { errors: { nichoId: ["Selecione um nicho."] } };
     }
     throw err;
   }
@@ -136,8 +136,8 @@ export async function updateLead(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  if (!(await subnichoExists(parsed.data.subnichoId))) {
-    return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
+  if (!(await nichoExists(parsed.data.nichoId))) {
+    return { errors: { nichoId: ["Selecione um nicho."] } };
   }
 
   // D-04: mesmo gate de createLead — motivo obrigatório e existente quando o
@@ -194,12 +194,12 @@ export async function updateLead(
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
   } catch (err) {
-    // Mesmo backstop de FK do createLead (sub-nicho ou motivo de perda).
+    // Mesmo backstop de FK do createLead (nicho ou motivo de perda).
     if (isForeignKeyViolation(err)) {
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
       }
-      return { errors: { subnichoId: ["Selecione um sub-nicho."] } };
+      return { errors: { nichoId: ["Selecione um nicho."] } };
     }
     throw err;
   }

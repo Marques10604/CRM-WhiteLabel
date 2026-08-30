@@ -15,7 +15,7 @@ import type { MotivoPerda } from "@/types";
 
 /**
  * Gestão inline da lista de motivos de perda (Fase 11, PERDA-01, D-01/D-05) —
- * réplica 1:1 de subnicho-manager.tsx. O `ActionState` carrega `id` no sucesso
+ * réplica 1:1 de nicho-manager.tsx. O `ActionState` carrega `id` no sucesso
  * (shape ampliado exigido pelo combobox criável de D-03), mas este manager NÃO
  * usa esse campo — o guard `"success" in state && state.success` continua válido.
  */

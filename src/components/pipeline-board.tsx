@@ -18,11 +18,11 @@ import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
-import type { Lead, MotivoPerda, Subnicho, Template } from "@/types";
+import type { Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 type PipelineBoardProps = {
   leads: Lead[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   motivosPerda: MotivoPerda[];
   esfriandoLeadIds: number[];
   templates: Template[];
@@ -40,7 +40,7 @@ type MotivoPerdaState =
 
 type PreviewState =
   | { open: false }
-  | { open: true; lead: Lead; subnichoNome: string };
+  | { open: true; lead: Lead; nichoNome: string };
 
 /** Estado da timeline de interações (D-03), mesma forma de `PreviewState`. */
 type TimelineState = { open: false } | { open: true; lead: Lead };
@@ -71,7 +71,7 @@ const STAGE_LABEL_BY_VALUE = new Map(
  */
 export function PipelineBoard({
   leads,
-  subnichos,
+  nichos,
   motivosPerda,
   esfriandoLeadIds,
   templates,
@@ -100,9 +100,9 @@ export function PipelineBoard({
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   const firstContactTemplate = useMemo(
@@ -228,7 +228,7 @@ export function PipelineBoard({
                   <PipelineLeadCard
                     key={lead.id}
                     lead={lead}
-                    subnichoNome={subnichoNameById.get(lead.subnichoId) ?? "—"}
+                    nichoNome={nichoNameById.get(lead.nichoId) ?? "—"}
                     isEsfriando={esfriandoSet.has(lead.id)}
                     sugestao={sugestaoPorLeadId.get(lead.id)}
                     onClick={() => setDialogState({ mode: "edit", lead })}
@@ -236,7 +236,7 @@ export function PipelineBoard({
                       setPreviewState({
                         open: true,
                         lead,
-                        subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+                        nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
                       })
                     }
                     onViewHistory={() => setTimelineState({ open: true, lead })}
@@ -254,7 +254,7 @@ export function PipelineBoard({
         onOpenChange={(open) => {
           if (!open) setDialogState({ mode: "closed" });
         }}
-        subnichos={subnichos}
+        nichos={nichos}
         motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
@@ -278,7 +278,7 @@ export function PipelineBoard({
           if (!open) setPreviewState({ open: false });
         }}
         lead={previewState.open ? previewState.lead : undefined}
-        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        nichoNome={previewState.open ? previewState.nichoNome : ""}
         templates={templates}
         defaultTipo="primeiro_contato"
       />

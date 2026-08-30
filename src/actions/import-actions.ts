@@ -2,7 +2,7 @@
 
 /**
  * Convenção LEAD-04: nenhum código em src/ ou scripts/ pode fazer hard-delete
- * de leads/subnichos e nenhuma migração pode conter DELETE FROM/DROP TABLE —
+ * de leads/nichos e nenhuma migração pode conter DELETE FROM/DROP TABLE —
  * exclusão é sempre soft-delete (deletedAt). Não aplicável diretamente aqui
  * (este arquivo só insere), mas mantido documentado por convenção do projeto.
  */
@@ -11,30 +11,30 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { leads, subnichos } from "@/db/schema";
+import { leads, nichos } from "@/db/schema";
 import { csvRowSchema, type CsvRowValues } from "@/lib/validations";
 
 /**
- * Condição de lookup de sub-nicho reaproveitada em AMBOS os pontos abaixo
+ * Condição de lookup de nicho reaproveitada em AMBOS os pontos abaixo
  * (Pitfall 6 do RESEARCH.md) — a mesma condição case-insensitive-trim usada
- * por createSubnicho (src/actions/subnicho-actions.ts), para que "o que será
+ * por createNicho (src/actions/nicho-actions.ts), para que "o que será
  * criado" (prévia) nunca divirja de "o que foi criado" (confirmação).
  */
-function subnichoLookupCondition(nomeTrimado: string) {
-  return sql`lower(trim(${subnichos.nome})) = lower(trim(${nomeTrimado}))`;
+function nichoLookupCondition(nomeTrimado: string) {
+  return sql`lower(trim(${nichos.nome})) = lower(trim(${nomeTrimado}))`;
 }
 
 export type PreviewSupportData = {
   duplicatePhones: string[];
-  unknownSubnichoNames: string[];
+  unknownNichoNames: string[];
 };
 
 export async function fetchPreviewSupportData(
   normalizedPhones: string[],
-  subnichoNamesTrimmed: string[]
+  nichoNamesTrimmed: string[]
 ): Promise<PreviewSupportData> {
   const uniquePhones = Array.from(new Set(normalizedPhones));
-  const uniqueSubnichoNames = Array.from(new Set(subnichoNamesTrimmed));
+  const uniqueNichoNames = Array.from(new Set(nichoNamesTrimmed));
 
   let duplicatePhones: string[] = [];
   if (uniquePhones.length > 0) {
@@ -46,22 +46,22 @@ export async function fetchPreviewSupportData(
     duplicatePhones = rows.map((r) => r.telefone);
   }
 
-  const unknownSubnichoNames: string[] = [];
-  for (const nome of uniqueSubnichoNames) {
+  const unknownNichoNames: string[] = [];
+  for (const nome of uniqueNichoNames) {
     // Um nome que existe só como removido (deletedAt != null) NÃO entra em
-    // unknownSubnichoNames: ele não será criado, e sim reativado em
+    // unknownNichoNames: ele não será criado, e sim reativado em
     // bulkImportLeads abaixo — o comportamento atual (não listar) já cobre
     // isso, pois existing.length > 0 independente de deletedAt.
     const existing = await db
-      .select({ id: subnichos.id })
-      .from(subnichos)
-      .where(subnichoLookupCondition(nome));
+      .select({ id: nichos.id })
+      .from(nichos)
+      .where(nichoLookupCondition(nome));
     if (existing.length === 0) {
-      unknownSubnichoNames.push(nome);
+      unknownNichoNames.push(nome);
     }
   }
 
-  return { duplicatePhones, unknownSubnichoNames };
+  return { duplicatePhones, unknownNichoNames };
 }
 
 export type ConfirmedImportRow = {
@@ -71,7 +71,7 @@ export type ConfirmedImportRow = {
   origem: string;
   valorEstimado: string;
   notas: string;
-  subnichoNome: string;
+  nichoNome: string;
 };
 
 export type BulkImportResult =
@@ -103,35 +103,35 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
   const batchId = randomUUID();
 
   const insertedCount = db.transaction((tx) => {
-    // Resolve/cria sub-nichos primeiro (D-09), mesma regra case-insensitive-
-    // trim de createSubnicho. Map evita criar o mesmo sub-nicho duas vezes
+    // Resolve/cria nichos primeiro (D-09), mesma regra case-insensitive-
+    // trim de createNicho. Map evita criar o mesmo nicho duas vezes
     // no mesmo lote (T-02-03).
-    const subnichoIdByNome = new Map<string, number>();
+    const nichoIdByNome = new Map<string, number>();
     for (const row of validatedRows) {
-      const chave = row.subnichoNome.trim().toLowerCase();
-      if (subnichoIdByNome.has(chave)) continue;
+      const chave = row.nichoNome.trim().toLowerCase();
+      if (nichoIdByNome.has(chave)) continue;
 
       const existing = tx
-        .select({ id: subnichos.id, deletedAt: subnichos.deletedAt })
-        .from(subnichos)
-        .where(subnichoLookupCondition(row.subnichoNome))
+        .select({ id: nichos.id, deletedAt: nichos.deletedAt })
+        .from(nichos)
+        .where(nichoLookupCondition(row.nichoNome))
         .all()[0];
 
       if (existing) {
-        // O nome vindo do CSV é sinal claro de que o sub-nicho voltou a ser
-        // usado — reativa em vez de deixar o lead preso a um sub-nicho
+        // O nome vindo do CSV é sinal claro de que o nicho voltou a ser
+        // usado — reativa em vez de deixar o lead preso a um nicho
         // invisível (removido) na lista de seleção.
         if (existing.deletedAt !== null) {
-          tx.update(subnichos).set({ deletedAt: null }).where(eq(subnichos.id, existing.id)).run();
+          tx.update(nichos).set({ deletedAt: null }).where(eq(nichos.id, existing.id)).run();
         }
-        subnichoIdByNome.set(chave, existing.id);
+        nichoIdByNome.set(chave, existing.id);
       } else {
         const [created] = tx
-          .insert(subnichos)
-          .values({ nome: row.subnichoNome.trim() })
+          .insert(nichos)
+          .values({ nome: row.nichoNome.trim() })
           .returning()
           .all();
-        subnichoIdByNome.set(chave, created.id);
+        nichoIdByNome.set(chave, created.id);
       }
     }
 
@@ -139,7 +139,7 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
     // .values([...todasAsLinhas]), evita SQLITE_ERROR: too many SQL variables.
     let count = 0;
     for (const row of validatedRows) {
-      const chave = row.subnichoNome.trim().toLowerCase();
+      const chave = row.nichoNome.trim().toLowerCase();
       tx.insert(leads)
         .values({
           nome: row.nome,
@@ -149,7 +149,7 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
           origemTipo: row.origemTipo,
           valorEstimado: row.valorEstimado,
           notas: row.notas,
-          subnichoId: subnichoIdByNome.get(chave)!,
+          nichoId: nichoIdByNome.get(chave)!,
           stage: "novo",
           stageChangedAt: new Date(),
           followUpDate: new Date(),

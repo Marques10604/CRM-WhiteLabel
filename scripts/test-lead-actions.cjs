@@ -1,8 +1,8 @@
 // Verifica src/actions/lead-actions.ts (Task 1 do plano 01-02): createLead/
-// updateLead com leadSchema, pré-checagem de subnichoId no banco, e o backstop
+// updateLead com leadSchema, pré-checagem de nichoId no banco, e o backstop
 // de captura de violação de FK (SQLITE_CONSTRAINT_FOREIGNKEY), exercitado nas
 // DUAS partes exigidas pelo plano:
-//   (a) contrato do banco — db.insert(leads) DIRETO com subnichoId inexistente
+//   (a) contrato do banco — db.insert(leads) DIRETO com nichoId inexistente
 //       lança err.code === "SQLITE_CONSTRAINT_FOREIGNKEY"
 //   (b) fiação do código — grep estático confirma que o try/catch de
 //       createLead/updateLead envolve o próprio insert/update e testa esse
@@ -67,8 +67,8 @@ function staticCheckFkWiring() {
     );
 
     check(
-      tryCatchRegion.includes('subnichoId: ["Selecione um sub-nicho."]'),
-      `${name}: o catch de violação de FK retorna { errors: { subnichoId: ["Selecione um sub-nicho."] } }`
+      tryCatchRegion.includes('nichoId: ["Selecione um nicho."]'),
+      `${name}: o catch de violação de FK retorna { errors: { nichoId: ["Selecione um nicho."] } }`
     );
   }
 }
@@ -124,8 +124,8 @@ async function runBehaviorTests() {
     }
   }
 
-  const subnichoInsert = setupDb.prepare("INSERT INTO subnichos (nome) VALUES (?)").run("Nutricionista");
-  const subnichoId = Number(subnichoInsert.lastInsertRowid);
+  const nichoInsert = setupDb.prepare("INSERT INTO subnichos (nome) VALUES (?)").run("Nutricionista");
+  const nichoId = Number(nichoInsert.lastInsertRowid);
   setupDb.close();
 
   // Importados DEPOIS de DB_FILE_NAME estar setado, para que src/db/client.ts
@@ -148,7 +148,7 @@ async function runBehaviorTests() {
       valorEstimado: "1.234,56",
       notas: "Lead quente, pediu retorno.",
       followUpDate: "2026-08-01",
-      subnichoId: String(subnichoId),
+      nichoId: String(nichoId),
       ...overrides,
     };
     for (const [key, value] of Object.entries(base)) {
@@ -243,16 +243,16 @@ async function runBehaviorTests() {
     );
   }
 
-  // Caso 6: subnichoId inexistente (pré-checagem via SELECT) -> erro, não insere.
+  // Caso 6: nichoId inexistente (pré-checagem via SELECT) -> erro, não insere.
   {
     const before = await countLeads();
-    const result = await createLead(undefined, makeFormData({ subnichoId: "999999" }));
+    const result = await createLead(undefined, makeFormData({ nichoId: "999999" }));
     const after = await countLeads();
-    check(after === before, "createLead com subnichoId inexistente: NÃO insere");
+    check(after === before, "createLead com nichoId inexistente: NÃO insere");
     check(
-      Array.isArray(result?.errors?.subnichoId) &&
-        result.errors.subnichoId.includes("Selecione um sub-nicho."),
-      `createLead com subnichoId inexistente: errors.subnichoId inclui "Selecione um sub-nicho." (got ${JSON.stringify(result?.errors)})`
+      Array.isArray(result?.errors?.nichoId) &&
+        result.errors.nichoId.includes("Selecione um nicho."),
+      `createLead com nichoId inexistente: errors.nichoId inclui "Selecione um nicho." (got ${JSON.stringify(result?.errors)})`
     );
   }
 
@@ -268,7 +268,7 @@ async function runBehaviorTests() {
         valorEstimado: 1000,
         notas: "nota original",
         followUpDate: new Date("2026-01-01"),
-        subnichoId,
+        nichoId,
         stage: "novo",
       })
       .returning({ id: leads.id });
@@ -288,7 +288,7 @@ async function runBehaviorTests() {
   }
 
   // Caso 8 (backstop de FK, parte a — CONTRATO DO BANCO): db.insert(leads)
-  // DIRETO (bypassando createLead) com subnichoId inexistente deve lançar
+  // DIRETO (bypassando createLead) com nichoId inexistente deve lançar
   // err.code === "SQLITE_CONSTRAINT_FOREIGNKEY". Prova que onDelete:"restrict"
   // está ativo e a violação é observável em runtime — NÃO exercita o
   // try/catch de createLead, só o contrato de FK do driver.
@@ -303,16 +303,16 @@ async function runBehaviorTests() {
         valorEstimado: 500,
         notas: "teste de backstop de FK",
         followUpDate: new Date("2026-01-01"),
-        subnichoId: 999999,
+        nichoId: 999999,
         stage: "novo",
       });
     } catch (err) {
       thrownErr = err;
     }
-    check(thrownErr !== null, "db.insert(leads) DIRETO com subnichoId inexistente: lança um erro");
+    check(thrownErr !== null, "db.insert(leads) DIRETO com nichoId inexistente: lança um erro");
     check(
       thrownErr?.code === "SQLITE_CONSTRAINT_FOREIGNKEY",
-      `db.insert(leads) DIRETO com subnichoId inexistente: err.code === "SQLITE_CONSTRAINT_FOREIGNKEY" (got ${thrownErr?.code})`
+      `db.insert(leads) DIRETO com nichoId inexistente: err.code === "SQLITE_CONSTRAINT_FOREIGNKEY" (got ${thrownErr?.code})`
     );
   }
 
@@ -361,7 +361,7 @@ async function runBehaviorTests() {
       origem: "Importação CSV",
       valorEstimado: "0",
       notas: "Importado via CSV.",
-      subnichoNome: "Nutricionista",
+      nichoNome: "Nutricionista",
       ...overrides,
     };
   }

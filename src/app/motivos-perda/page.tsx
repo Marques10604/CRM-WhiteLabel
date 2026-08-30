@@ -6,7 +6,7 @@ import { MotivoPerdaManager } from "@/components/motivo-perda-manager";
 export default async function MotivosPerdaPage() {
   // Esta página existe só para gerenciar a lista governada de motivos de perda
   // (não exibe leads), então o filtro de deletedAt é feito no nível da query
-  // — mesmo idioma de /subnichos.
+  // — mesmo idioma de /nichos.
   const items = await db
     .select()
     .from(motivosPerda)

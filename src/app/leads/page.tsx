@@ -1,6 +1,6 @@
 import { asc, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, motivosPerda, subnichos, templates } from "@/db/schema";
+import { leads, motivosPerda, nichos, templates } from "@/db/schema";
 import { LeadTable } from "@/components/lead-table";
 
 /**
@@ -11,19 +11,19 @@ import { LeadTable } from "@/components/lead-table";
  * disparado pelo `LeadFormDialog` ao criar um lead manualmente aqui.
  */
 export default async function LeadsPage() {
-  const [activeLeads, allSubnichos, allMotivosPerda, allTemplates] = await Promise.all([
+  const [activeLeads, allNichos, allMotivosPerda, allTemplates] = await Promise.all([
     db
       .select()
       .from(leads)
       .where(isNull(leads.deletedAt))
       .orderBy(asc(leads.followUpDate)),
     // Sem filtro de deletedAt de propósito: este array serve de mapa
-    // id -> nome para exibir o sub-nicho de leads antigos (LeadTable), então
+    // id -> nome para exibir o nicho de leads antigos (LeadTable), então
     // filtrar removidos aqui quebraria o nome exibido para leads apontando
-    // para um sub-nicho removido. O filtro de seleção fica só no combobox e
+    // para um nicho removido. O filtro de seleção fica só no combobox e
     // no dropdown da toolbar (quick task 260725-lai).
-    db.select().from(subnichos),
-    // Sem filtro de deletedAt: mesmo motivo do array de sub-nichos acima — o
+    db.select().from(nichos),
+    // Sem filtro de deletedAt: mesmo motivo do array de nichos acima — o
     // <MotivoPerdaCombobox> precisa poder exibir o motivo de um lead perdido
     // cujo motivo foi removido (filtro `deletedAt === null || id === value`).
     db.select().from(motivosPerda),
@@ -35,7 +35,7 @@ export default async function LeadsPage() {
       <h1 className="text-[28px] font-semibold leading-tight">Leads</h1>
       <LeadTable
         leads={activeLeads}
-        subnichos={allSubnichos}
+        nichos={allNichos}
         motivosPerda={allMotivosPerda}
         templates={allTemplates}
       />

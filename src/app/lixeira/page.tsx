@@ -1,6 +1,6 @@
 import { desc, isNotNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, subnichos } from "@/db/schema";
+import { leads, nichos } from "@/db/schema";
 import { LixeiraTable } from "@/components/lixeira-table";
 
 /**
@@ -10,19 +10,19 @@ import { LixeiraTable } from "@/components/lixeira-table";
  * confirmação) — sem edição/exclusão nesta tela, ver `lixeira-table.tsx`.
  */
 export default async function LixeiraPage() {
-  const [deletedLeads, allSubnichos] = await Promise.all([
+  const [deletedLeads, allNichos] = await Promise.all([
     db
       .select()
       .from(leads)
       .where(isNotNull(leads.deletedAt))
       .orderBy(desc(leads.deletedAt)),
-    db.select().from(subnichos),
+    db.select().from(nichos),
   ]);
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-[28px] leading-tight font-semibold">Lixeira</h1>
-      <LixeiraTable leads={deletedLeads} subnichos={allSubnichos} />
+      <LixeiraTable leads={deletedLeads} nichos={allNichos} />
     </div>
   );
 }

@@ -19,7 +19,7 @@ type DeleteMotivoPerdaDialogProps = {
 
 /**
  * Confirmação de remoção de motivo de perda (Fase 11, PERDA-01, D-05),
- * espelhando delete-subnicho-dialog.tsx. Confirmar dispara
+ * espelhando delete-nicho-dialog.tsx. Confirmar dispara
  * `softDeleteMotivoPerda` (soft-delete, LEAD-04) — o motivo deixa de aparecer
  * nas opções ao mover um lead para Perdido, mas os leads já perdidos com esse
  * motivo continuam intactos (FK `onDelete: "restrict"`).

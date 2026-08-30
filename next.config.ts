@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Fase 13 (D-02): a rota de gestão de categorias virou `/nichos` (era
+  // `/subnichos`). Redirect permanente segura bookmark/memória muscular e
+  // qualquer link `/subnichos` que tenha escapado da varredura.
+  async redirects() {
+    return [
+      { source: "/subnichos", destination: "/nichos", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

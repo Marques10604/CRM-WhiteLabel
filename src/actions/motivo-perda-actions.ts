@@ -8,12 +8,12 @@ import { motivoPerdaSchema } from "@/lib/validations";
 
 /**
  * CRUD governado de motivos de perda (D-01/D-05, PERDA-01) — réplica 1:1 de
- * `src/actions/subnicho-actions.ts` (mesma tabela `id`/`nome`/`deletedAt`,
+ * `src/actions/nicho-actions.ts` (mesma tabela `id`/`nome`/`deletedAt`,
  * mesmo par de índices, mesma reativação-por-nome).
  *
- * DIVERGÊNCIA DELIBERADA do molde `createSubnicho`: aqui o `ActionState` de
- * sucesso carrega `id`. `createSubnicho` devolve só `{ success: true }` porque
- * o `SubnichoCombobox` recebe a lista pronta por prop; `createMotivoPerda` é
+ * DIVERGÊNCIA DELIBERADA do molde `createNicho`: aqui o `ActionState` de
+ * sucesso carrega `id`. `createNicho` devolve só `{ success: true }` porque
+ * o `NichoCombobox` recebe a lista pronta por prop; `createMotivoPerda` é
  * chamado de DENTRO do combobox criável (D-03, plano 11-03) para
  * criar-e-já-selecionar, então precisa do id inserido/reativado. As três
  * funções devolvem o mesmo shape homogêneo (`renameMotivoPerda` e

@@ -4,15 +4,15 @@ import { useMemo, useState } from "react";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
-import type { Lead, Subnicho, Template } from "@/types";
+import type { Lead, Nicho, Template } from "@/types";
 
 type PostImportLeadListProps = {
   leads: Lead[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   templates: Template[];
 };
 
-type PreviewState = { open: false } | { open: true; lead: Lead; subnichoNome: string };
+type PreviewState = { open: false } | { open: true; lead: Lead; nichoNome: string };
 
 /**
  * Lista pós-importação (LEAD-05, D-13/D-14) — mesmo padrão `PreviewState`
@@ -20,12 +20,12 @@ type PreviewState = { open: false } | { open: true; lead: Lead; subnichoNome: st
  * "primeiro_contato". Cada envio é um clique manual do admin; nenhum
  * auto-disparo em sequência para o lote (D-13).
  */
-export function PostImportLeadList({ leads, subnichos, templates }: PostImportLeadListProps) {
+export function PostImportLeadList({ leads, nichos, templates }: PostImportLeadListProps) {
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   return (
@@ -38,7 +38,7 @@ export function PostImportLeadList({ leads, subnichos, templates }: PostImportLe
           <div className="flex flex-col gap-1">
             <span className="text-[16px] leading-normal font-normal text-foreground">{lead.nome}</span>
             <span className="text-sm text-muted-foreground">
-              {subnichoNameById.get(lead.subnichoId) ?? "—"}
+              {nichoNameById.get(lead.nichoId) ?? "—"}
             </span>
           </div>
           <WhatsAppSendButton
@@ -48,7 +48,7 @@ export function PostImportLeadList({ leads, subnichos, templates }: PostImportLe
               setPreviewState({
                 open: true,
                 lead,
-                subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+                nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
               })
             }
           />
@@ -61,7 +61,7 @@ export function PostImportLeadList({ leads, subnichos, templates }: PostImportLe
           if (!open) setPreviewState({ open: false });
         }}
         lead={previewState.open ? previewState.lead : undefined}
-        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        nichoNome={previewState.open ? previewState.nichoNome : ""}
         templates={templates}
         defaultTipo="primeiro_contato"
       />

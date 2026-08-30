@@ -20,10 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SubnichoCombobox } from "@/components/subnicho-combobox";
+import { NichoCombobox } from "@/components/nicho-combobox";
 import { bulkImportLeads, type ConfirmedImportRow } from "@/actions/import-actions";
 import type { MappedCsvRow } from "@/lib/csv-import";
-import type { Subnicho } from "@/types";
+import type { Nicho } from "@/types";
 
 /** Flags por linha (D-05/D-10/D-12), computadas no wizard a partir de
  * `fetchPreviewSupportData` (contra o banco) + `detectWithinBatchDuplicatePhones`
@@ -31,31 +31,31 @@ import type { Subnicho } from "@/types";
 export type RowFlags = {
   duplicadoDb: boolean;
   duplicadoLote: boolean;
-  subnichoNovo: boolean;
-  subnichoBloqueado: boolean;
+  nichoNovo: boolean;
+  nichoBloqueado: boolean;
   telefoneInvalido: boolean;
 };
 
-/** Override do admin por linha (D-05: skip por padrão; D-12: sem sub-nicho por padrão). */
-export type RowOverride = { importarMesmoAssim: boolean; subnichoOverrideId: number | null };
+/** Override do admin por linha (D-05: skip por padrão; D-12: sem nicho por padrão). */
+export type RowOverride = { importarMesmoAssim: boolean; nichoOverrideId: number | null };
 
 type PreviewRow = MappedCsvRow & { flags: RowFlags };
 
-/** Nome do sub-nicho usado quando o arquivo não traz essa coluna (ou vem em
+/** Nome do nicho usado quando o arquivo não traz essa coluna (ou vem em
  * branco) e o admin não escolhe nada no combobox inline — deixa de ser um
  * bloqueio de importação (era D-12) e vira um valor padrão editável depois,
  * a pedido do admin: a fonte de leads (scraping de Instagram) não tem como
- * saber o sub-nicho, então ele prefere categorizar depois, olhando o perfil
+ * saber o nicho, então ele prefere categorizar depois, olhando o perfil
  * ou conversando com o lead. */
-const SEM_SUBNICHO_FALLBACK = "A categorizar";
+const SEM_NICHO_FALLBACK = "A categorizar";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData> {
     overrides?: Map<number, RowOverride>;
     onToggleImportAnyway?: (rowIndex: number) => void;
-    onAssignSubnicho?: (rowIndex: number, subnichoId: number | null) => void;
-    subnichos?: Subnicho[];
+    onAssignNicho?: (rowIndex: number, nichoId: number | null) => void;
+    nichos?: Nicho[];
   }
 }
 
@@ -73,24 +73,24 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
           Duplicado
         </Badge>
       )}
-      {flags.subnichoNovo && (
+      {flags.nichoNovo && (
         <Badge
           variant="outline"
           className="w-fit gap-1 border-transparent"
           style={{ backgroundColor: "#DBEAFE", color: "#1D4ED8" }}
         >
           <Sparkles className="size-3" />
-          Novo sub-nicho
+          Novo nicho
         </Badge>
       )}
-      {flags.subnichoBloqueado && (
+      {flags.nichoBloqueado && (
         <Badge
           variant="outline"
           className="w-fit gap-1 border-transparent"
           style={{ backgroundColor: "#E4E4E7", color: "#3F3F46" }}
         >
           <CircleAlert className="size-3" />
-          Sem sub-nicho
+          Sem nicho
         </Badge>
       )}
       {flags.telefoneInvalido && (
@@ -111,9 +111,9 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
   { accessorKey: "nome", header: "Nome" },
   { accessorKey: "telefone", header: "Telefone" },
   {
-    accessorKey: "subnichoNome",
-    header: "Sub-nicho",
-    cell: ({ row }) => row.original.subnichoNome || "—",
+    accessorKey: "nichoNome",
+    header: "Nicho",
+    cell: ({ row }) => row.original.nichoNome || "—",
   },
   { accessorKey: "canal", header: "Canal" },
   { accessorKey: "origem", header: "Origem" },
@@ -138,13 +138,13 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
   {
     id: "acao",
     header: "Ação",
-    // D-05/D-12: checkbox "Importar mesmo assim" (duplicado) + SubnichoCombobox
+    // D-05/D-12: checkbox "Importar mesmo assim" (duplicado) + NichoCombobox
     // inline (bloqueado) — canal `meta`, mesmo padrão de lead-table-columns.tsx.
     cell: ({ row, table }) => {
       const r = row.original;
       const override = table.options.meta?.overrides?.get(r.rowIndex) ?? {
         importarMesmoAssim: false,
-        subnichoOverrideId: null,
+        nichoOverrideId: null,
       };
       const isDuplicate = r.flags.duplicadoDb || r.flags.duplicadoLote;
 
@@ -161,15 +161,15 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
               Importar mesmo assim
             </label>
           )}
-          {r.flags.subnichoBloqueado && (
+          {r.flags.nichoBloqueado && (
             <div className="flex max-w-[220px] flex-col gap-1">
-              <SubnichoCombobox
-                subnichos={table.options.meta?.subnichos ?? []}
-                value={override.subnichoOverrideId}
-                onValueChange={(id) => table.options.meta?.onAssignSubnicho?.(r.rowIndex, id)}
+              <NichoCombobox
+                nichos={table.options.meta?.nichos ?? []}
+                value={override.nichoOverrideId}
+                onValueChange={(id) => table.options.meta?.onAssignNicho?.(r.rowIndex, id)}
               />
               <p className="text-xs text-muted-foreground">
-                Opcional — sem escolha, vira &quot;{SEM_SUBNICHO_FALLBACK}&quot;.
+                Opcional — sem escolha, vira &quot;{SEM_NICHO_FALLBACK}&quot;.
               </p>
             </div>
           )}
@@ -181,11 +181,11 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
 
 type CsvImportPreviewTableProps = {
   rows: PreviewRow[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   overrides: Map<number, RowOverride>;
   onToggleImportAnyway: (rowIndex: number) => void;
-  onAssignSubnicho: (rowIndex: number, subnichoId: number | null) => void;
-  unknownSubnichoNames: string[];
+  onAssignNicho: (rowIndex: number, nichoId: number | null) => void;
+  unknownNichoNames: string[];
   onImported: (batchId: string) => void;
   onBack: () => void;
 };
@@ -194,17 +194,17 @@ type CsvImportPreviewTableProps = {
  * Passo 3 do wizard (IMPORT-01/02, D-05/D-09/D-10) — tabela de prévia com
  * TODAS as linhas do arquivo (só `getCoreRowModel`, sem sort/filtro/
  * paginação: o admin precisa ver e decidir sobre cada linha antes de
- * confirmar). Sub-nicho deixou de bloquear a confirmação (revisão de D-12):
- * linha sem sub-nicho no arquivo importa com o fallback SEM_SUBNICHO_FALLBACK
+ * confirmar). Nicho deixou de bloquear a confirmação (revisão de D-12):
+ * linha sem nicho no arquivo importa com o fallback SEM_NICHO_FALLBACK
  * a menos que o admin escolha um no combobox inline.
  */
 export function CsvImportPreviewTable({
   rows,
-  subnichos,
+  nichos,
   overrides,
   onToggleImportAnyway,
-  onAssignSubnicho,
-  unknownSubnichoNames,
+  onAssignNicho,
+  unknownNichoNames,
   onImported,
   onBack,
 }: CsvImportPreviewTableProps) {
@@ -217,14 +217,14 @@ export function CsvImportPreviewTable({
     meta: {
       overrides,
       onToggleImportAnyway,
-      onAssignSubnicho,
-      subnichos,
+      onAssignNicho,
+      nichos,
     },
   });
 
   const duplicateCount = rows.filter((r) => r.flags.duplicadoDb || r.flags.duplicadoLote).length;
-  const blockedCount = rows.filter((r) => r.flags.subnichoBloqueado).length;
-  const novoCount = unknownSubnichoNames.length;
+  const blockedCount = rows.filter((r) => r.flags.nichoBloqueado).length;
+  const novoCount = unknownNichoNames.length;
   const invalidPhoneRows = rows.filter((r) => r.flags.telefoneInvalido);
 
   function handleConfirm() {
@@ -238,22 +238,22 @@ export function CsvImportPreviewTable({
 
       const override = overrides.get(r.rowIndex) ?? {
         importarMesmoAssim: false,
-        subnichoOverrideId: null,
+        nichoOverrideId: null,
       };
       const isDuplicate = r.flags.duplicadoDb || r.flags.duplicadoLote;
       // D-05: linha duplicada só entra se o admin marcou "Importar mesmo assim".
       if (isDuplicate && !override.importarMesmoAssim) continue;
 
-      let subnichoNome = r.subnichoNome.trim();
-      if (r.flags.subnichoBloqueado) {
-        // Sub-nicho deixou de ser obrigatório na importação: se o admin
+      let nichoNome = r.nichoNome.trim();
+      if (r.flags.nichoBloqueado) {
+        // Nicho deixou de ser obrigatório na importação: se o admin
         // escolheu um no combobox inline, usa esse; senão cai no fallback
-        // "A categorizar" (nunca pula a linha por falta de sub-nicho).
+        // "A categorizar" (nunca pula a linha por falta de nicho).
         const resolved =
-          override.subnichoOverrideId !== null
-            ? subnichos.find((s) => s.id === override.subnichoOverrideId)
+          override.nichoOverrideId !== null
+            ? nichos.find((s) => s.id === override.nichoOverrideId)
             : undefined;
-        subnichoNome = resolved ? resolved.nome : SEM_SUBNICHO_FALLBACK;
+        nichoNome = resolved ? resolved.nome : SEM_NICHO_FALLBACK;
       }
 
       confirmedRows.push({
@@ -263,7 +263,7 @@ export function CsvImportPreviewTable({
         origem: r.origem,
         valorEstimado: r.valorEstimado,
         notas: r.notas,
-        subnichoNome,
+        nichoNome,
       });
     }
 
@@ -290,12 +290,12 @@ export function CsvImportPreviewTable({
       <div className="flex flex-col gap-1 rounded-lg bg-[#F4F4F5] p-4">
         <h2 className="text-[20px] leading-tight font-semibold">Revise antes de importar</h2>
         <p className="text-sm text-muted-foreground">
-          {rows.length} leads no arquivo · {duplicateCount} duplicados · {novoCount} sub-nichos
-          novos · {blockedCount} sem sub-nicho · {invalidPhoneRows.length} telefone inválido
+          {rows.length} leads no arquivo · {duplicateCount} duplicados · {novoCount} nichos
+          novos · {blockedCount} sem nicho · {invalidPhoneRows.length} telefone inválido
         </p>
         {novoCount > 0 && (
           <p className="text-sm text-muted-foreground">
-            {novoCount} sub-nichos novos serão criados: {unknownSubnichoNames.join(", ")}
+            {novoCount} nichos novos serão criados: {unknownNichoNames.join(", ")}
           </p>
         )}
         {invalidPhoneRows.length > 0 && (
@@ -307,8 +307,8 @@ export function CsvImportPreviewTable({
         )}
         {blockedCount > 0 && (
           <p className="text-sm text-muted-foreground">
-            {blockedCount} leads sem sub-nicho no arquivo serão importados como &quot;
-            {SEM_SUBNICHO_FALLBACK}&quot; — edite depois, um por um ou aos poucos.
+            {blockedCount} leads sem nicho no arquivo serão importados como &quot;
+            {SEM_NICHO_FALLBACK}&quot; — edite depois, um por um ou aos poucos.
           </p>
         )}
       </div>

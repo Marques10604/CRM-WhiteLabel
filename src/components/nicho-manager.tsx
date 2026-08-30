@@ -3,29 +3,29 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { createSubnicho, renameSubnicho, softDeleteSubnicho } from "@/actions/subnicho-actions";
+import { createNicho, renameNicho, softDeleteNicho } from "@/actions/nicho-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DeleteSubnichoDialog } from "@/components/delete-subnicho-dialog";
-import type { Subnicho } from "@/types";
+import { DeleteNichoDialog } from "@/components/delete-nicho-dialog";
+import type { Nicho } from "@/types";
 
 type ActionState =
   | { success: true }
   | { errors: { nome: string[] } }
   | undefined;
 
-function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
+function NichoRow({ nicho }: { nicho: Nicho }) {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
-    renameSubnicho,
+    renameNicho,
     undefined
   );
 
   useEffect(() => {
     if (state && "success" in state && state.success) {
-      toast.success("Sub-nicho renomeado.");
+      toast.success("Nicho renomeado.");
       setIsEditing(false);
     }
   }, [state]);
@@ -35,8 +35,8 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
 
   function handleDeleteConfirm() {
     startTransition(async () => {
-      await softDeleteSubnicho(subnicho.id);
-      toast.success("Sub-nicho removido.");
+      await softDeleteNicho(nicho.id);
+      toast.success("Nicho removido.");
       setConfirmOpen(false);
     });
   }
@@ -44,11 +44,11 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-[#F4F4F5]">
-        <span className="text-sm">{subnicho.nome}</span>
+        <span className="text-sm">{nicho.nome}</span>
         <div className="flex items-center gap-1">
           <button
             type="button"
-            aria-label={`Renomear ${subnicho.nome}`}
+            aria-label={`Renomear ${nicho.nome}`}
             onClick={() => setIsEditing(true)}
             className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#0D9488]"
           >
@@ -56,7 +56,7 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
           </button>
           <button
             type="button"
-            aria-label={`Remover ${subnicho.nome}`}
+            aria-label={`Remover ${nicho.nome}`}
             disabled={isPending}
             onClick={() => setConfirmOpen(true)}
             className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#DC2626]"
@@ -64,10 +64,10 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
-        <DeleteSubnichoDialog
+        <DeleteNichoDialog
           open={confirmOpen}
           onOpenChange={setConfirmOpen}
-          subnichoNome={subnicho.nome}
+          nichoNome={nicho.nome}
           onConfirm={handleDeleteConfirm}
         />
       </div>
@@ -79,11 +79,11 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
       action={formAction}
       className="flex flex-col gap-1 rounded-md px-3 py-2"
     >
-      <input type="hidden" name="id" value={subnicho.id} />
+      <input type="hidden" name="id" value={nicho.id} />
       <div className="flex items-center gap-2">
         <Input
           name="nome"
-          defaultValue={subnicho.nome}
+          defaultValue={nicho.nome}
           autoFocus
           disabled={pending}
           aria-invalid={Boolean(fieldError)}
@@ -108,17 +108,17 @@ function SubnichoRow({ subnicho }: { subnicho: Subnicho }) {
   );
 }
 
-export function SubnichoManager({ subnichos }: { subnichos: Subnicho[] }) {
+export function NichoManager({ nichos }: { nichos: Nicho[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
-    createSubnicho,
+    createNicho,
     undefined
   );
 
   useEffect(() => {
     if (state && "success" in state && state.success) {
-      toast.success("Sub-nicho criado.");
+      toast.success("Nicho criado.");
       formRef.current?.reset();
       setIsAdding(false);
     }
@@ -130,13 +130,13 @@ export function SubnichoManager({ subnichos }: { subnichos: Subnicho[] }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-1 rounded-md border border-[#F4F4F5]">
-        {subnichos.length === 0 ? (
+        {nichos.length === 0 ? (
           <span className="px-3 py-2 text-sm text-muted-foreground">
-            Nenhum sub-nicho cadastrado.
+            Nenhum nicho cadastrado.
           </span>
         ) : (
-          subnichos.map((subnicho) => (
-            <SubnichoRow key={subnicho.id} subnicho={subnicho} />
+          nichos.map((nicho) => (
+            <NichoRow key={nicho.id} nicho={nicho} />
           ))
         )}
       </div>
@@ -150,7 +150,7 @@ export function SubnichoManager({ subnichos }: { subnichos: Subnicho[] }) {
           <div className="flex items-center gap-2">
             <Input
               name="nome"
-              placeholder="Nome do sub-nicho"
+              placeholder="Nome do nicho"
               autoFocus
               disabled={pending}
               aria-invalid={Boolean(fieldError)}

@@ -22,7 +22,7 @@ import {
   type RowFlags,
   type RowOverride,
 } from "@/components/csv-import-preview-table";
-import type { Subnicho, Template } from "@/types";
+import type { Nicho, Template } from "@/types";
 
 /** ~10MB — guarda leve de tamanho de arquivo (T-02-05, RESEARCH.md V12). */
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -30,7 +30,7 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const EMPTY_MAPPING: CsvColumnMapping = {
   nome: null,
   telefone: null,
-  subnichoNome: null,
+  nichoNome: null,
   canal: null,
   origem: null,
   valorEstimado: null,
@@ -80,7 +80,7 @@ type WizardState =
     };
 
 type CsvImportWizardProps = {
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   templates: Template[];
 };
 
@@ -103,12 +103,12 @@ async function detectEncodingLabel(file: File): Promise<"UTF-8" | "Windows-1252"
   }
 }
 
-const DEFAULT_OVERRIDE: RowOverride = { importarMesmoAssim: false, subnichoOverrideId: null };
+const DEFAULT_OVERRIDE: RowOverride = { importarMesmoAssim: false, nichoOverrideId: null };
 
 // `templates` é recebido para a futura tela pós-importação (D-14, plano
 // 02-03) — ainda não usado nesta wave, mantido na assinatura para que a
 // rota `/importar/page.tsx` já passe o dado certo sem retrabalho depois.
-export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) {
+export function CsvImportWizard({ nichos, templates }: CsvImportWizardProps) {
   void templates;
   const router = useRouter();
   const [state, setState] = useState<WizardState>({ step: "upload" });
@@ -117,7 +117,7 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
 
   const mappedRows = state.step === "preview" ? state.mappedRows : null;
 
-  // Busca dados de apoio (duplicados no banco + sub-nichos desconhecidos)
+  // Busca dados de apoio (duplicados no banco + nichos desconhecidos)
   // assim que o admin chega na prévia — chaveado em `mappedRows` (Task 3).
   useEffect(() => {
     if (!mappedRows) return;
@@ -126,25 +126,25 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
     const normalizedPhones = mappedRows
       .map((row) => row.telefoneNormalizado)
       .filter((phone): phone is string => phone !== null);
-    const subnichoNamesTrimmed = mappedRows
-      .map((row) => row.subnichoNome.trim())
+    const nichoNamesTrimmed = mappedRows
+      .map((row) => row.nichoNome.trim())
       .filter((nome) => nome !== "");
 
-    fetchPreviewSupportData(normalizedPhones, subnichoNamesTrimmed)
+    fetchPreviewSupportData(normalizedPhones, nichoNamesTrimmed)
       .then((data) => {
         if (!cancelled) setPreviewSupportData(data);
       })
       .catch(() => {
         // CR-01 (05-REVIEW.md): sem isso, uma falha aqui (rede/banco) deixava
         // previewSupportData null pra sempre e a prévia travava em "Carregando
-        // prévia..." sem saída. Cai pra "sem duplicatas/sub-nichos novos
+        // prévia..." sem saída. Cai pra "sem duplicatas/nichos novos
         // conhecidos" — o admin ainda revisa a prévia, só perde os avisos de
-        // duplicata/sub-nicho novo até tentar de novo.
+        // duplicata/nicho novo até tentar de novo.
         if (cancelled) return;
         toast.error(
-          "Não foi possível carregar os avisos de duplicata/sub-nicho novo. A prévia segue sem esses avisos — volte ao mapeamento e tente de novo se precisar deles."
+          "Não foi possível carregar os avisos de duplicata/nicho novo. A prévia segue sem esses avisos — volte ao mapeamento e tente de novo se precisar deles."
         );
-        setPreviewSupportData({ duplicatePhones: [], unknownSubnichoNames: [] });
+        setPreviewSupportData({ duplicatePhones: [], unknownNichoNames: [] });
       });
 
     return () => {
@@ -162,8 +162,8 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
     () => new Set(previewSupportData?.duplicatePhones ?? []),
     [previewSupportData]
   );
-  const unknownSubnichoNamesSet = useMemo(
-    () => new Set(previewSupportData?.unknownSubnichoNames ?? []),
+  const unknownNichoNamesSet = useMemo(
+    () => new Set(previewSupportData?.unknownNichoNames ?? []),
     [previewSupportData]
   );
 
@@ -174,9 +174,9 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
       const flags: RowFlags = {
         duplicadoDb: row.telefoneNormalizado !== null && duplicatePhonesSet.has(row.telefoneNormalizado),
         duplicadoLote: duplicateRowIndexesInBatch.has(row.rowIndex),
-        subnichoNovo:
-          row.subnichoNome.trim() !== "" && unknownSubnichoNamesSet.has(row.subnichoNome.trim()),
-        subnichoBloqueado: row.subnichoNome.trim() === "",
+        nichoNovo:
+          row.nichoNome.trim() !== "" && unknownNichoNamesSet.has(row.nichoNome.trim()),
+        nichoBloqueado: row.nichoNome.trim() === "",
         // Telefone que não normaliza (ex: DDI estrangeiro, link opaco de
         // WhatsApp Business) não pode virar lead válido — em vez de abortar
         // o lote inteiro na validação do servidor (comportamento antigo),
@@ -187,7 +187,7 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
       return { ...row, flags };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mappedRows, previewSupportData, duplicatePhonesSet, unknownSubnichoNamesSet, duplicateRowIndexesInBatch]);
+  }, [mappedRows, previewSupportData, duplicatePhonesSet, unknownNichoNamesSet, duplicateRowIndexesInBatch]);
 
   async function handleFileSelected(file: File) {
     if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -294,11 +294,11 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
     });
   }
 
-  function handleAssignSubnicho(rowIndex: number, subnichoId: number | null) {
+  function handleAssignNicho(rowIndex: number, nichoId: number | null) {
     setOverrides((prev) => {
       const next = new Map(prev);
       const current = next.get(rowIndex) ?? DEFAULT_OVERRIDE;
-      next.set(rowIndex, { ...current, subnichoOverrideId: subnichoId });
+      next.set(rowIndex, { ...current, nichoOverrideId: nichoId });
       return next;
     });
   }
@@ -342,11 +342,11 @@ export function CsvImportWizard({ subnichos, templates }: CsvImportWizardProps) 
   return (
     <CsvImportPreviewTable
       rows={previewRows}
-      subnichos={subnichos}
+      nichos={nichos}
       overrides={overrides}
       onToggleImportAnyway={handleToggleImportAnyway}
-      onAssignSubnicho={handleAssignSubnicho}
-      unknownSubnichoNames={previewSupportData?.unknownSubnichoNames ?? []}
+      onAssignNicho={handleAssignNicho}
+      unknownNichoNames={previewSupportData?.unknownNichoNames ?? []}
       onImported={handleImported}
       onBack={handleBackToMapping}
     />

@@ -13,13 +13,13 @@ import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
 import type { DashboardItem } from "@/db/queries";
-import type { Lead, MotivoPerda, Subnicho, Tarefa, Template } from "@/types";
+import type { Lead, MotivoPerda, Nicho, Tarefa, Template } from "@/types";
 
 type FollowupDashboardProps = {
   vencidos: DashboardItem[];
   hoje: DashboardItem[];
   proximos7Dias: DashboardItem[];
-  subnichos: Subnicho[];
+  nichos: Nicho[];
   motivosPerda: MotivoPerda[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
@@ -37,7 +37,7 @@ type TarefaDialogState =
 
 type PreviewState =
   | { open: false }
-  | { open: true; lead: Lead; subnichoNome: string };
+  | { open: true; lead: Lead; nichoNome: string };
 
 type UrgencySection = {
   key: string;
@@ -61,7 +61,7 @@ export function FollowupDashboard({
   vencidos,
   hoje,
   proximos7Dias,
-  subnichos,
+  nichos,
   motivosPerda,
   templates,
   sugestaoPorLead,
@@ -72,9 +72,9 @@ export function FollowupDashboard({
   });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
 
-  const subnichoNameById = useMemo(
-    () => new Map(subnichos.map((subnicho) => [subnicho.id, subnicho.nome])),
-    [subnichos]
+  const nichoNameById = useMemo(
+    () => new Map(nichos.map((nicho) => [nicho.id, nicho.nome])),
+    [nichos]
   );
 
   const sugestaoPorLeadId = useMemo(
@@ -224,7 +224,7 @@ export function FollowupDashboard({
                         </span>
                         <div className="flex items-center gap-2 text-[14px] leading-normal">
                           <span className="text-muted-foreground">
-                            {subnichoNameById.get(lead.subnichoId) ?? "—"}
+                            {nichoNameById.get(lead.nichoId) ?? "—"}
                           </span>
                           <span className={section.dateClassName}>
                             {format(lead.followUpDate, "dd/MM/yyyy")}
@@ -252,7 +252,7 @@ export function FollowupDashboard({
                               setPreviewState({
                                 open: true,
                                 lead,
-                                subnichoNome: subnichoNameById.get(lead.subnichoId) ?? "—",
+                                nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
                               })
                             }
                           />
@@ -273,7 +273,7 @@ export function FollowupDashboard({
         onOpenChange={(open) => {
           if (!open) setDialogState({ mode: "closed" });
         }}
-        subnichos={subnichos}
+        nichos={nichos}
         motivosPerda={motivosPerda}
         lead={dialogLead}
         templates={templates}
@@ -299,7 +299,7 @@ export function FollowupDashboard({
           if (!open) setPreviewState({ open: false });
         }}
         lead={previewState.open ? previewState.lead : undefined}
-        subnichoNome={previewState.open ? previewState.subnichoNome : ""}
+        nichoNome={previewState.open ? previewState.nichoNome : ""}
         templates={templates}
         defaultTipo="follow_up"
       />
