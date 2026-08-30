@@ -225,6 +225,21 @@ const SCHEMA_DDL = `
       `resolvePeriodoRelatorios(custom sem "to") → fallback "30d", customInvalido true`
     );
 
+    // WR-01 / D-06 (exemplo trabalhado): intervalo INTEIRO no futuro (usuário
+    // errou o ano nas 2 datas). `to` é aparado pra hoje, `from` fica em 2027 →
+    // `start > end` → fallback D-04 COM faixa de aviso (customInvalido true).
+    // NÃO pode virar "só hoje" silenciosamente.
+    const tudoNoFuturo = resolvePeriodoRelatorios(
+      { period: "custom", from: "2027-01-01", to: "2027-06-01" },
+      now
+    );
+    check(
+      tudoNoFuturo.preset === "30d" &&
+        tudoNoFuturo.customInvalido === true &&
+        tudoNoFuturo.range.end.getTime() === resolvePeriodRange("30d", now).end.getTime(),
+      `resolvePeriodoRelatorios(custom intervalo inteiro no futuro) → fallback "30d" + faixa (customInvalido true), NÃO "só hoje" (WR-01/D-06)`
+    );
+
     let threwIlegivel = false;
     let ilegivel;
     try {

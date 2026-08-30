@@ -304,9 +304,10 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
  *   • `false` com `period` adulterado (ex: `"'; DROP"`) → fallback SILENCIOSO
  *     para `"tudo"`, idêntico ao que a página já fazia hoje (T-11-19). Sem faixa.
  *
- * Datas no FUTURO NÃO invalidam (D-06): são APARADAS para hoje
- * (`from` futuro → `startOfDay(now)`, `to` futuro → `endOfDay(now)`). Se depois
- * de aparar `start > end`, aí sim cai no fallback `30d` + `customInvalido: true`.
+ * Data `to` no FUTURO NÃO invalida (D-06): é APARADA para `endOfDay(now)`.
+ * `from` NUNCA é aparado — fica como veio. Se com o `from` original o intervalo
+ * ficar inconsistente (`start > end`, inclui "intervalo inteiro no futuro"),
+ * aí sim cai no fallback `30d` + `customInvalido: true`.
  *
  * `from` = `startOfDay` / `to` = `endOfDay` (D-09/D-10 — o intervalo inclui o
  * dia inteiro das duas pontas), sempre via `date-fns`, nunca aritmética de ms.
@@ -360,13 +361,17 @@ export function resolvePeriodoRelatorios(
       return fallback30;
     }
 
-    // b. clamp de data futura (D-06) — apara, não invalida
-    const inicioHoje = startOfDay(now);
+    // b. clamp de data futura (D-06) — SÓ `to` é aparado (`endOfDay(now)`);
+    //    `from` fica EXATAMENTE como veio. Aparar `from` também tornava o
+    //    exemplo trabalhado de D-06 inalcançável: um intervalo 100% no futuro
+    //    (ex: `from`/`to` ambos em 2027) virava "só hoje" sem faixa de aviso.
+    //    Deixando `from` intacto, o gate `start > end` abaixo captura o
+    //    intervalo inconsistente e cai no fallback D-04 (WR-01).
     const fimHoje = endOfDay(now);
-    if (fromDate.getTime() > inicioHoje.getTime()) fromDate = inicioHoje;
     if (toDate.getTime() > fimHoje.getTime()) toDate = fimHoje;
 
-    // c. inconsistente mesmo após o clamp (cobre "to antes de from") → fallback
+    // c. inconsistente (cobre "to antes de from" e "from no futuro depois do
+    //    `to` aparado", D-06) → fallback
     if (fromDate.getTime() > toDate.getTime()) {
       return fallback30;
     }
