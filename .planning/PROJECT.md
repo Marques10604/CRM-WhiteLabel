@@ -1,4 +1,17 @@
-# CRM de Leads — Área da Saúde
+# CRM de Leads
+
+## Current Milestone: v1.4 CRM Genérico Multi-Nicho (despivô)
+
+**Goal:** Tirar o CRM da amarra "área da saúde" — o admin usa a mesma ferramenta pra leads de qualquer nicho (empresa de serviços de automação/IA, nichos rotativos vindos do futuro Prospector), e o relatório responde "esse nicho converteu na janela que testei?".
+
+**Target features:**
+- Renomear `sub-nicho → nicho` (lista plana, sem hierarquia) — migração de coluna + tipos + Zod + `/subnichos` → `/nichos` + varredura de toda a copy que menciona "saúde"
+- Filtro de intervalo customizado (início–fim arbitrário) em `/relatorios`, além dos presets rolantes — pra avaliar qualquer janela de teste de nicho (45d, 90d, o que for), sem o produto impor duração
+- Campo "interesse / serviço desejado" no lead — opcional no cadastro, útil no uso manual hoje para uma empresa de serviços, e já pronto pro Prospector preencher depois
+
+**Key context:**
+- É **rename + reframe + 2 adições pequenas, não rebuild**. O modelo de dados já é agnóstico de nicho (constraint permanente de nomenclatura): `sub-nicho` já era lista livre, pipeline/origem/follow-up/motivo de perda/templates já são genéricos. O que é "de saúde" é raso: moldura do PROJECT.md, o nome do campo, a copy da UI, os seeds.
+- **Fora deste milestone:** handoff rico Prospector→CRM (rota de API, dedup por telefone) — o Prospector ainda não existe e o conflito local-vs-público resolve na migração pro VPS único; entidade "campanha/janela de teste" formal — o nicho plano + filtro de intervalo cobre a necessidade real, revisitar se depois de rodar testes reais faltar registrar a janela com meta/notas.
 
 ## Current State
 
@@ -58,11 +71,14 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-Nenhum milestone ativo. Escopo do próximo vira roadmap de fases via `/gsd-new-milestone` (numeração continua em 13).
+Escopo do milestone v1.4 (despivô — ver `Current Milestone` acima), Fases 13-15:
 
-**Candidato principal:** despivô saúde → CRM pessoal genérico multi-nicho — o modelo de dados já é agnóstico de nicho (constraint permanente de nomenclatura); falta a camada de configuração/nomenclatura visível ao admin.
+- [ ] Renomear `sub-nicho → nicho` em todo o sistema (schema, tipos, rotas, UI, copy)
+- [ ] Varrer e neutralizar a copy "área da saúde" da UI e dos textos de ajuda
+- [ ] Filtro de intervalo de datas customizado (início–fim) em `/relatorios`
+- [ ] Campo "interesse / serviço desejado" no lead (opcional)
 
-**Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora de qualquer milestone ainda:**
+**Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
 *Ideias PME — avaliar prioridade:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco), meta mensal com barra de progresso — individuais em `.planning/todos/pending/2026-08-01-*.md`
 
@@ -125,4 +141,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-08-30 — após o milestone v1.3 (Qualificação e Histórico de Leads) shipado*
+*Last updated: 2026-08-30 — milestone v1.4 (CRM Genérico Multi-Nicho / despivô) iniciado via /gsd-new-milestone*

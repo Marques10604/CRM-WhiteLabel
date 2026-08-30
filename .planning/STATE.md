@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: Qualificação e Histórico de Leads
-status: Awaiting next milestone
-last_updated: "2026-08-30T12:25:42.192Z"
-last_activity: 2026-08-30 — Milestone v1.3 completed and archived
+milestone: v1.4
+milestone_name: CRM Genérico Multi-Nicho
+status: planning
+last_updated: "2026-08-30T13:14:46.481Z"
+last_activity: 2026-08-30
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 26
-  completed_plans: 26
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Nenhum milestone ativo. Rodar `/gsd-new-milestone` para o próximo (candidato: despivô saúde → CRM genérico multi-nicho; ou backlog PME).
+**Current focus:** Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — definindo requisitos e roadmap. Fases 13-15. Rename `sub-nicho → nicho` + neutralizar copy "saúde" + filtro de intervalo em `/relatorios` + campo "interesse/serviço desejado" no lead.
 
 ## Current Position
 
-Milestone: v1.3 Qualificação e Histórico de Leads — **SHIPADO e arquivado** 2026-08-30
-Fases: 12/12 completas (v1.0–v1.3). Tag `v1.3` criada. PRs #1/#2/#3 mergeados em `main`.
-Status: aguardando definição do próximo milestone (`/gsd-new-milestone`)
-Last activity: 2026-08-30 — milestone v1.3 fechado (archive + PROJECT.md evolution + retrospectiva + tag)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-08-30 — Milestone v1.4 started
 
 ## Performance Metrics
 
@@ -262,15 +262,18 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.3 FECHADO E ARQUIVADO.** Não há trabalho em andamento.
+**Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — iniciado.** Requisitos + roadmap sendo definidos nesta sessão.
 
-- Fase 12 shipada (PR #3 mergeado em `main`, merge `a61ab0b`). `/gsd-secure-phase 12` (23/23 threats) e `/close-phase 12` rodados. `/gsd-complete-milestone` rodado: archives em `.planning/milestones/v1.3-*`, PROJECT.md evoluído, RETROSPECTIVE.md atualizado, tag `v1.3` criada.
-- `.planning/REQUIREMENTS.md` foi removido (`git rm`) — o próximo milestone cria um novo via `/gsd-new-milestone`.
-- Branch atual: `main` (as branches de trabalho foram mergeadas/deletadas). Working tree: só `.claude/` untracked (pré-existente).
+Escopo confirmado com o usuário (3 direções, "fecha com isso, pode seguir"):
+1. **Rename `sub-nicho → nicho`** — lista plana (sem hierarquia), migração de coluna + tipos + Zod + `/subnichos` → `/nichos` + varredura de toda a copy que menciona "área da saúde"
+2. **Filtro de intervalo customizado (início–fim) em `/relatorios`** — além dos presets 30d/90d/tudo; o produto NÃO impõe duração de janela de teste de nicho
+3. **Campo "interesse / serviço desejado" no lead** — opcional, útil manual hoje pra empresa de serviços, pronto pro Prospector depois
 
-**Próximo passo:** `/gsd-new-milestone` — questioning → research → requirements → roadmap. Numeração de fases continua em **13**. Candidato principal registrado: despivô saúde → CRM pessoal genérico multi-nicho. Alternativa: itens do backlog PME (`.planning/todos/pending/`).
+**Fora de escopo (decidido):** handoff rico Prospector→CRM (rota de API, dedup) — Prospector ainda não existe, resolve na migração pro VPS; entidade "campanha/janela de teste" formal — nicho plano + filtro de intervalo cobre a necessidade.
 
-Ver `.planning/PROJECT.md` §Current State e `.planning/MILESTONES.md` (entrada v1.3) para o resumo do que foi entregue.
+v1.3 fechado: PR #3 mergeado, tag `v1.3`, archives em `.planning/milestones/v1.3-*`. Branch `main`. Working tree só com `.claude/` untracked.
+
+**Próximo passo depois do roadmap:** `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`.
 
 ---
 
