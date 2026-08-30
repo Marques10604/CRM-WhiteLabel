@@ -10,8 +10,8 @@
  *
  * Varre recursivamente:
  *   - src/ + scripts/ (código: .ts/.tsx/.js/.cjs/.mjs) atrás de hard-delete de
- *     leads/subnichos/interacoes/motivos_perda especificamente: .delete(leads ...),
- *     .delete(subnichos ...), .delete(interacoes ...), .delete(motivosPerda ...)
+ *     leads/nichos/interacoes/motivos_perda especificamente: .delete(leads ...),
+ *     .delete(nichos ...), .delete(interacoes ...), .delete(motivosPerda ...)
  *     (escopo LEAD-04 estendido pela Fase 9 a `interacoes` e pela Fase 11 a
  *     `motivos_perda` — outras tabelas, ex. `templates`, podem legitimamente
  *     ter hard-delete próprio, ver D-13 em 04-01; não é escopo desta guarda),
@@ -23,8 +23,14 @@
  *   - src/db/migrations/ (.sql) atrás de SQL destrutivo: DELETE FROM, DROP TABLE
  *
  * Convenção (ver comentário espelhado em src/actions/lead-actions.ts):
- * exclusão de lead/subnicho/interação/motivo de perda é SEMPRE
+ * exclusão de lead/nicho/interação/motivo de perda é SEMPRE
  * soft-delete/restrict — nunca hard-delete.
+ *
+ * NOTA (Fase 13, D-01): o rename `sub-nicho → nicho` foi só na camada de
+ * código — a tabela FÍSICA continua `subnichos`. Por isso os CODE_PATTERNS
+ * abaixo casam o OBJETO Drizzle (`.delete(nichos)` — nome novo), mas os
+ * CODE_SQL_PATTERNS casam o nome FÍSICO da tabela (`DELETE FROM subnichos` —
+ * inalterado).
  *
  * EXCEÇÃO (D-08, Fase 12): a tabela `tarefas` está FORA do escopo protegido —
  * tarefa é descartável por natureza (lembrete cumprido ou cancelado), a
@@ -63,14 +69,15 @@ const ALLOWLIST = [
 ];
 
 // Escopo LEAD-04 (estendido pela Fase 9 a `interacoes`, pela Fase 11 a
-// `motivos_perda`): hard-delete de leads/subnichos/interacoes/motivosPerda
+// `motivos_perda`): hard-delete de leads/nichos/interacoes/motivosPerda
 // especificamente — NÃO um bloqueio genérico a qualquer `db.delete(...)` do
 // repositório. Outras tabelas (ex. `templates`,
 // D-13 de 04-01) podem ter hard-delete legítimo e intencional fora da
 // garantia de soft-delete que este guard protege.
+// `nichos` = nome do OBJETO Drizzle pós-Fase-13 (tabela física ainda `subnichos`).
 const CODE_PATTERNS = [
   /\.delete\(\s*leads\b/,
-  /\.delete\(\s*subnichos\b/,
+  /\.delete\(\s*nichos\b/,
   /\.delete\(\s*interacoes\b/,
   /\.delete\(\s*motivosPerda\b/,
 ];
@@ -79,7 +86,8 @@ const CODE_PATTERNS = [
 // dentro de código (não só migrações) — ex.: db.run(sql`DELETE FROM leads
 // WHERE ...`), sqlite.exec("DROP TABLE subnichos"). Escopado a essas tabelas (mesma
 // filosofia de CODE_PATTERNS, não um banimento genérico de DELETE FROM/DROP
-// TABLE em qualquer código).
+// TABLE em qualquer código). `subnichos` aqui é o nome FÍSICO da tabela
+// (inalterado na Fase 13 — só o objeto Drizzle virou `nichos`).
 const CODE_SQL_PATTERNS = [
   /\bDELETE\s+FROM\s+[`"']?leads\b/i,
   /\bDELETE\s+FROM\s+[`"']?subnichos\b/i,
@@ -173,6 +181,6 @@ if (findings.length > 0) {
 }
 
 console.log(
-  "OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações (escopo protegido: leads, subnichos, interacoes, motivos_perda; `tarefas` está FORA do escopo por D-08 — hard-delete permitido só em src/actions/tarefa-actions.ts)"
+  "OK: nenhum hard-delete encontrado em src/ + scripts/ + migrações (escopo protegido: leads, nichos [tabela física `subnichos`], interacoes, motivos_perda; `tarefas` está FORA do escopo por D-08 — hard-delete permitido só em src/actions/tarefa-actions.ts)"
 );
 process.exit(0);

@@ -13,7 +13,7 @@ import { normalizePhone } from "@/lib/phone";
 export type CsvFieldKey =
   | "nome"
   | "telefone"
-  | "subnichoNome"
+  | "nichoNome"
   | "canal"
   | "origem"
   | "valorEstimado"
@@ -34,7 +34,7 @@ export type MappedCsvRow = {
   nome: string;
   telefone: string;
   telefoneNormalizado: string | null;
-  subnichoNome: string;
+  nichoNome: string;
   canal: "instagram" | "whatsapp";
   origem: string;
   valorEstimado: string;
@@ -44,8 +44,8 @@ export type MappedCsvRow = {
 /**
  * Valores concretos de default (decisão desta fase) usados SOMENTE quando a
  * coluna opcional correspondente não foi mapeada ou a célula está em
- * branco/todo-espaço após trim. `nome`/`telefone`/`subnichoNome` NUNCA
- * recebem default (D-04: nome+telefone são obrigatórios; subnichoNome em
+ * branco/todo-espaço após trim. `nome`/`telefone`/`nichoNome` NUNCA
+ * recebem default (D-04: nome+telefone são obrigatórios; nichoNome em
  * branco é bloqueado por D-12, não preenchido silenciosamente).
  *
  * `origemTipo` é um caso à parte: é um default FIXO e permanente (Requirement
@@ -127,7 +127,7 @@ export function mapCsvRows(
   return rows.map((row, rowIndex) => {
     const nome = readMapped(row, "nome");
     const telefone = readMapped(row, "telefone");
-    const subnichoNome = readMapped(row, "subnichoNome");
+    const nichoNome = readMapped(row, "nichoNome");
 
     const canal = (readMapped(row, "canal") || CSV_DEFAULTS.canal) as "instagram" | "whatsapp";
     const origem = readMapped(row, "origem") || CSV_DEFAULTS.origem;
@@ -140,7 +140,7 @@ export function mapCsvRows(
       nome,
       telefone,
       telefoneNormalizado: normalizePhone(telefone),
-      subnichoNome,
+      nichoNome,
       canal,
       origem,
       valorEstimado,

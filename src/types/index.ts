@@ -1,11 +1,11 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
-import type { leads, subnichos, templates, interacoes, motivosPerda, tarefas } from "@/db/schema";
+import type { leads, nichos, templates, interacoes, motivosPerda, tarefas } from "@/db/schema";
 
 export type Lead = InferSelectModel<typeof leads>;
 export type NewLead = InferInsertModel<typeof leads>;
 
-export type Subnicho = InferSelectModel<typeof subnichos>;
-export type NewSubnicho = InferInsertModel<typeof subnichos>;
+export type Nicho = InferSelectModel<typeof nichos>;
+export type NewNicho = InferInsertModel<typeof nichos>;
 
 export type MotivoPerda = InferSelectModel<typeof motivosPerda>;
 export type NewMotivoPerda = InferInsertModel<typeof motivosPerda>;

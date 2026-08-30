@@ -1,7 +1,20 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, integer, text, uniqueIndex, index } from "drizzle-orm/sqlite-core";
 
-export const subnichos = sqliteTable(
+/**
+ * Lista governada extensível de nichos de lead (NICHO-01/NICHO-02).
+ *
+ * DIVERGÊNCIA DELIBERADA nome-lógico ↔ nome-físico (Fase 13, D-01):
+ * o export chama `nichos` e a prop da FK do lead chama `nichoId`, mas a
+ * tabela FÍSICA continua `"subnichos"`, a coluna FÍSICA continua
+ * `"subnicho_id"`, e os índices continuam com o prefixo `subnicho`. O rename
+ * `sub-nicho → nicho` do despívo (v1.4) acontece SÓ na camada de código/UI —
+ * renomear no banco não traz benefício funcional (o usuário nunca vê o nome
+ * físico) e esbarraria no snapshot divergente do drizzle-kit (débito das
+ * Fases 4/6/7/8). Se um dia o banco precisar ficar limpo, é uma migração
+ * trivial isolada, não uma fase.
+ */
+export const nichos = sqliteTable(
   "subnichos",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
@@ -31,7 +44,7 @@ export const templates = sqliteTable(
 
 /**
  * Lista governada extensível de motivos de perda (D-01/D-02, PERDA-01) —
- * SEGUNDA ocorrência do mesmo padrão de `subnichos` no projeto (réplica
+ * SEGUNDA ocorrência do mesmo padrão de `nichos` no projeto (réplica
  * estrutural exata: `id` / `nome` / `deletedAt` nullable = ativo / `createdAt`
  * com default `unixepoch()`, mesmo par de índices). Substitui o texto livre
  * antigo `leads.motivoPerda` por uma FK governada.
@@ -44,7 +57,7 @@ export const templates = sqliteTable(
  * divergente do banco real desde a Fase 4.
  *
  * Deve ser declarada ANTES de `leads` — a FK `leads.motivoPerdaId` exige a
- * tabela já definida (mesma ordem `subnichos` → `leads` de hoje).
+ * tabela já definida (mesma ordem `nichos` → `leads` de hoje).
  */
 export const motivosPerda = sqliteTable(
   "motivos_perda",
@@ -74,7 +87,7 @@ export const leads = sqliteTable(
     valorEstimado: integer("valor_estimado_centavos").notNull(), // centavos, evita ponto flutuante
     notas: text("notas").notNull(),
     followUpDate: integer("follow_up_date", { mode: "timestamp" }).notNull(),
-    subnichoId: integer("subnicho_id").notNull().references(() => subnichos.id, { onDelete: "restrict" }),
+    nichoId: integer("subnicho_id").notNull().references(() => nichos.id, { onDelete: "restrict" }), // coluna FÍSICA `subnicho_id` — ver doc-comment de `nichos` (D-01)
     stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado", "perdido"] })
       .notNull()
       .default("novo"),
@@ -95,7 +108,7 @@ export const leads = sqliteTable(
     index("leads_deleted_at_idx").on(table.deletedAt),
     index("leads_follow_up_date_idx").on(table.followUpDate),
     index("leads_stage_idx").on(table.stage),
-    index("leads_subnicho_id_idx").on(table.subnichoId),
+    index("leads_subnicho_id_idx").on(table.nichoId),
     index("leads_motivo_perda_id_idx").on(table.motivoPerdaId), // cobre o GROUP BY motivoPerdaId da Seção 3 do relatório (mesmo raciocínio de leads_subnicho_id_idx)
     index("leads_import_batch_id_idx").on(table.importBatchId),
   ]

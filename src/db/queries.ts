@@ -1,7 +1,7 @@
 import { and, asc, eq, gte, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { addDays, isBefore, isToday, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
-import { configuracoes, interacoes, leads, motivosPerda, subnichos, tarefas } from "@/db/schema";
+import { configuracoes, interacoes, leads, motivosPerda, nichos, tarefas } from "@/db/schema";
 import type { Lead, Tarefa } from "@/types";
 
 /**
@@ -320,7 +320,7 @@ export function buildLinhasOrigem(
 // agregação em SQL via `.groupBy()` + `sql<number>`, NUNCA
 // `db.select().from(leads)` seguido de `.reduce()` em JS — a base de leads
 // cresce com o histórico, não com o número de leads ativos, e os índices
-// `leads_stage_idx`/`leads_subnicho_id_idx`/`leads_motivo_perda_id_idx` já
+// `leads_stage_idx`/`leads_subnicho_id_idx` (nome físico do índice)/`leads_motivo_perda_id_idx` já
 // cobrem estes agrupamentos. Nenhuma delas formata porcentagem nem ordena em
 // JS — formatação é responsabilidade da página `/relatorios`.
 
@@ -352,31 +352,31 @@ export async function getContagemPorOrigem(
 }
 
 /**
- * Contagem de leads por sub-nicho, no período (METRICAS-02).
+ * Contagem de leads por nicho, no período (METRICAS-02).
  *
  * Filtro de período por `leads.createdAt` (D-09), igual à seção de origem.
  * Ordenado por total DESC, desempate por nome ASC (11-UI-SPEC.md linha 171).
  *
  * D-12: "A categorizar" NÃO recebe nenhum tratamento especial — é uma linha
- * normal da tabela `subnichos` e aparece misturada com os sub-nichos de
+ * normal da tabela `nichos` e aparece misturada com os nichos de
  * negócio, ordenada só pela sua contagem. Não há nenhum filtro nem destaque por
- * nome de sub-nicho aqui de propósito.
+ * nome de nicho aqui de propósito.
  *
- * `subnichos.deletedAt` NÃO é filtrado: um sub-nicho removido que ainda tem
+ * `nichos.deletedAt` NÃO é filtrado: um nicho removido que ainda tem
  * leads históricos precisa continuar aparecendo no relatório (mesmo raciocínio
- * de `subnichoExists` em lead-actions.ts).
+ * de `nichoExists` em lead-actions.ts).
  */
-export async function getContagemPorSubnicho(
+export async function getContagemPorNicho(
   range: PeriodRange
-): Promise<{ subnichoId: number; nome: string; total: number }[]> {
+): Promise<{ nichoId: number; nome: string; total: number }[]> {
   return db
     .select({
-      subnichoId: leads.subnichoId,
-      nome: subnichos.nome,
+      nichoId: leads.nichoId,
+      nome: nichos.nome,
       total: sql<number>`count(*)`,
     })
     .from(leads)
-    .innerJoin(subnichos, eq(leads.subnichoId, subnichos.id))
+    .innerJoin(nichos, eq(leads.nichoId, nichos.id))
     .where(
       and(
         isNull(leads.deletedAt),
@@ -384,8 +384,8 @@ export async function getContagemPorSubnicho(
         lte(leads.createdAt, range.end)
       )
     )
-    .groupBy(leads.subnichoId, subnichos.nome)
-    .orderBy(sql`count(*) desc`, asc(subnichos.nome));
+    .groupBy(leads.nichoId, nichos.nome)
+    .orderBy(sql`count(*) desc`, asc(nichos.nome));
 }
 
 /**

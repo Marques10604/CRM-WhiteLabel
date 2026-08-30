@@ -3,13 +3,13 @@ import { parseBRLToCents } from "@/lib/money";
 import { normalizePhone } from "@/lib/phone";
 import { CSV_DEFAULTS } from "@/lib/csv-import";
 
-export const subnichoSchema = z.object({
+export const nichoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
 });
 
 /**
  * Contrato de CRUD de motivo de perda (D-01/D-02/D-03, PERDA-01) — espelho
- * exato de `subnichoSchema`.
+ * exato de `nichoSchema`.
  */
 export const motivoPerdaSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
@@ -60,7 +60,7 @@ const leadBaseSchema = z.object({
   ),
   notas: z.string().trim().min(1, "Notas são obrigatórias."),
   followUpDate: z.coerce.date(),
-  subnichoId: z.coerce.number().int().positive("Selecione um sub-nicho."),
+  nichoId: z.coerce.number().int().positive("Selecione um nicho."),
   stage: z
     .enum(["novo", "contatado", "negociacao", "fechado", "perdido"])
     .default("novo"),
@@ -82,8 +82,8 @@ export type LeadFormValues = z.input<typeof leadSchema>;
 
 /**
  * Schema de linha de CSV confirmada (IMPORT-01/02, D-12), derivado de
- * leadSchema — nunca uma cópia paralela de campo a campo. `subnichoId` é
- * omitido porque a linha de CSV carrega o NOME do sub-nicho, resolvido para
+ * leadSchema — nunca uma cópia paralela de campo a campo. `nichoId` é
+ * omitido porque a linha de CSV carrega o NOME do nicho, resolvido para
  * id só dentro da transação de bulkImportLeads. `followUpDate` é omitido
  * porque nenhuma coluna de follow-up é coletada do CSV — o servidor grava
  * followUpDate = new Date() (momento da importação) diretamente no insert.
@@ -101,9 +101,9 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * "perdido" (D-04).
  */
 export const csvRowSchema = leadBaseSchema
-  .omit({ subnichoId: true, followUpDate: true, motivoPerdaId: true })
+  .omit({ nichoId: true, followUpDate: true, motivoPerdaId: true })
   .extend({
-    subnichoNome: z.string().trim().min(1, "Sub-nicho é obrigatório."),
+    nichoNome: z.string().trim().min(1, "Nicho é obrigatório."),
     origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),
   });
 
@@ -216,7 +216,7 @@ export const configuracoesServerSchema = configuracoesSchema.extend({
 
 /**
  * Contrato da agenda de tarefas soltas (TAREFA-01, Fase 12) — espelho de
- * `motivoPerdaSchema`/`subnichoSchema`. Só 2 campos (D-06): `descricao` (serve
+ * `motivoPerdaSchema`/`nichoSchema`. Só 2 campos (D-06): `descricao` (serve
  * de título — sem título separado) e `data` (só o dia — sem hora, o
  * agrupamento de urgência do dashboard é por dia).
  *
