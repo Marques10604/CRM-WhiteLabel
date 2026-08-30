@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-08-30T13:14:46.481Z"
 last_activity: 2026-08-30
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -24,10 +24,11 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — roadmap aprovado (3 fases, 13-15)
+Phase: 13 (Rename `sub-nicho → nicho` + reframe) — não iniciada
 Plan: —
-Status: Defining requirements
-Last activity: 2026-08-30 — Milestone v1.4 started
+Status: pronto para `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`
+Last activity: 2026-08-30 — milestone v1.4 iniciado, requisitos (5) e roadmap definidos e aprovados
 
 ## Performance Metrics
 

@@ -56,16 +56,16 @@ Reconhecidos, não neste milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NICHO-01 | — | Pending |
-| NICHO-02 | — | Pending |
-| COPY-01 | — | Pending |
-| METRICAS-03 | — | Pending |
-| LEAD-06 | — | Pending |
+| NICHO-01 | Phase 13 | Pending |
+| NICHO-02 | Phase 13 | Pending |
+| COPY-01 | Phase 13 | Pending |
+| METRICAS-03 | Phase 14 | Pending |
+| LEAD-06 | Phase 15 | Pending |
 
 **Coverage:**
 - v1.4 requirements: 5 total
-- Mapped to phases: 0 (roadmap pendente)
-- Unmapped: 5 ⚠️
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-30*
