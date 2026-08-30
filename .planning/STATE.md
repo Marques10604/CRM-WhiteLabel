@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — roadmap aprovado (3 fases, 13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — não iniciada
-Plan: —
-Status: pronto para `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`
-Last activity: 2026-08-30 — milestone v1.4 iniciado, requisitos (5) e roadmap definidos e aprovados
+Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **CONTEXT.md pronto** (`13-CONTEXT.md`, commit 419822b)
+Plan: — (próximo: `/gsd-plan-phase 13`)
+Status: pronto para `/gsd-plan-phase 13`
+Last activity: 2026-08-30 — discuss-phase 13 concluído (D-01..D-09 travados)
 
 ## Performance Metrics
 
@@ -263,19 +263,18 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — iniciado.** Requisitos + roadmap sendo definidos nesta sessão.
+**Milestone v1.4 (despivô) — Fase 13 com CONTEXT.md pronto. Próximo: `/gsd-plan-phase 13`.**
 
-Escopo confirmado com o usuário (3 direções, "fecha com isso, pode seguir"):
+Fase 13 = rename `sub-nicho → nicho` + reframe. Decisões travadas em `.planning/phases/13-rename-sub-nicho-nicho-reframe/13-CONTEXT.md` (commit 419822b):
 
-1. **Rename `sub-nicho → nicho`** — lista plana (sem hierarquia), migração de coluna + tipos + Zod + `/subnichos` → `/nichos` + varredura de toda a copy que menciona "área da saúde"
-2. **Filtro de intervalo customizado (início–fim) em `/relatorios`** — além dos presets 30d/90d/tudo; o produto NÃO impõe duração de janela de teste de nicho
-3. **Campo "interesse / serviço desejado" no lead** — opcional, útil manual hoje pra empresa de serviços, pronto pro Prospector depois
+- **D-01: rename SÓ na camada de código** — banco `data/crm.db` fica `subnichos`/`subnicho_id`. Drizzle mapeia `nichos = sqliteTable("subnichos")`, `nichoId: integer("subnicho_id")`. ZERO migração, zero backup, não esbarra no snapshot divergente do drizzle-kit.
+- **D-02:** `/subnichos` → redirect 301 no `next.config.ts`; dir `app/subnichos/` → `app/nichos/`
+- **D-03/04/05:** varredura de copy AMPLA + texto de ajuda com exemplo genérico ("ex: dentista, e-commerce de roupa, academia"); `layout.tsx` metadata sem "área da saúde"
+- **D-07/08/09: 3 ondas** — (1) dados: schema/tipos/Zod/queries/`subnicho-actions.ts`→`nicho-actions.ts`/pattern do `guard-no-hard-delete.cjs` → (2) UI: rota + 4 componentes `subnicho-*`→`nicho-*` + ~15 consumidores → (3) copy + gate de grep. 484 ocorrências / 47 arquivos.
 
-**Fora de escopo (decidido):** handoff rico Prospector→CRM (rota de API, dedup) — Prospector ainda não existe, resolve na migração pro VPS; entidade "campanha/janela de teste" formal — nicho plano + filtro de intervalo cobre a necessidade.
+**Fora do v1.4:** handoff rico Prospector→CRM; entidade "campanha/janela de teste" (decidido: mora no Prospector). Fase 14 = filtro de intervalo em `/relatorios` (METRICAS-03). Fase 15 = campo "interesse" no lead (LEAD-06).
 
-v1.3 fechado: PR #3 mergeado, tag `v1.3`, archives em `.planning/milestones/v1.3-*`. Branch `main`. Working tree só com `.claude/` untracked.
-
-**Próximo passo depois do roadmap:** `/gsd-discuss-phase 13` ou `/gsd-plan-phase 13`.
+v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.claude/` untracked.
 
 ---
 
