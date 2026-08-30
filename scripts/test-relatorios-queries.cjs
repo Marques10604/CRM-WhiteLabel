@@ -2,15 +2,19 @@
 "use strict";
 
 /**
- * Cobertura do painel de relatórios (Fase 11, plano 11-04) — METRICAS-01,
- * METRICAS-02, PERDA-01.
+ * Cobertura do painel de relatórios — METRICAS-01, METRICAS-02, PERDA-01
+ * (Fase 11, plano 11-04) + o filtro de intervalo customizado (Fase 14, planos
+ * 14-01 / 14-02: `resolvePeriodoRelatorios`).
  *
  * PARTE A — funções PURAS de `src/db/queries.ts`, sem banco:
- *   computeTaxaConversao, resolvePeriodRange, buildLinhasOrigem.
+ *   computeTaxaConversao, resolvePeriodRange, resolvePeriodoRelatorios,
+ *   buildLinhasOrigem.
  *
  * PARTE B — as 3 agregações SQL (`getContagemPorOrigem`,
  *   `getContagemPorNicho`, `getContagemPorMotivoPerda`) contra um banco
  *   SQLite TEMPORÁRIO e isolado em `os.tmpdir()` (NUNCA toca ./data/crm.db),
+ *   alimentadas tanto por `resolvePeriodRange("30d")` quanto por um `range`
+ *   vindo de `resolvePeriodoRelatorios({ period: "custom", ... })` (Fase 14),
  *   montado por DDL cru idêntico ao de `scripts/migrate-motivos-perda.cjs` mais
  *   as colunas de `leads` que o snapshot do drizzle-kit não tem (mesmo débito
  *   documentado em `scripts/test-lead-actions.cjs`).
