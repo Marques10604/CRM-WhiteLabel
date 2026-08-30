@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: executing
-last_updated: "2026-08-30T18:59:44.085Z"
+status: verifying
+last_updated: "2026-08-30T19:22:37.004Z"
 last_activity: 2026-08-30
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
-  percent: 33
+  completed_plans: 5
+  percent: 67
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
 Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-30
 
 ## Performance Metrics
@@ -87,6 +87,7 @@ Last activity: 2026-08-30
 | Phase 12 P03 | ~20min | 2 tasks | 3 files |
 | Phase 12 P04 | ~15min | 2 tasks | 2 files |
 | Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
+| Phase 14 P02 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -181,6 +182,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 12-02]: 1ª cobertura automatizada da régua de urgência (lacuna de groupLeadsByUrgency fechada); hard-delete D-08 provado por ausência da linha + teste de mutação
 - [Phase 14]: resolvePeriodoRelatorios é função IRMÃ de resolvePeriodRange (não extensão) — resolvePeriodRange fica intacta e é reusada internamente para presets clássicos e todos os fallbacks; comportamento custom fica isolado
 - [Phase 14]: faixa de aviso de intervalo inválido em /relatorios usa classes amber-* (paleta default Tailwind v4 intacta); customInvalido distingue 'usuário pediu custom e errou' (mostra faixa) de 'period adulterado' (fallback silencioso tudo, sem faixa)
+- [Phase ?]: [Phase 14-02]: PeriodoSelector modo custom — cliente gerencia customMode + 2 datas locais, mas continua sem resolver range / sem decidir default / fallback (D-17); navegarCustom só em event handlers (nunca useEffect/render, T-14-07); closure 'os 2 preenchidos' via const prox = date ?? estadoAtual antes de checar os dois locais
 
 ### Pending Todos
 
@@ -310,7 +312,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T18:59:44.061Z
+Last session: 2026-08-30T19:22:30.451Z
 
 **O que foi feito nesta sessão:**
 

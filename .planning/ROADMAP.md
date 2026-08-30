@@ -107,7 +107,7 @@ Plans:
 **Plans** (2, coarse — planejados 2026-08-30):
 
 - [x] 14-01-PLAN.md (Wave 1) — Camada de servidor: função pura `resolvePeriodoRelatorios({period,from,to})` → `{preset, range, customInvalido, from?, to?}` (valida, apara data futura pra hoje, nunca lança) + `/relatorios` alimenta as 3 agregações com o range resolvido + faixa de aviso server-rendered quando `customInvalido` + cobertura no harness. Custom já funciona pela URL.
-- [ ] 14-02-PLAN.md (Wave 2, dep. 14-01) — `PeriodoSelector` ganha 4ª opção "Intervalo personalizado" + 2 date pickers (`Popover`+`Calendar`, padrão do `lead-table-toolbar`) + navegação automática ao ter as 2 datas + página passa `from`/`to` como props.
+- [x] 14-02-PLAN.md (Wave 2, dep. 14-01) — `PeriodoSelector` ganha 4ª opção "Intervalo personalizado" + 2 date pickers (`Popover`+`Calendar`, padrão do `lead-table-toolbar`) + navegação automática ao ter as 2 datas + página passa `from`/`to` como props.
 
 **UI hint**: yes (sem UI-SPEC dedicada — contrato visual herdado de `11-UI-SPEC.md` + `lead-table-toolbar.tsx`)
 
@@ -142,5 +142,5 @@ Plans:
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
 | 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
-| 14. Filtro de intervalo em `/relatorios` | v1.4 | 1/2 | In Progress|  |
+| 14. Filtro de intervalo em `/relatorios` | v1.4 | 2/2 | Complete   | 2026-08-30 |
 | 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |
