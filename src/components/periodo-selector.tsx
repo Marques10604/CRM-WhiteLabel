@@ -157,7 +157,7 @@ export function PeriodoSelector({
     <div className="flex flex-wrap items-center gap-2">
       <span className="text-[14px] text-muted-foreground">Período:</span>
       <Select
-        items={OPCOES as unknown as { value: string; label: string }[]}
+        items={OPCOES.map((o) => ({ value: o.value, label: o.label }))}
         value={emModoCustom ? "custom" : value}
         onValueChange={handleSelectChange}
       >
