@@ -1,13 +1,18 @@
 # CRM de Leads
 
-## Current Milestone: a definir (v1.5) via `/gsd-new-milestone`
+## Current Milestone: v1.5 Quitação de Débito e Auditoria Retroativa
+
+**Goal:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto e limpar o lint do repo. Zero feature nova.
+
+**Target features:**
+- UAT retroativa no navegador das Fases 1, 2, 4, 6, 8 — promover `VERIFICATION.md` de `human_needed`/`partial` a `passed`/`complete` com evidência real, ou registrar as issues encontradas como quick tasks
+- Fechar os 5 achados do `15-REVIEW.md`: WR-01 (`interesse` só-espaço grava `''` em vez de `NULL`, contradiz D-04, sem teste), WR-02 (`interesse` some da prévia do import CSV), IN-01/02/03 (comentários "7 campos" desatualizados, `.slice(0,500)` parte surrogate pair, migração acumula backup)
+- Limpeza do `npm run lint` do repo inteiro — triagem dos 457 erros pré-existentes (`no-require-imports` nos `.cjs`, worktree órfão, falsos-positivos `react-hooks`) + config de supressão/correção, `npm run lint` volta a sair 0
+- **Marca e identidade visual** — nomear o app (**SOLO**, a confirmar via `/brand-design`), rodar `/brand-design` para escolher a paleta entre ~6 candidatas em preview HTML, aplicar a paleta escolhida (shadcn CSS vars light+dark), tipografia via `next/font`, e escrever `brand.md`. Renomear "CRM de Leads" → nome escolhido em `layout.tsx` metadata, sidebar e título
+
+**Fora deste milestone:** feature nova (backlog PME, handoff Prospector→CRM, campanhas de teste de nicho) → v1.6+; deploy/VPS → milestone próprio; seeds SEED-001/002 → gatilho "primeiro cliente pagante" não disparado.
 
 **Último milestone shipado:** v1.4 CRM Genérico Multi-Nicho (despivô) — 2026-08-31.
-
-**Candidatos reconhecidos** (Future Requirements em `.planning/milestones/v1.4-REQUIREMENTS.md`):
-- **Handoff Prospector → CRM** (HANDOFF-01..03): rota de entrada (API local), dedup por telefone, handoff rico com as interações do Prospector na timeline. Gatilho: o Prospector Inteligente AI existir + a decisão de VPS único.
-- **Teste de nicho formal** (CAMPANHA-01): entidade "campanha / janela de teste" (nicho + datas + meta + notas) com conversão agregada por janela. Gatilho: se, depois de rodar testes de nicho reais, o nicho plano + filtro de intervalo não bastarem.
-- **Backlog PME** em `.planning/todos/pending/`: tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal.
 
 ## Current State
 
@@ -70,7 +75,9 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-Nenhum milestone ativo. Próximo escopo a definir via `/gsd-new-milestone` — ver `Current Milestone` acima para os candidatos reconhecidos (handoff Prospector→CRM, teste de nicho formal, backlog PME).
+**Milestone v1.5 Quitação de Débito e Auditoria Retroativa** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: UAT retroativa no navegador das Fases 1/2/4/6/8, fechar os 5 achados do `15-REVIEW.md`, limpar o `npm run lint` do repo, e marca/identidade visual (nome + paleta via `/brand-design`). Nenhuma feature funcional nova.
+
+Candidatos adiados para v1.6+ (não neste milestone): handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -141,4 +148,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-08-31 after v1.4 milestone (CRM Genérico Multi-Nicho / despivô) — Fases 13-15 shipadas, PRs #4/#5 mergeados*
+*Last updated: 2026-08-31 after starting milestone v1.5 (Quitação de Débito e Auditoria Retroativa)*
