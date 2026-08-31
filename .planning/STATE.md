@@ -17,10 +17,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-30)
+See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.4 — execução completa (13-15 shipadas); próximo `/gsd-complete-milestone`
+**Current focus:** Nenhum milestone ativo. v1.4 shipado e arquivado (2026-08-31). Próximo: `/gsd-new-milestone`.
 
 ## Current Position
 
@@ -278,7 +278,14 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-31
 
-**Fase 15 (campo "interesse / serviço desejado" no lead — LEAD-06) — EXECUTADA. Verificação `human_needed`. Falta: `/gsd:secure-phase 15` → UAT no navegador (`/gsd:verify-work 15`) → `/close-phase 15` → `/gsd:complete-milestone` v1.4.**
+**Milestone v1.4 (CRM Genérico Multi-Nicho / despivô) — SHIPADO E ARQUIVADO.** Fases 13-15 fechadas, PRs #4 e #5 mergeados em `main`, tag `v1.4` empurrada. ROADMAP/PROJECT/REQUIREMENTS arquivados em `.planning/milestones/v1.4-*`; `REQUIREMENTS.md` removido (fresh no próximo milestone). RETROSPECTIVE.md atualizado.
+
+**Próximo passo:** `/clear` → `/gsd-new-milestone`. Candidatos reconhecidos (`.planning/milestones/v1.4-REQUIREMENTS.md` §Future): handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME em `.planning/todos/pending/`.
+
+**Débito re-reconhecido no fecho (não bloqueia):** UAT/verification gaps das Fases 04/06/08 (milestones v1.0/v1.2/v1.3 já shipados) + 8 quick tasks de UI/warnings v1.0–v1.3 — ver §Deferred Items. Decisão pendente: rodar `/gsd:verify-work` retroativo ou mover formalmente pra "aceito como está".
+
+<details>
+<summary>Histórico da Fase 15 (executada 2026-08-31)</summary>
 
 Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB, `use_worktrees: false`), branch `main`:
 
@@ -303,6 +310,10 @@ Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB
 REQUIREMENTS.md: LEAD-06 já `Complete` (executor promoveu). ROADMAP Fase 15 `[x]` 2/2 (executor marcou cedo — só fecha de verdade após secure + UAT + `/close-phase`).
 
 Working tree: `.planning/config.json` M (mudança de `_auto_chain_active` via config-set, inócua), `.claude/` + `.planning/.continue-here.md` untracked (pré-existentes).
+
+_(Nota do fecho: os pendentes acima — secure, UAT, close — foram todos resolvidos em 2026-08-31. `15-SECURITY.md` (`threats_open: 0`), `15-VALIDATION.md` (`nyquist_compliant: true`), `15-HUMAN-UAT.md` (5/5), `15-VERIFICATION.md` promovido a `passed`, `15-LEARNINGS.md` extraído, PR #5 mergeado.)_
+
+</details>
 
 ---
 
