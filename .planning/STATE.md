@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: verifying
-last_updated: "2026-08-31T14:21:16.622Z"
+status: "Phase 15 executed — verification human_needed (pending secure + UAT)"
+last_updated: "2026-08-31T14:45:00.000Z"
 last_activity: 2026-08-31
 progress:
   total_phases: 3
@@ -271,7 +271,36 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
+### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-31
+
+**Fase 15 (campo "interesse / serviço desejado" no lead — LEAD-06) — EXECUTADA. Verificação `human_needed`. Falta: `/gsd:secure-phase 15` → UAT no navegador (`/gsd:verify-work 15`) → `/close-phase 15` → `/gsd:complete-milestone` v1.4.**
+
+Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB, `use_worktrees: false`), branch `main`:
+
+- **15-01** (`300e176` schema+Zod, `d3441ce` migração+gate, `fd1c0aa` form+Server Actions, `3603c19` docs): `leads.interesse` TEXT nullable no schema Drizzle **e no banco real** (`data/crm.db`, 37 leads intactos, 2 backups datados, `scripts/migrate-interesse.cjs` idempotente). Campo opcional em `leadBaseSchema` (`z.preprocess` vazio→undefined, `.trim().max(500)` PT-BR) propagando p/ `leadSchema` + `csvRowSchema`. `<Input>` "Interesse" abaixo do Nicho; `createLead`/`updateLead` gravam `?? null`. `verify-schema.cjs` cobre a coluna.
+- **15-02** (`435b860` tipos+column-mapper+wizard, `f49639a` insert+cobertura, `70cea05` docs): `"interesse"` em `CsvFieldKey`/`MappedCsvRow`/`EMPTY_MAPPING`; `mapCsvRows` trunca `.slice(0,500)` ANTES da validação (D-10); `{ key:"interesse", required:false }` no column-mapper; carregado até o insert de `bulkImportLeads`. `test-lead-actions.cjs` = 19 casos.
+- **`ba3a1db`** (fix pré-existente, NÃO da Fase 15): fixture de `verify-motivo-perda-obrigatorio.cjs` usava `subnichoId` (nome pré-Fase 13) → trocado p/ `nichoId`. Guard D-04 estava cego desde a Fase 13.
+
+**Gates:** `tsc` 0 · `verify:schema` 0 · `test:lead-actions` 0 (19) · `build` 0 (nos 2 executores; OOM no verificador por pressão de RAM, não é defeito) · regression 12/12 · `npm run lint` repo-inteiro sai 1 (457 erros pré-existentes, documentado desde Fase 8).
+
+**`15-VERIFICATION.md` `status: human_needed`** — 13/13 must-haves na camada de código/dados. `15-HUMAN-UAT.md` criado (`status: partial`, 5 itens pendentes): round-trip do campo no form, vazio não bloqueia submit, limite 500 na UI, mapear coluna CSV → Interesse, importar sem mapear (sem regressão).
+
+**Code review `15-REVIEW.md`** — 0 blockers, **2 warnings** (candidatos a quick task, não bloqueiam a meta):
+- **WR-01** (`src/lib/validations.ts`): `interesse` só com espaços (`" "`) grava `''` no banco em vez de `NULL` — o `v === ""` do preprocess roda antes do trim. Contradiz D-04. Nenhum teste cobre.
+- **WR-02** (`csv-import-preview-table.tsx`): coluna `interesse` não aparece na prévia da importação — admin confirma sem ver o valor; truncamento em 500 fica invisível.
+- 3 infos: comentários "7 campos fixos" desatualizados; `.slice(0,500)` pode partir surrogate pair; `migrate-interesse.cjs` acumula backups.
+
+**Schema drift gate:** `drizzle-kit push` não rodado — falso positivo conhecido (D-06: destrutivo neste projeto; migração via `.cjs`; `verify:schema` confirma a coluna). `GSD_SKIP_SCHEMA_CHECK` aplicável.
+
+**Segurança:** `security_enforcement: true`, `15-SECURITY.md` NÃO existe. Threat models T-15-01..10 + T-15-SC já estão nos dois PLANs. Rodar `/gsd:secure-phase 15` antes de fechar.
+
+REQUIREMENTS.md: LEAD-06 já `Complete` (executor promoveu). ROADMAP Fase 15 `[x]` 2/2 (executor marcou cedo — só fecha de verdade após secure + UAT + `/close-phase`).
+
+Working tree: `.planning/config.json` M (mudança de `_auto_chain_active` via config-set, inócua), `.claude/` + `.planning/.continue-here.md` untracked (pré-existentes).
+
+---
+
+### Arquivado — 2026-08-30
 
 **Milestone v1.4 (despivô) — Fase 14 PLANEJADA. Próximo: `/gsd-execute-phase 14`.**
 
