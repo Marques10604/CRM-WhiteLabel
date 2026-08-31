@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
 status: "Phase 14 shipped — PR #4"
-last_updated: "2026-08-30T22:38:25.436Z"
+last_updated: "2026-08-31T13:22:39.018Z"
 last_activity: 2026-08-30
 progress:
   total_phases: 3
@@ -312,7 +312,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T19:22:30.451Z
+Last session: 2026-08-31T13:22:38.980Z
 
 **O que foi feito nesta sessão:**
 
