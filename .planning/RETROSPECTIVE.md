@@ -91,6 +91,47 @@
 
 ---
 
+## Milestone: v1.4 — CRM Genérico Multi-Nicho (despivô)
+
+**Shipado:** 2026-08-31
+**Fases:** 3 (Fase 13–15) | **Planos:** 7 | **Sessões:** entre 2026-08-30 e 2026-08-31 (~2 dias) | **PRs:** #4 (Fase 14), #5 (Fases 13+15), ambos mergeados em `main`
+
+### O que foi construído
+- **Fase 13** — rename `sub-nicho → nicho` em toda a camada de código (schema, tipos, Zod, queries, `subnicho-actions.ts` → `nicho-actions.ts`), com a divergência lógico↔físico deliberada (D-01): `nichos = sqliteTable("subnichos")`, banco intocado, sem migração; rota `/subnichos` → `/nichos` com redirect 301; varredura de copy neutralizou os 3 últimos pontos "área da saúde" (gate de grep COPY-01)
+- **Fase 14** — função pura `resolvePeriodoRelatorios({period,from,to})` que nunca lança (valida, apara data futura, flag de rejeição); `/relatorios` ganhou a 4ª opção "Intervalo personalizado" com 2 date pickers, navegação automática ao ter as 2 datas, intervalo sobrevive a refresh via querystring
+- **Fase 15** — coluna `leads.interesse` TEXT nullable (migração aditiva idempotente `.cjs` no banco real); campo opcional no formulário de lead + mapeável no wizard de CSV; `mapCsvRows` trunca em 500 chars **antes** da validação (D-10) pra célula gigante do cowork não abortar o lote
+
+### O que funcionou bem
+- **Fases pequenas e bem escopadas executam sem desvio** — 13 (3 planos), 14 (2), 15 (2), todas "None - plano executado exatamente como escrito" nos SUMMARYs; 35min + 20min na Fase 15. O trabalho de spec/discuss pagou.
+- **Reuso de precedente exato** — `interesse` copiou o idioma completo de campo opcional de `motivoPerdaId` (Fase 11): nullable + `z.preprocess` vazio→undefined + `?? null` na Server Action + gate em `verify-schema.cjs`. 2ª ocorrência do padrão, zero bug de "grava `''` em vez de NULL" (exceto o caso só-espaços, WR-01).
+- **Rename só-de-código (D-01)** — evitou migração, backup e o snapshot divergente do drizzle-kit que já tinha mordido nas Fases 8/9/10. O valor do rename era a copy que o usuário vê, não o nome da coluna.
+- **UAT de navegador em nível DOM + verdade no banco** — com `next dev` (Turbopack) + Chrome estourando a RAM do host de 4GB (sem screenshot), a Fase 15 rodou os 5 cenários via `javascript_tool` + `SELECT` direto no `data/crm.db`. 5/5 pass com evidência forte.
+
+### O que foi ineficiente
+- **Trabalho commitado direto na `main` local** — as 23 commits da Fase 15 (+ spec + análise de concorrente) foram parar na `main` local sem branch nem PR; o fechamento teve que criar o branch `phase-15-*` retroativamente, resetar a `main` e abrir o PR de lá. Fase 13 provavelmente pegou carona no PR #4 sem PR próprio.
+- **`go-and-do` / `close-phase` foram escritas pro OpenGSD; este repo roda o `get-shit-done` antigo** — o shim de `gsd-tools` (`gsd-core/bin/…`) não bate com o layout local (`.claude/get-shit-done/bin/…`), e o subcomando `query init.phase-op` não existe (é `init phase-op`). O fechamento rodou adaptando cada chamada à mão.
+- **Débito de UAT/verificação de milestones antigos continua aparecendo** — o `audit-open` do fecho do v1.4 listou de novo os gaps das Fases 04/06/08 (v1.0/v1.2/v1.3). 4º milestone seguido carregando o mesmo débito.
+- **`npm run lint` global segue vermelho** (457 erros pré-existentes desde a Fase 8) — cada fase roda o lint com escopo nos arquivos tocados; o global nunca foi pago.
+
+### Padrões estabelecidos
+- **Rename de vocabulário só na camada de código**: Drizzle mapeia o nome novo pro nome físico antigo (`sqliteTable("nome_antigo")`), doc-comment registra a divergência, zero toque em dados — quando o valor é a copy, não o schema
+- **Defesa contra célula gigante de CSV**: `.slice(0, N)` no `mapCsvRows` antes do `safeParse` — a linha importa truncada em vez de reprovar o lote; o `.max(N)` do Zod fica só pro input manual
+- **Campo CSV mapeável opcional = 6 pontos de toque fixos**: `CsvFieldKey` → `MappedCsvRow` → `mapCsvRows` → `FIELD_CONFIGS` → `EMPTY_MAPPING` → `ConfirmedImportRow`+insert (+ preview-table). `tsc` obriga cada um. 3ª ocorrência (após notas, origem) — vira checklist.
+- **Função de resolução de querystring que nunca lança**: recebe entrada crua não confiável, devolve `{valor concreto, flag de rejeição}`, a tela renderiza aviso em vez de quebrar
+
+### Lições principais
+1. **Milestone de "rename + adições pequenas" é barato e previsível** — 3 fases, 7 planos, ~2 dias, zero desvio de execução. Escopar como "não rebuild" desde o PROJECT.md manteve a disciplina.
+2. **Committar direto na `main` sem branch quebra o fluxo de PR** — a próxima fase deve cortar o branch ANTES do primeiro commit de código, não depois.
+3. **`go-and-do`/`close-phase` precisam de OpenGSD** — ou migrar este repo pro `@opengsd/gsd-core`, ou aceitar adaptar as chamadas de `gsd-tools` à mão em todo fechamento.
+4. **Débito de UAT de 4 milestones atrás não vai se pagar sozinho** — decidir formalmente: rodar `/gsd-verify-work` retroativo nas Fases 04/06/08, ou movê-las para "aceito como está" e parar de re-listar.
+
+### Observações de custo
+- Mix de modelo: não medido
+- Sessões: ~2 dias corridos (2026-08-30 → 2026-08-31); a Fase 15 + fechamento + complete-milestone numa sessão só
+- Notável: o fechamento do v1.4 rodou via `/go-and-do` → `/close-phase` → `/gsd:complete-milestone` encadeados, com o orquestrador adaptando os comandos ao `get-shit-done` antigo
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -100,6 +141,7 @@
 | v1.0 | múltiplas (10 dias) | 4 | Primeiro milestone — estabeleceu soft-delete, execução sequencial (host 4GB) e o padrão de filtro só-em-seleção |
 | v1.1–v1.2 | não registrado | 3 | Shipparam sem entrada de retrospectiva; primeiro push pro GitHub (`main`), primeiro UAP humano via browser real (Fase 7) |
 | v1.3 | múltiplas (~29 dias) | 5 | `npm run build` virou gate normal (Turbopack); UAT de navegador via extensão Claude virou rotina (Fases 9/11/12); 1º fluxo completo secure→close→PR→merge; 3 PRs mergeados |
+| v1.4 | ~2 dias | 3 | Milestone de "rename + adições pequenas" — zero desvio de execução; fechamento via `/go-and-do`→`/close-phase`→`/gsd:complete-milestone` encadeados (adaptados ao `get-shit-done` antigo); 2 PRs mergeados; débito de UAT das Fases 04/06/08 re-reconhecido |
 
 ### Cumulative Quality
 
@@ -110,7 +152,9 @@
 
 ### Top Lessons (Verified Across Milestones)
 
-1. Em host de 4GB, execução sequencial e worktrees desligados evitam OOM — confirmado repetidamente no v1.0 **e no v1.3**
+1. Em host de 4GB, execução sequencial e worktrees desligados evitam OOM — confirmado repetidamente no v1.0, v1.3 **e v1.4** (`next dev` + Chrome estoura a RAM; UAT roda em nível DOM + `SELECT` no banco)
 2. Checkers baseados em grep ingênuo geram falsos positivos com frequência neste projeto — sempre verificar manualmente antes de agir sobre o alerta (o `audit-open` marcou os 12 quick_tasks como "missing" de novo no fechamento do v1.3)
 3. Quando a ferramenta muda (webpack → Turbopack no `next build`), revisitar as premissas que dependiam do comportamento antigo — o débito "build nunca rodou" só se acumulou por 5 fases porque ninguém rechecou
 4. Commits atômicos por task tornam qualquer plano retomável de uma interrupção sem artefato de handoff — provado na retomada da Fase 12-03
+5. Cortar o branch da fase ANTES do primeiro commit de código — no v1.4 a Fase 15 foi toda pra `main` local e o branch/PR teve que ser reconstruído retroativamente no fechamento
+6. As skills de fechamento novas (`/go-and-do`, `/close-phase`) assumem OpenGSD (`@opengsd/gsd-core`); este repo roda o `get-shit-done` antigo — os comandos `gsd-tools` divergem e cada fechamento adapta à mão
