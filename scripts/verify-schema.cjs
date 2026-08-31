@@ -122,6 +122,9 @@ if (tableNames.has("leads")) {
   if (!leadsColumns.has("motivo_perda_id")) {
     fail("coluna ausente: leads.motivo_perda_id (Fase 11, PERDA-01)");
   }
+  if (!leadsColumns.has("interesse")) {
+    fail("coluna ausente: leads.interesse (Fase 15, LEAD-06)");
+  }
 }
 
 if (tableNames.has("configuracoes")) {
@@ -133,7 +136,7 @@ if (tableNames.has("configuracoes")) {
 
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id' presentes e conjunto estrito de colunas de 'tarefas' conferido em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id'/'interesse' presentes e conjunto estrito de colunas de 'tarefas' conferido em",
   DB_PATH
 );
 process.exit(0);
