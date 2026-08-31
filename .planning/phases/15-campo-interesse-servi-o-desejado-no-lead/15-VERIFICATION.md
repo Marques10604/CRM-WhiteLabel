@@ -1,7 +1,7 @@
 ---
 phase: 15-campo-interesse-servi-o-desejado-no-lead
 verified: 2026-08-31T00:00:00Z
-status: human_needed
+status: passed
 score: 13/13 must-haves verificados na camada de código/dados
 overrides_applied: 0
 re_verification:
@@ -29,7 +29,7 @@ human_verification:
 
 **Meta da fase:** O admin registra o que cada lead quer (qual serviço ou automação), pra saber com quem está falando antes de abordar — opcional, sem atrito no cadastro.
 **Verificado:** 2026-08-31
-**Status:** human_needed
+**Status:** passed *(promovido — ver § Promoção de status)*
 **Re-verificação:** Não — verificação inicial
 
 ## Goal Achievement
@@ -197,3 +197,8 @@ para o fim da fase.
 
 _Verificado: 2026-08-31_
 _Verificador: Claude (gsd-verifier)_
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-08-31.
+Evidência: UAT humano (browser automation, DOM-level, verdade conferida em data/crm.db) concluído — 5/5 pass, 0 issues, 0 pending/blocked/skipped (15-HUMAN-UAT.md em `complete`).
