@@ -123,7 +123,10 @@ Plans:
   3. Criar ou editar um lead sem preencher o campo funciona normalmente — é opcional, nunca bloqueia o submit
   4. O wizard de importação CSV permite mapear uma coluna para "Interesse", e o valor entra no lead importado
 
-**Plans**: 1-2 planos (coarse) — provável: (a) coluna `interesse` nullable + Zod + form de lead; (b) opção de mapeamento no wizard + `CsvFieldKey`
+**Plans**: 2 planos (coarse) — planejados 2026-08-31
+
+- [x] 15-01-PLAN.md (Wave 1) — Coluna `interesse` nullable no schema + campo opcional em `leadBaseSchema` (trim, max 500, preprocess vazio→undefined, propaga para `csvRowSchema`/`leadSchema`) + migração aditiva `[BLOCKING]` via `scripts/migrate-interesse.cjs` + `<Input>` "Interesse" abaixo do Nicho no `lead-form-dialog.tsx` + persistência em `createLead`/`updateLead` + gate em `verify-schema.cjs` + cobertura em `test-lead-actions.cjs`
+- [x] 15-02-PLAN.md (Wave 2, dep. 15-01) — `"interesse"` em `CsvFieldKey` + `MappedCsvRow` + `mapCsvRows` (truncamento `.slice(0,500)` antes da validação) + entrada em `FIELD_CONFIGS` do `csv-column-mapper.tsx` + `EMPTY_MAPPING` + `ConfirmedImportRow`/`bulkImportLeads` + `csv-import-preview-table.tsx` + cobertura de import em `test-lead-actions.cjs`
 
 **UI hint**: yes
 
@@ -137,10 +140,10 @@ Plans:
 | v1.1 Importação Inteligente | 5 | 2 | ✅ 2026-07-30 |
 | v1.2 Follow-up Automático | 6-7 | 4 | ✅ 2026-08-01 |
 | v1.3 Qualificação e Histórico | 8-12 | 20 | ✅ 2026-08-30 |
-| **v1.4 CRM Genérico Multi-Nicho** | **13-15** | **~5** | 🚧 em andamento |
+| **v1.4 CRM Genérico Multi-Nicho** | **13-15** | **~7** | 🚧 em andamento |
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
 | 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 2/2 | Complete   | 2026-08-30 |
-| 15. Campo "interesse" no lead | v1.4 | 0/? | Not started | — |
+| 15. Campo "interesse" no lead | v1.4 | 2/2 | Complete    | 2026-08-31 |

@@ -17,7 +17,8 @@ export type CsvFieldKey =
   | "canal"
   | "origem"
   | "valorEstimado"
-  | "notas";
+  | "notas"
+  | "interesse";
 
 /** Valor = nome do header do CSV mapeado para esse campo; null = não mapeado. */
 export type CsvColumnMapping = Record<CsvFieldKey, string | null>;
@@ -39,6 +40,12 @@ export type MappedCsvRow = {
   origem: string;
   valorEstimado: string;
   notas: string;
+  /** Texto livre "serviço desejado" (LEAD-06). Truncado em 500 chars em
+   * `mapCsvRows` ANTES da validação (D-10) — célula gigante do CSV nunca
+   * reprova a linha, o lead importa com o valor cortado. `""` quando a
+   * coluna não foi mapeada ou está em branco (D-11: sem entrada em
+   * CSV_DEFAULTS — vira NULL na Server Action). */
+  interesse: string;
 };
 
 /**
@@ -134,6 +141,10 @@ export function mapCsvRows(
     const concatenatedNotas = buildNotasText(row, mapping, extraNotasColumns, csvHeaderOrder);
     const notas = concatenatedNotas || CSV_DEFAULTS.notas; // fallback D-11 sobre o resultado FINAL
     const valorEstimado = readMapped(row, "valorEstimado") || CSV_DEFAULTS.valorEstimado;
+    // D-10: trunca em 500 ANTES de qualquer validação — uma célula gigante do
+    // CSV do cowork nunca reprova a linha, o lead importa com o interesse
+    // cortado. Sem fallback de CSV_DEFAULTS (D-11): vazio/não-mapeado = "".
+    const interesse = readMapped(row, "interesse").slice(0, 500);
 
     return {
       rowIndex,
@@ -145,6 +156,7 @@ export function mapCsvRows(
       origem,
       valorEstimado,
       notas,
+      interesse,
     };
   });
 }

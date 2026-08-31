@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: CRM Genérico Multi-Nicho
-status: "Phase 14 shipped — PR #4"
-last_updated: "2026-08-30T22:38:25.436Z"
-last_activity: 2026-08-30
+milestone_name: CRM Genérico Multi-Nicho — despivô
+status: "Phase 15 shipped — PR #5; milestone v1.4 execution complete"
+last_updated: "2026-08-31T16:25:00.000Z"
+last_activity: 2026-08-31
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 67
+  completed_phases: 3
+  total_plans: 7
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -20,21 +20,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 14 — filtro-de-intervalo-customizado-em-relatorios
+**Current focus:** Milestone v1.4 — execução completa (13-15 shipadas); próximo `/gsd-complete-milestone`
 
 ## Current Position
 
-Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
-Plan: 2 of 2
-Status: Phase 14 shipped — PR #4
-Last activity: 2026-08-30
+Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15), todas shipadas
+Phase: 15 — shipada (PR #5, base main)
+Plan: 2/2 complete
+Status: Milestone v1.4 execution complete — aguardando merge do PR #5 + `/gsd-complete-milestone`
+Last activity: 2026-08-31
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 13
+- Total plans completed: 15
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Last activity: 2026-08-30
 | 05 | 2 | - | - |
 | 06 | 2 | - | - |
 | 11 | 5 | - | - |
+| 15 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -88,6 +89,8 @@ Last activity: 2026-08-30
 | Phase 12 P04 | ~15min | 2 tasks | 2 files |
 | Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
 | Phase 14 P02 | 15min | 2 tasks | 2 files |
+| Phase 15 P01 | 35min | 3 tasks | 7 files |
+| Phase 15 P02 | 20min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -183,6 +186,9 @@ Recent decisions affecting current work:
 - [Phase 14]: resolvePeriodoRelatorios é função IRMÃ de resolvePeriodRange (não extensão) — resolvePeriodRange fica intacta e é reusada internamente para presets clássicos e todos os fallbacks; comportamento custom fica isolado
 - [Phase 14]: faixa de aviso de intervalo inválido em /relatorios usa classes amber-* (paleta default Tailwind v4 intacta); customInvalido distingue 'usuário pediu custom e errou' (mostra faixa) de 'period adulterado' (fallback silencioso tudo, sem faixa)
 - [Phase ?]: [Phase 14-02]: PeriodoSelector modo custom — cliente gerencia customMode + 2 datas locais, mas continua sem resolver range / sem decidir default / fallback (D-17); navegarCustom só em event handlers (nunca useEffect/render, T-14-07); closure 'os 2 preenchidos' via const prox = date ?? estadoAtual antes de checar os dois locais
+- [Phase 15]: coluna leads.interesse aditiva NULLABLE sem DEFAULT (dispensa a exigência do SQLite que forçou origem_tipo/sequencia_posicao); migração custom .cjs rodada 2x em data/crm.db, 37 leads intactos — campo opcional texto livre LEAD-06, vazio grava NULL (D-04/D-06)
+- [Phase 15]: interesse é o 2o campo opcional de leadBaseSchema (após motivoPerdaId): preprocess vazio->undefined + undefined->null explícito na Server Action; propaga p/ csvRowSchema por ficar fora do .omit() — reuso do idioma já estabelecido na Fase 11
+- [Phase ?]: [Phase 15-02] interesse mapeável no wizard de CSV: 6 pontos de toque + truncamento .slice(0,500) em mapCsvRows ANTES de csvRowSchema.safeParse (D-10); fora de CSV_DEFAULTS (D-11), vazio grava NULL
 
 ### Pending Todos
 
@@ -266,7 +272,37 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
+### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-31
+
+**Fase 15 (campo "interesse / serviço desejado" no lead — LEAD-06) — EXECUTADA. Verificação `human_needed`. Falta: `/gsd:secure-phase 15` → UAT no navegador (`/gsd:verify-work 15`) → `/close-phase 15` → `/gsd:complete-milestone` v1.4.**
+
+Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB, `use_worktrees: false`), branch `main`:
+
+- **15-01** (`300e176` schema+Zod, `d3441ce` migração+gate, `fd1c0aa` form+Server Actions, `3603c19` docs): `leads.interesse` TEXT nullable no schema Drizzle **e no banco real** (`data/crm.db`, 37 leads intactos, 2 backups datados, `scripts/migrate-interesse.cjs` idempotente). Campo opcional em `leadBaseSchema` (`z.preprocess` vazio→undefined, `.trim().max(500)` PT-BR) propagando p/ `leadSchema` + `csvRowSchema`. `<Input>` "Interesse" abaixo do Nicho; `createLead`/`updateLead` gravam `?? null`. `verify-schema.cjs` cobre a coluna.
+- **15-02** (`435b860` tipos+column-mapper+wizard, `f49639a` insert+cobertura, `70cea05` docs): `"interesse"` em `CsvFieldKey`/`MappedCsvRow`/`EMPTY_MAPPING`; `mapCsvRows` trunca `.slice(0,500)` ANTES da validação (D-10); `{ key:"interesse", required:false }` no column-mapper; carregado até o insert de `bulkImportLeads`. `test-lead-actions.cjs` = 19 casos.
+- **`ba3a1db`** (fix pré-existente, NÃO da Fase 15): fixture de `verify-motivo-perda-obrigatorio.cjs` usava `subnichoId` (nome pré-Fase 13) → trocado p/ `nichoId`. Guard D-04 estava cego desde a Fase 13.
+
+**Gates:** `tsc` 0 · `verify:schema` 0 · `test:lead-actions` 0 (19) · `build` 0 (nos 2 executores; OOM no verificador por pressão de RAM, não é defeito) · regression 12/12 · `npm run lint` repo-inteiro sai 1 (457 erros pré-existentes, documentado desde Fase 8).
+
+**`15-VERIFICATION.md` `status: human_needed`** — 13/13 must-haves na camada de código/dados. `15-HUMAN-UAT.md` criado (`status: partial`, 5 itens pendentes): round-trip do campo no form, vazio não bloqueia submit, limite 500 na UI, mapear coluna CSV → Interesse, importar sem mapear (sem regressão).
+
+**Code review `15-REVIEW.md`** — 0 blockers, **2 warnings** (candidatos a quick task, não bloqueiam a meta):
+
+- **WR-01** (`src/lib/validations.ts`): `interesse` só com espaços (`" "`) grava `''` no banco em vez de `NULL` — o `v === ""` do preprocess roda antes do trim. Contradiz D-04. Nenhum teste cobre.
+- **WR-02** (`csv-import-preview-table.tsx`): coluna `interesse` não aparece na prévia da importação — admin confirma sem ver o valor; truncamento em 500 fica invisível.
+- 3 infos: comentários "7 campos fixos" desatualizados; `.slice(0,500)` pode partir surrogate pair; `migrate-interesse.cjs` acumula backups.
+
+**Schema drift gate:** `drizzle-kit push` não rodado — falso positivo conhecido (D-06: destrutivo neste projeto; migração via `.cjs`; `verify:schema` confirma a coluna). `GSD_SKIP_SCHEMA_CHECK` aplicável.
+
+**Segurança:** `security_enforcement: true`, `15-SECURITY.md` NÃO existe. Threat models T-15-01..10 + T-15-SC já estão nos dois PLANs. Rodar `/gsd:secure-phase 15` antes de fechar.
+
+REQUIREMENTS.md: LEAD-06 já `Complete` (executor promoveu). ROADMAP Fase 15 `[x]` 2/2 (executor marcou cedo — só fecha de verdade após secure + UAT + `/close-phase`).
+
+Working tree: `.planning/config.json` M (mudança de `_auto_chain_active` via config-set, inócua), `.claude/` + `.planning/.continue-here.md` untracked (pré-existentes).
+
+---
+
+### Arquivado — 2026-08-30
 
 **Milestone v1.4 (despivô) — Fase 14 PLANEJADA. Próximo: `/gsd-execute-phase 14`.**
 
@@ -312,7 +348,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T19:22:30.451Z
+Last session: 2026-08-31T14:21:06.555Z
 
 **O que foi feito nesta sessão:**
 

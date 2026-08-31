@@ -35,6 +35,7 @@ const EMPTY_MAPPING: CsvColumnMapping = {
   origem: null,
   valorEstimado: null,
   notas: null,
+  interesse: null,
 };
 
 /** D-11: cada upload novo começa sem nenhuma coluna extra marcada. */

@@ -23,7 +23,7 @@ Escopo do milestone v1.4 — despivotar o CRM de "área da saúde" para uma ferr
 
 ### Lead
 
-- [ ] **LEAD-06**: Cada lead tem um campo opcional "interesse" (o que o lead quer / serviço desejado, texto livre), editável no formulário de lead e mapeável como coluna no wizard de importação CSV
+- [x] **LEAD-06**: Cada lead tem um campo opcional "interesse" (o que o lead quer / serviço desejado, texto livre), editável no formulário de lead e mapeável como coluna no wizard de importação CSV
 
 ## Future Requirements
 
@@ -60,9 +60,10 @@ Reconhecidos, não neste milestone.
 | NICHO-02 | Phase 13 (13-02) | Done (2026-08-30) |
 | COPY-01 | Phase 13 (13-03) | Done (2026-08-30) |
 | METRICAS-03 | Phase 14 | Complete |
-| LEAD-06 | Phase 15 | Pending |
+| LEAD-06 | Phase 15 | Complete |
 
 **Coverage:**
+
 - v1.4 requirements: 5 total
 - Mapped to phases: 5
 - Unmapped: 0 ✓

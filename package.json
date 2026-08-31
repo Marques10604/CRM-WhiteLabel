@@ -9,6 +9,7 @@
     "lint": "eslint",
     "guard:no-hard-delete": "node scripts/guard-no-hard-delete.cjs",
     "migrate:tarefas": "node scripts/migrate-tarefas.cjs",
+    "migrate:interesse": "node scripts/migrate-interesse.cjs",
     "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",

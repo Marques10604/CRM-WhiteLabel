@@ -124,6 +124,10 @@ export function LeadFormDialog({
       // Reexibição do valor armazenado (centavos) via formatCentsToBRL (D-02 contrato de valor).
       valorEstimado: lead ? formatCentsToBRL(lead.valorEstimado) : "",
       notas: lead?.notas ?? "",
+      // D-03: mesmo idioma de `origem`/`notas` — string vazia na criação, valor
+      // salvo na edição. `<Input>` vazio -> FormData "" -> preprocess Zod ->
+      // undefined -> Server Action grava NULL (D-04).
+      interesse: lead?.interesse ?? "",
       // Modo criação (lead undefined) precisa de um valor real, não undefined:
       // o Calendar só destaca "hoje" visualmente (classe `today`, bg sutil) —
       // isso NÃO é uma seleção de fato (`data-selected-single`, bg forte). Sem
@@ -339,6 +343,22 @@ export function LeadFormDialog({
                     Nicho do lead (ex: dentista, e-commerce de roupa, academia).
                   </FieldDescription>
                   <FieldError errors={[errors.nichoId]} />
+                </FieldContent>
+              </Field>
+
+              <Field data-invalid={!!errors.interesse}>
+                <FieldLabel htmlFor="interesse">Interesse</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="interesse"
+                    placeholder="Ex: quer site, automação de WhatsApp, tráfego pago..."
+                    aria-invalid={!!errors.interesse}
+                    {...form.register("interesse")}
+                  />
+                  <FieldDescription>
+                    O que esse lead quer — serviço ou ajuda que ele procura. Opcional.
+                  </FieldDescription>
+                  <FieldError errors={[errors.interesse]} />
                 </FieldContent>
               </Field>
 
