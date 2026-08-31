@@ -26,7 +26,7 @@ Fases já shipadas cujo comportamento nunca foi verificado com clique real. O ho
 
 ### Limpeza de Lint
 
-- [ ] **LINT-01**: `npm run lint` executado no repo inteiro sai com código `0` — os 457 erros pré-existentes (documentados desde a Fase 8) triados e resolvidos por correção real ou supressão justificada: `.claude/get-shit-done` e worktree órfão fora do escopo do ESLint na config, `.cjs` de scripts com override de `no-require-imports`, `eslint-disable` documentado nos falsos-positivos de `react-hooks/refs`; `deferred-items.md` atualizado removendo o item
+- [ ] **LINT-01**: `npm run lint` executado no repo inteiro sai com código `0` — os 457 erros pré-existentes (documentados desde a Fase 8) triados e resolvidos por correção real ou supressão justificada: `.claude/get-shit-done` e worktree órfão fora do escopo do ESLint na config, `.cjs` de scripts com override de `no-require-imports`, `eslint-disable` documentado nos falsos-positivos de `react-hooks`; `deferred-items.md` atualizado removendo o item
 
 ### Marca e Identidade Visual
 
@@ -77,29 +77,36 @@ Explicitamente excluído deste milestone.
 
 ## Traceability
 
-Preenchido na criação do roadmap.
+Preenchido na criação do roadmap (2026-08-31).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIT-01 | — | Pending |
-| AUDIT-02 | — | Pending |
-| AUDIT-03 | — | Pending |
-| AUDIT-04 | — | Pending |
-| AUDIT-05 | — | Pending |
-| FIX-01 | — | Pending |
-| FIX-02 | — | Pending |
-| FIX-03 | — | Pending |
-| LINT-01 | — | Pending |
-| BRAND-01 | — | Pending |
-| BRAND-02 | — | Pending |
-| BRAND-03 | — | Pending |
+| FIX-01 | Fase 16 | Pending |
+| FIX-02 | Fase 16 | Pending |
+| FIX-03 | Fase 16 | Pending |
+| LINT-01 | Fase 17 | Pending |
+| AUDIT-01 | Fase 18 | Pending |
+| AUDIT-02 | Fase 18 | Pending |
+| AUDIT-03 | Fase 18 | Pending |
+| AUDIT-04 | Fase 18 | Pending |
+| AUDIT-05 | Fase 18 | Pending |
+| BRAND-01 | Fase 19 | Pending |
+| BRAND-02 | Fase 19 | Pending |
+| BRAND-03 | Fase 19 | Pending |
 
 **Coverage:**
 
 - v1.5 requirements: 12 total
-- Mapped to phases: 0 (roadmap pendente)
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12 ✓
+- Unmapped: 0 ✓
+
+**Mapa por fase:**
+
+- **Fase 16 — Correções de Code Review da Fase 15:** FIX-01, FIX-02, FIX-03
+- **Fase 17 — Limpeza de Lint do Repo:** LINT-01
+- **Fase 18 — Auditoria Retroativa no Navegador:** AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05
+- **Fase 19 — Marca e Identidade Visual:** BRAND-01, BRAND-02, BRAND-03
 
 ---
 *Requirements defined: 2026-08-31*
-*Last updated: 2026-08-31 after initial definition*
+*Last updated: 2026-08-31 after roadmap creation (12/12 requisitos mapeados em 4 fases)*

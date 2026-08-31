@@ -7,6 +7,7 @@
 - ✅ **v1.2 Follow-up Automático** — Fases 6-7 (shipado 2026-08-01)
 - ✅ **v1.3 Qualificação e Histórico de Leads** — Fases 8-12 (shipado 2026-08-30) — `.planning/milestones/v1.3-ROADMAP.md`
 - ✅ **v1.4 CRM Genérico Multi-Nicho (despivô)** — Fases 13-15 (shipado 2026-08-31) — `.planning/milestones/v1.4-ROADMAP.md`
+- 🚧 **v1.5 Quitação de Débito e Auditoria Retroativa** — Fases 16-19 (em andamento) — detalhes abaixo
 
 ## Phases
 
@@ -67,7 +68,85 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 
 </details>
 
+### 🚧 v1.5 Quitação de Débito e Auditoria Retroativa (Fases 16-19) — EM ANDAMENTO
+
+**Meta do milestone:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto, limpar o lint do repo e dar identidade visual ao produto. **Zero feature funcional nova.**
+
+- [ ] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (planos TBD)
+- [ ] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (planos TBD)
+- [ ] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05 (planos TBD)
+- [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
+
+## Phase Details
+
+### Phase 16: Correções de Code Review da Fase 15
+
+**Goal**: Os cinco achados abertos do `15-REVIEW.md` estão fechados — o campo `interesse` cumpre o contrato D-04 ("vazio grava NULL, nunca `''`") em todos os caminhos de entrada, e o valor importado do CSV fica visível ao admin antes de confirmar.
+**Depends on**: Nada (primeira fase do v1.5). Mudança code-only sobre superfícies já shipadas (Fases 1, 2, 15).
+**Requirements**: FIX-01, FIX-02, FIX-03
+**Success Criteria** (o que precisa ser verdade):
+
+  1. Criar ou editar um lead com o campo "Interesse" contendo só espaços em branco grava `NULL` no banco (não `''`), e existe caso de teste automatizado cobrindo `createLead({ interesse: "   " })` → linha com `interesse === null`
+  2. Ao mapear uma coluna do CSV para "Interesse" no wizard de importação, a prévia mostra uma coluna "Interesse" com o valor que será gravado, no mesmo padrão da coluna "Notas"
+  3. O truncamento defensivo em 500 caracteres na importação (D-10) é observável — corte por code point (não code unit, sem partir surrogate pair) e/ou aviso visível na prévia
+  4. Os 3 achados `info` do `15-REVIEW.md` estão resolvidos: comentários "7 campos fixos" → "8" em `csv-column-mapper.tsx`; `.slice(0,500)` corta por code point em `csv-import.ts`; `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não acumula backup em execução idempotente
+  5. `tsc --noEmit`, `npm run build` e `test:lead-actions` seguem exit 0 com o novo caso incluído
+
+**Plans**: TBD
+**Threat surface**: mínima — ajuste em validação Zod e numa tabela de prévia de dados já existentes; nenhuma superfície de entrada nova, sem auth, sem rede, sem schema destrutivo. `/gsd-secure-phase` deve fechar rápido.
+
+### Phase 17: Limpeza de Lint do Repo
+
+**Goal**: `npm run lint` rodado da raiz, sem escopo de arquivos, sai com código `0` — a dívida dos 457 erros pré-existentes acumulada desde a Fase 8 está quitada, sem esconder erro real de `src/`.
+**Depends on**: Phase 16 (sequencial — evita rebase da config de lint sobre as mudanças de código do FIX; o host de 4GB pede execução em série de qualquer forma)
+**Requirements**: LINT-01
+**Success Criteria** (o que precisa ser verdade):
+
+  1. `npm run lint` executado da raiz, sem passar arquivos, termina com exit code `0`
+  2. `.claude/get-shit-done` e o worktree órfão estão fora do escopo do ESLint pela config (ignore patterns), não por deleção de arquivos
+  3. Scripts `.cjs` passam via override documentado de `no-require-imports`; os falsos-positivos de `react-hooks/refs` têm `eslint-disable` com comentário justificando cada um
+  4. Nenhuma regra foi desativada globalmente de forma que mascare um erro real em `src/` — o diff da config é pequeno, revisável e comentado
+  5. `deferred-items.md` e a seção Context do `PROJECT.md` não listam mais "`npm run lint` global sai 1" como débito aberto
+
+**Plans**: TBD
+**Threat surface**: nenhuma — config de tooling e supressões de lint, zero código de runtime tocado. `/gsd-secure-phase` deve fechar rápido.
+
+### Phase 18: Auditoria Retroativa no Navegador
+
+**Goal**: O comportamento shipado das Fases 1, 2, 4, 6 e 8 está verificado com clique real no navegador contra o `data/crm.db` de produção — cada `VERIFICATION.md` sai de `human_needed`/inexistente para `passed`, e toda issue não-trivial encontrada está registrada como quick task.
+**Depends on**: Phase 16 (as correções do FIX já refletidas nas superfícies de lead e de importação que a auditoria das Fases 1/2 exercita)
+**Requirements**: AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05
+**Success Criteria** (o que precisa ser verdade):
+
+  1. `01-HUMAN-UAT.md` e `02-HUMAN-UAT.md` são autorados do zero (não existem hoje) cobrindo CRUD de lead/nicho, dedupe case-insensitive, lista ordenada por follow-up, toolbar, paginação (Fase 1) e upload com detecção de separador/codificação, mapeamento de colunas, prévia com flags e import real (Fase 2) — e executados no navegador; `01-VERIFICATION.md` e `02-VERIFICATION.md` são criados com status `passed`
+  2. Os 7 cenários de `04-HUMAN-UAT.md`, os 11 de `06-HUMAN-UAT.md` e os 4 de `08-HUMAN-UAT.md` (já escritos, pendentes) são executados no navegador; cada arquivo vai para `complete` e cada `VERIFICATION.md` correspondente para `passed`
+  3. Toda verificação roda sequencialmente (host 4GB, sem processos em paralelo), via extensão Claude no Chrome contra o banco real `data/crm.db`
+  4. Cada issue encontrada que não seja regressão trivial vira quick task registrada em `.planning/quick/`, sem bloquear o fecho do requisito de auditoria
+  5. `STATE.md` §Deferred Items não lista mais os `uat_gap`/`verification_gap` das Fases 1, 2, 4, 6 e 8
+
+**Plans**: TBD (candidato a divisão: autorar+testar Fases 1/2 numa onda, rodar os cenários existentes das Fases 4/6/8 noutra)
+**Threat surface**: nenhuma — trabalho de verificação de comportamento já shipado; não altera código de runtime (só docs de UAT/verification e, se houver achado, quick tasks separadas). `/gsd-secure-phase` deve fechar rápido.
+
+### Phase 19: Marca e Identidade Visual
+
+**Goal**: O CRM tem cara de produto — nome próprio definido e registrado, paleta e tipografia escolhidas pelo usuário via `/brand-design` e aplicadas em light + dark, e "CRM de Leads" renomeado em toda superfície visível, sem nenhuma regressão visual nas telas existentes.
+**Depends on**: Phase 18 (BRAND por último para o check de não-regressão visual cobrir o estado final do app; a auditoria feita antes garante uma base de comportamento limpa)
+**Requirements**: BRAND-01, BRAND-02, BRAND-03
+**Success Criteria** (o que precisa ser verdade):
+
+  1. O app tem um nome de produto definido (candidato do usuário: "SOLO"), com a decisão e o racional registrados em `brand.md` na raiz do repo
+  2. `/brand-design` foi rodado — ~6 paletas candidatas revisadas em preview HTML no navegador, o usuário escolheu uma, e ela está aplicada como shadcn CSS variables (light + dark) em `globals.css`
+  3. A tipografia está ligada via `next/font`
+  4. `brand.md` documenta paleta, tipografia e tom/voz; "CRM de Leads" foi renomeado para o nome escolhido no `layout.tsx` (`<title>` + description), no header da sidebar (`app-sidebar.tsx`) e em qualquer outro lugar onde o nome antigo aparece
+  5. Verificação no navegador confirma que nenhuma tela existente regrediu visualmente (layout, contraste, dark mode, legibilidade)
+
+**Plans**: TBD
+**UI hint**: yes
+**Threat surface**: baixa — CSS variables, strings de metadata e carregamento de fonte; sem lógica nova. Passa pelo UI safety gate (`workflow.ui_phase` + `ui_safety_gate` ativos).
+
 ## Progress
+
+**Execution Order:** 16 → 17 → 18 → 19 (numérica). FIX (código de menor risco) primeiro para não ser invalidado por trabalho posterior; LINT em seguida; AUDIT depois (mais pesado, browser-UAT sequencial); BRAND por último, para o check de não-regressão visual cobrir o estado final.
 
 | Milestone | Fases | Planos | Status |
 |-----------|-------|--------|--------|
@@ -76,13 +155,15 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 | v1.2 Follow-up Automático | 6-7 | 4 | ✅ 2026-08-01 |
 | v1.3 Qualificação e Histórico | 8-12 | 20 | ✅ 2026-08-30 |
 | v1.4 CRM Genérico Multi-Nicho | 13-15 | 7 | ✅ 2026-08-31 |
+| **v1.5 Quitação de Débito e Auditoria Retroativa** | **16-19** | **TBD** | 🚧 em andamento |
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
-| 14. Filtro de intervalo em `/relatorios` | v1.4 | 2/2 | ✅ Complete | 2026-08-30 |
-| 15. Campo "interesse" no lead | v1.4 | 2/2 | ✅ Complete | 2026-08-31 |
+| 16. Correções de Code Review da Fase 15 | v1.5 | 0/TBD | Not started | - |
+| 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
+| 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
+| 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
 
 ---
 
-_Próximo milestone: `/gsd-new-milestone`. Candidatos reconhecidos em `.planning/milestones/v1.4-REQUIREMENTS.md` (Future Requirements): handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01)._
+_Próximo: `/gsd-plan-phase 16`. Candidatos adiados para v1.6+: handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME._

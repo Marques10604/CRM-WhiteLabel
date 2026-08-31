@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: planning
-last_updated: "2026-08-31T21:39:03.854Z"
+status: roadmap_complete
+last_updated: "2026-08-31T22:15:00.000Z"
 last_activity: 2026-08-31
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Nenhum milestone ativo. v1.4 shipado e arquivado (2026-08-31). Próximo: `/gsd-new-milestone`.
+**Current focus:** Milestone v1.5 (Quitação de Débito e Auditoria Retroativa) — roadmap criado, 4 fases (16-19), 12 requisitos mapeados (100% cobertura). Próximo: `/gsd-plan-phase 16`.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-08-31 — Milestone v1.5 started
+Phase: 16 (Correções de Code Review da Fase 15) — não iniciada
+Plan: — (roadmap criado, planejamento de fase pendente)
+Status: Roadmap v1.5 completo — 4 fases, 12 requisitos mapeados, 100% cobertura
+Last activity: 2026-08-31 — Roadmap v1.5 criado (Fases 16-19)
 
 ## Performance Metrics
 
@@ -280,7 +280,13 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 **Milestone v1.4 (CRM Genérico Multi-Nicho / despivô) — SHIPADO E ARQUIVADO.** Fases 13-15 fechadas, PRs #4 e #5 mergeados em `main`, tag `v1.4` empurrada. ROADMAP/PROJECT/REQUIREMENTS arquivados em `.planning/milestones/v1.4-*`; `REQUIREMENTS.md` removido (fresh no próximo milestone). RETROSPECTIVE.md atualizado.
 
-**Próximo passo:** `/clear` → `/gsd-new-milestone`. Candidatos reconhecidos (`.planning/milestones/v1.4-REQUIREMENTS.md` §Future): handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME em `.planning/todos/pending/`.
+**Roadmap v1.5 criado (2026-08-31).** 4 fases, 12 requisitos, 100% cobertura. Ordem de execução 16 → 17 → 18 → 19:
+- **Fase 16 — Correções de Code Review da Fase 15** (FIX-01/02/03): fechar os 5 achados do `15-REVIEW.md` (WR-01 `interesse` só-espaço grava `''`; WR-02 `interesse` some da prévia do CSV; IN-01/02/03). Code-only, threat surface mínima.
+- **Fase 17 — Limpeza de Lint do Repo** (LINT-01): `npm run lint` da raiz volta a sair 0 — triar os 457 erros pré-existentes, config de ignore + overrides + `eslint-disable` documentado.
+- **Fase 18 — Auditoria Retroativa no Navegador** (AUDIT-01..05): UAT real das Fases 1/2 (autorar `01/02-HUMAN-UAT.md`) e 4/6/8 (rodar os cenários já escritos), sequencial via extensão Claude no Chrome contra `data/crm.db`. Issue não-trivial → quick task.
+- **Fase 19 — Marca e Identidade Visual** (BRAND-01/02/03): nome do produto (candidato "SOLO") + `/brand-design` (~6 paletas em preview, usuário escolhe) + aplicar paleta/tipografia + renomear "CRM de Leads". Provável gatilho de UI phase.
+
+**Próximo passo:** `/gsd-plan-phase 16`. Candidatos adiados p/ v1.6+: handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
 
 **Débito re-reconhecido no fecho (não bloqueia):** UAT/verification gaps das Fases 04/06/08 (milestones v1.0/v1.2/v1.3 já shipados) + 8 quick tasks de UI/warnings v1.0–v1.3 — ver §Deferred Items. Decisão pendente: rodar `/gsd:verify-work` retroativo ou mover formalmente pra "aceito como está".
 
@@ -491,4 +497,4 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan the first phase with /gsd-plan-phase 16
