@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: "Phase 14 shipped — PR #4"
-last_updated: "2026-08-31T13:53:17.013Z"
-last_activity: 2026-08-30
+status: executing
+last_updated: "2026-08-31T14:12:55.599Z"
+last_activity: 2026-08-31
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
-  percent: 67
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
@@ -20,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 14 — filtro-de-intervalo-customizado-em-relatorios
+**Current focus:** Phase 15 — campo-interesse-servi-o-desejado-no-lead
 
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
+Phase: 15 (campo-interesse-servi-o-desejado-no-lead) — EXECUTING
 Plan: 2 of 2
-Status: Phase 14 shipped — PR #4
-Last activity: 2026-08-30
+Status: Ready to execute
+Last activity: 2026-08-31
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Last activity: 2026-08-30
 | Phase 12 P04 | ~15min | 2 tasks | 2 files |
 | Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
 | Phase 14 P02 | 15min | 2 tasks | 2 files |
+| Phase 15 P01 | 35min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -183,6 +184,8 @@ Recent decisions affecting current work:
 - [Phase 14]: resolvePeriodoRelatorios é função IRMÃ de resolvePeriodRange (não extensão) — resolvePeriodRange fica intacta e é reusada internamente para presets clássicos e todos os fallbacks; comportamento custom fica isolado
 - [Phase 14]: faixa de aviso de intervalo inválido em /relatorios usa classes amber-* (paleta default Tailwind v4 intacta); customInvalido distingue 'usuário pediu custom e errou' (mostra faixa) de 'period adulterado' (fallback silencioso tudo, sem faixa)
 - [Phase ?]: [Phase 14-02]: PeriodoSelector modo custom — cliente gerencia customMode + 2 datas locais, mas continua sem resolver range / sem decidir default / fallback (D-17); navegarCustom só em event handlers (nunca useEffect/render, T-14-07); closure 'os 2 preenchidos' via const prox = date ?? estadoAtual antes de checar os dois locais
+- [Phase 15]: coluna leads.interesse aditiva NULLABLE sem DEFAULT (dispensa a exigência do SQLite que forçou origem_tipo/sequencia_posicao); migração custom .cjs rodada 2x em data/crm.db, 37 leads intactos — campo opcional texto livre LEAD-06, vazio grava NULL (D-04/D-06)
+- [Phase 15]: interesse é o 2o campo opcional de leadBaseSchema (após motivoPerdaId): preprocess vazio->undefined + undefined->null explícito na Server Action; propaga p/ csvRowSchema por ficar fora do .omit() — reuso do idioma já estabelecido na Fase 11
 
 ### Pending Todos
 
@@ -312,7 +315,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-31T13:53:16.731Z
+Last session: 2026-08-31T14:12:39.722Z
 
 **O que foi feito nesta sessão:**
 
