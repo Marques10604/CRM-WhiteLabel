@@ -88,6 +88,17 @@ export const leads = sqliteTable(
     notas: text("notas").notNull(),
     followUpDate: integer("follow_up_date", { mode: "timestamp" }).notNull(),
     nichoId: integer("subnicho_id").notNull().references(() => nichos.id, { onDelete: "restrict" }), // coluna FÍSICA `subnicho_id` — ver doc-comment de `nichos` (D-01)
+    /**
+     * Texto livre "serviço desejado" do lead (LEAD-06, Fase 15). NULLABLE de
+     * propósito: campo OPCIONAL no formulário e no CSV — vazio grava NULL
+     * (D-04), nunca string vazia. SEM `.default()`: coluna aditiva; leads
+     * criados antes da migração `scripts/migrate-interesse.cjs` ficam com
+     * `interesse = NULL` e a migração NÃO faz backfill (D-06). SEM índice:
+     * não há filtro/ordenação/busca por `interesse` nesta fase (fora de
+     * escopo — D-07). Migração SEMPRE via script `.cjs` manual, NUNCA
+     * `drizzle-kit push`/`generate` (mesmo precedente de `motivoPerdaId`).
+     */
+    interesse: text("interesse"),
     stage: text("stage", { enum: ["novo", "contatado", "negociacao", "fechado", "perdido"] })
       .notNull()
       .default("novo"),

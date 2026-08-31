@@ -29,6 +29,15 @@ export const motivoPerdaSchema = z.object({
  * o input nativo oculto do `<MotivoPerdaCombobox>` emite string vazia quando
  * nada está selecionado, e sem isso `z.coerce.number()` transformaria `""` em
  * `0` e a mensagem de erro seria a genérica do Zod, não a copy de D-04.
+ *
+ * `interesse` (Fase 15, LEAD-06) é o SEGUNDO campo opcional do
+ * `leadBaseSchema` — texto livre "serviço desejado", mesmo `z.preprocess`
+ * "vazio -> undefined", NUNCA obrigatório. O `<Input>` do form emite `""`
+ * quando vazio (D-04 = vazio grava NULL, a Server Action materializa
+ * `undefined -> null`). Fica FORA do `.omit()` de `csvRowSchema`, então
+ * propaga automaticamente para o form (`leadSchema`) e o import CSV
+ * (`csvRowSchema`). O `.max(500)` só morde no caminho do formulário manual —
+ * o import CSV trunca em 500 antes de validar (D-05/D-10).
  */
 const leadBaseSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
@@ -59,6 +68,10 @@ const leadBaseSchema = z.object({
     z.number({ error: "Valor estimado é obrigatório." }).int().nonnegative()
   ),
   notas: z.string().trim().min(1, "Notas são obrigatórias."),
+  interesse: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : v),
+    z.string().trim().max(500, "O interesse deve ter no máximo 500 caracteres.").optional()
+  ),
   followUpDate: z.coerce.date(),
   nichoId: z.coerce.number().int().positive("Selecione um nicho."),
   stage: z
