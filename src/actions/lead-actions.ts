@@ -95,6 +95,10 @@ export async function createLead(
       .insert(leads)
       .values({
         ...parsed.data,
+        // Fase 15 (LEAD-06, D-04): idioma "undefined do Zod -> null explícito"
+        // (igual motivoPerdaId). O preprocess de `interesse` entrega undefined
+        // quando o campo veio vazio; o insert grava NULL.
+        interesse: parsed.data.interesse ?? null,
         // D-04 / idioma condicional-por-VALOR-ALVO: só grava motivoPerdaId
         // quando o stage é "perdido"; qualquer outro destino força null.
         motivoPerdaId:
@@ -170,6 +174,9 @@ export async function updateLead(
       .update(leads)
       .set({
         ...parsed.data,
+        // Fase 15 (LEAD-06, D-04): editar apagando o texto -> interesse = NULL.
+        // `<Input>` vazio -> FormData "" -> preprocess Zod -> undefined -> null.
+        interesse: parsed.data.interesse ?? null,
         // WR-02: quando a etapa submetida não é "perdido", o
         // <MotivoPerdaCombobox> nem chega a ser renderizado no form (some do
         // DOM), então não vem em parsed.data — sem isto, o id antigo ficaria

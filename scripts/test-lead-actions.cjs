@@ -111,6 +111,12 @@ async function runBehaviorTests() {
     // explode com "no such column: motivo_perda_id".
     "CREATE TABLE IF NOT EXISTS motivos_perda (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, deleted_at INTEGER, created_at INTEGER NOT NULL DEFAULT (unixepoch()));",
     "ALTER TABLE `leads` ADD `motivo_perda_id` integer REFERENCES `motivos_perda`(`id`);",
+    // Fase 15 (plano 15-01): coluna nullable `leads.interesse` aplicada via
+    // scripts/migrate-interesse.cjs no banco real, nunca como arquivo .sql —
+    // mesmo débito de snapshot documentado acima. Sem isto, countLeads()
+    // (db.select().from(leads) lista TODAS as colunas do schema) explode com
+    // "no such column: interesse".
+    "ALTER TABLE `leads` ADD `interesse` text;",
   ];
   for (const ddl of manualAlters) {
     try {
@@ -132,7 +138,7 @@ async function runBehaviorTests() {
   // abra a conexão no banco temporário (o módulo é cacheado no primeiro import).
   const { createLead, updateLead } = await import("@/actions/lead-actions");
   const { bulkImportLeads } = await import("@/actions/import-actions");
-  const { csvRowSchema } = await import("@/lib/validations");
+  const { csvRowSchema, leadSchema } = await import("@/lib/validations");
   const { db } = await import("@/db/client");
   const { leads } = await import("@/db/schema");
   const { eq } = await import("drizzle-orm");
@@ -406,6 +412,64 @@ async function runBehaviorTests() {
     const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
     check(row?.origemTipo === "outbound", `bulkImportLeads(linha sem origemTipo): linha persistida com origemTipo === "outbound" (got ${row?.origemTipo})`);
     check(row?.importBatchId !== null && row?.importBatchId !== undefined, `bulkImportLeads(linha sem origemTipo): linha persistida com importBatchId não-nulo (got ${row?.importBatchId})`);
+  }
+
+  // Caso 13 (LEAD-06, Fase 15): createLead com interesse preenchido -> insere
+  // 1 linha e persiste o valor. Prova o critério "criar um lead com o campo
+  // Interesse preenchido salva o valor".
+  let interesseLeadId;
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(
+      createLead,
+      makeFormData({ interesse: "quer site institucional + automação de WhatsApp" })
+    );
+    const after = await countLeads();
+    check(after === before + 1, `createLead com interesse: insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    interesseLeadId = row?.id;
+    check(
+      row?.interesse === "quer site institucional + automação de WhatsApp",
+      `createLead com interesse: linha persistida com o valor (got ${JSON.stringify(row?.interesse)})`
+    );
+  }
+
+  // Caso 14 (LEAD-06, D-04): updateLead do mesmo lead com interesse vazio ->
+  // interesse = NULL no banco. Prova "editar apagando o texto -> NULL".
+  {
+    const outcome = await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(interesseLeadId), interesse: "" })
+    );
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).where(eq(leads.id, interesseLeadId));
+    check(row?.interesse === null, `updateLead com interesse vazio: interesse volta a NULL (got ${JSON.stringify(row?.interesse)})`);
+  }
+
+  // Caso 15 (LEAD-06, D-05): interesse acima de 500 chars reprova o
+  // leadSchema (caminho do formulário manual) com a mensagem PT-BR.
+  {
+    const parsed = leadSchema.safeParse(
+      Object.fromEntries(makeFormData({ interesse: "x".repeat(501) }))
+    );
+    check(parsed.success === false, "leadSchema.safeParse com interesse de 501 chars: success === false");
+    const msgs = parsed.success ? [] : parsed.error.flatten().fieldErrors.interesse ?? [];
+    check(
+      msgs.some((m) => m.includes("500")),
+      `leadSchema.safeParse com interesse de 501 chars: mensagem contém "500" (got ${JSON.stringify(msgs)})`
+    );
+  }
+
+  // Caso 16 (LEAD-06): csvRowSchema continua resolvendo uma linha SEM
+  // interesse — o campo opcional flui, não quebra imports sem a coluna.
+  {
+    const parsed = csvRowSchema.safeParse(makeImportRow());
+    check(parsed.success === true, "csvRowSchema.safeParse(linha sem interesse): success === true");
   }
 
   try {
