@@ -63,6 +63,7 @@ Reconhecidos, não neste milestone.
 | LEAD-06 | Phase 15 | Complete |
 
 **Coverage:**
+
 - v1.4 requirements: 5 total
 - Mapped to phases: 5
 - Unmapped: 0 ✓

@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: CRM Genérico Multi-Nicho
-status: "Phase 15 executed — verification human_needed (pending secure + UAT)"
-last_updated: "2026-08-31T14:45:00.000Z"
+milestone_name: CRM Genérico Multi-Nicho — despivô
+status: "Phase 15 shipped — PR #5; milestone v1.4 execution complete"
+last_updated: "2026-08-31T16:25:00.000Z"
 last_activity: 2026-08-31
 progress:
   total_phases: 3
@@ -20,21 +20,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 15 — campo-interesse-servi-o-desejado-no-lead
+**Current focus:** Milestone v1.4 — execução completa (13-15 shipadas); próximo `/gsd-complete-milestone`
 
 ## Current Position
 
-Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 15 (campo-interesse-servi-o-desejado-no-lead) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15), todas shipadas
+Phase: 15 — shipada (PR #5, base main)
+Plan: 2/2 complete
+Status: Milestone v1.4 execution complete — aguardando merge do PR #5 + `/gsd-complete-milestone`
 Last activity: 2026-08-31
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 13
+- Total plans completed: 15
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Last activity: 2026-08-31
 | 05 | 2 | - | - |
 | 06 | 2 | - | - |
 | 11 | 5 | - | - |
+| 15 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -286,6 +287,7 @@ Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB
 **`15-VERIFICATION.md` `status: human_needed`** — 13/13 must-haves na camada de código/dados. `15-HUMAN-UAT.md` criado (`status: partial`, 5 itens pendentes): round-trip do campo no form, vazio não bloqueia submit, limite 500 na UI, mapear coluna CSV → Interesse, importar sem mapear (sem regressão).
 
 **Code review `15-REVIEW.md`** — 0 blockers, **2 warnings** (candidatos a quick task, não bloqueiam a meta):
+
 - **WR-01** (`src/lib/validations.ts`): `interesse` só com espaços (`" "`) grava `''` no banco em vez de `NULL` — o `v === ""` do preprocess roda antes do trim. Contradiz D-04. Nenhum teste cobre.
 - **WR-02** (`csv-import-preview-table.tsx`): coluna `interesse` não aparece na prévia da importação — admin confirma sem ver o valor; truncamento em 500 fica invisível.
 - 3 infos: comentários "7 campos fixos" desatualizados; `.slice(0,500)` pode partir surrogate pair; `migrate-interesse.cjs` acumula backups.

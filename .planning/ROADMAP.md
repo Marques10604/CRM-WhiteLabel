@@ -146,4 +146,4 @@ Plans:
 |------|-----------|--------|--------|-----------|
 | 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 2/2 | Complete   | 2026-08-30 |
-| 15. Campo "interesse" no lead | v1.4 | 2/2 | Complete   | 2026-08-31 |
+| 15. Campo "interesse" no lead | v1.4 | 2/2 | Complete    | 2026-08-31 |
