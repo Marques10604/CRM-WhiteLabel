@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho — despivô
-status: "Phase 15 shipped — PR #5; milestone v1.4 execution complete"
-last_updated: "2026-08-31T16:25:00.000Z"
-last_activity: 2026-08-31
+status: Awaiting next milestone
+last_updated: "2026-08-31T16:26:32.508Z"
+last_activity: 2026-08-31 — Milestone v1.4 completed and archived
 progress:
   total_phases: 3
   completed_phases: 3
@@ -24,11 +24,10 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 
 ## Current Position
 
-Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15), todas shipadas
-Phase: 15 — shipada (PR #5, base main)
-Plan: 2/2 complete
-Status: Milestone v1.4 execution complete — aguardando merge do PR #5 + `/gsd-complete-milestone`
-Last activity: 2026-08-31
+Phase: Milestone v1.4 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-31 — Milestone v1.4 completed and archived
 
 ## Performance Metrics
 
@@ -256,12 +255,17 @@ Aberto, carregado para o v1.3:
 
 ## Deferred Items
 
-Items acknowledged and carried forward. Re-reconhecidos no fechamento do v1.3 (2026-08-30) — nenhum resolvido neste milestone, nenhum novo bloqueador.
+Items acknowledged and carried forward. Re-reconhecidos no fechamento do v1.4 (2026-08-31) — nenhum resolvido neste milestone, nenhum novo bloqueador. Todos os gaps de UAT/verificação são de milestones **já shipados** (v1.0/v1.2/v1.3); as fases do v1.4 (13, 14, 15) fecharam limpas (UAT 8/8, 11/11, 5/5; verification `passed` nas três).
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes | partial — nunca testado no navegador (v1.0) | 2026-07-29 |
 | verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo | 2026-07-29 |
+| uat_gap | Fase 06 (06-HUMAN-UAT.md) — 11 cenários pendentes | partial (v1.2) | 2026-08-01 |
+| verification_gap | Fase 06 (06-VERIFICATION.md) | human_needed (v1.2) | 2026-08-01 |
+| uat_gap | Fase 08 (08-HUMAN-UAT.md) — 4 cenários pendentes | partial (v1.3) | 2026-08-30 |
+| verification_gap | Fase 08 (08-VERIFICATION.md) | human_needed (v1.3) | 2026-08-30 |
+| quick_task (×8) | Backlog de correções de UI/warnings acumulado v1.0–v1.3 (260720…260808) | pending — fora de milestone | 2026-08-31 |
 | verification_gap | Fases 1 e 2 nunca tiveram `/gsd-verify-work` formal (nenhum `VERIFICATION.md`). SUMMARYs registram "clique real recomendado antes de uso real" | nunca verificado no navegador, só código/`tsc`/`build` | 2026-07-29 |
 | todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4); resolve na migração pra VPS | 2026-07-29 |
 | uat_gap | Fase 12 Teste 14 (estado vazio do dashboard) | skipped — não testável sem banco sem os 23 leads reais; cópia + ramo verificados no código e no `npm run build` | 2026-08-30 |

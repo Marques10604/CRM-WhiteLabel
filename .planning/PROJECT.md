@@ -1,30 +1,24 @@
 # CRM de Leads
 
-## Current Milestone: v1.4 CRM Genérico Multi-Nicho (despivô)
+## Current Milestone: a definir (v1.5) via `/gsd-new-milestone`
 
-**Goal:** Tirar o CRM da amarra "área da saúde" — o admin usa a mesma ferramenta pra leads de qualquer nicho (empresa de serviços de automação/IA, nichos rotativos vindos do futuro Prospector), e o relatório responde "esse nicho converteu na janela que testei?".
+**Último milestone shipado:** v1.4 CRM Genérico Multi-Nicho (despivô) — 2026-08-31.
 
-**Target features:**
-- Renomear `sub-nicho → nicho` (lista plana, sem hierarquia) — migração de coluna + tipos + Zod + `/subnichos` → `/nichos` + varredura de toda a copy que menciona "saúde"
-- Filtro de intervalo customizado (início–fim arbitrário) em `/relatorios`, além dos presets rolantes — pra avaliar qualquer janela de teste de nicho (45d, 90d, o que for), sem o produto impor duração
-- Campo "interesse / serviço desejado" no lead — opcional no cadastro, útil no uso manual hoje para uma empresa de serviços, e já pronto pro Prospector preencher depois
-
-**Key context:**
-- É **rename + reframe + 2 adições pequenas, não rebuild**. O modelo de dados já é agnóstico de nicho (constraint permanente de nomenclatura): `sub-nicho` já era lista livre, pipeline/origem/follow-up/motivo de perda/templates já são genéricos. O que é "de saúde" é raso: moldura do PROJECT.md, o nome do campo, a copy da UI, os seeds.
-- **Fora deste milestone:** handoff rico Prospector→CRM (rota de API, dedup por telefone) — o Prospector ainda não existe e o conflito local-vs-público resolve na migração pro VPS único; entidade "campanha/janela de teste" formal — o nicho plano + filtro de intervalo cobre a necessidade real, revisitar se depois de rodar testes reais faltar registrar a janela com meta/notas.
+**Candidatos reconhecidos** (Future Requirements em `.planning/milestones/v1.4-REQUIREMENTS.md`):
+- **Handoff Prospector → CRM** (HANDOFF-01..03): rota de entrada (API local), dedup por telefone, handoff rico com as interações do Prospector na timeline. Gatilho: o Prospector Inteligente AI existir + a decisão de VPS único.
+- **Teste de nicho formal** (CAMPANHA-01): entidade "campanha / janela de teste" (nicho + datas + meta + notas) com conversão agregada por janela. Gatilho: se, depois de rodar testes de nicho reais, o nicho plano + filtro de intervalo não bastarem.
+- **Backlog PME** em `.planning/todos/pending/`: tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal.
 
 ## Current State
 
-**Shipado:** v1.3 Qualificação e Histórico de Leads (2026-08-30) — Fases 8-12, 20 planos. PRs #1/#2/#3 mergeados em `main`.
+**Shipado:** v1.4 CRM Genérico Multi-Nicho — despivô (2026-08-31) — Fases 13-15, 7 planos. PRs #4 e #5 mergeados em `main`.
 
-**O que o v1.3 entregou:**
-- **Origem governada** — cada lead tem um campo dedicado `origemTipo` (Inbound/Outbound) separado do texto livre `origem`; a automação de sequência não trata lead quente (tráfego pago) como frio.
-- **Timeline de interações** — todo clique de WhatsApp e toda nota manual viram registro cronológico visível na tela do lead; eventos automáticos imutáveis, notas manuais editáveis.
-- **Sequência de follow-up escalonada** — intervalos crescentes configuráveis, `sequenciaPosicao` anda sozinho por clique de template `follow_up`, sugestão da próxima data calculada na leitura (nunca agendada); leads Inbound de fora.
-- **Painel `/relatorios`** — leads/conversão por origem e sub-nicho + contagem de perdidos por motivo; motivo de perda virou lista governada obrigatória (`/motivos-perda`), não mais texto livre.
-- **Agenda / tarefas soltas** — tarefa avulsa com data e descrição, sem vínculo a lead, intercalada por data com os follow-ups no dashboard.
+**O que o v1.4 entregou:**
+- **Despivô saúde → genérico** — o vocabulário `sub-nicho` saiu de toda a camada de código (schema Drizzle, tipos, Zod, queries, contrato de CSV, Server Actions) e virou `nicho`; os nomes físicos do banco (`subnichos`, `subnicho_id`) ficam intocados por D-01 (rename só de código, sem migração). A rota `/subnichos` → `/nichos` com redirect 301. Nenhuma string visível ao usuário menciona "área da saúde", "nutricionista" ou "terapeuta" — gate de grep COPY-01 verde.
+- **Filtro de intervalo customizado em `/relatorios`** — 4ª opção "Intervalo personalizado" no seletor de período, com 2 date pickers; as 3 seções (origem, nicho, motivos de perda) recalculam para qualquer janela; intervalo inválido cai em fallback com aviso; sobrevive a refresh via querystring.
+- **Campo "interesse / serviço desejado" no lead** — coluna `leads.interesse` opcional (texto livre, max 500), no formulário de lead e mapeável no wizard de importação CSV (com truncamento defensivo em 500 chars antes da validação, para célula gigante do CSV não abortar o lote).
 
-**Próximo milestone:** a definir via `/gsd-new-milestone`. Candidato principal registrado: **despivô saúde → CRM pessoal genérico multi-nicho** (o modelo de dados já é agnóstico de nicho por constraint permanente). Backlog PME em `.planning/todos/pending/`.
+**Próximo milestone:** a definir via `/gsd-new-milestone`.
 
 <details>
 <summary>Milestones anteriores</summary>
@@ -32,12 +26,13 @@
 - **v1.0 MVP** (2026-07-29, Fases 1-4) — pipeline Kanban, import CSV, dashboard de follow-up por urgência, templates de WhatsApp com wa.me.
 - **v1.1 Importação Inteligente** (2026-07-30, Fase 5) — wizard aceita mapear múltiplas colunas de inteligência do CSV do cowork concatenadas em notas.
 - **v1.2 Follow-up Automático** (2026-08-01, Fases 6-7) — auto-avanço Novo→Contatado ao abrir WhatsApp, contador de tentativas, `/configuracoes` de dias-parado por etapa.
+- **v1.3 Qualificação e Histórico de Leads** (2026-08-30, Fases 8-12) — origem governada, timeline de interações, sequência de follow-up escalonada, painel `/relatorios`, agenda / tarefas soltas.
 
 </details>
 
 ## What This Is
 
-CRM pessoal para um único usuário (o admin) organizar leads da área da saúde, recebidos em lote via CSV de um cowork parceiro. Os leads são categorizados por sub-nicho (nutricionista, terapeuta, etc.), classificados por origem (Inbound/Outbound), e avançam por um pipeline de vendas simples até o fechamento. O admin aborda os leads pelo Instagram e WhatsApp usando templates prontos; cada abordagem fica registrada numa timeline por lead. Uma sequência de follow-up escalonada sugere quando reabordar, e uma tela de relatórios mostra de onde vêm as vendas e as perdas.
+CRM pessoal para um único usuário (o admin) organizar leads de qualquer nicho, recebidos em lote via CSV de um cowork parceiro. Os leads são categorizados por nicho (lista plana administrável), classificados por origem (Inbound/Outbound), registram o interesse / serviço desejado, e avançam por um pipeline de vendas simples até o fechamento. O admin aborda os leads pelo Instagram e WhatsApp usando templates prontos; cada abordagem fica registrada numa timeline por lead. Uma sequência de follow-up escalonada sugere quando reabordar, e uma tela de relatórios mostra de onde vêm as vendas e as perdas, em qualquer janela de tempo escolhida.
 
 ## Core Value
 
@@ -68,15 +63,14 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Painel `/relatorios` — leads/conversão por origem e por sub-nicho, contagem de perdidos por motivo, seletor de período por querystring — v1.3 (Fase 11), METRICAS-01/02
 - ✓ Motivo de perda como lista governada obrigatória (`/motivos-perda`, soft-delete + reativação-por-nome), reforçado no servidor via `.refine` do Zod — v1.3 (Fase 11), PERDA-01
 - ✓ Agenda / tarefas soltas — tarefa avulsa com data e descrição sem vínculo a lead, intercalada por data com os follow-ups no dashboard, na mesma régua de urgência — v1.3 (Fase 12), TAREFA-01/02
+- ✓ `sub-nicho → nicho` renomeado em toda a camada de código (schema, tipos, Zod, queries, CSV, Server Actions); nomes físicos do banco preservados (rename só de código, D-01); `/subnichos` → `/nichos` com redirect 301 — v1.4 (Fase 13), NICHO-01/02
+- ✓ Copy da UI neutralizada — nenhum label, placeholder, ajuda, exemplo ou estado vazio menciona "área da saúde" / "nutricionista" / "terapeuta" / nicho-pai; gate de grep COPY-01 — v1.4 (Fase 13), COPY-01
+- ✓ Filtro de intervalo de datas customizado (início–fim arbitrário) em `/relatorios`, além dos presets; as 3 seções respeitam o intervalo; inválido cai em fallback com aviso; sobrevive a refresh via querystring — v1.4 (Fase 14), METRICAS-03
+- ✓ Campo opcional "interesse / serviço desejado" no lead (texto livre, max 500), no formulário e mapeável no wizard de importação CSV com truncamento defensivo — v1.4 (Fase 15), LEAD-06
 
 ### Active
 
-Escopo do milestone v1.4 (despivô — ver `Current Milestone` acima), Fases 13-15:
-
-- [ ] Renomear `sub-nicho → nicho` em todo o sistema (schema, tipos, rotas, UI, copy)
-- [ ] Varrer e neutralizar a copy "área da saúde" da UI e dos textos de ajuda
-- [ ] Filtro de intervalo de datas customizado (início–fim) em `/relatorios`
-- [ ] Campo "interesse / serviço desejado" no lead (opcional)
+Nenhum milestone ativo. Próximo escopo a definir via `/gsd-new-milestone` — ver `Current Milestone` acima para os candidatos reconhecidos (handoff Prospector→CRM, teste de nicho formal, backlog PME).
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -100,12 +94,14 @@ Escopo do milestone v1.4 (despivô — ver `Current Milestone` acima), Fases 13-
 
 ## Context
 
-- Usuário é o próprio profissional (admin) da área da saúde, atendendo diferentes sub-nichos
+- Usuário é o próprio profissional (admin), atendendo leads de diferentes nichos (hoje: empresa de serviços de automação/IA; nichos rotativos vindos do futuro Prospector)
 - Leads chegam em lote via CSV entregue por um cowork parceiro; abordagem via Instagram e WhatsApp
 - Hoje os leads eram organizados em planilha do Google Sheets — processo desorganizado, esquecimento frequente de follow-up
-- **Estado pós-v1.3 (2026-08-30):** app roda localmente (`localhost:3000`), ~11.100 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. `npm run build` voltou a ser gate normal desde a Fase 10 (Turbopack resolveu o OOM que travava webpack no host de 4GB). Repo publicado em `github.com/Marques10604/CRM-WhiteLabel`, branch `main`.
-- **Fluxo GSD maduro nesta milestone:** `/gsd-secure-phase` → `/close-phase` → PR exercitado pela 1ª vez (Fase 12); UAT de navegador real via extensão Claude no Chrome (Fases 9/11/12) — antes disso o projeto nunca tinha acesso a navegador.
-- **Débito conhecido (herdado do v1.0, ainda aberto):** Fases 1/2/4 nunca tiveram `/gsd-verify-work` formal / checagem manual no navegador; 5 cenários de UAT da Fase 4 e 3 verification_gaps seguem em `STATE.md` §Deferred Items. Teste 14 da UAT da Fase 12 (estado vazio) pulado — não testável sem banco sem leads.
+- **Estado pós-v1.4 (2026-08-31):** app roda localmente (`localhost:3000`), ~11.400 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. Repo publicado em `github.com/Marques10604/CRM-WhiteLabel`, branch `main`; PRs #4 (Fase 14) e #5 (Fases 13+15) mergeados.
+- **Divergência lógico↔físico deliberada (D-01, Fase 13):** o Drizzle mapeia `nichos = sqliteTable("subnichos")` / `nichoId: integer("subnicho_id")` — o código diz "nicho", o banco continua "subnicho". Doc-comment no `schema.ts` registra. Uma migração de rename físico fica para quando/se houver outro motivo pra tocar o schema.
+- **Fluxo GSD maduro:** `/gsd-secure-phase` → `/close-phase` → PR desde a Fase 12; UAT de navegador real (extensão Claude no Chrome, nível DOM + verdade no `data/crm.db` no host de 4GB) nas Fases 9/11/12/13/14/15.
+- **Débito conhecido (herdado, ainda aberto):** Fases 1/2/4/6/8 nunca tiveram `/gsd-verify-work` formal / checagem manual completa no navegador; UAT gaps das Fases 04 (7), 06 (11), 08 (4) e verification_gaps das Fases 04/06/08 seguem em `STATE.md` §Deferred Items — todos de milestones já shipados, re-reconhecidos no fecho do v1.4. 8 quick tasks de UI/warnings acumuladas v1.0–v1.3, fora de milestone.
+- **`npm run lint` global sai com exit 1** desde a Fase 8 — 457 erros pré-existentes (`no-require-imports` nos `.cjs`, worktree órfão, falsos-positivos de `react-hooks`). Cada fase roda o lint com escopo nos arquivos tocados; o global é dívida antiga documentada em `deferred-items.md`.
 - **Direção de infraestrutura (definida 2026-08-27):** CRM + o produto novo "Prospector Inteligente AI" (topo de funil, pasta própria) rodam num VPS único quando prontos. O Prospector sobe primeiro; o CRM migra depois, ativando gate de senha no middleware + Litestream. Continua SQLite; Postgres só com multi-tenant real.
 
 ## Constraints
@@ -131,6 +127,10 @@ Escopo do milestone v1.4 (despivô — ver `Current Milestone` acima), Fases 13-
 | Sugestão de próxima reabordagem calculada na leitura de cada request, nunca persistida nem agendada | Sem job scheduler, sem estado a sincronizar; `followUpDate` continua sendo a fonte oficial | ✓ Good — Fase 10 |
 | Motivo de perda: lista governada obrigatória em vez de texto livre opcional | Relatório de perdas exige valores normalizados; obrigatoriedade reforçada no servidor via `.refine` condicional do Zod | ✓ Good — Fase 11 |
 | `buildDashboardItems` / `groupByUrgency<T>` — generalização de função pura + wrapper preservado | Tarefas e follow-ups precisam da mesma régua de urgência sem regredir call-sites existentes | ✓ Good — Fase 12 |
+| Rename `sub-nicho → nicho` só na camada de código; nomes físicos do banco intocados (D-01) | Evita migração, backup e o snapshot divergente do drizzle-kit; o valor do rename é a copy que o usuário vê, não o nome da coluna | ✓ Good — Fase 13, zero toque em dados |
+| Sugestão de intervalo em `/relatorios` resolvida por função pura `resolvePeriodoRelatorios` que nunca lança (valida + apara data futura + flag de rejeição) | Querystring é entrada não confiável; a tela não pode quebrar com `?from=banana` | ✓ Good — Fase 14 |
+| Truncamento de `interesse` do CSV em `mapCsvRows` (`.slice(0,500)`) antes do Zod, não no schema | Célula gigante do CSV do cowork nunca reprova a linha nem aborta o lote; `.max(500)` do Zod fica só para o input manual | ✓ Good — Fase 15, D-10 |
+| Campo opcional de texto livre = nullable + `z.preprocess` vazio→undefined + `?? null` explícito na Server Action + gate em `verify-schema.cjs` | Padrão reusado de `motivoPerdaId` (Fase 11); elimina a classe de bug "campo opcional grava `''` em vez de NULL" | ✓ Good — Fase 15 (2ª ocorrência); ⚠️ WR-01 aberto: `interesse` só-espaços ainda grava `''` (o `=== ""` roda antes do trim) — quick task |
 
 ## Evolution
 
@@ -141,4 +141,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-08-30 — milestone v1.4 (CRM Genérico Multi-Nicho / despivô) iniciado via /gsd-new-milestone*
+*Last updated: 2026-08-31 after v1.4 milestone (CRM Genérico Multi-Nicho / despivô) — Fases 13-15 shipadas, PRs #4/#5 mergeados*

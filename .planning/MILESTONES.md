@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.4 CRM Genérico Multi-Nicho — despivô (Shipped: 2026-08-31)
+
+**Phases completed:** 3 phases, 7 plans, 10 tasks
+
+**Key accomplishments:**
+
+- O vocabulário `subnicho`/`Subnicho` sai do código de schema, tipos, validação, queries, contrato de CSV e Server Actions — vira `nicho`/`Nicho`. Os nomes FÍSICOS do banco (`subnichos`, `subnicho_id`, 3 índices) ficam intocados por D-01: rename só na camada de código, sem migração, sem backup, sem esbarrar no snapshot divergente do drizzle-kit. Um doc-comment no `schema.ts` registra a divergência.
+- Os 3 últimos pontos que mencionavam "área da saúde"/"nutricionista" foram neutralizados. O gate de grep COPY-01 passa: nenhuma string visível ao usuário em `src/` diz "sub-nicho", "área da saúde", "nutricionista" ou "terapeuta" — só sobra o doc-comment do `schema.ts` que explica a divergência lógico↔físico (D-01) e os nomes físicos de banco. Fase 13 completa.
+- Função pura `resolvePeriodoRelatorios` transforma `period`/`from`/`to` crus da querystring em `PeriodRange` concreto + flag de rejeição (nunca lança), e `/relatorios` já recalcula as 3 seções para um intervalo arbitrário digitado direto na URL, com faixa de aviso quando as datas são inválidas.
+- O `<Select>` de período de `/relatorios` ganhou a 4ª opção "Intervalo personalizado", que revela 2 date pickers (Popover + Calendar, cópia do padrão de `lead-table-toolbar.tsx`); ao preencher início E fim a tela recalcula sozinha navegando para `?period=custom&from=…&to=…`, e o intervalo sobrevive a refresh com o Select e os campos pré-preenchidos da URL.
+- Coluna `leads.interesse` TEXT nullable migrada no banco real + campo opcional `interesse` (trim, max 500) em `leadBaseSchema` propagando para `leadSchema`/`csvRowSchema` + `<Input>` "Interesse" no form de lead com persistência null-explícita em `createLead`/`updateLead`.
+- `"interesse"` vira `CsvFieldKey` opcional no wizard de CSV — `mapCsvRows` trunca em 500 chars antes de validar, e o valor mapeado carrega por `MappedCsvRow` -> `ConfirmedImportRow` até o insert campo-a-campo de `bulkImportLeads` (`interesse: row.interesse ?? null`).
+
+---
+
 ## v1.3 Qualificação e Histórico de Leads (Shipped: 2026-08-30)
 
 **Phases completed:** 5 fases (Fase 8–12), 20 planos, ~62 tasks
