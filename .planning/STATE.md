@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: executing
-last_updated: "2026-08-30T16:25:00.000Z"
-last_activity: 2026-08-30 — Fase 13 FECHADA (extract-learnings + verification passed + docs)
+status: "Phase 14 shipped — PR #4"
+last_updated: "2026-08-30T22:38:25.436Z"
+last_activity: 2026-08-30
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 33
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 67
 ---
 
 # Project State
@@ -20,15 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-30)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Milestone v1.4 CRM Genérico Multi-Nicho (despivô) — definindo requisitos e roadmap. Fases 13-15. Rename `sub-nicho → nicho` + neutralizar copy "saúde" + filtro de intervalo em `/relatorios` + campo "interesse/serviço desejado" no lead.
+**Current focus:** Phase 14 — filtro-de-intervalo-customizado-em-relatorios
 
 ## Current Position
 
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
-Phase: 13 (Rename `sub-nicho → nicho` + reframe) — **FECHADA** (3/3 ondas + UAT 8/8 + security 9/9 + verification passed + learnings extraídos)
-Plan: 3 of 3
-Status: Fase 13 completa. Próximo: `/gsd-plan-phase 14` (filtro de intervalo em `/relatorios`, METRICAS-03).
-Last activity: 2026-08-30 — `/close-phase 13`
+Phase: 14 (filtro-de-intervalo-customizado-em-relatorios) — EXECUTING
+Plan: 2 of 2
+Status: Phase 14 shipped — PR #4
+Last activity: 2026-08-30
 
 ## Performance Metrics
 
@@ -86,6 +86,8 @@ Last activity: 2026-08-30 — `/close-phase 13`
 | Phase 12 P02 | 16min | 3 tasks | 5 files |
 | Phase 12 P03 | ~20min | 2 tasks | 3 files |
 | Phase 12 P04 | ~15min | 2 tasks | 2 files |
+| Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
+| Phase 14 P02 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -178,6 +180,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 12-02]: updateTarefa não filtra isNull(concluidaEm) no WHERE (D-07 edita tarefa concluída); concluirTarefa idempotente via isNull, desfazer via isNotNull
 - [Phase ?]: [Phase 12-02]: buildDashboardItems mora em queries.ts e é pura — ordenar cada bucket por date ASC materializa D-04 (lead+tarefa intercalados)
 - [Phase ?]: [Phase 12-02]: 1ª cobertura automatizada da régua de urgência (lacuna de groupLeadsByUrgency fechada); hard-delete D-08 provado por ausência da linha + teste de mutação
+- [Phase 14]: resolvePeriodoRelatorios é função IRMÃ de resolvePeriodRange (não extensão) — resolvePeriodRange fica intacta e é reusada internamente para presets clássicos e todos os fallbacks; comportamento custom fica isolado
+- [Phase 14]: faixa de aviso de intervalo inválido em /relatorios usa classes amber-* (paleta default Tailwind v4 intacta); customInvalido distingue 'usuário pediu custom e errou' (mostra faixa) de 'period adulterado' (fallback silencioso tudo, sem faixa)
+- [Phase ?]: [Phase 14-02]: PeriodoSelector modo custom — cliente gerencia customMode + 2 datas locais, mas continua sem resolver range / sem decidir default / fallback (D-17); navegarCustom só em event handlers (nunca useEffect/render, T-14-07); closure 'os 2 preenchidos' via const prox = date ?? estadoAtual antes de checar os dois locais
 
 ### Pending Todos
 
@@ -263,9 +268,26 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-30
 
-**Milestone v1.4 (despivô) — Fase 13 FECHADA. Próximo: `/gsd-plan-phase 14`.**
+**Milestone v1.4 (despivô) — Fase 14 PLANEJADA. Próximo: `/gsd-execute-phase 14`.**
 
-Fase 13 completa ponta a ponta nesta sessão:
+**Fase 14 — filtro de intervalo customizado em `/relatorios` (METRICAS-03).** `14-CONTEXT.md` (D-01..D-17) + `14-01-PLAN.md` + `14-02-PLAN.md` commitados (`38d323b` context, plan commit a seguir). Planejada INLINE (host 4GB — sem researcher/pattern-mapper/planner/checker; sem UI-SPEC — contrato visual = `11-UI-SPEC.md` + `lead-table-toolbar.tsx`).
+
+Decisões-chave:
+
+- `?period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD` — `period` é a chave; datas ISO; voltar a preset remove `from`/`to`.
+- Fallback pra `30d` + faixa de aviso server-rendered ("Intervalo inválido — mostrando os últimos 30 dias.") quando o custom é rejeitado. Data futura é aparada pra hoje, não rejeitada.
+- `from` = `startOfDay`, `to` = `endOfDay` (dia inteiro). O `range` custom flui igual pras 3 seções (assimetria `createdAt`/`stageChangedAt` da Fase 11 mantida).
+- Seletor: 4ª opção "Intervalo personalizado" no `<Select>` → revela 2 date pickers (`Popover`+`Calendar`); recalcula automático quando as 2 datas estão preenchidas, sem botão "Aplicar".
+
+**14-01 (Wave 1):** função pura `resolvePeriodoRelatorios` em `queries.ts` (valida/apara/nunca-lança) + `relatorios/page.tsx` alimenta as 3 queries com o range + faixa de aviso + cobertura no `test-relatorios-queries.cjs`. Custom já funciona pela URL.
+**14-02 (Wave 2, dep. 14-01):** `periodo-selector.tsx` ganha o modo custom + 2 date pickers + navegação automática; página passa `from`/`to` como props.
+
+Sem migração, sem schema, sem Server Action nova. `security_enforcement: true` → cada PLAN tem `<threat_model>` (T-14-01..08).
+
+---
+
+Fase 13 completa ponta a ponta na sessão anterior:
+
 - 3 ondas de código (`0c80822` dados / `f30bd18` UI / `2733b10` copy) — D-01 (rename só de código) confirmado no banco: `SELECT FROM subnichos` mostra tabela física intocada, 3 nichos + 37 leads preservados.
 - `13-UAT.md` `status: complete` — 8/8 pass, 0 issues (1 cosmética pré-existente da Fase 1 anotada).
 - `13-SECURITY.md` `status: verified` — 9/9 threats closed, 0 open.
@@ -290,7 +312,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-30T13:55:24.440Z
+Last session: 2026-08-30T19:22:30.451Z
 
 **O que foi feito nesta sessão:**
 

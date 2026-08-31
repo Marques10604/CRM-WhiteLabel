@@ -5,7 +5,7 @@ import {
   getContagemPorMotivoPerda,
   getContagemPorOrigem,
   getContagemPorNicho,
-  resolvePeriodRange,
+  resolvePeriodoRelatorios,
 } from "@/db/queries";
 import {
   Table,
@@ -29,35 +29,46 @@ import { PeriodoSelector } from "@/components/periodo-selector";
  * `range` para as três e não replica essa lógica.
  */
 
-const PRESETS_VALIDOS = new Set(["30d", "90d", "tudo"]);
-
 /** Taxa já vem crua (0..1) de `computeTaxaConversao`; a página formata. `0%` quando total=0, nunca `NaN%`. */
 function formatarTaxa(taxa: number): string {
   return `${Math.round(taxa * 100)}%`;
 }
 
+/**
+ * No App Router um param repetido na URL (`?period=custom&period=30d`) chega
+ * como `string[]`, não `string` — o tipo do Next reflete isso. Normalizamos
+ * para o primeiro valor antes de passar para `resolvePeriodoRelatorios` (IN-04):
+ * assim `?period=custom` repetido resolve para `custom`, não cai no fallback
+ * silencioso "tudo" por comparação contra um array.
+ */
+function primeiro(valor: string | string[] | undefined): string | undefined {
+  return Array.isArray(valor) ? valor[0] : valor;
+}
+
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { period } = await searchParams;
+  const params = await searchParams;
+  const period = primeiro(params.period);
+  const fromParam = primeiro(params.from);
+  const toParam = primeiro(params.to);
 
-  // NORMALIZAÇÃO DO PRESET — duas políticas DISTINTAS de propósito
-  // (11-UI-SPEC.md linhas 162-163):
-  //   • `period` AUSENTE da URL  → "30d"  — default de primeiro acesso, o
-  //     preset mais útil no dia a dia (primeiro da lista de D-10).
-  //   • `period` PRESENTE mas fora de {30d,90d,tudo} → "tudo" — fallback
-  //     seguro de valor adulterado na URL: nunca erro 500, nunca tela
-  //     quebrada (T-11-24).
-  // O preset normalizado alimenta TANTO `resolvePeriodRange` QUANTO a prop
-  // `value` do <PeriodoSelector>, para o gatilho do Select nunca exibir um
-  // valor que a página não usou. `resolvePeriodRange` tem o próprio fallback
-  // interno como segunda barreira.
-  const presetNormalizado =
-    period === undefined ? "30d" : PRESETS_VALIDOS.has(period) ? period : "tudo";
-
-  const range = resolvePeriodRange(presetNormalizado);
+  // NORMALIZAÇÃO DO PERÍODO — delegada INTEIRAMENTE a `resolvePeriodoRelatorios`
+  // (função pura de `queries.ts`, nunca lança). Ela cobre as 3 políticas:
+  //   • `period` AUSENTE → "30d" (default de primeiro acesso, 11-UI-SPEC.md).
+  //   • `period` = preset clássico ("30d"/"90d"/"tudo") → passa direto.
+  //   • `period` = "custom" + `from`/`to` → intervalo arbitrário (D-01..D-06);
+  //     datas inválidas caem no fallback "30d" com `customInvalido: true`.
+  //   • `period` adulterado → fallback SILENCIOSO "tudo" (T-11-24), sem faixa.
+  // `preset` alimenta o `value` do <PeriodoSelector>; `range` alimenta as 3
+  // agregações; `customInvalido` decide a faixa de aviso server-rendered (D-07).
+  const { preset, range, customInvalido, from, to } = resolvePeriodoRelatorios({
+    period,
+    from: fromParam,
+    to: toParam,
+  });
 
   const [contagemOrigem, contagemNicho, contagemMotivoPerda] = await Promise.all([
     getContagemPorOrigem(range),
@@ -73,9 +84,20 @@ export default async function RelatoriosPage({
       <div className="flex items-center justify-between">
         <h1 className="text-[28px] font-semibold leading-tight">Relatórios</h1>
         <Suspense fallback={null}>
-          <PeriodoSelector value={presetNormalizado} />
+          <PeriodoSelector value={preset} from={from} to={to} />
         </Suspense>
       </div>
+
+      {/* Faixa de aviso server-rendered (D-07) — só quando o intervalo custom
+          foi REJEITADO (fim antes do início, data faltando/ilegível). Some
+          sozinha no próximo período válido; sem JS, sem toast, sem client
+          component. Âmbar discreto: é um aviso transitório, não um dado do
+          relatório — não conflita com "ênfase por peso" das tabelas. */}
+      {customInvalido ? (
+        <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-[14px] text-amber-900">
+          Intervalo inválido — mostrando os últimos 30 dias.
+        </p>
+      ) : null}
 
       {/* Seção 1 — Leads por origem (METRICAS-01) */}
       <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6">

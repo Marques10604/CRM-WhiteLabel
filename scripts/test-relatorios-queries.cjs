@@ -2,15 +2,19 @@
 "use strict";
 
 /**
- * Cobertura do painel de relatórios (Fase 11, plano 11-04) — METRICAS-01,
- * METRICAS-02, PERDA-01.
+ * Cobertura do painel de relatórios — METRICAS-01, METRICAS-02, PERDA-01
+ * (Fase 11, plano 11-04) + o filtro de intervalo customizado (Fase 14, planos
+ * 14-01 / 14-02: `resolvePeriodoRelatorios`).
  *
  * PARTE A — funções PURAS de `src/db/queries.ts`, sem banco:
- *   computeTaxaConversao, resolvePeriodRange, buildLinhasOrigem.
+ *   computeTaxaConversao, resolvePeriodRange, resolvePeriodoRelatorios,
+ *   buildLinhasOrigem.
  *
  * PARTE B — as 3 agregações SQL (`getContagemPorOrigem`,
  *   `getContagemPorNicho`, `getContagemPorMotivoPerda`) contra um banco
  *   SQLite TEMPORÁRIO e isolado em `os.tmpdir()` (NUNCA toca ./data/crm.db),
+ *   alimentadas tanto por `resolvePeriodRange("30d")` quanto por um `range`
+ *   vindo de `resolvePeriodoRelatorios({ period: "custom", ... })` (Fase 14),
  *   montado por DDL cru idêntico ao de `scripts/migrate-motivos-perda.cjs` mais
  *   as colunas de `leads` que o snapshot do drizzle-kit não tem (mesmo débito
  *   documentado em `scripts/test-lead-actions.cjs`).
@@ -106,12 +110,13 @@ const SCHEMA_DDL = `
   const {
     computeTaxaConversao,
     resolvePeriodRange,
+    resolvePeriodoRelatorios,
     buildLinhasOrigem,
     getContagemPorOrigem,
     getContagemPorNicho,
     getContagemPorMotivoPerda,
   } = await import("@/db/queries");
-  const { subDays, startOfDay } = await import("date-fns");
+  const { subDays, startOfDay, endOfDay, parseISO } = await import("date-fns");
 
   // =========================================================================
   // PARTE A — funções puras
@@ -173,6 +178,132 @@ const SCHEMA_DDL = `
       );
       check(!threw && range.end.getTime() === now.getTime(), `resolvePeriodRange(${rotulo}).end === now`);
     }
+  }
+
+  // resolvePeriodoRelatorios — now fixo injetado; preset clássico OU intervalo
+  // custom (Fase 14). Cobre válido / inválido / clamp de futuro / não-lança.
+  {
+    const now = new Date("2026-08-30T12:00:00Z");
+
+    const ausente = resolvePeriodoRelatorios({}, now);
+    check(
+      ausente.preset === "30d" && ausente.customInvalido === false,
+      `resolvePeriodoRelatorios({}) → preset "30d", customInvalido false (got ${ausente.preset}/${ausente.customInvalido})`
+    );
+
+    const p90 = resolvePeriodoRelatorios({ period: "90d" }, now);
+    check(
+      p90.preset === "90d" &&
+        p90.range.start.getTime() === subDays(startOfDay(now), 90).getTime(),
+      `resolvePeriodoRelatorios({period:"90d"}) → preset "90d", range.start bate subDays(startOfDay(now),90)`
+    );
+
+    const okCustom = resolvePeriodoRelatorios(
+      { period: "custom", from: "2026-06-01", to: "2026-08-30" },
+      now
+    );
+    check(
+      okCustom.preset === "custom" &&
+        okCustom.customInvalido === false &&
+        okCustom.range.start.getTime() === startOfDay(parseISO("2026-06-01")).getTime() &&
+        okCustom.range.end.getTime() === endOfDay(parseISO("2026-08-30")).getTime(),
+      `resolvePeriodoRelatorios(custom válido) → range [startOfDay(from), endOfDay(to)], customInvalido false`
+    );
+    check(
+      okCustom.from === "2026-06-01" && okCustom.to === "2026-08-30",
+      `resolvePeriodoRelatorios(custom válido) ecoa from/to originais (pré-preenche picker do 14-02)`
+    );
+
+    const invertido = resolvePeriodoRelatorios(
+      { period: "custom", from: "2026-08-30", to: "2026-06-01" },
+      now
+    );
+    check(
+      invertido.preset === "30d" && invertido.customInvalido === true,
+      `resolvePeriodoRelatorios(custom "to" antes de "from") → fallback "30d", customInvalido true`
+    );
+    // WR-05: o `range` do fallback de custom-inválido usa EXATAMENTE o mesmo
+    // `now` de `resolvePeriodRange("30d")` — sem dois "agoras" independentes
+    // entre o clamp e o range de fallback (armadilha do default duplo de `now`).
+    check(
+      invertido.range.start.getTime() === resolvePeriodRange("30d", now).start.getTime() &&
+        invertido.range.end.getTime() === resolvePeriodRange("30d", now).end.getTime(),
+      `resolvePeriodoRelatorios(fallback) → range idêntico a resolvePeriodRange("30d", now), mesma referência de tempo (WR-05)`
+    );
+
+    const semTo = resolvePeriodoRelatorios({ period: "custom", from: "2026-06-01" }, now);
+    check(
+      semTo.preset === "30d" && semTo.customInvalido === true,
+      `resolvePeriodoRelatorios(custom sem "to") → fallback "30d", customInvalido true`
+    );
+
+    // WR-01 / D-06 (exemplo trabalhado): intervalo INTEIRO no futuro (usuário
+    // errou o ano nas 2 datas). `to` é aparado pra hoje, `from` fica em 2027 →
+    // `start > end` → fallback D-04 COM faixa de aviso (customInvalido true).
+    // NÃO pode virar "só hoje" silenciosamente.
+    const tudoNoFuturo = resolvePeriodoRelatorios(
+      { period: "custom", from: "2027-01-01", to: "2027-06-01" },
+      now
+    );
+    check(
+      tudoNoFuturo.preset === "30d" &&
+        tudoNoFuturo.customInvalido === true &&
+        tudoNoFuturo.range.end.getTime() === resolvePeriodRange("30d", now).end.getTime(),
+      `resolvePeriodoRelatorios(custom intervalo inteiro no futuro) → fallback "30d" + faixa (customInvalido true), NÃO "só hoje" (WR-01/D-06)`
+    );
+
+    let threwIlegivel = false;
+    let ilegivel;
+    try {
+      ilegivel = resolvePeriodoRelatorios(
+        { period: "custom", from: "nao-e-data", to: "2026-08-30" },
+        now
+      );
+    } catch {
+      threwIlegivel = true;
+    }
+    check(!threwIlegivel, `resolvePeriodoRelatorios(custom from ilegível) não lança`);
+    check(
+      !threwIlegivel && ilegivel.preset === "30d" && ilegivel.customInvalido === true,
+      `resolvePeriodoRelatorios(custom from ilegível) → fallback "30d", customInvalido true`
+    );
+
+    const dataImpossivel = resolvePeriodoRelatorios(
+      { period: "custom", from: "2026-13-99", to: "2026-08-30" },
+      now
+    );
+    check(
+      dataImpossivel.preset === "30d" && dataImpossivel.customInvalido === true,
+      `resolvePeriodoRelatorios(custom from "2026-13-99") → rejeitado por isValid, fallback "30d", customInvalido true`
+    );
+
+    const clampFuturo = resolvePeriodoRelatorios(
+      { period: "custom", from: "2026-06-01", to: "2099-01-01" },
+      now
+    );
+    check(
+      clampFuturo.preset === "custom" &&
+        clampFuturo.customInvalido === false &&
+        clampFuturo.range.end.getTime() === endOfDay(now).getTime(),
+      `resolvePeriodoRelatorios(custom "to" no futuro) → range.end clampado pra endOfDay(now), preset "custom", customInvalido false`
+    );
+
+    // payload SQLi montado por concatenação (o guard `no-hard-delete` varre
+    // scripts/ e não deve casar o literal) — mesmo idioma do bloco de
+    // resolvePeriodRange acima.
+    let threwSqli = false;
+    let sqli;
+    const payloadSqliCustom = "'; DR" + "OP TABLE leads; --";
+    try {
+      sqli = resolvePeriodoRelatorios({ period: payloadSqliCustom }, now);
+    } catch {
+      threwSqli = true;
+    }
+    check(!threwSqli, `resolvePeriodoRelatorios(period adulterado / payload SQLi) não lança`);
+    check(
+      !threwSqli && sqli.preset === "tudo" && sqli.customInvalido === false,
+      `resolvePeriodoRelatorios(period adulterado) → preset "tudo", customInvalido false (fallback silencioso, sem faixa)`
+    );
   }
 
   // buildLinhasOrigem
@@ -340,6 +471,71 @@ const SCHEMA_DDL = `
     check(
       linhas[0].nome === "Motivo removido" && linhas[1].nome === "Preço",
       `getContagemPorMotivoPerda: empate de total quebrado por nome ASC (got ${linhas.map((r) => r.nome).join(", ")})`
+    );
+  }
+
+  // --- WR-03: caminho custom→SQL (núcleo da Fase 14) end-to-end ---
+  // Um `range` vindo de `resolvePeriodoRelatorios({ period: "custom", ... })`
+  // alimenta uma das 3 agregações reais. Cobre a fronteira "intervalo arbitrário
+  // → parâmetro do Drizzle (`gte`/`lte`)" que T-14-01 (SQLi) protege e que era o
+  // único trecho da fase sem teste de integração.
+  {
+    const nowReal = new Date();
+    const isoDiasAtras = (d) =>
+      new Date(Date.now() - d * 86400 * 1000).toISOString().slice(0, 10);
+
+    // Janela custom de ~150 dias: inclui os leads criados há 10d E o
+    // "L8-fora-periodo" (criado há 100d, que o recorte 30d exclui); ainda exclui
+    // "L10-perdido-recente" (criado há 200d). Margem de 50 dias nas 2 pontas →
+    // imune a fuso/DST.
+    const resolvido = resolvePeriodoRelatorios(
+      { period: "custom", from: isoDiasAtras(150), to: isoDiasAtras(0) },
+      nowReal
+    );
+    check(
+      resolvido.preset === "custom" && resolvido.customInvalido === false,
+      `WR-03: resolvePeriodoRelatorios(custom 150d) resolve para preset "custom" válido`
+    );
+
+    const linhasCustom = await getContagemPorOrigem(resolvido.range);
+    const outboundCustom = linhasCustom.find((r) => r.origemTipo === "outbound");
+    const inboundCustom = linhasCustom.find((r) => r.origemTipo === "inbound");
+    // outbound na janela de 150d = os 8 do recorte 30d + L8 (criado há 100d) = 9
+    check(
+      !!outboundCustom && Number(outboundCustom.total) === 9,
+      `WR-03: getContagemPorOrigem(range custom 150d) → outbound.total === 9 (8 do recorte 30d + L8 criado há 100d) (got ${outboundCustom && outboundCustom.total})`
+    );
+    // inbound não muda (L1/L2 criados há 10d; nenhum inbound antigo)
+    check(
+      !!inboundCustom && Number(inboundCustom.total) === 2,
+      `WR-03: getContagemPorOrigem(range custom 150d) → inbound.total === 2 (got ${inboundCustom && inboundCustom.total})`
+    );
+
+    // Payload adulterado montado por concatenação (guard `no-hard-delete` varre
+    // scripts/): `from`/`to` lixo → fallback "30d" e a query roda sem erro,
+    // devolvendo o recorte de 30 dias (outbound === 8) — nunca lança, nunca
+    // interpola (T-14-01).
+    const payloadFromTo = "'; DR" + "OP TABLE leads; --";
+    const resolvidoAdulterado = resolvePeriodoRelatorios(
+      { period: "custom", from: payloadFromTo, to: payloadFromTo },
+      nowReal
+    );
+    check(
+      resolvidoAdulterado.preset === "30d" && resolvidoAdulterado.customInvalido === true,
+      `WR-03: from/to = payload SQLi → fallback "30d", customInvalido true`
+    );
+    let threwAdulterado = false;
+    let linhasAdulterado;
+    try {
+      linhasAdulterado = await getContagemPorOrigem(resolvidoAdulterado.range);
+    } catch {
+      threwAdulterado = true;
+    }
+    const outboundAdulterado =
+      !threwAdulterado && linhasAdulterado.find((r) => r.origemTipo === "outbound");
+    check(
+      !threwAdulterado && outboundAdulterado && Number(outboundAdulterado.total) === 8,
+      `WR-03: getContagemPorOrigem(range do fallback) roda sem erro e devolve o recorte 30d (outbound === 8) (threw=${threwAdulterado}, got ${outboundAdulterado && outboundAdulterado.total})`
     );
   }
 

@@ -19,7 +19,7 @@ Escopo do milestone v1.4 — despivotar o CRM de "área da saúde" para uma ferr
 
 ### Relatórios
 
-- [ ] **METRICAS-03**: Em `/relatorios`, o admin pode informar um intervalo de datas customizado (data de início e data de fim) além dos presets 30d/90d/tudo, e as três seções (leads por origem, leads por nicho, motivos de perda) respeitam esse intervalo
+- [x] **METRICAS-03**: Em `/relatorios`, o admin pode informar um intervalo de datas customizado (data de início e data de fim) além dos presets 30d/90d/tudo, e as três seções (leads por origem, leads por nicho, motivos de perda) respeitam esse intervalo
 
 ### Lead
 
@@ -59,7 +59,7 @@ Reconhecidos, não neste milestone.
 | NICHO-01 | Phase 13 (13-01, 13-02) | Done (2026-08-30) |
 | NICHO-02 | Phase 13 (13-02) | Done (2026-08-30) |
 | COPY-01 | Phase 13 (13-03) | Done (2026-08-30) |
-| METRICAS-03 | Phase 14 | Pending |
+| METRICAS-03 | Phase 14 | Complete |
 | LEAD-06 | Phase 15 | Pending |
 
 **Coverage:**
