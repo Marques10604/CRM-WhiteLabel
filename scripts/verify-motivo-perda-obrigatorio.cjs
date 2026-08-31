@@ -62,7 +62,7 @@ async function runBehaviorChecks() {
     valorEstimado: "1.000,00",
     notas: "nota qualquer",
     followUpDate: "2026-08-01",
-    subnichoId: "1",
+    nichoId: "1",
     stage: "perdido",
   };
 
