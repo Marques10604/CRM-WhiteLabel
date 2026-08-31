@@ -22,6 +22,7 @@ const FIELD_CONFIGS: FieldConfig[] = [
   { key: "origem", label: "Origem", required: false },
   { key: "valorEstimado", label: "Valor estimado", required: false },
   { key: "notas", label: "Notas", required: false },
+  { key: "interesse", label: "Interesse", required: false },
 ];
 
 /** Sentinela de "não mapeado" (D-04) — mapeia para `null` no onValueChange. */
