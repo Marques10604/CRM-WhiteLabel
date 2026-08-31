@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: CRM Genérico Multi-Nicho
-status: executing
-last_updated: "2026-08-31T14:12:55.599Z"
+status: verifying
+last_updated: "2026-08-31T14:21:16.622Z"
 last_activity: 2026-08-31
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-30)
 Milestone: v1.4 CRM Genérico Multi-Nicho (despivô) — 3 fases (13-15)
 Phase: 15 (campo-interesse-servi-o-desejado-no-lead) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-31
 
 ## Performance Metrics
@@ -89,6 +89,7 @@ Last activity: 2026-08-31
 | Phase 14 PP01 | 20min | 3 tasks tasks | 3 files files |
 | Phase 14 P02 | 15min | 2 tasks | 2 files |
 | Phase 15 P01 | 35min | 3 tasks | 7 files |
+| Phase 15 P02 | 20min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -186,6 +187,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 14-02]: PeriodoSelector modo custom — cliente gerencia customMode + 2 datas locais, mas continua sem resolver range / sem decidir default / fallback (D-17); navegarCustom só em event handlers (nunca useEffect/render, T-14-07); closure 'os 2 preenchidos' via const prox = date ?? estadoAtual antes de checar os dois locais
 - [Phase 15]: coluna leads.interesse aditiva NULLABLE sem DEFAULT (dispensa a exigência do SQLite que forçou origem_tipo/sequencia_posicao); migração custom .cjs rodada 2x em data/crm.db, 37 leads intactos — campo opcional texto livre LEAD-06, vazio grava NULL (D-04/D-06)
 - [Phase 15]: interesse é o 2o campo opcional de leadBaseSchema (após motivoPerdaId): preprocess vazio->undefined + undefined->null explícito na Server Action; propaga p/ csvRowSchema por ficar fora do .omit() — reuso do idioma já estabelecido na Fase 11
+- [Phase ?]: [Phase 15-02] interesse mapeável no wizard de CSV: 6 pontos de toque + truncamento .slice(0,500) em mapCsvRows ANTES de csvRowSchema.safeParse (D-10); fora de CSV_DEFAULTS (D-11), vazio grava NULL
 
 ### Pending Todos
 
@@ -315,7 +317,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-31T14:12:39.722Z
+Last session: 2026-08-31T14:21:06.555Z
 
 **O que foi feito nesta sessão:**
 

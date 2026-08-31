@@ -126,7 +126,7 @@ Plans:
 **Plans**: 2 planos (coarse) — planejados 2026-08-31
 
 - [x] 15-01-PLAN.md (Wave 1) — Coluna `interesse` nullable no schema + campo opcional em `leadBaseSchema` (trim, max 500, preprocess vazio→undefined, propaga para `csvRowSchema`/`leadSchema`) + migração aditiva `[BLOCKING]` via `scripts/migrate-interesse.cjs` + `<Input>` "Interesse" abaixo do Nicho no `lead-form-dialog.tsx` + persistência em `createLead`/`updateLead` + gate em `verify-schema.cjs` + cobertura em `test-lead-actions.cjs`
-- [ ] 15-02-PLAN.md (Wave 2, dep. 15-01) — `"interesse"` em `CsvFieldKey` + `MappedCsvRow` + `mapCsvRows` (truncamento `.slice(0,500)` antes da validação) + entrada em `FIELD_CONFIGS` do `csv-column-mapper.tsx` + `EMPTY_MAPPING` + `ConfirmedImportRow`/`bulkImportLeads` + `csv-import-preview-table.tsx` + cobertura de import em `test-lead-actions.cjs`
+- [x] 15-02-PLAN.md (Wave 2, dep. 15-01) — `"interesse"` em `CsvFieldKey` + `MappedCsvRow` + `mapCsvRows` (truncamento `.slice(0,500)` antes da validação) + entrada em `FIELD_CONFIGS` do `csv-column-mapper.tsx` + `EMPTY_MAPPING` + `ConfirmedImportRow`/`bulkImportLeads` + `csv-import-preview-table.tsx` + cobertura de import em `test-lead-actions.cjs`
 
 **UI hint**: yes
 
@@ -146,4 +146,4 @@ Plans:
 |------|-----------|--------|--------|-----------|
 | 13. Rename `sub-nicho → nicho` + reframe | v1.4 | 3/3 | ✅ Complete | 2026-08-30 |
 | 14. Filtro de intervalo em `/relatorios` | v1.4 | 2/2 | Complete   | 2026-08-30 |
-| 15. Campo "interesse" no lead | v1.4 | 1/2 | In Progress|  |
+| 15. Campo "interesse" no lead | v1.4 | 2/2 | Complete   | 2026-08-31 |
