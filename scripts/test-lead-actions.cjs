@@ -139,6 +139,7 @@ async function runBehaviorTests() {
   const { createLead, updateLead } = await import("@/actions/lead-actions");
   const { bulkImportLeads } = await import("@/actions/import-actions");
   const { csvRowSchema, leadSchema } = await import("@/lib/validations");
+  const { mapCsvRows } = await import("@/lib/csv-import");
   const { db } = await import("@/db/client");
   const { leads } = await import("@/db/schema");
   const { eq } = await import("drizzle-orm");
@@ -470,6 +471,66 @@ async function runBehaviorTests() {
   {
     const parsed = csvRowSchema.safeParse(makeImportRow());
     check(parsed.success === true, "csvRowSchema.safeParse(linha sem interesse): success === true");
+  }
+
+  // Caso 17 (LEAD-06, Fase 15-02): bulkImportLeads com interesse mapeado ->
+  // o valor chega ao lead importado. Prova a metade "CSV" de LEAD-06.
+  {
+    const before = await countLeads();
+    try {
+      await bulkImportLeads([makeImportRow({ interesse: "quer site institucional" })]);
+    } catch (err) {
+      if (typeof err?.message === "string" && /revalidatePath|static generation store/i.test(err.message)) {
+        console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+      } else {
+        throw err;
+      }
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(
+      row?.interesse === "quer site institucional",
+      `bulkImportLeads(interesse mapeado): linha persistida com o valor (got ${JSON.stringify(row?.interesse)})`
+    );
+  }
+
+  // Caso 18 (LEAD-06, D-11): bulkImportLeads sem mapear interesse -> interesse
+  // NULL no lead importado, nenhuma regressão no fluxo antigo.
+  {
+    const before = await countLeads();
+    try {
+      await bulkImportLeads([makeImportRow()]);
+    } catch (err) {
+      if (typeof err?.message === "string" && /revalidatePath|static generation store/i.test(err.message)) {
+        console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+      } else {
+        throw err;
+      }
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(
+      row?.interesse === null,
+      `bulkImportLeads(sem interesse): linha persistida com interesse NULL (got ${JSON.stringify(row?.interesse)})`
+    );
+  }
+
+  // Caso 19 (LEAD-06, D-10): célula de interesse gigante no CSV -> mapCsvRows
+  // trunca em 500 ANTES da validação, a linha nunca reprova.
+  {
+    const mapping = {
+      nome: null,
+      telefone: null,
+      nichoNome: null,
+      canal: null,
+      origem: null,
+      valorEstimado: null,
+      notas: null,
+      interesse: "Interesse",
+    };
+    const result = mapCsvRows([{ Interesse: "z".repeat(600) }], mapping);
+    check(
+      result[0]?.interesse.length === 500,
+      `mapCsvRows(célula de 600 chars): result[0].interesse truncado em 500 (got ${result[0]?.interesse.length})`
+    );
   }
 
   try {

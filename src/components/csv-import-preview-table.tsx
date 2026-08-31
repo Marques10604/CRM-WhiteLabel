@@ -263,6 +263,7 @@ export function CsvImportPreviewTable({
         origem: r.origem,
         valorEstimado: r.valorEstimado,
         notas: r.notas,
+        interesse: r.interesse,
         nichoNome,
       });
     }

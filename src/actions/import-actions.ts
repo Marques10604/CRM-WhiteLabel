@@ -71,6 +71,10 @@ export type ConfirmedImportRow = {
   origem: string;
   valorEstimado: string;
   notas: string;
+  /** Texto livre "serviço desejado" (LEAD-06). `""` quando a coluna não foi
+   * mapeada no wizard — vira NULL no insert (D-11). Já truncado em 500 por
+   * `mapCsvRows` (D-10), então o `.max(500)` de `csvRowSchema` nunca reprova. */
+  interesse: string;
   nichoNome: string;
 };
 
@@ -149,6 +153,7 @@ export async function bulkImportLeads(rows: ConfirmedImportRow[]): Promise<BulkI
           origemTipo: row.origemTipo,
           valorEstimado: row.valorEstimado,
           notas: row.notas,
+          interesse: row.interesse ?? null,
           nichoId: nichoIdByNome.get(chave)!,
           stage: "novo",
           stageChangedAt: new Date(),
