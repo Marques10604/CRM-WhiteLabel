@@ -452,6 +452,61 @@ async function runBehaviorTests() {
     check(row?.interesse === null, `updateLead com interesse vazio: interesse volta a NULL (got ${JSON.stringify(row?.interesse)})`);
   }
 
+  // Caso 14a (FIX-01 / WR-01, D-02): createLead com interesse SÓ espaços em
+  // branco ("   ") -> ainda cria o lead, mas interesse grava NULL, nunca "".
+  // Sem o trim dentro do z.preprocess (D-01), "   " escaparia do `v === ""` e
+  // chegaria ao banco como string vazia.
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(
+      createLead,
+      makeFormData({ interesse: "   " })
+    );
+    const after = await countLeads();
+    check(after === before + 1, `createLead com interesse só espaços: ainda insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(
+      row?.interesse === null,
+      `createLead com interesse só espaços: campo grava NULL, nunca "" (got ${JSON.stringify(row?.interesse)})`
+    );
+  }
+
+  // Caso 14b (FIX-01 / WR-01, D-02): updateLead limpando um interesse JÁ
+  // existente enviando só espaços em branco ("   ") -> coluna vira NULL.
+  // Cobre o override load-bearing `interesse: parsed.data.interesse ?? null`
+  // do updateLead (sem o trim de D-01, "   " chegaria como "" e o `?? null`
+  // não pegaria, deixando o valor antigo preso na coluna).
+  {
+    const before = await countLeads();
+    const outcomeCreate = await callToleratingRevalidate(
+      createLead,
+      makeFormData({ interesse: "quer consultoria de tráfego pago" })
+    );
+    if (outcomeCreate.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [created] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(
+      created?.interesse === "quer consultoria de tráfego pago",
+      `updateLead (setup): lead criado com interesse não-nulo (got ${JSON.stringify(created?.interesse)})`
+    );
+    const outcome = await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(created?.id), interesse: "   " })
+    );
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).where(eq(leads.id, created?.id));
+    check(
+      row?.interesse === null,
+      `updateLead limpando com só espaços: interesse vira NULL (got ${JSON.stringify(row?.interesse)})`
+    );
+  }
+
   // Caso 15 (LEAD-06, D-05): interesse acima de 500 chars reprova o
   // leadSchema (caminho do formulário manual) com a mensagem PT-BR.
   {
