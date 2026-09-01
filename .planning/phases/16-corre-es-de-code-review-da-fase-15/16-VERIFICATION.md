@@ -1,7 +1,7 @@
 ---
 phase: 16-corre-es-de-code-review-da-fase-15
 verified: 2026-09-01T00:00:00Z
-status: human_needed
+status: passed
 score: 5/5 success criteria verificados na camada de código/dados + gates
 overrides_applied: 0
 re_verification:
@@ -28,7 +28,7 @@ human_verification:
 cumpre o contrato D-04 ("vazio grava NULL, nunca `''`") em todos os caminhos de entrada, e o
 valor importado do CSV fica visível ao admin antes de confirmar.
 **Verificado:** 2026-09-01
-**Status:** human_needed
+**Status:** passed *(promovido — ver § Promoção de status)*
 **Re-verificação:** Não — verificação inicial
 
 ## Goal Achievement
@@ -78,3 +78,14 @@ cenários de formulário restantes foram aceitos pelo humano como cobertos por t
 
 6 arquivos (16-01) + 6 (16-REVIEW-FIX, com sobreposição) modificados, 0 criados, 0 removidos.
 Nenhuma migração de schema nova, nenhuma dependência nova.
+
+## Promoção de status (close-phase)
+
+Status promovido de `human_needed` para `passed` em 2026-09-01.
+Evidência: UAT (`16-HUMAN-UAT.md`, `status: complete`, 0 issues, 0 pending) — 4 cenários
+materiais aprovados AO VIVO no navegador (coluna Interesse na prévia, badge de truncamento
+ASCII + emoji, edge case CR-01 de emoji não abortar o lote, campo vazio não bloqueia o
+submit). Cenários 1 (round-trip do form) e 5 (importar sem mapear) marcados `skipped` e
+**aceitos explicitamente pelo humano no fechamento** — cobertos por teste automatizado
+(`test-lead-actions.cjs` Casos 14a/14b/20 + `bulkImportLeads` sem interesse, todos exit 0) e,
+no caso do round-trip, pelo UAT ao vivo da Fase 15 (mesmo campo, mudança de código mínima).

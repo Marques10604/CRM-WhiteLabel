@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTED + CODE REVIEW FECHADO (aguarda secure + UAT + close)
+Phase: 16 (corre-es-de-code-review-da-fase-15) — FECHADA (aguarda PR/merge)
 Plan: 2 of 2 — ambos com SUMMARY, ROADMAP 2/2 Complete
-Status: FIX-01/02/03 fechados. Code review 1 blocker + 4 achados — TODOS corrigidos (`16-REVIEW-FIX.md`). `16-SECURITY.md` `status: verified`, `threats_open: 0` (10 threats, register autorado em plano). Gate SC#5 + regressão + build 5/5 exit 0. **Falta só: UAT de fim de fase (`/gsd-verify-work 16`, precisa do humano) → `/close-phase 16`.** Nyquist/VALIDATION N/A nesta fase (decisão do usuário).
+Status: `16-VERIFICATION.md` `passed` (5/5 SC, promovido pela UAT). `16-HUMAN-UAT.md` `complete` (4 cenários ao vivo, 2 skipped-accepted). `16-SECURITY.md` `verified` (threats_open: 0). `16-LEARNINGS.md` extraído. Code review + fix quitaram 1 blocker (CR-01) + 4 achados. Falta: PR + merge. **Próximo: Fase 17 (lint do repo → 0).**
 Last activity: 2026-09-01
 
 ## Performance Metrics
