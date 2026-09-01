@@ -72,7 +72,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 
 **Meta do milestone:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto, limpar o lint do repo e dar identidade visual ao produto. **Zero feature funcional nova.**
 
-- [ ] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
+- [x] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
 - [ ] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (planos TBD)
 - [ ] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05 (planos TBD)
 - [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
@@ -169,7 +169,7 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete   | 2026-09-01 |
+| 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |

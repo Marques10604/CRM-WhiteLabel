@@ -21,8 +21,8 @@ Fases já shipadas cujo comportamento nunca foi verificado com clique real. O ho
 ### Correções de Code Review (achados do `15-REVIEW.md`)
 
 - [x] **FIX-01**: `interesse` submetido só com espaços em branco pelo formulário manual grava `NULL`, não `''` — o trim acontece dentro do `z.preprocess` em `validations.ts` (idioma consistente com o contrato D-04 repetido ~4× no código); `test-lead-actions.cjs` ganha caso `createLead({ interesse: "   " })` → linha persistida com `interesse === null` (WR-01)
-- [ ] **FIX-02**: A prévia da importação de CSV (`csv-import-preview-table.tsx`) exibe a coluna "Interesse" quando mapeada, no mesmo padrão de `notas`; o truncamento defensivo em 500 chars (D-10) fica visível para o admin antes de confirmar (WR-02)
-- [ ] **FIX-03**: Achados `info` do `15-REVIEW.md` resolvidos — comentários "7 campos fixos" em `csv-column-mapper.tsx` corrigidos para 8 (IN-01); `.slice(0,500)` em `csv-import.ts` corta por code point, não code unit, para não partir surrogate pair (IN-02); `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não cria backup novo em execução idempotente (IN-03)
+- [x] **FIX-02**: A prévia da importação de CSV (`csv-import-preview-table.tsx`) exibe a coluna "Interesse" quando mapeada, no mesmo padrão de `notas`; o truncamento defensivo em 500 chars (D-10) fica visível para o admin antes de confirmar (WR-02)
+- [x] **FIX-03**: Achados `info` do `15-REVIEW.md` resolvidos — comentários "7 campos fixos" em `csv-column-mapper.tsx` corrigidos para 8 (IN-01); `.slice(0,500)` em `csv-import.ts` corta por code point, não code unit, para não partir surrogate pair (IN-02); `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não cria backup novo em execução idempotente (IN-03)
 
 ### Limpeza de Lint
 
@@ -82,8 +82,8 @@ Preenchido na criação do roadmap (2026-08-31).
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FIX-01 | Fase 16 | Complete |
-| FIX-02 | Fase 16 | Pending |
-| FIX-03 | Fase 16 | Pending |
+| FIX-02 | Fase 16 | Complete |
+| FIX-03 | Fase 16 | Complete |
 | LINT-01 | Fase 17 | Pending |
 | AUDIT-01 | Fase 18 | Pending |
 | AUDIT-02 | Fase 18 | Pending |

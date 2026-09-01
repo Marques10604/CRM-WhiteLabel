@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: executing
-last_updated: "2026-09-01T14:30:00.000Z"
+status: ready_to_plan
+last_updated: 2026-09-01T16:17:19.629Z
 last_activity: 2026-09-01
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 2
-  completed_plans: 2
-  percent: 100
+  completed_plans: 50
+  percent: 0
+stopped_at: Phase 16 complete (2/2) — ready to discuss Phase 17
 ---
 
 # Project State
@@ -20,20 +21,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 16 — corre-es-de-code-review-da-fase-15
+**Current focus:** Phase 17 — limpeza de lint do repo
 
 ## Current Position
 
-Phase: 16 (corre-es-de-code-review-da-fase-15) — FECHADA (aguarda PR/merge)
-Plan: 2 of 2 — ambos com SUMMARY, ROADMAP 2/2 Complete
-Status: `16-VERIFICATION.md` `passed` (5/5 SC, promovido pela UAT). `16-HUMAN-UAT.md` `complete` (4 cenários ao vivo, 2 skipped-accepted). `16-SECURITY.md` `verified` (threats_open: 0). `16-LEARNINGS.md` extraído. Code review + fix quitaram 1 blocker (CR-01) + 4 achados. Falta: PR + merge. **Próximo: Fase 17 (lint do repo → 0).**
+Phase: 17
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-09-01
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 15
+- Total plans completed: 17
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -46,6 +47,7 @@ Last activity: 2026-09-01
 | 06 | 2 | - | - |
 | 11 | 5 | - | - |
 | 15 | 2 | - | - |
+| 16 | 2 | - | - |
 
 **Recent Trend:**
 
