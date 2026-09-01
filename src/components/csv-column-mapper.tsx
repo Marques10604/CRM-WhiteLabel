@@ -61,7 +61,7 @@ export function CsvColumnMapper({
     onMappingChange({ ...mapping, [key]: value === NONE_VALUE ? null : value });
   }
 
-  // D-01/D-02/D-04: colunas ainda não usadas em nenhum dos 7 campos fixos —
+  // D-01/D-02/D-04: colunas ainda não usadas em nenhum dos 8 campos fixos —
   // recalculado a cada render (sem useMemo/cache) para que um Select que
   // passe a apontar pra uma coluna já marcada faça o checkbox dela sumir na
   // hora (Pitfall 4).

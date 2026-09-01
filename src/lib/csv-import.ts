@@ -144,7 +144,10 @@ export function mapCsvRows(
     // D-10: trunca em 500 ANTES de qualquer validação — uma célula gigante do
     // CSV do cowork nunca reprova a linha, o lead importa com o interesse
     // cortado. Sem fallback de CSV_DEFAULTS (D-11): vazio/não-mapeado = "".
-    const interesse = readMapped(row, "interesse").slice(0, 500);
+    // D-08 (16-01): corte por CODE POINT (Array.from) — nunca parte um par
+    // surrogate / emoji na fronteira 499/500. A defesa em profundidade
+    // server-side (`csvRowSchema.max(500)`, D-09) segue contando code units.
+    const interesse = Array.from(readMapped(row, "interesse")).slice(0, 500).join("");
 
     return {
       rowIndex,
