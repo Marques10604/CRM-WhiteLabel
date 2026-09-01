@@ -95,7 +95,12 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 **Plans:** 2 planos
 
 Plans:
+**Wave 1**
+
 - [ ] 16-01-PLAN.md — Contrato NULL do `interesse` (WR-01/D-01) + 2 casos de teste whitespace-only + corte por code point no CSV + comentários "8 campos fixos"
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 16-02-PLAN.md — Coluna "Interesse" na prévia do CSV com badge de truncamento + `migrate-interesse.cjs` (doc + sem backup idempotente) + gate SC#5
 
 **Threat surface**: mínima — ajuste em validação Zod e numa tabela de prévia de dados já existentes; nenhuma superfície de entrada nova, sem auth, sem rede, sem schema destrutivo. `/gsd-secure-phase` deve fechar rápido.
