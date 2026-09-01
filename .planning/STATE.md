@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: roadmap_complete
-last_updated: "2026-08-31T22:15:00.000Z"
-last_activity: 2026-08-31
+status: Roadmap v1.5 completo — 4 fases, 12 requisitos mapeados, 100% cobertura
+last_updated: "2026-09-01T12:05:47.103Z"
+last_activity: 2026-08-31 — Roadmap v1.5 criado (Fases 16-19)
 progress:
   total_phases: 4
   completed_phases: 0
@@ -281,6 +281,7 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 **Milestone v1.4 (CRM Genérico Multi-Nicho / despivô) — SHIPADO E ARQUIVADO.** Fases 13-15 fechadas, PRs #4 e #5 mergeados em `main`, tag `v1.4` empurrada. ROADMAP/PROJECT/REQUIREMENTS arquivados em `.planning/milestones/v1.4-*`; `REQUIREMENTS.md` removido (fresh no próximo milestone). RETROSPECTIVE.md atualizado.
 
 **Roadmap v1.5 criado (2026-08-31).** 4 fases, 12 requisitos, 100% cobertura. Ordem de execução 16 → 17 → 18 → 19:
+
 - **Fase 16 — Correções de Code Review da Fase 15** (FIX-01/02/03): fechar os 5 achados do `15-REVIEW.md` (WR-01 `interesse` só-espaço grava `''`; WR-02 `interesse` some da prévia do CSV; IN-01/02/03). Code-only, threat surface mínima.
 - **Fase 17 — Limpeza de Lint do Repo** (LINT-01): `npm run lint` da raiz volta a sair 0 — triar os 457 erros pré-existentes, config de ignore + overrides + `eslint-disable` documentado.
 - **Fase 18 — Auditoria Retroativa no Navegador** (AUDIT-01..05): UAT real das Fases 1/2 (autorar `01/02-HUMAN-UAT.md`) e 4/6/8 (rodar os cenários já escritos), sequencial via extensão Claude no Chrome contra `data/crm.db`. Issue não-trivial → quick task.
@@ -369,7 +370,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-08-31T14:21:06.555Z
+Last session: 2026-09-01T12:05:47.053Z
 
 **O que foi feito nesta sessão:**
 
