@@ -131,6 +131,33 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
     ),
   },
   {
+    accessorKey: "interesse",
+    header: "Interesse",
+    // WR-02 (15-REVIEW.md): sem esta coluna o admin confirmava a importação
+    // sem nunca ver o que seria gravado em `interesse` — e o truncamento em
+    // 500 (D-10 da Fase 15) ficava 100% invisível. Mesmo molde da coluna
+    // `notas` (D-04): valor cru com `whitespace-pre-line` + `max-w-xs`,
+    // "—" quando vazio. D-06: o aviso de corte mora AQUI, na célula, fora do
+    // sistema de flags amarelas por linha (`RowFlags`/`StatusBadges`).
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1">
+        <span className="block max-w-xs whitespace-pre-line">
+          {row.original.interesse || "—"}
+        </span>
+        {row.original.interesse?.length === 500 && (
+          <Badge
+            variant="outline"
+            className="w-fit gap-1 border-transparent"
+            style={{ backgroundColor: "#FEF3C7", color: "#B45309" }}
+          >
+            <TriangleAlert className="size-3" />
+            Cortado em 500 caracteres
+          </Badge>
+        )}
+      </div>
+    ),
+  },
+  {
     id: "status",
     header: "Status",
     cell: ({ row }) => <StatusBadges flags={row.original.flags} />,
