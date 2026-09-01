@@ -290,13 +290,11 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 - **Gate SC#5 5/5 exit 0:** `tsc --noEmit`, `npm run build` (Turbopack, 13 páginas), `test:lead-actions` (casos de `interesse` incl.), `verify:schema`, `guard:no-hard-delete`. Migração idempotente: 13 backups antes e depois. 6 arquivos na fase, 0 criados/removidos.
 - **Code review (`16-REVIEW.md`) + fix (`16-REVIEW-FIX.md`):** o gsd-code-reviewer achou que o fix do IN-02 (16-01) podia abortar o import de CSV inteiro para célula `interesse` com muitos emoji (CR-01, blocker), + badge de truncamento não-confiável (WR-01), + `ALTER TABLE` sem try/catch (WR-02), + 2 infos. **Todos corrigidos** (commits `8da0358` WR-01, `3bec2f6` CR-01, `23ad692` IN-01, `9db5dd2` IN-02, `eb389bc` WR-02): limite de 500 de `interesse` agora é por CODE POINT nos dois lados (`.refine(Array.from(v).length <= 500)` no schema), `MappedCsvRow.interesseTruncado` autoritativo pro badge, try/catch no ALTER. +Caso 20 (emoji ponta-a-ponta) no harness. Re-rodados tsc/build/test/verify/guard/migrate — 5/5 exit 0.
 
-**Próximo passo:** UAT de fim de fase — `/gsd-verify-work 16`. Cenários a exercer no navegador contra `data/crm.db`:
-1. Formulário de lead: campo "Interesse" faz round-trip (salva, reabre, edita, limpa → some/NULL).
-2. Formulário de lead: campo vazio / só-espaços não bloqueia o submit.
-3. Importar CSV: subir um CSV com coluna de texto livre, mapear → "Interesse", conferir na prévia a coluna "Interesse" com o valor de cada linha ("—" quando vazio).
-4. Importar CSV: uma célula com > 500 code points mostra o valor cortado E o badge amarelo "Cortado em 500 caracteres".
-5. Importar CSV sem mapear "Interesse": importa sem regressão, `interesse` fica NULL.
-Depois: `/close-phase 16` → Fase 17 (lint do repo → 0).
+**Fase 16 FECHADA E PUSHADA (2026-09-01).** `16-VERIFICATION.md` `passed` (5/5 SC, promovido pela UAT), `16-HUMAN-UAT.md` `complete` (4 cenários ao vivo no navegador + 2 skipped-accepted), `16-SECURITY.md` `verified` (threats_open: 0), `16-LEARNINGS.md` extraído. `main` → `origin/main` (28 commits, `4666403..682851a`), sem PR (`branching_strategy: none`).
+
+UAT ao vivo confirmou: coluna "Interesse" na prévia do CSV, badge "Cortado em 500 caracteres" (ASCII + emoji), edge case do CR-01 (350 emoji não abortam o lote), campo vazio não bloqueia o submit. Cenários 1 (round-trip do form) e 5 (importar sem mapear) `skipped` — cobertos por `test-lead-actions.cjs` Casos 14a/14b/20 + UAT ao vivo da Fase 15.
+
+**Próximo passo:** `/gsd-plan-phase 17` — Fase 17 (Limpeza de Lint do Repo, LINT-01): `npm run lint` da raiz → 0, triar os 457 erros pré-existentes desde a Fase 8.
 
 **Conferência humana pendente (CR-01):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
 
