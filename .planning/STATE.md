@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTED + CODE REVIEW FECHADO (aguarda secure + UAT + close)
 Plan: 2 of 2 — ambos com SUMMARY, ROADMAP 2/2 Complete
-Status: FIX-01/02/03 fechados. Code review (`16-REVIEW.md`) achou 1 blocker + 2 warnings + 2 infos — TODOS corrigidos (`16-REVIEW-FIX.md`, 5 commits `8da0358`..`eb389bc`). Gate SC#5 + regressão + build 5/5 exit 0. Falta `/gsd-secure-phase 16` → UAT de fim de fase → `/close-phase 16`
+Status: FIX-01/02/03 fechados. Code review 1 blocker + 4 achados — TODOS corrigidos (`16-REVIEW-FIX.md`). `16-SECURITY.md` `status: verified`, `threats_open: 0` (10 threats, register autorado em plano). Gate SC#5 + regressão + build 5/5 exit 0. **Falta só: UAT de fim de fase (`/gsd-verify-work 16`, precisa do humano) → `/close-phase 16`.** Nyquist/VALIDATION N/A nesta fase (decisão do usuário).
 Last activity: 2026-09-01
 
 ## Performance Metrics
@@ -288,7 +288,13 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 - **Gate SC#5 5/5 exit 0:** `tsc --noEmit`, `npm run build` (Turbopack, 13 páginas), `test:lead-actions` (casos de `interesse` incl.), `verify:schema`, `guard:no-hard-delete`. Migração idempotente: 13 backups antes e depois. 6 arquivos na fase, 0 criados/removidos.
 - **Code review (`16-REVIEW.md`) + fix (`16-REVIEW-FIX.md`):** o gsd-code-reviewer achou que o fix do IN-02 (16-01) podia abortar o import de CSV inteiro para célula `interesse` com muitos emoji (CR-01, blocker), + badge de truncamento não-confiável (WR-01), + `ALTER TABLE` sem try/catch (WR-02), + 2 infos. **Todos corrigidos** (commits `8da0358` WR-01, `3bec2f6` CR-01, `23ad692` IN-01, `9db5dd2` IN-02, `eb389bc` WR-02): limite de 500 de `interesse` agora é por CODE POINT nos dois lados (`.refine(Array.from(v).length <= 500)` no schema), `MappedCsvRow.interesseTruncado` autoritativo pro badge, try/catch no ALTER. +Caso 20 (emoji ponta-a-ponta) no harness. Re-rodados tsc/build/test/verify/guard/migrate — 5/5 exit 0.
 
-**Próximo passo:** `/gsd-secure-phase 16` (threat model T-16-01..09 + T-16-SC já inline nos 2 PLANs; `security_enforcement: true`, sem `16-SECURITY.md` ainda) → UAT de fim de fase (`<human-check>` da 16-02 Task 1: subir CSV real, mapear coluna → Interesse, ver badge em célula > 500 code points) → `/close-phase 16`. Depois: Fase 17 (lint do repo → 0).
+**Próximo passo:** UAT de fim de fase — `/gsd-verify-work 16`. Cenários a exercer no navegador contra `data/crm.db`:
+1. Formulário de lead: campo "Interesse" faz round-trip (salva, reabre, edita, limpa → some/NULL).
+2. Formulário de lead: campo vazio / só-espaços não bloqueia o submit.
+3. Importar CSV: subir um CSV com coluna de texto livre, mapear → "Interesse", conferir na prévia a coluna "Interesse" com o valor de cada linha ("—" quando vazio).
+4. Importar CSV: uma célula com > 500 code points mostra o valor cortado E o badge amarelo "Cortado em 500 caracteres".
+5. Importar CSV sem mapear "Interesse": importa sem regressão, `interesse` fica NULL.
+Depois: `/close-phase 16` → Fase 17 (lint do repo → 0).
 
 **Conferência humana pendente (CR-01):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
 
