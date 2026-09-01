@@ -74,8 +74,26 @@ if (!hasColumn) {
   // reopen, `better-sqlite3` criaria um banco VAZIO em silêncio e a
   // verificação seguinte falharia com "no such table" mascarando a causa.
   db = new Database(DB_PATH, { fileMustExist: true });
-  db.exec("ALTER TABLE `leads` ADD `interesse` text;");
-  console.log("[migrate-interesse] coluna leads.interesse adicionada (nullable, sem default)");
+  // WR-02 (16-REVIEW.md): o ALTER pode lançar mesmo depois do check `hasColumn`
+  // (corrida: outra execução adicionou a coluna nesse meio-tempo → "duplicate
+  // column name"; ou banco travado pela app Next no ar). Sem try/catch o
+  // script morria com exceção não tratada DEPOIS de já ter escrito um backup
+  // novo (reintroduzindo o sintoma do IN-03 no caminho de falha) e pulava a
+  // verificação pós-migração. "duplicate column name" = estado desejado já
+  // alcançado, segue para a verificação; qualquer outro erro é fatal e o
+  // backup fica preservado para restauração manual.
+  try {
+    db.exec("ALTER TABLE `leads` ADD `interesse` text;");
+    console.log("[migrate-interesse] coluna leads.interesse adicionada (nullable, sem default)");
+  } catch (err) {
+    if (String(err.message).includes("duplicate column name")) {
+      console.log(
+        "[migrate-interesse] coluna interesse já existe (corrida entre o check e o ALTER) — seguindo para a verificação"
+      );
+    } else {
+      fail(`ALTER TABLE falhou: ${err.message} (backup preservado em ${backupPath})`);
+    }
+  }
 } else {
   console.log(
     "[migrate-interesse] coluna interesse já existe — nada a migrar, nenhum backup criado (idempotência)"
