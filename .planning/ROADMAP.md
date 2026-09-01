@@ -92,12 +92,12 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
   4. Os 3 achados `info` do `15-REVIEW.md` estão resolvidos: comentários "7 campos fixos" → "8" em `csv-column-mapper.tsx`; `.slice(0,500)` corta por code point em `csv-import.ts`; `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não acumula backup em execução idempotente
   5. `tsc --noEmit`, `npm run build` e `test:lead-actions` seguem exit 0 com o novo caso incluído
 
-**Plans:** 2 planos
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 16-01-PLAN.md — Contrato NULL do `interesse` (WR-01/D-01) + 2 casos de teste whitespace-only + corte por code point no CSV + comentários "8 campos fixos"
+- [x] 16-01-PLAN.md — Contrato NULL do `interesse` (WR-01/D-01) + 2 casos de teste whitespace-only + corte por code point no CSV + comentários "8 campos fixos"
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -169,7 +169,7 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 16. Correções de Code Review da Fase 15 | v1.5 | 0/2 | Planned | - |
+| 16. Correções de Code Review da Fase 15 | v1.5 | 1/2 | In Progress|  |
 | 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
