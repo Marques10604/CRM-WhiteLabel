@@ -40,12 +40,18 @@ export type MappedCsvRow = {
   origem: string;
   valorEstimado: string;
   notas: string;
-  /** Texto livre "serviço desejado" (LEAD-06). Truncado em 500 chars em
+  /** Texto livre "serviço desejado" (LEAD-06). Truncado em 500 CODE POINTS em
    * `mapCsvRows` ANTES da validação (D-10) — célula gigante do CSV nunca
    * reprova a linha, o lead importa com o valor cortado. `""` quando a
    * coluna não foi mapeada ou está em branco (D-11: sem entrada em
    * CSV_DEFAULTS — vira NULL na Server Action). */
   interesse: string;
+  /** `true` quando o valor bruto de `interesse` tinha mais de 500 code points
+   * e `mapCsvRows` cortou (WR-01 da Fase 16). Sinal AUTORITATIVO de "foi
+   * truncado" para o badge da prévia — a view nunca re-deriva isso de
+   * `String.length` (falha com caracteres astrais e dá falso-positivo em
+   * células de exatamente 500 chars). NÃO vai para o insert. */
+  interesseTruncado: boolean;
 };
 
 /**
@@ -146,8 +152,14 @@ export function mapCsvRows(
     // cortado. Sem fallback de CSV_DEFAULTS (D-11): vazio/não-mapeado = "".
     // D-08 (16-01): corte por CODE POINT (Array.from) — nunca parte um par
     // surrogate / emoji na fronteira 499/500. A defesa em profundidade
-    // server-side (`csvRowSchema.max(500)`, D-09) segue contando code units.
-    const interesse = Array.from(readMapped(row, "interesse")).slice(0, 500).join("");
+    // server-side (`csvRowSchema`, CR-01 da Fase 16) valida o MESMO limite por
+    // code point (`.refine(Array.from(v).length <= 500)`), então um valor
+    // truncado aqui nunca reprova o lote — mesmo cheio de caracteres astrais.
+    // WR-01 (16): `interesseTruncado` é calculado AQUI (quem realmente corta),
+    // comparando o nº de code points antes/depois — nunca re-derivado na view.
+    const interesseChars = Array.from(readMapped(row, "interesse"));
+    const interesse = interesseChars.slice(0, 500).join("");
+    const interesseTruncado = interesseChars.length > 500;
 
     return {
       rowIndex,
@@ -160,6 +172,7 @@ export function mapCsvRows(
       valorEstimado,
       notas,
       interesse,
+      interesseTruncado,
     };
   });
 }

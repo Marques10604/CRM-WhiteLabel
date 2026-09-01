@@ -139,12 +139,17 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
     // `notas` (D-04): valor cru com `whitespace-pre-line` + `max-w-xs`,
     // "—" quando vazio. D-06: o aviso de corte mora AQUI, na célula, fora do
     // sistema de flags amarelas por linha (`RowFlags`/`StatusBadges`).
+    // WR-01 (16-REVIEW.md): o badge dispara por `row.original.interesseTruncado`
+    // (booleano vindo de `mapCsvRows`, quem realmente corta) — nunca por
+    // `interesse.length === 500`, que dá falso-negativo com caracteres astrais
+    // (500 emoji => `.length` 1000) e falso-positivo em células de exatamente
+    // 500 chars sem truncamento.
     cell: ({ row }) => (
       <div className="flex flex-col gap-1">
         <span className="block max-w-xs whitespace-pre-line">
           {row.original.interesse || "—"}
         </span>
-        {row.original.interesse?.length === 500 && (
+        {row.original.interesseTruncado && (
           <Badge
             variant="outline"
             className="w-fit gap-1 border-transparent"
