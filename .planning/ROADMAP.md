@@ -72,7 +72,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 
 **Meta do milestone:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto, limpar o lint do repo e dar identidade visual ao produto. **Zero feature funcional nova.**
 
-- [ ] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (planos TBD)
+- [ ] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
 - [ ] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (planos TBD)
 - [ ] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05 (planos TBD)
 - [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
@@ -92,7 +92,12 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
   4. Os 3 achados `info` do `15-REVIEW.md` estão resolvidos: comentários "7 campos fixos" → "8" em `csv-column-mapper.tsx`; `.slice(0,500)` corta por code point em `csv-import.ts`; `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não acumula backup em execução idempotente
   5. `tsc --noEmit`, `npm run build` e `test:lead-actions` seguem exit 0 com o novo caso incluído
 
-**Plans**: TBD
+**Plans:** 2 planos
+
+Plans:
+- [ ] 16-01-PLAN.md — Contrato NULL do `interesse` (WR-01/D-01) + 2 casos de teste whitespace-only + corte por code point no CSV + comentários "8 campos fixos"
+- [ ] 16-02-PLAN.md — Coluna "Interesse" na prévia do CSV com badge de truncamento + `migrate-interesse.cjs` (doc + sem backup idempotente) + gate SC#5
+
 **Threat surface**: mínima — ajuste em validação Zod e numa tabela de prévia de dados já existentes; nenhuma superfície de entrada nova, sem auth, sem rede, sem schema destrutivo. `/gsd-secure-phase` deve fechar rápido.
 
 ### Phase 17: Limpeza de Lint do Repo
@@ -159,7 +164,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 16. Correções de Code Review da Fase 15 | v1.5 | 0/TBD | Not started | - |
+| 16. Correções de Code Review da Fase 15 | v1.5 | 0/2 | Planned | - |
 | 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
