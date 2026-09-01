@@ -588,6 +588,45 @@ async function runBehaviorTests() {
     );
   }
 
+  // Caso 20 (CR-01, Fase 16): célula de `interesse` com muitos caracteres
+  // astrais (emoji), truncada por `mapCsvRows` em 500 CODE POINTS, precisa
+  // PASSAR no csvRowSchema server-side — que valida o limite por code point
+  // (`.refine(Array.from(v).length <= 500)`), não por code unit. Antes do fix
+  // do CR-01, `.max(500)` contava code units e o valor truncado (~1000 code
+  // units) reprovava o safeParse, abortando o lote inteiro em bulkImportLeads.
+  {
+    const mapping = {
+      nome: null,
+      telefone: null,
+      nichoNome: null,
+      canal: null,
+      origem: null,
+      valorEstimado: null,
+      notas: null,
+      interesse: "Interesse",
+    };
+    const mapped = mapCsvRows([{ Interesse: "😀".repeat(600) }], mapping);
+    check(
+      Array.from(mapped[0]?.interesse ?? "").length === 500,
+      `mapCsvRows(600 emoji): interesse truncado em 500 code points (got ${Array.from(mapped[0]?.interesse ?? "").length})`
+    );
+    check(
+      mapped[0]?.interesseTruncado === true,
+      `mapCsvRows(600 emoji): interesseTruncado === true (got ${mapped[0]?.interesseTruncado})`
+    );
+    check(
+      mapped[0].interesse.length > 500,
+      `mapCsvRows(600 emoji): valor truncado passa de 500 code UNITS (got ${mapped[0].interesse.length}) — reproduz o cenário do CR-01`
+    );
+    const parsed = csvRowSchema.safeParse(makeImportRow({ interesse: mapped[0].interesse }));
+    check(
+      parsed.success === true,
+      `csvRowSchema.safeParse(emoji truncado por mapCsvRows): success === true (got ${
+        parsed.success ? "ok" : JSON.stringify(parsed.error?.issues)
+      })`
+    );
+  }
+
   try {
     fs.unlinkSync(tmpDb);
   } catch {

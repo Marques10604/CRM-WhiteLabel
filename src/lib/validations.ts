@@ -36,8 +36,12 @@ export const motivoPerdaSchema = z.object({
  * quando vazio (D-04 = vazio grava NULL, a Server Action materializa
  * `undefined -> null`). Fica FORA do `.omit()` de `csvRowSchema`, então
  * propaga automaticamente para o form (`leadSchema`) e o import CSV
- * (`csvRowSchema`). O `.max(500)` só morde no caminho do formulário manual —
- * o import CSV trunca em 500 antes de validar (D-05/D-10).
+ * (`csvRowSchema`). O limite de 500 é validado por CODE POINT
+ * (`Array.from(v).length`, CR-01 da Fase 16) — consistente nos dois lados:
+ * bate com o truncamento por code point de `mapCsvRows` (D-08/D-10) e com o
+ * badge de corte da prévia. No formulário manual o `.refine` é a única
+ * barreira; no import CSV é defesa em profundidade sobre um valor já
+ * truncado, então o lote nunca reprova por causa de emoji/caractere astral.
  */
 const leadBaseSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório."),
@@ -73,7 +77,14 @@ const leadBaseSchema = z.object({
       const s = typeof v === "string" ? v.trim() : v;
       return s === "" || s === null || s === undefined ? undefined : s;
     },
-    z.string().trim().max(500, "O interesse deve ter no máximo 500 caracteres.").optional()
+    z
+      .string()
+      .trim()
+      .refine(
+        (v) => Array.from(v).length <= 500,
+        "O interesse deve ter no máximo 500 caracteres."
+      )
+      .optional()
   ),
   followUpDate: z.coerce.date(),
   nichoId: z.coerce.number().int().positive("Selecione um nicho."),
