@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
 status: executing
-last_updated: "2026-09-01T13:09:40.227Z"
+last_updated: "2026-09-01T14:30:00.000Z"
 last_activity: 2026-09-01
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
+Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTED (aguarda secure + UAT + close)
+Plan: 2 of 2 — ambos com SUMMARY, ROADMAP 2/2 Complete
+Status: Código pronto. FIX-01/02/03 fechados. Gate SC#5 5/5 exit 0. Falta `/gsd-secure-phase 16` → UAT de fim de fase → `/close-phase 16`
 Last activity: 2026-09-01
 
 ## Performance Metrics
@@ -279,7 +279,22 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — 2026-08-31
+### ▶ COMEÇA AQUI (próxima sessão) — 2026-09-01
+
+**Fase 16 (Correções de Code Review da Fase 15) — EXECUTADA.** Os 2 planos com SUMMARY, ROADMAP 2/2 Complete.
+
+- **16-01** (`cc3d44c`, `8fbca7a`, `17acb77`, `2fa1e99`): WR-01 (trim de `interesse` dentro do `z.preprocess` → só-espaços grava NULL) + IN-01 (comentário "8 campos fixos") + IN-02 (corte de CSV por code point). +2 casos no harness.
+- **16-02** (`bb4b36a`, `dded053`): WR-02 (coluna "Interesse" na prévia do CSV, molde de `notas`, + badge amarelo "Cortado em 500 caracteres" na célula) + IN-03 (`migrate-interesse.cjs`: backup só quando escreve + header "pare a app Next"). Tasks 1-2 commitadas em sessão anterior sem SUMMARY; retomado via `close-out manually` e Task 3 (gate SC#5) fechada nesta sessão.
+- **Gate SC#5 5/5 exit 0:** `tsc --noEmit`, `npm run build` (Turbopack, 13 páginas), `test:lead-actions` (casos de `interesse` incl.), `verify:schema`, `guard:no-hard-delete`. Migração idempotente: 13 backups antes e depois. 6 arquivos na fase, 0 criados/removidos.
+
+**Próximo passo:** `/gsd-secure-phase 16` (threat model T-16-01..09 + T-16-SC já inline nos 2 PLANs; `security_enforcement: true`, sem `16-SECURITY.md` ainda) → UAT de fim de fase (`<human-check>` da 16-02 Task 1: subir CSV real, mapear coluna → Interesse, ver badge em célula > 500) → `/close-phase 16`. Depois: Fase 17 (lint do repo → 0).
+
+**Débito não bloqueia a Fase 16:** `npm run lint` do repo segue saindo 1 (457 erros pré-existentes) — é trabalho da Fase 17.
+
+---
+
+<details>
+<summary>Histórico — Roadmap v1.5 criado (2026-08-31)</summary>
 
 **Milestone v1.4 (CRM Genérico Multi-Nicho / despivô) — SHIPADO E ARQUIVADO.** Fases 13-15 fechadas, PRs #4 e #5 mergeados em `main`, tag `v1.4` empurrada. ROADMAP/PROJECT/REQUIREMENTS arquivados em `.planning/milestones/v1.4-*`; `REQUIREMENTS.md` removido (fresh no próximo milestone). RETROSPECTIVE.md atualizado.
 
@@ -293,6 +308,8 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 **Próximo passo:** `/gsd-plan-phase 16`. Candidatos adiados p/ v1.6+: handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
 
 **Débito re-reconhecido no fecho (não bloqueia):** UAT/verification gaps das Fases 04/06/08 (milestones v1.0/v1.2/v1.3 já shipados) + 8 quick tasks de UI/warnings v1.0–v1.3 — ver §Deferred Items. Decisão pendente: rodar `/gsd:verify-work` retroativo ou mover formalmente pra "aceito como está".
+
+</details>
 
 <details>
 <summary>Histórico da Fase 15 (executada 2026-08-31)</summary>

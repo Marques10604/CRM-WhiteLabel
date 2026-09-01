@@ -92,7 +92,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
   4. Os 3 achados `info` do `15-REVIEW.md` estão resolvidos: comentários "7 campos fixos" → "8" em `csv-column-mapper.tsx`; `.slice(0,500)` corta por code point em `csv-import.ts`; `migrate-interesse.cjs` documenta "pare a app antes de rodar" e não acumula backup em execução idempotente
   5. `tsc --noEmit`, `npm run build` e `test:lead-actions` seguem exit 0 com o novo caso incluído
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -101,7 +101,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 16-02-PLAN.md — Coluna "Interesse" na prévia do CSV com badge de truncamento + `migrate-interesse.cjs` (doc + sem backup idempotente) + gate SC#5
+- [x] 16-02-PLAN.md — Coluna "Interesse" na prévia do CSV com badge de truncamento + `migrate-interesse.cjs` (doc + sem backup idempotente) + gate SC#5
 
 **Threat surface**: mínima — ajuste em validação Zod e numa tabela de prévia de dados já existentes; nenhuma superfície de entrada nova, sem auth, sem rede, sem schema destrutivo. `/gsd-secure-phase` deve fechar rápido.
 
@@ -169,7 +169,7 @@ Plans:
 
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
-| 16. Correções de Code Review da Fase 15 | v1.5 | 1/2 | In Progress|  |
+| 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete   | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
