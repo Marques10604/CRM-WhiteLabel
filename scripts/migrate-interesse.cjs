@@ -69,7 +69,11 @@ if (!hasColumn) {
     fail(`não foi possível criar o backup de ${DB_PATH}: ${err.message}`);
   }
   console.log(`[migrate-interesse] backup criado em ${backupPath}`);
-  db = new Database(DB_PATH);
+  // IN-02 (16-REVIEW.md): reabrir com `fileMustExist: true` — mesmo contrato
+  // da linha 47. Sem isso, se `DB_PATH` sumisse entre o `close()` e este
+  // reopen, `better-sqlite3` criaria um banco VAZIO em silêncio e a
+  // verificação seguinte falharia com "no such table" mascarando a causa.
+  db = new Database(DB_PATH, { fileMustExist: true });
   db.exec("ALTER TABLE `leads` ADD `interesse` text;");
   console.log("[migrate-interesse] coluna leads.interesse adicionada (nullable, sem default)");
 } else {
