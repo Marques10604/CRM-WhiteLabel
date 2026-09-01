@@ -72,8 +72,10 @@ export type ConfirmedImportRow = {
   valorEstimado: string;
   notas: string;
   /** Texto livre "serviço desejado" (LEAD-06). `""` quando a coluna não foi
-   * mapeada no wizard — vira NULL no insert (D-11). Já truncado em 500 por
-   * `mapCsvRows` (D-10), então o `.max(500)` de `csvRowSchema` nunca reprova. */
+   * mapeada no wizard — vira NULL no insert (D-11). Já truncado em 500 CODE
+   * POINTS por `mapCsvRows` (D-10); o `csvRowSchema` valida o mesmo limite
+   * também por code point (`.refine(Array.from(v).length <= 500)`, CR-01 da
+   * Fase 16), então o valor truncado nunca reprova o lote. */
   interesse: string;
   nichoNome: string;
 };
