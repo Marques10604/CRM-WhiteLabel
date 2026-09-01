@@ -18,6 +18,16 @@
 // [BLOCKING]: `tsc`/`next build` derivam tipos de `schema.ts` e passariam
 // mesmo com o banco desatualizado (falso-positivo). Nenhum plano posterior da
 // Fase 15 (15-02, CSV) pode rodar sem a coluna viva em data/crm.db.
+//
+// PREMISSA OPERACIONAL (IN-03): pare a app Next (dev/start) antes de rodar. O
+// src/db/client.ts abre o banco em journal_mode=WAL; com a app no ar, escritas
+// concorrentes podem ficar no `-wal` fora da cópia do arquivo principal e o
+// backup sairia incompleto. O script faz `wal_checkpoint(TRUNCATE)` antes de
+// copiar, mas não consegue impedir uma escrita concorrente durante a cópia.
+//
+// IDEMPOTÊNCIA (IN-03): quando a coluna `interesse` já existe, o script não
+// escreve nada (só `PRAGMA`/`SELECT` de verificação) e por isso NÃO cria
+// backup novo — evita a pasta data/ acumular um backup a cada execução.
 "use strict";
 
 const path = require("node:path");
@@ -31,38 +41,41 @@ function fail(message) {
   process.exit(1);
 }
 
-// 1) BACKUP ANTES DE QUALQUER ESCRITA — checkpoint do WAL primeiro (o
-//    src/db/client.ts roda em journal_mode=WAL), senão a cópia do arquivo
-//    principal pode não conter escritas ainda pendentes no -wal.
-const backupPath = `${DB_PATH}.backup-${new Date().toISOString().replace(/[:.]/g, "-")}`;
-try {
-  const dbForCheckpoint = new Database(DB_PATH, { fileMustExist: true });
-  dbForCheckpoint.pragma("wal_checkpoint(TRUNCATE)");
-  dbForCheckpoint.close();
-  fs.copyFileSync(DB_PATH, backupPath);
-} catch (err) {
-  fail(`não foi possível criar o backup de ${DB_PATH}: ${err.message}`);
-}
-console.log(`[migrate-interesse] backup criado em ${backupPath}`);
+// 1) Abrir UMA conexão e checar se a coluna já existe ANTES de decidir por
+//    backup — guarda via PRAGMA table_info (coluna, não tabela). SEM DEFAULT,
+//    SEM NOT NULL: coluna nullable, leads antigos ficam NULL (D-06).
+let db = new Database(DB_PATH, { fileMustExist: true });
 
-const db = new Database(DB_PATH);
-
-// 2) Contagem de referência ANTES de qualquer escrita.
-const beforeLeads = db.prepare("SELECT count(*) AS c FROM leads").get().c;
-
-// 3) ADD COLUMN idempotente — guarda via PRAGMA table_info (coluna, não
-//    tabela). SEM DEFAULT, SEM NOT NULL: coluna nullable, leads antigos ficam
-//    NULL (D-06). SQLite lança "duplicate column name" se o ALTER rodar 2x.
 const hasColumn = db
   .prepare("PRAGMA table_info(leads)")
   .all()
   .some((c) => c.name === "interesse");
 
+// 2) Contagem de referência ANTES de qualquer escrita.
+const beforeLeads = db.prepare("SELECT count(*) AS c FROM leads").get().c;
+
+// 3) BACKUP + ALTER só quando a coluna ainda não existe. Execução idempotente
+//    (coluna presente) não escreve nada, logo NÃO cria backup novo (IN-03) —
+//    checkpoint do WAL primeiro (o src/db/client.ts roda em journal_mode=WAL),
+//    senão a cópia do arquivo principal pode não conter escritas ainda
+//    pendentes no -wal. SQLite lança "duplicate column name" se o ALTER rodar 2x.
 if (!hasColumn) {
+  const backupPath = `${DB_PATH}.backup-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  try {
+    db.pragma("wal_checkpoint(TRUNCATE)");
+    db.close();
+    fs.copyFileSync(DB_PATH, backupPath);
+  } catch (err) {
+    fail(`não foi possível criar o backup de ${DB_PATH}: ${err.message}`);
+  }
+  console.log(`[migrate-interesse] backup criado em ${backupPath}`);
+  db = new Database(DB_PATH);
   db.exec("ALTER TABLE `leads` ADD `interesse` text;");
   console.log("[migrate-interesse] coluna leads.interesse adicionada (nullable, sem default)");
 } else {
-  console.log("[migrate-interesse] coluna interesse já existe — pulando ALTER TABLE (idempotência)");
+  console.log(
+    "[migrate-interesse] coluna interesse já existe — nada a migrar, nenhum backup criado (idempotência)"
+  );
 }
 
 // 4) VERIFICAÇÃO PÓS-MIGRAÇÃO
