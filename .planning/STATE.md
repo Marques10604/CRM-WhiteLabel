@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTED (aguarda secure + UAT + close)
+Phase: 16 (corre-es-de-code-review-da-fase-15) — EXECUTED + CODE REVIEW FECHADO (aguarda secure + UAT + close)
 Plan: 2 of 2 — ambos com SUMMARY, ROADMAP 2/2 Complete
-Status: Código pronto. FIX-01/02/03 fechados. Gate SC#5 5/5 exit 0. Falta `/gsd-secure-phase 16` → UAT de fim de fase → `/close-phase 16`
+Status: FIX-01/02/03 fechados. Code review (`16-REVIEW.md`) achou 1 blocker + 2 warnings + 2 infos — TODOS corrigidos (`16-REVIEW-FIX.md`, 5 commits `8da0358`..`eb389bc`). Gate SC#5 + regressão + build 5/5 exit 0. Falta `/gsd-secure-phase 16` → UAT de fim de fase → `/close-phase 16`
 Last activity: 2026-09-01
 
 ## Performance Metrics
@@ -286,8 +286,13 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 - **16-01** (`cc3d44c`, `8fbca7a`, `17acb77`, `2fa1e99`): WR-01 (trim de `interesse` dentro do `z.preprocess` → só-espaços grava NULL) + IN-01 (comentário "8 campos fixos") + IN-02 (corte de CSV por code point). +2 casos no harness.
 - **16-02** (`bb4b36a`, `dded053`): WR-02 (coluna "Interesse" na prévia do CSV, molde de `notas`, + badge amarelo "Cortado em 500 caracteres" na célula) + IN-03 (`migrate-interesse.cjs`: backup só quando escreve + header "pare a app Next"). Tasks 1-2 commitadas em sessão anterior sem SUMMARY; retomado via `close-out manually` e Task 3 (gate SC#5) fechada nesta sessão.
 - **Gate SC#5 5/5 exit 0:** `tsc --noEmit`, `npm run build` (Turbopack, 13 páginas), `test:lead-actions` (casos de `interesse` incl.), `verify:schema`, `guard:no-hard-delete`. Migração idempotente: 13 backups antes e depois. 6 arquivos na fase, 0 criados/removidos.
+- **Code review (`16-REVIEW.md`) + fix (`16-REVIEW-FIX.md`):** o gsd-code-reviewer achou que o fix do IN-02 (16-01) podia abortar o import de CSV inteiro para célula `interesse` com muitos emoji (CR-01, blocker), + badge de truncamento não-confiável (WR-01), + `ALTER TABLE` sem try/catch (WR-02), + 2 infos. **Todos corrigidos** (commits `8da0358` WR-01, `3bec2f6` CR-01, `23ad692` IN-01, `9db5dd2` IN-02, `eb389bc` WR-02): limite de 500 de `interesse` agora é por CODE POINT nos dois lados (`.refine(Array.from(v).length <= 500)` no schema), `MappedCsvRow.interesseTruncado` autoritativo pro badge, try/catch no ALTER. +Caso 20 (emoji ponta-a-ponta) no harness. Re-rodados tsc/build/test/verify/guard/migrate — 5/5 exit 0.
 
-**Próximo passo:** `/gsd-secure-phase 16` (threat model T-16-01..09 + T-16-SC já inline nos 2 PLANs; `security_enforcement: true`, sem `16-SECURITY.md` ainda) → UAT de fim de fase (`<human-check>` da 16-02 Task 1: subir CSV real, mapear coluna → Interesse, ver badge em célula > 500) → `/close-phase 16`. Depois: Fase 17 (lint do repo → 0).
+**Próximo passo:** `/gsd-secure-phase 16` (threat model T-16-01..09 + T-16-SC já inline nos 2 PLANs; `security_enforcement: true`, sem `16-SECURITY.md` ainda) → UAT de fim de fase (`<human-check>` da 16-02 Task 1: subir CSV real, mapear coluna → Interesse, ver badge em célula > 500 code points) → `/close-phase 16`. Depois: Fase 17 (lint do repo → 0).
+
+**Conferência humana pendente (CR-01):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
+
+**Cruft não-bloqueante:** worktree órfão `agent-ab2be3f82c3c9c30d` (branch `worktree-agent-ab2be3f82c3c9c30d` @ `dc9dc98`, um commit da Fase 03) — sobra de execução antiga, `git worktree remove` quando quiser limpar.
 
 **Débito não bloqueia a Fase 16:** `npm run lint` do repo segue saindo 1 (457 erros pré-existentes) — é trabalho da Fase 17.
 
