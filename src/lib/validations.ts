@@ -69,7 +69,10 @@ const leadBaseSchema = z.object({
   ),
   notas: z.string().trim().min(1, "Notas são obrigatórias."),
   interesse: z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? undefined : v),
+    (v) => {
+      const s = typeof v === "string" ? v.trim() : v;
+      return s === "" || s === null || s === undefined ? undefined : s;
+    },
     z.string().trim().max(500, "O interesse deve ter no máximo 500 caracteres.").optional()
   ),
   followUpDate: z.coerce.date(),
