@@ -73,7 +73,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 **Meta do milestone:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto, limpar o lint do repo e dar identidade visual ao produto. **Zero feature funcional nova.**
 
 - [x] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
-- [ ] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (planos TBD)
+- [ ] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (1 plano)
 - [ ] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05 (planos TBD)
 - [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
 
@@ -118,7 +118,13 @@ Plans:
   4. Nenhuma regra foi desativada globalmente de forma que mascare um erro real em `src/` — o diff da config é pequeno, revisável e comentado
   5. `deferred-items.md` e a seção Context do `PROJECT.md` não listam mais "`npm run lint` global sai 1" como débito aberto
 
-**Plans**: TBD
+**Plans**: 1 plano
+
+Plans:
+**Wave 1**
+
+- [ ] 17-01-PLAN.md — `.claude/**` no `globalIgnores` + override de `scripts/**/*.cjs` (`no-require-imports`) + remoção do worktree órfão + `eslint-disable` documentado nos 4 erros reais de `src/` + docs de débito atualizadas + gate `npm run lint` da raiz exit 0
+
 **Threat surface**: nenhuma — config de tooling e supressões de lint, zero código de runtime tocado. `/gsd-secure-phase` deve fechar rápido.
 
 ### Phase 18: Auditoria Retroativa no Navegador
@@ -170,7 +176,7 @@ Plans:
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
-| 17. Limpeza de Lint do Repo | v1.5 | 0/TBD | Not started | - |
+| 17. Limpeza de Lint do Repo | v1.5 | 0/1 | Not started | - |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
 
