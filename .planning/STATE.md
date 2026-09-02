@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: ready_to_plan
-last_updated: 2026-09-02T00:12:48.804Z
+status: executing
+last_updated: 2026-09-02T00:00:00.000Z
 last_activity: 2026-09-02
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 3
-  completed_plans: 51
-  percent: 50
-stopped_at: Phase 17 complete (1/1) — ready to discuss Phase 18
+  completed_plans: 57
+  percent: 75
+stopped_at: Phase 18 complete (6/6, método code+data) — 5 VERIFICATION.md passed, 0 issues; ready to close/ship Phase 18
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 18
-Plan: Not started
-Status: Ready to plan
+Phase: 18 — Auditoria Retroativa (AUDIT-01..05)
+Plan: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado por hardware)
+Status: Fase completa — `01/02-HUMAN-UAT.md` autorados + `complete`; `04/06/08-HUMAN-UAT.md` executados + `complete`; os 5 `VERIFICATION.md` `passed`; §Deferred Items limpo. 0 issues de runtime, nenhuma quick task nova. Pronta para close/ship.
 Last activity: 2026-09-02
 
 ## Performance Metrics
@@ -284,19 +284,32 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — sessão de 2026-09-01 encerrada, continua 2026-09-02
+### ▶ COMEÇA AQUI (próxima sessão) — Fase 18 completa 2026-09-02
 
-**ONDE PARAMOS:** milestone v1.5, Fases **16 e 17 fechadas + pushadas** (`main` = `origin/main`, working tree limpo, só `.claude/` untracked que é normal). Sobram 2 fases no v1.5: **18** (auditoria retroativa no navegador) e **19** (marca "SOLO" + `/brand-design`).
+**ONDE PARAMOS:** milestone v1.5, Fases **16, 17 e 18 fechadas**. Sobra 1 fase no v1.5: **19**
+(marca "SOLO" + `/brand-design`).
 
-**FASE 18 BLOQUEADA POR HARDWARE (2026-09-02).** Tentei rodar 18-01: `01-HUMAN-UAT.md` autorado (20 cenários), cenário 4 (guard de descarte) PASS ao vivo. Travou: `npm run dev` + Chrome + sessão Claude → **204 MB de RAM livres de 4007** → renderer congelado, `javascript_tool` timeout 45s. Ver `.planning/phases/18-auditoria-retroativa-no-navegador/18-01-SUMMARY.md`.
+**FASE 18 COMPLETA (2026-09-02) — método code+data.** O UAT ao vivo no navegador foi bloqueado
+por hardware (host 4GB: `npm run dev` + Chrome + sessão Claude → ~200 MB livres, renderer
+congelado). Decisão do usuário: verificar por **code+data** (leitura da superfície + query no
+`data/crm.db` só-SELECT + harnesses `test:*`/`verify:*`). Resultado:
 
-**Ferramenta:** `form_input` E `computer type` não preenchem os inputs do form (só `javascript_tool` com setter nativo). `<Select>` Base UI por clique não seleciona. Combobox de Nicho funciona.
+- `01-HUMAN-UAT.md` + `02-HUMAN-UAT.md` **autorados do zero** e `complete` (20 + 15 cenários).
+- `04/06/08-HUMAN-UAT.md` **executados** e `complete` (7 + 11 + 4 cenários; 1 skipped no 06 —
+  cenário 11, layout puramente visual).
+- Os **5 `VERIFICATION.md` → `passed`** (`01/02` criados; `04/06/08` promovidos de
+  `human_needed`, `human_verification: []`).
+- **0 issues de runtime** — nenhuma quick task nova. Gaps antigos fechados de passagem: WR-03
+  do `08-REVIEW` (bulkImportLeads sem cobertura) e WR-01 do `06-REVIEW` (TOCTOU) já estavam
+  resolvidos por quick tasks anteriores; registrado nos VERIFICATION.
+- `STATE.md` §Deferred Items **limpo** das 5 linhas de gap (SC#5 / D-07).
+- 6 commits `test(18)`/`docs(18)` na `main` (não pushados — orquestrador faz).
 
-**DECISÃO PENDENTE (usuário):** (a) host com mais RAM; (b) usuário roda dev server + browser, Claude só orienta; (c) verificação code+data pros cenários de form + navegador só pros de leitura/clique/dashboard; (d) pular pra Fase 19 e voltar na 18 depois. Fases 16/17 fechadas — o milestone v1.5 NÃO está travado, só a Fase 18.
+**Diferido para uma futura sessão com navegador (não bloqueia):** renderização visual pura
+(setas de ordenação, rodapé multi-página, cores de badges/seções, toasts, animações, layout
+esfriando+contador na mesma linha) e um import CSV real NOVO de ponta a ponta no `data/crm.db`.
 
-**PRÓXIMO COMANDO:** decidir a abordagem da Fase 18 com o usuário. Se pular: `/gsd-plan-phase 19` (marca "SOLO" + `/brand-design` — checar se o preview de paletas precisa de browser).
-
-**⚠ Aviso pra Fase 18 (aprendido hoje):** o host de 4GB sofre com dev server + Chrome + extensão ao mesmo tempo — screenshots da extensão deram timeout intermitente, `form_input` NÃO dispara o `onChange` do react-hook-form (usar `computer type` + clicar opções de `<Select>` Base UI por coordenada), e a sessão bateu no limite de uso 5h no meio do UAT da Fase 16. Planejar a Fase 18 com isso em mente: rodar cenário por cenário, `get_page_text` em vez de screenshot quando der timeout, NÃO confirmar imports que poluam o `data/crm.db` real, matar `node` órfãos antes de subir o dev server.
+**PRÓXIMO COMANDO:** `/gsd-close-phase 18` (extract-learnings + ship), depois `/gsd-plan-phase 19`.
 
 **Pendência aberta (não bloqueia):** conferência humana do CR-01 da Fase 16 — o limite de "500 caracteres" do campo `interesse` no formulário manual passou a contar code points (antes: code units UTF-16). Mais correto, documentado, mas confirmar que é a semântica desejada.
 

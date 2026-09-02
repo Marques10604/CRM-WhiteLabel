@@ -34,9 +34,16 @@ duration: ~40min (autoria + tentativa de execução + diagnóstico)
 completed: 2026-09-02
 ---
 
-# Phase 18 Plan 01: Auditoria Retroativa Fase 1 — BLOQUEADO POR HARDWARE
+# Phase 18 Plan 01: Auditoria Retroativa Fase 1 — BLOQUEIO DE HARDWARE RESOLVIDO POR PIVÔ (code+data)
 
-**`01-HUMAN-UAT.md` autorado (20 cenários). Cenário 4 (guard de descarte) verificado ao vivo e aprovado. Os demais 19 cenários estão bloqueados: o host de 4GB não roda `npm run dev` (Turbopack) + Chrome + a sessão Claude ao mesmo tempo — RAM livre caiu a ~200 MB e o renderer do Chrome congelou.**
+**`01-HUMAN-UAT.md` autorado (20 cenários). Cenário 4 (guard de descarte) verificado ao vivo e aprovado.**
+
+**Atualização 2026-09-02 (D-01 revisado):** o bloqueio de navegador (host 4GB) foi contornado
+pela decisão do usuário de verificar por **code+data** em vez de clique real. Os 19 cenários
+restantes da Fase 1 foram completados nessa auditoria — `01-HUMAN-UAT.md` está `complete`
+(20/20 pass, 0 issues) e `01-VERIFICATION.md` foi criado com `status: passed` (commit
+`test(18): Fase 1 auditada code+data`). O conteúdo abaixo é o registro histórico da tentativa
+original de UAT ao vivo e do diagnóstico de hardware.
 
 ## Performance
 

@@ -74,7 +74,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 
 - [x] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
 - [x] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (1 plano)
-- [ ] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04, AUDIT-05 (6 planos)
+- [x] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01..05 (6 planos) — método code+data (navegador bloqueado por hardware); 5 VERIFICATION.md `passed`, 0 issues
 - [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
 
 ## Phase Details
@@ -142,13 +142,13 @@ Plans:
 
 **Plans**: 6 planos (sequenciais, 1 por wave — host 4GB, sem paralelo)
 
-Plans:
-- [ ] **Wave 1** — 18-01-PLAN.md — Fase 1: autorar `01-HUMAN-UAT.md` (20 cenários) + executar CRUD de lead e CRUD de nicho/dedupe no navegador
-- [ ] **Wave 2** — 18-02-PLAN.md — Fase 1: executar lista/toolbar/paginação + `01-HUMAN-UAT.md` → complete + criar `01-VERIFICATION.md` passed
-- [ ] **Wave 3** — 18-03-PLAN.md — Fase 2: autorar `02-HUMAN-UAT.md` + fixtures CSV + executar upload/mapeamento/prévia com flags + 1 import real + `02-VERIFICATION.md` passed
-- [ ] **Wave 4** — 18-04-PLAN.md — Fase 4: executar os 7 cenários de `04-HUMAN-UAT.md` (incl. fixes de review) + promover `04-VERIFICATION.md` passed
-- [ ] **Wave 5** — 18-05-PLAN.md — Fase 6: executar os 11 cenários de `06-HUMAN-UAT.md` + promover `06-VERIFICATION.md` passed
-- [ ] **Wave 6** — 18-06-PLAN.md — Fase 8: executar os 4 cenários de `08-HUMAN-UAT.md` + promover `08-VERIFICATION.md` passed + limpar `STATE.md` §Deferred Items (SC#5)
+Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado por hardware no host 4GB)
+- [x] **Wave 1** — 18-01-PLAN.md — Fase 1: `01-HUMAN-UAT.md` autorado (20 cenários); cenário 4 live; bloqueio de hardware diagnosticado
+- [x] **Wave 2** — 18-02-SUMMARY — Fase 1: 19 cenários por code+data + `01-HUMAN-UAT.md` complete + `01-VERIFICATION.md` passed
+- [x] **Wave 3** — 18-03-SUMMARY — Fase 2: `02-HUMAN-UAT.md` autorado (15 cenários) + `02-VERIFICATION.md` passed
+- [x] **Wave 4** — 18-04-SUMMARY — Fase 4: 7 cenários por code+data + `04-VERIFICATION.md` passed
+- [x] **Wave 5** — 18-05-SUMMARY — Fase 6: 10/11 pass + 1 skipped (visual) + `06-VERIFICATION.md` passed
+- [x] **Wave 6** — 18-06-SUMMARY — Fase 8: 4 cenários por code+data + `08-VERIFICATION.md` passed + `STATE.md` §Deferred Items limpo (SC#5)
 
 **Threat surface**: nenhuma — trabalho de verificação de comportamento já shipado; não altera código de runtime (só docs de UAT/verification e, se houver achado, quick tasks separadas). `/gsd-secure-phase` deve fechar rápido. Único cuidado registrado: dados de teste "UAT18 ..." criados no `data/crm.db` real (T-18-01 — mitigado por prefixo identificável + soft-delete + registro no HUMAN-UAT do que criar/limpar).
 
@@ -186,9 +186,9 @@ Plans:
 |------|-----------|--------|--------|-----------|
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
-| 18. Auditoria Retroativa no Navegador | v1.5 | 0/6 | Not started | - |
+| 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete (code+data) | 2026-09-02 |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
 
 ---
 
-_Próximo: `/gsd-execute-phase 18`. Candidatos adiados para v1.6+: handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME._
+_Próximo: `/gsd-close-phase 18` (ou o que o orquestrador decidir), depois `/gsd-plan-phase 19`. Candidatos adiados para v1.6+: handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME._
