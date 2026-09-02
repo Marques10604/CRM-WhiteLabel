@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: executing
-last_updated: "2026-09-01T23:59:59.140Z"
-last_activity: 2026-09-01 -- Phase 17 execution started
+status: verifying
+last_updated: "2026-09-02T00:08:22.233Z"
+last_activity: 2026-09-02
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 3
-  completed_plans: 2
-  percent: 25
+  completed_plans: 3
+  percent: 50
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 Phase: 17 (limpeza-de-lint-do-repo) — EXECUTING
 Plan: 1 of 1
-Status: Executing Phase 17
-Last activity: 2026-09-01 -- Phase 17 execution started
+Status: Phase complete — ready for verification
+Last activity: 2026-09-02
 
 ## Performance Metrics
 
@@ -92,6 +92,7 @@ Last activity: 2026-09-01 -- Phase 17 execution started
 | Phase 15 P01 | 35min | 3 tasks | 7 files |
 | Phase 15 P02 | 20min | 2 tasks | 6 files |
 | Phase 16 P01 | 18min | 3 tasks | 4 files |
+| Phase 17 P01 | 20min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -192,6 +193,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 15-02] interesse mapeável no wizard de CSV: 6 pontos de toque + truncamento .slice(0,500) em mapCsvRows ANTES de csvRowSchema.safeParse (D-10); fora de CSV_DEFAULTS (D-11), vazio grava NULL
 - [Phase ?]: [Phase 16-01]: trim de campo opcional de texto livre mora DENTRO do z.preprocess (const s = typeof v === string ? v.trim() : v, antes de mapear vazio->undefined) — o z.string().trim() interno não converte '' em undefined; fecha WR-01 da Fase 15
 - [Phase ?]: [Phase 16-01]: truncamento de texto de CSV em mapCsvRows corta por code point (Array.from().slice(0,500).join()); csvRowSchema.max(500) segue contando code units UTF-16 — assimetria aceita (D-09)
+- [Phase ?]: [Phase 17-01]: override de scripts/**/*.cjs no eslint.config.mjs desliga so no-require-imports (CommonJS deliberado dos harnesses); .claude/** no globalIgnores tira ferramental de agente do lint; 4 falsos-positivos react-hooks de src/ com eslint-disable-next-line documentado. npm run lint da raiz volta a exit 0 (LINT-01)
 
 ### Pending Todos
 
@@ -400,7 +402,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-01T13:04:25.467Z
+Last session: 2026-09-02T00:08:17.916Z
 
 **O que foi feito nesta sessão:**
 

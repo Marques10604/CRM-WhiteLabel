@@ -26,7 +26,7 @@ Fases já shipadas cujo comportamento nunca foi verificado com clique real. O ho
 
 ### Limpeza de Lint
 
-- [ ] **LINT-01**: `npm run lint` executado no repo inteiro sai com código `0` — os 457 erros pré-existentes (documentados desde a Fase 8) triados e resolvidos por correção real ou supressão justificada: `.claude/get-shit-done` e worktree órfão fora do escopo do ESLint na config, `.cjs` de scripts com override de `no-require-imports`, `eslint-disable` documentado nos falsos-positivos de `react-hooks`; `deferred-items.md` atualizado removendo o item
+- [x] **LINT-01**: `npm run lint` executado no repo inteiro sai com código `0` — os 457 erros pré-existentes (documentados desde a Fase 8) triados e resolvidos por correção real ou supressão justificada: `.claude/get-shit-done` e worktree órfão fora do escopo do ESLint na config, `.cjs` de scripts com override de `no-require-imports`, `eslint-disable` documentado nos falsos-positivos de `react-hooks`; `deferred-items.md` atualizado removendo o item
 
 ### Marca e Identidade Visual
 
@@ -84,7 +84,7 @@ Preenchido na criação do roadmap (2026-08-31).
 | FIX-01 | Fase 16 | Complete |
 | FIX-02 | Fase 16 | Complete |
 | FIX-03 | Fase 16 | Complete |
-| LINT-01 | Fase 17 | Pending |
+| LINT-01 | Fase 17 | Complete |
 | AUDIT-01 | Fase 18 | Pending |
 | AUDIT-02 | Fase 18 | Pending |
 | AUDIT-03 | Fase 18 | Pending |

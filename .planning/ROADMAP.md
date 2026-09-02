@@ -123,7 +123,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 17-01-PLAN.md — `.claude/**` no `globalIgnores` + override de `scripts/**/*.cjs` (`no-require-imports`) + remoção do worktree órfão + `eslint-disable` documentado nos 4 erros reais de `src/` + docs de débito atualizadas + gate `npm run lint` da raiz exit 0
+- [x] 17-01-PLAN.md — `.claude/**` no `globalIgnores` + override de `scripts/**/*.cjs` (`no-require-imports`) + remoção do worktree órfão + `eslint-disable` documentado nos 4 erros reais de `src/` + docs de débito atualizadas + gate `npm run lint` da raiz exit 0
 
 **Threat surface**: nenhuma — config de tooling e supressões de lint, zero código de runtime tocado. `/gsd-secure-phase` deve fechar rápido.
 
@@ -176,7 +176,7 @@ Plans:
 | Fase | Milestone | Planos | Status | Concluída |
 |------|-----------|--------|--------|-----------|
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
-| 17. Limpeza de Lint do Repo | v1.5 | 0/1 | Not started | - |
+| 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete   | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 0/TBD | Not started | - |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
 
