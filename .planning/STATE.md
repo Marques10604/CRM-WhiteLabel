@@ -286,7 +286,16 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ### ▶ COMEÇA AQUI (próxima sessão) — 2026-09-01
 
-**Fase 16 (Correções de Code Review da Fase 15) — EXECUTADA.** Os 2 planos com SUMMARY, ROADMAP 2/2 Complete.
+**Fases 16 e 17 FECHADAS. Próximo: `/gsd-plan-phase 18` (Auditoria Retroativa no Navegador — AUDIT-01..05).**
+
+**Fase 17 (Limpeza de Lint do Repo) — FECHADA 2026-09-01.** `17-VERIFICATION.md` `passed` (5/5 SC, CLI-verificado — fase sem superfície de usuário), `17-SECURITY.md` `verified` (threats_open: 0), `17-LEARNINGS.md` extraído. `npm run lint` da raiz sem args → **exit 0** (0 errors, 4 warnings `incompatible-library` deferidos). 1 plano, 3 tasks, commits `3f2352d`/`8680db3`/`1c73bfb`. `.claude/**` no `globalIgnores`, override `no-require-imports: off` p/ `scripts/**/*.cjs`, worktree órfão removido, 4 `eslint-disable-next-line` documentados nos falsos-positivos do React Compiler em `src/`. Zero runtime tocado. D-05/D-06 do plano eram fantasmas (estavam todos em `.claude/**`).
+
+---
+
+<details>
+<summary>Histórico — Fase 16 (Correções de Code Review da Fase 15) — FECHADA 2026-09-01</summary>
+
+**Os 2 planos com SUMMARY, ROADMAP 2/2 Complete.**
 
 - **16-01** (`cc3d44c`, `8fbca7a`, `17acb77`, `2fa1e99`): WR-01 (trim de `interesse` dentro do `z.preprocess` → só-espaços grava NULL) + IN-01 (comentário "8 campos fixos") + IN-02 (corte de CSV por code point). +2 casos no harness.
 - **16-02** (`bb4b36a`, `dded053`): WR-02 (coluna "Interesse" na prévia do CSV, molde de `notas`, + badge amarelo "Cortado em 500 caracteres" na célula) + IN-03 (`migrate-interesse.cjs`: backup só quando escreve + header "pare a app Next"). Tasks 1-2 commitadas em sessão anterior sem SUMMARY; retomado via `close-out manually` e Task 3 (gate SC#5) fechada nesta sessão.
@@ -297,13 +306,13 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 UAT ao vivo confirmou: coluna "Interesse" na prévia do CSV, badge "Cortado em 500 caracteres" (ASCII + emoji), edge case do CR-01 (350 emoji não abortam o lote), campo vazio não bloqueia o submit. Cenários 1 (round-trip do form) e 5 (importar sem mapear) `skipped` — cobertos por `test-lead-actions.cjs` Casos 14a/14b/20 + UAT ao vivo da Fase 15.
 
-**Próximo passo:** `/gsd-plan-phase 17` — Fase 17 (Limpeza de Lint do Repo, LINT-01): `npm run lint` da raiz → 0, triar os 457 erros pré-existentes desde a Fase 8.
-
-**Conferência humana pendente (CR-01):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
+**Conferência humana pendente (CR-01, Fase 16):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
 
 **Cruft não-bloqueante:** ~~worktree órfão `agent-ab2be3f82c3c9c30d`~~ — REMOVIDO na Fase 17 (17-01, `git worktree remove --force` + `git worktree prune`, branch órfã deletada).
 
 **Débito do lint — RESOLVIDO na Fase 17 (17-01, LINT-01):** `npm run lint` do repo saía 1 (457 erros pré-existentes desde a Fase 8). Quitado com `.claude/**` no `globalIgnores`, override de `scripts/**/*.cjs` (`no-require-imports` off), worktree órfão removido e `eslint-disable-next-line` documentado nos 4 falsos-positivos `react-hooks` de `src/`. `npm run lint` da raiz sai 0.
+
+</details>
 
 ---
 
