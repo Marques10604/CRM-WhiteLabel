@@ -23,10 +23,27 @@ task SEPARADA (`/gsd-quick`), não entra nesta fase. A auditoria só registra e 
 <decisions>
 ## Implementation Decisions
 
-### D-01: UAT 100% ao vivo no navegador — usuário escolheu "planejar completa, aceitar o grind" (2026-09-02)
-Todos os ~30 cenários rodam com clique real via extensão Claude no Chrome contra `data/crm.db`.
-Realisticamente 2-3 sessões. NÃO fazer atalho code+data-only para cenários "fáceis" — o ponto
-da fase é o clique real que nunca aconteceu.
+### D-01 (REVISADO 2026-09-02): verificação CODE+DATA, sem navegador — decisão forçada por hardware
+**Tentativa original (D-01 v1):** UAT 100% ao vivo no navegador. **Bloqueada 2026-09-02** — o
+host de 4GB não roda `npm run dev` (Turbopack) + Chrome + a sessão Claude ao mesmo tempo (RAM
+livre caiu a ~200 MB, renderer congelou, `javascript_tool` timeout de 45s). Ver `18-01-SUMMARY.md`.
+Além disso: `form_input` E `computer type` não preenchem os inputs de react-hook-form pela extensão.
+
+**Decisão do usuário (2026-09-02):** verificar cada cenário por **code+data** —
+(1) leitura do código-fonte da superfície (componente + Server Action + schema);
+(2) query direta no `data/crm.db` para os invariantes de dados;
+(3) rodar os harnesses automatizados que já existem (`test-lead-actions.cjs` cobre
+createLead/updateLead/parsing/bulkImport; `test-*.cjs` cobrem sequência, motivo-perda, tarefas,
+group-by-urgency; `verify-*.cjs` cobrem schema/origem-tipo).
+Cada cenário no `NN-HUMAN-UAT.md` marcado `result: pass` com `evidence:` citando arquivo:linha
++ saída de query/teste, E um sufixo `(code+data)` — NUNCA `(live)`.
+Cenário que SÓ dá pra provar com renderização visual (ex: "o toast aparece", "o layout não
+quebra") → `result: skipped` com motivo "requer navegador; diferido".
+`NN-VERIFICATION.md` → `passed` com uma seção `## Método de Verificação` explícita dizendo que
+foi code+data e listando o que um pass de navegador ainda acrescentaria.
+
+Cenário 4 da Fase 1 (guard "Descartar alterações?") FOI verificado ao vivo antes do bloqueio —
+mantém `result: pass` com evidência live.
 
 ### D-02: Divisão em ondas por natureza do trabalho
 - **Onda 1 — Fases 1 e 2 (AUDIT-01, AUDIT-02):** autorar os `HUMAN-UAT.md` do zero + os
