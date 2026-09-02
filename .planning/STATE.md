@@ -288,7 +288,13 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 **ONDE PARAMOS:** milestone v1.5, Fases **16 e 17 fechadas + pushadas** (`main` = `origin/main`, working tree limpo, só `.claude/` untracked que é normal). Sobram 2 fases no v1.5: **18** (auditoria retroativa no navegador) e **19** (marca "SOLO" + `/brand-design`).
 
-**PRÓXIMO COMANDO:** `/gsd-execute-phase 18` — Fase 18 PLANEJADA 2026-09-02 (commit `27c177e`, pushado). **6 planos / 6 waves sequenciais**, ~50 cenários de UAT ao vivo. Precisa do Chrome aberto com a extensão Claude conectada. Realisticamente 2-3 sessões — o UAT é resumível cenário a cenário (cada `HUMAN-UAT.md` grava incremental). Waves: 18-01 (Fase 1: autorar UAT + CRUD lead/nicho) → 18-02 (Fase 1: lista/toolbar/paginação + VERIFICATION passed) → 18-03 (Fase 2: autorar + CSV) → 18-04 (Fase 4: 7 cen.) → 18-05 (Fase 6: 11 cen.) → 18-06 (Fase 8: 4 cen. + limpar §Deferred Items).
+**FASE 18 BLOQUEADA POR HARDWARE (2026-09-02).** Tentei rodar 18-01: `01-HUMAN-UAT.md` autorado (20 cenários), cenário 4 (guard de descarte) PASS ao vivo. Travou: `npm run dev` + Chrome + sessão Claude → **204 MB de RAM livres de 4007** → renderer congelado, `javascript_tool` timeout 45s. Ver `.planning/phases/18-auditoria-retroativa-no-navegador/18-01-SUMMARY.md`.
+
+**Ferramenta:** `form_input` E `computer type` não preenchem os inputs do form (só `javascript_tool` com setter nativo). `<Select>` Base UI por clique não seleciona. Combobox de Nicho funciona.
+
+**DECISÃO PENDENTE (usuário):** (a) host com mais RAM; (b) usuário roda dev server + browser, Claude só orienta; (c) verificação code+data pros cenários de form + navegador só pros de leitura/clique/dashboard; (d) pular pra Fase 19 e voltar na 18 depois. Fases 16/17 fechadas — o milestone v1.5 NÃO está travado, só a Fase 18.
+
+**PRÓXIMO COMANDO:** decidir a abordagem da Fase 18 com o usuário. Se pular: `/gsd-plan-phase 19` (marca "SOLO" + `/brand-design` — checar se o preview de paletas precisa de browser).
 
 **⚠ Aviso pra Fase 18 (aprendido hoje):** o host de 4GB sofre com dev server + Chrome + extensão ao mesmo tempo — screenshots da extensão deram timeout intermitente, `form_input` NÃO dispara o `onChange` do react-hook-form (usar `computer type` + clicar opções de `<Select>` Base UI por coordenada), e a sessão bateu no limite de uso 5h no meio do UAT da Fase 16. Planejar a Fase 18 com isso em mente: rodar cenário por cenário, `get_page_text` em vez de screenshot quando der timeout, NÃO confirmar imports que poluam o `data/crm.db` real, matar `node` órfãos antes de subir o dev server.
 
