@@ -99,6 +99,7 @@ export function PeriodoSelector({
   // inválido (WR-04): `value` volta a "30d", `emModoCustom` acompanha e a faixa
   // de aviso fica coerente com o seletor.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- falso-positivo conhecido do React Compiler: ressincronizar os pickers com as props da URL após navegação soft do Next é o caso legítimo de sincronizar estado React com um sistema externo (o router). Mesmo padrão aceito no projeto (STATE.md decisões 07-02 / 09-03 / 09-04).
     setCustomMode(value === "custom");
     setDataInicio(parseDataInicial(from));
     setDataFim(parseDataInicial(to));

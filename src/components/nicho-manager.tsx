@@ -26,6 +26,7 @@ function NichoRow({ nicho }: { nicho: Nicho }) {
   useEffect(() => {
     if (state && "success" in state && state.success) {
       toast.success("Nicho renomeado.");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- falso-positivo conhecido do React Compiler: fechar o form ao concluir a Server Action é reação a evento assíncrono, não render derivado. Mesmo padrão aceito no projeto (STATE.md decisões 07-02 / 09-03 / 09-04).
       setIsEditing(false);
     }
   }, [state]);
@@ -120,6 +121,7 @@ export function NichoManager({ nichos }: { nichos: Nicho[] }) {
     if (state && "success" in state && state.success) {
       toast.success("Nicho criado.");
       formRef.current?.reset();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- falso-positivo conhecido do React Compiler: fechar o form ao concluir a Server Action é reação a evento assíncrono, não render derivado. Mesmo padrão aceito no projeto (STATE.md decisões 07-02 / 09-03 / 09-04).
       setIsAdding(false);
     }
   }, [state]);

@@ -109,7 +109,6 @@ export function LixeiraTable({ leads, nichos }: LixeiraTableProps) {
         ),
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isPending, restoringId]
   );
 

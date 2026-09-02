@@ -114,6 +114,11 @@ export function TemplateFormDialog({
 
         <form
           ref={formRef}
+          /* eslint-disable-next-line react-hooks/refs -- falso-positivo conhecido do React
+             Compiler: `onSubmit` só lê `formRef.current` dentro do handler de submit real
+             (nunca durante o render), mas a regra não consegue provar isso estaticamente
+             para `form.handleSubmit(onSubmit)`. Mesmo padrão já aceito no projeto em
+             configuracoes-form.tsx e tarefa-form-dialog.tsx (STATE.md decisões 07-02 / 09-03 / 09-04). */
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >

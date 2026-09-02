@@ -116,7 +116,6 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
     } else if (state && "errors" in state) {
       toast.error("Não foi possível salvar as configurações. Tente novamente.");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   function handleAdicionarIntervalo() {

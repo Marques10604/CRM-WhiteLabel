@@ -151,7 +151,6 @@ export function CsvImportWizard({ nichos, templates }: CsvImportWizardProps) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mappedRows]);
 
   const duplicateRowIndexesInBatch = useMemo(
@@ -187,7 +186,6 @@ export function CsvImportWizard({ nichos, templates }: CsvImportWizardProps) {
       };
       return { ...row, flags };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mappedRows, previewSupportData, duplicatePhonesSet, unknownNichoNamesSet, duplicateRowIndexesInBatch]);
 
   async function handleFileSelected(file: File) {
