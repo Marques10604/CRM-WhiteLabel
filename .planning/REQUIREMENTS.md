@@ -12,11 +12,11 @@ Escopo do milestone v1.5 — quitar débito acumulado e dar cara de produto ao C
 
 Fases já shipadas cujo comportamento nunca foi verificado com clique real. O host de 4GB → verificação sequencial, UAT via extensão Claude no Chrome contra `data/crm.db` real. Issue encontrada que não seja regressão trivial vira quick task registrada, não bloqueia o fecho do requisito.
 
-- [ ] **AUDIT-01**: Fase 1 (Lead & Nicho Foundation) — cenários de UAT autorados (nenhum `01-HUMAN-UAT.md` existe) e executados no navegador cobrindo CRUD de lead, CRUD de nicho com dedupe case-insensitive, lista de leads ordenada por follow-up, filtros da toolbar e paginação; `01-VERIFICATION.md` criado com status `passed`
-- [ ] **AUDIT-02**: Fase 2 (CSV Bulk Import) — cenários de UAT autorados (nenhum `02-HUMAN-UAT.md` existe) e executados no navegador cobrindo upload com detecção de separador/codificação, mapeamento de colunas, prévia com flags (duplicado / nicho novo / nicho bloqueado) e import real no banco; `02-VERIFICATION.md` criado com status `passed`
-- [ ] **AUDIT-03**: Fase 4 (Follow-up Dashboard & WhatsApp) — os 7 cenários de `04-HUMAN-UAT.md` executados no navegador (dashboard por urgência, CRUD de templates com "um padrão por tipo", preview de WhatsApp editável, auto-gatilho de 1º contato nas 3 superfícies, boundary de 7 dias, race no drag-to-Perdido, `stageChangedAt`/`motivoPerda`); `04-HUMAN-UAT.md` → `complete`, `04-VERIFICATION.md` → `passed`
-- [ ] **AUDIT-04**: Fase 6 (Auto-avanço de Etapa + Contador) — os 11 cenários de `06-HUMAN-UAT.md` executados no navegador (auto-avanço Novo→Contatado só com template de 1º contato, nunca regride além de Contatado, contador incrementa a todo clique, cancelamento não altera nada, superfícies `/`+`/leads`+`/importar/[batchId]`, indicadores "esfriando" + contador na mesma linha); `06-HUMAN-UAT.md` → `complete`, `06-VERIFICATION.md` → `passed`
-- [ ] **AUDIT-05**: Fase 8 (Origem Governada Inbound × Outbound) — os 4 cenários de `08-HUMAN-UAT.md` executados no navegador (campo "Tipo de origem" abaixo de "Origem" sem pré-seleção na criação, salvamento bloqueado sem escolha, lead pré-existente vem com "Outbound" no modal de edição, lote de CSV grava `origem_tipo='outbound'`); `08-HUMAN-UAT.md` → `complete`, `08-VERIFICATION.md` → `passed`
+- [x] **AUDIT-01**: Fase 1 (Lead & Nicho Foundation) — cenários de UAT autorados (nenhum `01-HUMAN-UAT.md` existe) e executados no navegador cobrindo CRUD de lead, CRUD de nicho com dedupe case-insensitive, lista de leads ordenada por follow-up, filtros da toolbar e paginação; `01-VERIFICATION.md` criado com status `passed`
+- [x] **AUDIT-02**: Fase 2 (CSV Bulk Import) — cenários de UAT autorados (nenhum `02-HUMAN-UAT.md` existe) e executados no navegador cobrindo upload com detecção de separador/codificação, mapeamento de colunas, prévia com flags (duplicado / nicho novo / nicho bloqueado) e import real no banco; `02-VERIFICATION.md` criado com status `passed`
+- [x] **AUDIT-03**: Fase 4 (Follow-up Dashboard & WhatsApp) — os 7 cenários de `04-HUMAN-UAT.md` executados no navegador (dashboard por urgência, CRUD de templates com "um padrão por tipo", preview de WhatsApp editável, auto-gatilho de 1º contato nas 3 superfícies, boundary de 7 dias, race no drag-to-Perdido, `stageChangedAt`/`motivoPerda`); `04-HUMAN-UAT.md` → `complete`, `04-VERIFICATION.md` → `passed`
+- [x] **AUDIT-04**: Fase 6 (Auto-avanço de Etapa + Contador) — os 11 cenários de `06-HUMAN-UAT.md` executados no navegador (auto-avanço Novo→Contatado só com template de 1º contato, nunca regride além de Contatado, contador incrementa a todo clique, cancelamento não altera nada, superfícies `/`+`/leads`+`/importar/[batchId]`, indicadores "esfriando" + contador na mesma linha); `06-HUMAN-UAT.md` → `complete`, `06-VERIFICATION.md` → `passed`
+- [x] **AUDIT-05**: Fase 8 (Origem Governada Inbound × Outbound) — os 4 cenários de `08-HUMAN-UAT.md` executados no navegador (campo "Tipo de origem" abaixo de "Origem" sem pré-seleção na criação, salvamento bloqueado sem escolha, lead pré-existente vem com "Outbound" no modal de edição, lote de CSV grava `origem_tipo='outbound'`); `08-HUMAN-UAT.md` → `complete`, `08-VERIFICATION.md` → `passed`
 
 ### Correções de Code Review (achados do `15-REVIEW.md`)
 
@@ -85,11 +85,11 @@ Preenchido na criação do roadmap (2026-08-31).
 | FIX-02 | Fase 16 | Complete |
 | FIX-03 | Fase 16 | Complete |
 | LINT-01 | Fase 17 | Complete |
-| AUDIT-01 | Fase 18 | Pending |
-| AUDIT-02 | Fase 18 | Pending |
-| AUDIT-03 | Fase 18 | Pending |
-| AUDIT-04 | Fase 18 | Pending |
-| AUDIT-05 | Fase 18 | Pending |
+| AUDIT-01 | Fase 18 | Complete |
+| AUDIT-02 | Fase 18 | Complete |
+| AUDIT-03 | Fase 18 | Complete |
+| AUDIT-04 | Fase 18 | Complete |
+| AUDIT-05 | Fase 18 | Complete |
 | BRAND-01 | Fase 19 | Pending |
 | BRAND-02 | Fase 19 | Pending |
 | BRAND-03 | Fase 19 | Pending |

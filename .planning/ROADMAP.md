@@ -186,7 +186,7 @@ Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado po
 |------|-----------|--------|--------|-----------|
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
-| 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete (code+data) | 2026-09-02 |
+| 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
 | 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
 
 ---

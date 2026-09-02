@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: executing
-last_updated: 2026-09-02T00:00:00.000Z
+status: ready_to_plan
+last_updated: 2026-09-02T12:09:58.191Z
 last_activity: 2026-09-02
 progress:
   total_phases: 4
@@ -11,7 +11,7 @@ progress:
   total_plans: 3
   completed_plans: 57
   percent: 75
-stopped_at: Phase 18 complete (6/6, método code+data) — 5 VERIFICATION.md passed, 0 issues; ready to close/ship Phase 18
+stopped_at: Phase 18 complete (6/6) — ready to discuss Phase 19
 ---
 
 # Project State
@@ -21,20 +21,20 @@ stopped_at: Phase 18 complete (6/6, método code+data) — 5 VERIFICATION.md pas
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 18 — auditoria retroativa no navegador
+**Current focus:** Phase 19 — marca e identidade visual
 
 ## Current Position
 
-Phase: 18 — Auditoria Retroativa (AUDIT-01..05)
-Plan: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado por hardware)
-Status: Fase completa — `01/02-HUMAN-UAT.md` autorados + `complete`; `04/06/08-HUMAN-UAT.md` executados + `complete`; os 5 `VERIFICATION.md` `passed`; §Deferred Items limpo. 0 issues de runtime, nenhuma quick task nova. Pronta para close/ship.
+Phase: 19
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-09-02
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 18
+- Total plans completed: 24
 - Average duration: - min
 - Total execution time: 0 hours
 
@@ -49,6 +49,7 @@ Last activity: 2026-09-02
 | 15 | 2 | - | - |
 | 16 | 2 | - | - |
 | 17 | 1 | - | - |
+| 18 | 6 | - | - |
 
 **Recent Trend:**
 
@@ -309,7 +310,9 @@ congelado). Decisão do usuário: verificar por **code+data** (leitura da superf
 (setas de ordenação, rodapé multi-página, cores de badges/seções, toasts, animações, layout
 esfriando+contador na mesma linha) e um import CSV real NOVO de ponta a ponta no `data/crm.db`.
 
-**PRÓXIMO COMANDO:** `/gsd-close-phase 18` (extract-learnings + ship), depois `/gsd-plan-phase 19`.
+**FASE 18 FECHADA E PUSHADA (2026-09-02).** `18-VERIFICATION.md` `passed` (5/5 SC, goal-backward), `18-SECURITY.md` `verified` (threats_open 0 — pivô code+data anulou o caminho de escrita), `18-LEARNINGS.md` extraído. Tudo em `origin/main`.
+
+**PRÓXIMO COMANDO:** `/gsd-plan-phase 19` — Fase 19: Marca e Identidade Visual (BRAND-01/02/03): nome do produto ("SOLO") + `/brand-design` (~6 paletas em preview HTML) + aplicar paleta/tipografia + renomear "CRM de Leads". **⚠ o `/brand-design` abre um preview HTML no navegador — pode esbarrar no mesmo limite de RAM da Fase 18; checar se dá pra gerar a preview sem dev server (é HTML estático) ou se precisa de plano B.** É a ÚLTIMA fase do v1.5 — depois `/gsd-complete-milestone`.
 
 **Pendência aberta (não bloqueia):** conferência humana do CR-01 da Fase 16 — o limite de "500 caracteres" do campo `interesse` no formulário manual passou a contar code points (antes: code units UTF-16). Mais correto, documentado, mas confirmar que é a semântica desejada.
 
