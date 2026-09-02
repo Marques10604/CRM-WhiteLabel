@@ -56,5 +56,12 @@ pontual — decisão arquitetural sobre a governança de lint do repositório, f
 para ESM; (3) remover o worktree órfão `.claude/worktrees/agent-ab2be3f82c3c9c30d` (já recomendado
 em `STATE.md`).
 
-**Status:** pendente, não relacionado a ORIGEM-01/02. Não bloqueia o fechamento da Fase 8 — nenhum
-critério de aceite do `08-SPEC.md` depende de `npx eslint` passar globalmente.
+**Status:** RESOLVIDO na Fase 17 (LINT-01, 2026-09-01). `eslint.config.mjs` ganhou `.claude/**`
+no `globalIgnores` e um override escopado de `scripts/**/*.cjs` desligando
+`@typescript-eslint/no-require-imports` (CommonJS deliberado desses harnesses); o worktree órfão
+`agent-ab2be3f82c3c9c30d` foi removido; os 4 falsos-positivos `react-hooks/*` de `src/`
+(`set-state-in-effect` x3, `refs` x1) ganharam `eslint-disable-next-line` documentado; 4 diretivas
+`exhaustive-deps` obsoletas foram removidas. `npm run lint` da raiz, sem args, volta a sair com
+exit code 0.
+
+_(registro histórico acima preservado — descrição de quando/como o débito foi descoberto.)_

@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: ready_to_plan
-last_updated: 2026-09-01T16:17:19.629Z
-last_activity: 2026-09-01
+status: executing
+last_updated: "2026-09-01T23:59:59.140Z"
+last_activity: 2026-09-01 -- Phase 17 execution started
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 50
-  percent: 0
-stopped_at: Phase 16 complete (2/2) — ready to discuss Phase 17
+  completed_phases: 1
+  total_plans: 3
+  completed_plans: 2
+  percent: 25
 ---
 
 # Project State
@@ -21,14 +20,14 @@ stopped_at: Phase 16 complete (2/2) — ready to discuss Phase 17
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 17 — limpeza de lint do repo
+**Current focus:** Phase 17 — limpeza-de-lint-do-repo
 
 ## Current Position
 
-Phase: 17
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-01
+Phase: 17 (limpeza-de-lint-do-repo) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 17
+Last activity: 2026-09-01 -- Phase 17 execution started
 
 ## Performance Metrics
 
@@ -298,9 +297,9 @@ UAT ao vivo confirmou: coluna "Interesse" na prévia do CSV, badge "Cortado em 5
 
 **Conferência humana pendente (CR-01):** o limite de "500 caracteres" do campo `interesse` passou a contar CODE POINTS também no formulário manual (antes: code units UTF-16). Mais correto pra "caracteres", mas confirme que é a semântica desejada.
 
-**Cruft não-bloqueante:** worktree órfão `agent-ab2be3f82c3c9c30d` (branch `worktree-agent-ab2be3f82c3c9c30d` @ `dc9dc98`, um commit da Fase 03) — sobra de execução antiga, `git worktree remove` quando quiser limpar.
+**Cruft não-bloqueante:** ~~worktree órfão `agent-ab2be3f82c3c9c30d`~~ — REMOVIDO na Fase 17 (17-01, `git worktree remove --force` + `git worktree prune`, branch órfã deletada).
 
-**Débito não bloqueia a Fase 16:** `npm run lint` do repo segue saindo 1 (457 erros pré-existentes) — é trabalho da Fase 17.
+**Débito do lint — RESOLVIDO na Fase 17 (17-01, LINT-01):** `npm run lint` do repo saía 1 (457 erros pré-existentes desde a Fase 8). Quitado com `.claude/**` no `globalIgnores`, override de `scripts/**/*.cjs` (`no-require-imports` off), worktree órfão removido e `eslint-disable-next-line` documentado nos 4 falsos-positivos `react-hooks` de `src/`. `npm run lint` da raiz sai 0.
 
 ---
 
@@ -331,7 +330,7 @@ Execução via `/gsd:execute-phase 15` (2026-08-31), sequencial inline (host 4GB
 - **15-02** (`435b860` tipos+column-mapper+wizard, `f49639a` insert+cobertura, `70cea05` docs): `"interesse"` em `CsvFieldKey`/`MappedCsvRow`/`EMPTY_MAPPING`; `mapCsvRows` trunca `.slice(0,500)` ANTES da validação (D-10); `{ key:"interesse", required:false }` no column-mapper; carregado até o insert de `bulkImportLeads`. `test-lead-actions.cjs` = 19 casos.
 - **`ba3a1db`** (fix pré-existente, NÃO da Fase 15): fixture de `verify-motivo-perda-obrigatorio.cjs` usava `subnichoId` (nome pré-Fase 13) → trocado p/ `nichoId`. Guard D-04 estava cego desde a Fase 13.
 
-**Gates:** `tsc` 0 · `verify:schema` 0 · `test:lead-actions` 0 (19) · `build` 0 (nos 2 executores; OOM no verificador por pressão de RAM, não é defeito) · regression 12/12 · `npm run lint` repo-inteiro sai 1 (457 erros pré-existentes, documentado desde Fase 8).
+**Gates:** `tsc` 0 · `verify:schema` 0 · `test:lead-actions` 0 (19) · `build` 0 (nos 2 executores; OOM no verificador por pressão de RAM, não é defeito) · regression 12/12 · `npm run lint` repo-inteiro saía 1 na época (457 erros pré-existentes, documentado desde Fase 8; RESOLVIDO depois na Fase 17 / 17-01).
 
 **`15-VERIFICATION.md` `status: human_needed`** — 13/13 must-haves na camada de código/dados. `15-HUMAN-UAT.md` criado (`status: partial`, 5 itens pendentes): round-trip do campo no form, vazio não bloqueia submit, limite 500 na UI, mapear coluna CSV → Interesse, importar sem mapear (sem regressão).
 
