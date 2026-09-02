@@ -32,7 +32,15 @@ result: [pending]
 
 ### 4. Fechar o modal com alteração não salva → aviso de descarte
 expected: Abrir "Editar lead", alterar um campo, tentar fechar (X / Esc / clique fora) → aparece confirmação "Descartar alterações?" com "Continuar editando" e "Descartar". "Continuar editando" mantém o modal; "Descartar" fecha sem salvar. (01-02-SUMMARY, D-04)
-result: [pending]
+result: pass
+evidence: |
+  Em "Novo lead", após selecionar Canal / Tipo de origem / Nicho (form ficou dirty), clique
+  em "Cancelar" → apareceu um segundo `[role=dialog]` com heading "Descartar alterações?" e
+  texto "Você tem alterações não salvas que serão perdidas." + botões "Continuar editando" e
+  "Descartar" (capturado via `javascript_tool` lendo `[role=dialog]`). "Descartar" fechou o
+  form sem persistir (0 dialogs, nenhum lead novo em /leads).
+  Nota: gatilho de dirtiness observado foi mudança de combobox (o preenchimento de texto não
+  funcionou pela extensão — ver §Blocker de ferramenta abaixo).
 
 ### 5. Contrato valor/telefone (parsing)
 expected: Criar lead digitando "1.234,56" em Valor estimado e "(11) 91234-5678" em Telefone → no `data/crm.db` o lead grava `valor_estimado = 123456` (centavos) e `telefone` normalizado (só dígitos, com DDI 55). Verificar por query direta. (01-02-SUMMARY — parseBRLToCents + normalizePhone)
@@ -105,15 +113,34 @@ result: [pending]
 ## Summary
 
 - Total: 20
-- Passed: 0
+- Passed: 1 (cenário 4)
 - Issues: 0
-- Pending: 20
+- Pending: 19
 - Skipped: 0
 - Blocked: 0
 
+## Blocker de ferramenta (2026-09-02, sessão 1)
+
+A extensão Claude no Chrome **não consegue preencher os campos de texto deste formulário**:
+- `form_input` → não dispara o `onChange` do react-hook-form (já sabido da Fase 16).
+- `computer` action `type` (após `left_click` no campo) → **também não escreve nada** — checado
+  via `javascript_tool`: `input[name=nome]`, `[name=telefone]`, `[name=origem]`,
+  `[name=valorEstimado]`, `[name=notas]` ficaram todos `value: ""` após digitar.
+- Os `<Select>` do Base UI (Canal, Tipo de origem) via `computer left_click` na opção → **não
+  seleciona** (fica "Selecione o canal").
+- O que FUNCIONA: navegação (após retries), `read_page`/`get_page_text`, o combobox de Nicho
+  (custom, com input escondido) via clique, botões em geral, e `javascript_tool` com o setter
+  nativo de `HTMLInputElement.prototype.value` + `dispatchEvent('input'/'change')` — esse
+  ESCREVE no campo e o RHF enxerga.
+- Screenshots dão timeout intermitente (pressão de RAM, host 4GB).
+
+**Consequência:** os cenários que exigem digitar num campo de form (1, 3, 5, e provavelmente
+8-11 se `/nichos` usa form parecido) não são executáveis por "clique + digitação real" com
+esta ferramenta. Decisão de abordagem pendente com o usuário (ver SUMMARY do plano 18-01).
+
 ## Issues Encontradas
 
-(nenhuma ainda)
+(nenhuma — o bloqueio acima é de ferramenta de teste, não do app)
 
 ## Gaps
 
