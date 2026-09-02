@@ -263,18 +263,18 @@ Aberto, carregado para o v1.3:
 
 ## Deferred Items
 
-Items acknowledged and carried forward. Re-reconhecidos no fechamento do v1.4 (2026-08-31) — nenhum resolvido neste milestone, nenhum novo bloqueador. Todos os gaps de UAT/verificação são de milestones **já shipados** (v1.0/v1.2/v1.3); as fases do v1.4 (13, 14, 15) fecharam limpas (UAT 8/8, 11/11, 5/5; verification `passed` nas três).
+Items acknowledged and carried forward.
+
+**Atualizado 2026-09-02 (Fase 18 — AUDIT-01..05):** os `uat_gap`/`verification_gap` das Fases
+1, 2, 4, 6 e 8 foram RESOLVIDOS e removidos desta lista. `01/02-HUMAN-UAT.md` autorados e
+auditados; `04/06/08-HUMAN-UAT.md` executados; os 5 `VERIFICATION.md` agora estão `passed`
+(método code+data — o UAT ao vivo no navegador foi bloqueado por hardware, host 4GB). Nenhuma
+issue de runtime encontrada. Restam nesta lista só a Fase 12 Teste 14 (skipped, fora do
+escopo da Fase 18) e itens não-UAT (quick tasks, todos, seeds).
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| uat_gap | Fase 04 (04-HUMAN-UAT.md) — 7 cenários pendentes | partial — nunca testado no navegador (v1.0) | 2026-07-29 |
-| verification_gap | Fase 04 (04-VERIFICATION.md) | human_needed — mesmo motivo | 2026-07-29 |
-| uat_gap | Fase 06 (06-HUMAN-UAT.md) — 11 cenários pendentes | partial (v1.2) | 2026-08-01 |
-| verification_gap | Fase 06 (06-VERIFICATION.md) | human_needed (v1.2) | 2026-08-01 |
-| uat_gap | Fase 08 (08-HUMAN-UAT.md) — 4 cenários pendentes | partial (v1.3) | 2026-08-30 |
-| verification_gap | Fase 08 (08-VERIFICATION.md) | human_needed (v1.3) | 2026-08-30 |
 | quick_task (×8) | Backlog de correções de UI/warnings acumulado v1.0–v1.3 (260720…260808) | pending — fora de milestone | 2026-08-31 |
-| verification_gap | Fases 1 e 2 nunca tiveram `/gsd-verify-work` formal (nenhum `VERIFICATION.md`). SUMMARYs registram "clique real recomendado antes de uso real" | nunca verificado no navegador, só código/`tsc`/`build` | 2026-07-29 |
 | todo | [Conectar captura de leads da prospecção ao CRM](.planning/todos/pending/2026-07-29-conectar-captura-de-leads-da-prospec-o-ao-crm.md) | pending — conflito local vs. público (Gap 4); resolve na migração pra VPS | 2026-07-29 |
 | uat_gap | Fase 12 Teste 14 (estado vazio do dashboard) | skipped — não testável sem banco sem os 23 leads reais; cópia + ramo verificados no código e no `npm run build` | 2026-08-30 |
 | todo (×5) | Backlog PME: tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal | pending — fora de qualquer milestone, aguardam priorização | 2026-08-01 |
