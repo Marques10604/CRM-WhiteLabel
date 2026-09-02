@@ -284,9 +284,19 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — 2026-09-01
+### ▶ COMEÇA AQUI (próxima sessão) — sessão de 2026-09-01 encerrada, continua 2026-09-02
 
-**Fases 16 e 17 FECHADAS. Próximo: `/gsd-plan-phase 18` (Auditoria Retroativa no Navegador — AUDIT-01..05).**
+**ONDE PARAMOS:** milestone v1.5, Fases **16 e 17 fechadas + pushadas** (`main` = `origin/main`, working tree limpo, só `.claude/` untracked que é normal). Sobram 2 fases no v1.5: **18** (auditoria retroativa no navegador) e **19** (marca "SOLO" + `/brand-design`).
+
+**PRÓXIMO COMANDO:** `/gsd-plan-phase 18` — Auditoria Retroativa no Navegador (AUDIT-01..05): UAT real das Fases 1/2 (autorar `01/02-HUMAN-UAT.md`) + rodar os cenários já escritos das Fases 4/6/8. Provável 2 planos.
+
+**⚠ Aviso pra Fase 18 (aprendido hoje):** o host de 4GB sofre com dev server + Chrome + extensão ao mesmo tempo — screenshots da extensão deram timeout intermitente, `form_input` NÃO dispara o `onChange` do react-hook-form (usar `computer type` + clicar opções de `<Select>` Base UI por coordenada), e a sessão bateu no limite de uso 5h no meio do UAT da Fase 16. Planejar a Fase 18 com isso em mente: rodar cenário por cenário, `get_page_text` em vez de screenshot quando der timeout, NÃO confirmar imports que poluam o `data/crm.db` real, matar `node` órfãos antes de subir o dev server.
+
+**Pendência aberta (não bloqueia):** conferência humana do CR-01 da Fase 16 — o limite de "500 caracteres" do campo `interesse` no formulário manual passou a contar code points (antes: code units UTF-16). Mais correto, documentado, mas confirmar que é a semântica desejada.
+
+---
+
+**Fase 17 (Limpeza de Lint do Repo) — FECHADA 2026-09-01.** `17-VERIFICATION.md` `passed` (5/5 SC, CLI-verificado — fase sem superfície de usuário), `17-SECURITY.md` `verified` (threats_open: 0), `17-LEARNINGS.md` extraído. `npm run lint` da raiz sem args → **exit 0** (0 errors, 4 warnings `incompatible-library` deferidos). 1 plano, 3 tasks, commits `3f2352d`/`8680db3`/`1c73bfb`. `.claude/**` no `globalIgnores`, override `no-require-imports: off` p/ `scripts/**/*.cjs`, worktree órfão removido, 4 `eslint-disable-next-line` documentados nos falsos-positivos do React Compiler em `src/`. Zero runtime tocado. D-05/D-06 do plano eram fantasmas (estavam todos em `.claude/**`).
 
 **Fase 17 (Limpeza de Lint do Repo) — FECHADA 2026-09-01.** `17-VERIFICATION.md` `passed` (5/5 SC, CLI-verificado — fase sem superfície de usuário), `17-SECURITY.md` `verified` (threats_open: 0), `17-LEARNINGS.md` extraído. `npm run lint` da raiz sem args → **exit 0** (0 errors, 4 warnings `incompatible-library` deferidos). 1 plano, 3 tasks, commits `3f2352d`/`8680db3`/`1c73bfb`. `.claude/**` no `globalIgnores`, override `no-require-imports: off` p/ `scripts/**/*.cjs`, worktree órfão removido, 4 `eslint-disable-next-line` documentados nos falsos-positivos do React Compiler em `src/`. Zero runtime tocado. D-05/D-06 do plano eram fantasmas (estavam todos em `.claude/**`).
 
