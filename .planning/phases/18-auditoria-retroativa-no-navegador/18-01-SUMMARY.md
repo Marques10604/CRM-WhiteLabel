@@ -2,8 +2,8 @@
 phase: 18-auditoria-retroativa-no-navegador
 plan: 01
 subsystem: verification
-tags: [uat, browser-automation, audit, blocked-hardware]
-status: blocked
+tags: [uat, browser-automation, audit, blocked-hardware, pivot-code-data]
+status: complete
 
 requires:
   - phase: 01-lead-sub-nicho-foundation
