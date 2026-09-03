@@ -75,7 +75,7 @@ Detalhes completos: `.planning/milestones/v1.4-ROADMAP.md`
 - [x] **Fase 16: Correções de Code Review da Fase 15** — FIX-01, FIX-02, FIX-03 (2 planos)
 - [x] **Fase 17: Limpeza de Lint do Repo** — LINT-01 (1 plano)
 - [x] **Fase 18: Auditoria Retroativa no Navegador** — AUDIT-01..05 (6 planos) — método code+data (navegador bloqueado por hardware); 5 VERIFICATION.md `passed`, 0 issues
-- [ ] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (planos TBD)
+- [x] **Fase 19: Marca e Identidade Visual** — BRAND-01, BRAND-02, BRAND-03 (6 planos) — 2026-09-03 — nome "SOLO", paleta "Corrente Funda · Sóbria" (OKLCH light+dark), 33 arquivos cor→token · code review 0 critical (2 WR corrigidos), security 0 threats open, verification passed 5/5 (code+data) · push direto p/ main
 
 ## Phase Details
 

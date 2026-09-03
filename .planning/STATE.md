@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: verifying
-last_updated: "2026-09-03T23:52:24.332Z"
+status: completed
+last_updated: "2026-09-03T23:56:08.952Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 4
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 19 (marca-e-identidade-visual) — EXECUTING
-Plan: 6 of 6 COMPLETO — próximo: 19-04
-Status: Phase complete — ready for verification
+Phase: 19 (marca-e-identidade-visual) — FECHADA E SHIPADA
+Plan: 6 of 6 completos · code review (2 WR corrigidos) · security 0 threats · verification passed 5/5 · learnings extraídos
+Status: Fase 19 shipada (push direto p/ main, 41 commits) — TODAS as 4 fases do v1.5 fechadas — próximo: /gsd-complete-milestone
 Last activity: 2026-09-03
 
 ## Performance Metrics
@@ -296,66 +296,46 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — Fase 19 EM EXECUÇÃO, planos 19-01 e 19-02 completos (2026-09-03)
+### ▶ COMEÇA AQUI (próxima sessão) — v1.5 com as 4 fases FECHADAS, falta só o /gsd-complete-milestone (2026-09-03)
 
-**ONDE PARAMOS:** milestone v1.5, Fases 16/17/18 fechadas. **Fase 19 em execução** — 2 dos 6
-planos completos e commitados na `main` (não pushados). Retomar com:
+**ONDE PARAMOS:** milestone v1.5 (Quitação de Débito e Auditoria Retroativa) — **Fases 16, 17,
+18 e 19 todas fechadas e shipadas na `main`** (push direto, sem PR — padrão deste milestone).
+`origin/main` em dia. Próximo e único passo:
 
 ```
-/gsd-execute-phase 19
+/gsd-complete-milestone
 ```
 
-(vai pegar do plano **19-03**. Modo híbrido combinado: subagentes gsd-executor pros planos
-mecânicos, `/brand-design` foi rodado inline comigo no 19-02 — a parte interativa já passou.)
+(arquiva o v1.5, cria a tag `v1.5`, evolui PROJECT.md, retrospectiva, e roteia pro
+`/gsd-new-milestone` — as fases continuam numerando de 20+.)
 
-**19-01 (Wave 0) — completo.** 3 sensores `.cjs` criados e registrados em `package.json`:
-`verify:brand` (grep-guard de cor hardcoded + nome antigo), `verify:brand-md` (estrutura do
-brand.md), `check:contrast` (WCAG AA dos tokens). `.gitignore` blindado (`.brand-preview/`,
-`*.css.bak`). `19-HUMAN-UAT.md` autorado com a definição D-19. 4 commits.
+**FASE 19 (Marca e Identidade Visual) — FECHADA 2026-09-03.** 6 planos executados:
 
-**19-02 (/brand-design) — completo.** Rodei o skill inline com o usuário:
+- **Nome do produto = "SOLO"** (`brand.md` §Nome, racional D-01, ressalva de colisão D-02
+  verbatim — Salesboom Solo CRM / SoloCRM / gosolo.io; nome descartável). Rename só nas
+  superfícies visíveis (D-05): `layout.tsx` title/description, `app-sidebar.tsx` header + ícone
+  "S", `package.json` name=solo. Pasta do repo / imports / CI intactos.
+- **Paleta "Corrente Funda · Sóbria"** (navy + teal contido, OKLCH, `:root` + `.dark`) via
+  `/brand-design` rodado inline com o usuário. Tipografia Geist mantida (D-18). Favicon próprio
+  `src/app/icon.svg` ("S").
+- **33 arquivos migrados de cor hardcoded → token shadcn** (planos 19-03/04/05). Escala
+  semântica `--status-*` (5 famílias, light+dark, WCAG AA) criada à parte da marca (D-08).
+  `--sidebar-*` aliasados aos tokens core.
+- **Gates finais:** `verify:brand` 0 · `verify:brand-md` 9/9 · `check:contrast` 30/30 AA ·
+  `tsc` 0 · `lint` 0 (4 warnings pré-existentes) · `build` 13 rotas. Portão de 12 sensores verde.
+- **Code review** (`19-REVIEW.md`): 0 critical, 4 warnings, 3 infos. **WR-01/WR-02 corrigidos**
+  (commit `c7acae5` — borda "esfriando" e CTA de WhatsApp estavam pálidos por usar token de
+  fundo-de-badge onde precisava de peso visual). **WR-03/WR-04 + 3 infos = débito não-bloqueante**
+  (gates `.cjs` frouxos: `check-contrast` não cobre pares fg-sobre-card; `verify-brand-md` casa
+  substrings). Fecháveis num `/gsd-quick` no futuro.
+- **Security** (`19-SECURITY.md`): 16 threats, 0 open (14 mitigações verificadas, 2 riscos aceitos).
+- **Verification** (`19-VERIFICATION.md`): passed 5/5, método **code+data** (host 4GB não roda
+  dev+Chrome+sessão — precedente Fase 18). Confirmação puramente visual (animações, toasts,
+  digitação real) diferida como nota não-bloqueante.
+- **Learnings** extraídos (`19-LEARNINGS.md` — 12 decisões / 9 lições / 12 padrões / 6 surpresas).
 
-- **Paleta escolhida: "Corrente Funda · Sóbria"** — navy profundo + teal contido (croma ~0.08),
-  mood serious+premium. Aplicada em `src/app/globals.css` (`:root` + `.dark`, 14 tokens core).
-  `--chart-*`/`--sidebar-*` intactos (são do 19-03). Backup em `globals.css.bak` (gitignorado).
-
-- **Tipografia: Geist mantida** (usuário viu 6 pares e preferiu manter — zero risco de reflow).
-  `--font-heading` = alias de `--font-sans` (D-18).
-
-- **`brand.md`** criado (paleta + tipografia + tom/voz + seção Nome SOLO com ressalva de
-  colisão verbatim D-01/D-02/D-03) → BRAND-01 cumprido. **`README.md`** criado.
-
-- **Desvio D-1:** wiring do `next/font` NÃO renomeado (`--font-geist-sans/-mono` mantidos + a
-  ponte `@theme inline`). Renomear pra `--font-sans` recria o bug de auto-referência já
-  resolvido (`.planning/debug/resolved/font-sans-self-reference.md`). Gate `verify-brand-md.cjs`
-  check #9 ajustado pra aceitar. Ver `19-02-SUMMARY.md` §Desvios.
-
-- 4 commits (`feat(19-02)` ×3 + `docs(19-02)`).
-
-**ESTADO DOS GATES agora (correto pra este ponto da fase):**
-
-- `verify:brand-md` → **exit 0** (9/9) ✅
-- `verify:brand` → exit 1 (121 findings / 32 arquivos) — RED até o refactor de cor dos planos 19-03/04/05
-- `check:contrast` → exit 1 — só pelos 20 `--status-*` ausentes; **zero FAIL em par core**. Fica verde no 19-03.
-- `tsc` 0 · `lint` 0 (4 warnings pré-existentes deferidos)
-
-**O QUE FALTA na Fase 19 (planos 19-03 → 19-06):**
-
-- **19-03:** escala semântica `--status-*` (neutral/info/warning/success/danger, light+dark) no
-  `@theme inline` + `:root`/`.dark`; alinhar os 8 `--sidebar-*` à paleta nova (incl. o
-  `--sidebar-primary` azul-roxo leftover ~linha 112); refatorar 4 arquivos de cor de status
-  (`etapa-badge.tsx`, `followup-dashboard.tsx`, `csv-import-preview-table.tsx`, `relatorios`).
-
-- **19-04:** refactor cor→token de 14 arquivos (pipeline, lista de leads, wizard CSV) — ~41 ocorrências.
-- **19-05:** 13 arquivos restantes + rename "CRM de Leads"→"SOLO" (`layout.tsx` title/description,
-  `app-sidebar.tsx` header + ícone "I"→"S", `package.json` name) + `bg-white`→token no `<body>`.
-  É aqui que `verify:brand` fica verde.
-
-- **19-06:** favicon `src/app/icon.svg` ("S"), portão dos 12 sensores, registro da não-regressão
-  visual (`19-HUMAN-UAT.md` — ao vivo se houver RAM, senão code+data não-bloqueante).
-
-**DEPOIS da Fase 19:** `/gsd-secure-phase 19` → `/gsd-close-phase 19` → `/gsd-complete-milestone`
-(v1.5 fecha).
+**Débito que sobra do v1.5 (não bloqueia o complete-milestone):** WR-03/WR-04 da Fase 19,
+8 quick tasks de UI acumuladas, Fase 12 Teste 14 (skipped), backlog PME + 2 seeds.
 
 **FASE 18 COMPLETA (2026-09-02) — método code+data.** O UAT ao vivo no navegador foi bloqueado
 por hardware (host 4GB: `npm run dev` + Chrome + sessão Claude → ~200 MB livres, renderer
