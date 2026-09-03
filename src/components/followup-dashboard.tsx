@@ -12,6 +12,7 @@ import { TarefaFormDialog } from "@/components/tarefa-form-dialog";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
+import { cn } from "@/lib/utils";
 import type { DashboardItem } from "@/db/queries";
 import type { Lead, MotivoPerda, Nicho, Tarefa, Template } from "@/types";
 
@@ -43,8 +44,7 @@ type UrgencySection = {
   key: string;
   label: string;
   items: DashboardItem[];
-  headerBg: string;
-  headerText: string;
+  headerClass: string;
   dateClassName: string;
 };
 
@@ -94,24 +94,21 @@ export function FollowupDashboard({
       key: "vencidos",
       label: "Vencidos",
       items: vencidos,
-      headerBg: "#FEE2E2",
-      headerText: "#B91C1C",
-      dateClassName: "text-[#B91C1C]",
+      headerClass: "bg-status-danger text-status-danger-foreground",
+      dateClassName: "text-status-danger-foreground",
     },
     {
       key: "hoje",
       label: "Hoje",
       items: hoje,
-      headerBg: "#FEF3C7",
-      headerText: "#B45309",
-      dateClassName: "text-[#B45309]",
+      headerClass: "bg-status-warning text-status-warning-foreground",
+      dateClassName: "text-status-warning-foreground",
     },
     {
       key: "proximos7Dias",
       label: "Próximos 7 dias",
       items: proximos7Dias,
-      headerBg: "#F4F4F5",
-      headerText: "#3F3F46",
+      headerClass: "bg-status-neutral text-status-neutral-foreground",
       dateClassName: "text-muted-foreground",
     },
   ];
@@ -123,10 +120,7 @@ export function FollowupDashboard({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Button
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          onClick={() => setDialogState({ mode: "create" })}
-        >
+        <Button onClick={() => setDialogState({ mode: "create" })}>
           Novo lead
         </Button>
         <Button
@@ -153,10 +147,7 @@ export function FollowupDashboard({
             >
               Nova tarefa
             </Button>
-            <Button
-              className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-              onClick={() => setDialogState({ mode: "create" })}
-            >
+            <Button onClick={() => setDialogState({ mode: "create" })}>
               Novo lead
             </Button>
           </div>
@@ -168,22 +159,18 @@ export function FollowupDashboard({
             .map((section) => (
               <div
                 key={section.key}
-                className="flex flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2"
+                className="flex flex-col gap-2 rounded-lg bg-muted p-2"
               >
                 <div
-                  className="flex items-baseline gap-2 rounded-md px-2 py-2"
-                  style={{ backgroundColor: section.headerBg }}
+                  className={cn(
+                    "flex items-baseline gap-2 rounded-md px-2 py-2",
+                    section.headerClass
+                  )}
                 >
-                  <h2
-                    className="text-[20px] leading-tight font-semibold"
-                    style={{ color: section.headerText }}
-                  >
+                  <h2 className="text-[20px] leading-tight font-semibold">
                     {section.label}
                   </h2>
-                  <span
-                    className="text-[14px] leading-normal"
-                    style={{ color: section.headerText }}
-                  >
+                  <span className="text-[14px] leading-normal">
                     · {section.items.length}
                   </span>
                 </div>
@@ -216,7 +203,7 @@ export function FollowupDashboard({
                           setDialogState({ mode: "edit", lead });
                         }
                       }}
-                      className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488]"
+                      className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <div className="flex flex-col gap-1">
                         <span className="text-[16px] leading-normal font-normal text-foreground">

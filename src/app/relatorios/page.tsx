@@ -94,13 +94,13 @@ export default async function RelatoriosPage({
           component. Âmbar discreto: é um aviso transitório, não um dado do
           relatório — não conflita com "ênfase por peso" das tabelas. */}
       {customInvalido ? (
-        <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-[14px] text-amber-900">
+        <p className="rounded-md border border-status-warning bg-status-warning px-4 py-2 text-[14px] text-status-warning-foreground">
           Intervalo inválido — mostrando os últimos 30 dias.
         </p>
       ) : null}
 
       {/* Seção 1 — Leads por origem (METRICAS-01) */}
-      <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6">
+      <section className="flex flex-col gap-4 rounded-lg border bg-card p-6">
         <h2 className="text-[20px] font-semibold leading-tight">Leads por origem</h2>
         <Table>
           <TableHeader>
@@ -138,7 +138,7 @@ export default async function RelatoriosPage({
       </section>
 
       {/* Seção 2 — Leads por nicho (METRICAS-02) */}
-      <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6">
+      <section className="flex flex-col gap-4 rounded-lg border bg-card p-6">
         <h2 className="text-[20px] font-semibold leading-tight">Leads por nicho</h2>
         {contagemNicho.length === 0 ? (
           <p className="text-[14px] text-muted-foreground">Nenhum lead neste período.</p>
@@ -166,7 +166,7 @@ export default async function RelatoriosPage({
       </section>
 
       {/* Seção 3 — Motivos de perda (PERDA-01) */}
-      <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-white p-6">
+      <section className="flex flex-col gap-4 rounded-lg border bg-card p-6">
         <div className="flex flex-col gap-1">
           <h2 className="text-[20px] font-semibold leading-tight">Motivos de perda</h2>
           {/* Texto de ajuda OBRIGATÓRIO (D-11) — sempre visível, nunca tooltip. */}
