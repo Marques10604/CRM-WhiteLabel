@@ -165,7 +165,16 @@ Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado po
   4. `brand.md` documenta paleta, tipografia e tom/voz; "CRM de Leads" foi renomeado para o nome escolhido no `layout.tsx` (`<title>` + description), no header da sidebar (`app-sidebar.tsx`) e em qualquer outro lugar onde o nome antigo aparece
   5. Verificação no navegador confirma que nenhuma tela existente regrediu visualmente (layout, contraste, dark mode, legibilidade)
 
-**Plans**: TBD
+**Plans**: 6 plans (6 ondas sequenciais)
+
+Plans:
+- [ ] 19-01-PLAN.md — Wave 0: 3 sensores .cjs (cor hardcoded, brand.md, contraste WCAG) + .gitignore + checklist 19-HUMAN-UAT.md
+- [ ] 19-02-PLAN.md — /brand-design ponta a ponta (paleta + tipografia escolhidas pelo usuário) + brand.md com nome SOLO e ressalva de colisão + README
+- [ ] 19-03-PLAN.md — escala semântica --status-* em light+dark, alinhamento dos --sidebar-*, e refactor dos 4 arquivos de status
+- [ ] 19-04-PLAN.md — refactor cor→token nos 14 arquivos de pipeline, lista de leads e wizard de CSV
+- [ ] 19-05-PLAN.md — refactor dos 13 arquivos restantes + rename das superfícies visíveis para SOLO (sidebar, metadata, ícone S)
+- [ ] 19-06-PLAN.md — package.json name, favicon icon.svg, portão de 12 sensores e registro da não-regressão visual (D-19)
+
 **UI hint**: yes
 **Threat surface**: baixa — CSS variables, strings de metadata e carregamento de fonte; sem lógica nova. Passa pelo UI safety gate (`workflow.ui_phase` + `ui_safety_gate` ativos).
 
@@ -187,7 +196,7 @@ Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado po
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
-| 19. Marca e Identidade Visual | v1.5 | 0/TBD | Not started | - |
+| 19. Marca e Identidade Visual | v1.5 | 0/6 | Planned     | - |
 
 ---
 
