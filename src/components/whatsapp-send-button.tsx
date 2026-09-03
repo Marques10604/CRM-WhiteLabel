@@ -27,7 +27,7 @@ export function WhatsAppSendButton({ nome, disabled, onClick }: WhatsAppSendButt
       title={disabled ? "Telefone inválido — edite o lead" : undefined}
       onClick={onClick}
     >
-      <MessageCircle className="text-[#0D9488]" />
+      <MessageCircle className="text-primary" />
     </Button>
   );
 }

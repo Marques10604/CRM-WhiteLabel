@@ -33,7 +33,7 @@ export function PostImportLeadList({ leads, nichos, templates }: PostImportLeadL
       {leads.map((lead) => (
         <div
           key={lead.id}
-          className="flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white p-4"
+          className="flex items-center justify-between gap-4 rounded-lg border bg-card p-4"
         >
           <div className="flex flex-col gap-1">
             <span className="text-[16px] leading-normal font-normal text-foreground">{lead.nome}</span>

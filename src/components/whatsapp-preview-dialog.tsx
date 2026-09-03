@@ -169,10 +169,10 @@ export function WhatsAppPreviewDialog({
               </Field>
 
               {!tel ? (
-                <p className="text-sm text-[#B91C1C]">Telefone inválido — edite o lead.</p>
+                <p className="text-sm text-destructive">Telefone inválido — edite o lead.</p>
               ) : null}
               {tel && mensagemVazia ? (
-                <p className="text-sm text-[#B91C1C]">
+                <p className="text-sm text-destructive">
                   Mensagem vazia — escreva algo antes de abrir o WhatsApp.
                 </p>
               ) : null}
@@ -214,16 +214,13 @@ export function WhatsAppPreviewDialog({
                         // exibir erro sobre ela confundiria o admin.
                       });
                   }}
-                  className={cn(
-                    buttonVariants(),
-                    "gap-1.5 bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-                  )}
+                  className={cn(buttonVariants(), "gap-1.5")}
                 >
                   <MessageCircle />
                   Abrir WhatsApp
                 </a>
               ) : (
-                <Button type="button" disabled className="gap-1.5 bg-[#0D9488] text-white">
+                <Button type="button" disabled className="gap-1.5">
                   <MessageCircle />
                   Abrir WhatsApp
                 </Button>

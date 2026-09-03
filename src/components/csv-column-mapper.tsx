@@ -96,7 +96,7 @@ export function CsvColumnMapper({
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+      <div className="flex flex-col gap-4 rounded-lg bg-muted p-6">
         {FIELD_CONFIGS.map((config) => {
           const items = config.required
             ? headers.map((header) => ({ value: header, label: header }))
@@ -138,14 +138,14 @@ export function CsvColumnMapper({
           sem mensagem de vazio); resumo ao vivo deriva a ordem de `headers`
           (ordem do arquivo CSV), nunca da ordem de clique (D-08). */}
       {unmappedHeaders.length > 0 && (
-        <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+        <div className="flex flex-col gap-4 rounded-lg bg-muted p-6">
           <p className="text-sm font-semibold">Colunas extras para notas (opcional)</p>
           <div className="flex flex-col gap-2">
             {unmappedHeaders.map((header) => (
               <label key={header} className="flex items-center gap-2 text-sm text-foreground">
                 <input
                   type="checkbox"
-                  className="size-4 accent-[#0D9488]"
+                  className="size-4 accent-primary"
                   checked={extraNotasColumns.includes(header)}
                   onChange={() => handleToggleExtraColumn(header)}
                 />
@@ -164,7 +164,6 @@ export function CsvColumnMapper({
       <div className="flex justify-end">
         <Button
           type="button"
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
           disabled={!canContinue}
           onClick={onContinue}
         >

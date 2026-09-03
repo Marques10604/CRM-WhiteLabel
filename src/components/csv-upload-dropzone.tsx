@@ -45,8 +45,8 @@ export function CsvUploadDropzone({
   return (
     <div
       className={cn(
-        "flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed bg-[#F4F4F5] p-8 text-center transition-colors",
-        isDragOver ? "border-[#0D9488] bg-[#0D9488]/5" : "border-zinc-300"
+        "flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed bg-muted p-8 text-center transition-colors",
+        isDragOver ? "border-ring bg-accent" : "border-input"
       )}
       onDragOver={(event) => {
         event.preventDefault();
@@ -70,7 +70,7 @@ export function CsvUploadDropzone({
 
       {error ? (
         <>
-          <FileWarning className="size-8 text-[#DC2626]" />
+          <FileWarning className="size-8 text-destructive" />
           <h2 className="text-[20px] leading-tight font-semibold">{error.heading}</h2>
           <p className="max-w-sm text-sm text-muted-foreground">{error.body}</p>
           <Button
@@ -87,7 +87,7 @@ export function CsvUploadDropzone({
         </>
       ) : fileName ? (
         <>
-          <Upload className="size-8 text-[#0D9488]" />
+          <Upload className="size-8 text-primary" />
           <p className="text-[16px] leading-normal font-normal text-foreground">{fileName}</p>
           <Button
             type="button"
