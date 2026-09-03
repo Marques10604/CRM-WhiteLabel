@@ -183,7 +183,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 19-04-PLAN.md — refactor cor→token nos 14 arquivos de pipeline, lista de leads e wizard de CSV
+- [x] 19-04-PLAN.md — refactor cor→token nos 14 arquivos de pipeline, lista de leads e wizard de CSV
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -218,7 +218,7 @@ Plans:
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
-| 19. Marca e Identidade Visual | v1.5 | 3/6 | In Progress|  |
+| 19. Marca e Identidade Visual | v1.5 | 4/6 | In Progress|  |
 
 ---
 

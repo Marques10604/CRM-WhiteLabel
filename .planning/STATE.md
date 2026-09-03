@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
 status: executing
-last_updated: "2026-09-03T13:38:06.460Z"
+last_updated: "2026-09-03T14:21:13.207Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 75
 ---
 
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 ## Current Position
 
 Phase: 19 (marca-e-identidade-visual) — EXECUTING
-Plan: 3 of 6 COMPLETO — próximo: 19-04
+Plan: 4 of 6 COMPLETO — próximo: 19-04
 Status: Ready to execute
 Last activity: 2026-09-03
 
@@ -97,6 +97,7 @@ Last activity: 2026-09-03
 | Phase 17 P01 | 20min | 3 tasks | 10 files |
 | Phase 19 P01 | 30min | 3 tasks | 6 files |
 | Phase 19 P03 | 22 | 3 tasks | 5 files |
+| Phase 19 P04 | 18min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -202,6 +203,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 19-01]: check-contrast.cjs faz conversão OKLCH->sRGB real (matriz inversa) + luminância WCAG; token ausente = falha explícita; :root/.dark por chaves balanceadas, var(--x) até 3 níveis
 - [Phase ?]: [Phase 19-03]: escala --status-* (5 famílias light+dark) definida à parte da marca (D-08); check:contrast VERDE 30/30, menor razão 5.22; --sidebar-* aliasados a var(--card/primary/accent/border/ring) nos 2 blocos, leftover azul-roxo do default shadcn removido
 - [Phase ?]: [Phase 19-03]: padrão STAGE_LABEL + STAGE_TOKEN (Record<Stage,string> de classe utilitária) separa rótulo de cor para não acoplar STAGE_OPTIONS; headerClass único no lugar de headerBg/headerText hex + style inline no followup-dashboard
+- [Phase 19]: [Phase 19-04]: refactor cor→token dos 14 arquivos de pipeline/lista-de-leads/wizard-CSV — só strings de className (41 ocorrencias), zero mudanca de logica/handlers; hover:bg-[#F4F4F5] de superficie interativa → hover:bg-accent (nao bg-muted), alinhado ao idioma isOver→bg-accent do 19-03; whatsapp-send-button usava teal de MARCA (nao o verde #22C55E) → text-primary — Refactor mecanico BRAND-02/D-06; verify:brand cai 88→47 findings, os 14 arquivos saem da lista; 19-05 herda lista fechada de 14 arquivos + package.json
 
 ### Pending Todos
 
@@ -517,7 +519,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-03T13:38:06.422Z
+Last session: 2026-09-03T14:20:15.495Z
 
 **O que foi feito nesta sessão:**
 
