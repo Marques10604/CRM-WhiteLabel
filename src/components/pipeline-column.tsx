@@ -28,11 +28,11 @@ export function PipelineColumn({ stage, label, count, children }: PipelineColumn
     <div
       ref={setNodeRef}
       className={cn(
-        "flex min-w-[200px] flex-1 flex-col gap-2 rounded-lg bg-[#F4F4F5] p-2 transition-colors",
-        isOver ? "bg-[#E4E4E7]" : null
+        "flex min-w-[200px] flex-1 flex-col gap-2 rounded-lg bg-muted p-2 transition-colors",
+        isOver ? "bg-accent" : null
       )}
     >
-      <div className="sticky top-0 flex items-baseline gap-2 rounded-md bg-[#F4F4F5] px-2 py-2">
+      <div className="sticky top-0 flex items-baseline gap-2 rounded-md bg-muted px-2 py-2">
         <h2 className="text-[20px] leading-tight font-semibold">{label}</h2>
         <span className="text-[14px] leading-normal text-muted-foreground">
           · {count}

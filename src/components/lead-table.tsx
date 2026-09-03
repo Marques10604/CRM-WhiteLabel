@@ -160,10 +160,7 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Button
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          onClick={() => setDialogState({ mode: "create" })}
-        >
+        <Button onClick={() => setDialogState({ mode: "create" })}>
           Novo lead
         </Button>
       </div>
@@ -176,10 +173,7 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
           <p className="max-w-sm text-sm text-muted-foreground">
             Comece adicionando seu primeiro lead para organizar seu funil de vendas.
           </p>
-          <Button
-            className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-            onClick={() => setDialogState({ mode: "create" })}
-          >
+          <Button onClick={() => setDialogState({ mode: "create" })}>
             Novo lead
           </Button>
         </div>
@@ -187,8 +181,8 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
         <>
           <LeadTableToolbar table={table} nichos={nichos} />
 
-          <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-            <div className="flex items-center gap-3.5 border-b bg-[#F4F4F5] px-4 py-3">
+          <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+            <div className="flex items-center gap-3.5 border-b bg-muted px-4 py-3">
               {SORTABLE_HEADERS.map(({ id, label, className }) => {
                 const column = table.getColumn(id);
                 return (
@@ -224,10 +218,10 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
                         setDialogState({ mode: "edit", lead });
                       }
                     }}
-                    className="flex cursor-pointer items-center gap-3.5 border-b px-4 py-3.5 transition-colors last:border-b-0 hover:bg-[#F4F4F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488]"
+                    className="flex cursor-pointer items-center gap-3.5 border-b px-4 py-3.5 transition-colors last:border-b-0 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <div className={`flex items-center gap-2.5 ${COL.nome}`}>
-                      <div className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-[#0D9488]/10 text-[11px] font-bold text-[#0D9488]">
+                      <div className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                         {getInitials(lead.nome)}
                       </div>
                       <span className="truncate text-[14px] font-semibold text-foreground">
@@ -261,7 +255,7 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
                       <Button
                         type="button"
                         size="lg"
-                        className="gap-1.5 bg-[#22C55E] font-semibold text-white shadow-sm hover:bg-[#16A34A]"
+                        className="gap-1.5 bg-status-success font-semibold text-status-success-foreground shadow-sm hover:bg-status-success/90"
                         aria-label={`Enviar WhatsApp para ${lead.nome}`}
                         disabled={normalizePhone(lead.telefone) === null}
                         title={
@@ -312,7 +306,7 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
                           setDeleteState({ open: true, lead });
                         }}
                       >
-                        <Trash2 className="size-4 text-[#DC2626]" />
+                        <Trash2 className="size-4 text-destructive" />
                       </Button>
                     </div>
                   </div>

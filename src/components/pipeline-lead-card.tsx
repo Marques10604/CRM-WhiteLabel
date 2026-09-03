@@ -59,8 +59,8 @@ export function PipelineLeadCard({
         transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
       }}
       className={cn(
-        "flex cursor-pointer flex-col gap-1 rounded-lg bg-white p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488]",
-        isEsfriando ? "border-2 border-[#F59E0B]" : "border border-zinc-200",
+        "flex cursor-pointer flex-col gap-1 rounded-lg bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        isEsfriando ? "border-2 border-status-warning" : "border",
         isDragging ? "z-10 opacity-70" : null
       )}
     >
@@ -101,7 +101,7 @@ export function PipelineLeadCard({
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] leading-normal text-muted-foreground">
         <span>{format(lead.followUpDate, "dd/MM/yyyy")}</span>
         {isEsfriando ? (
-          <span className="flex items-center gap-1 text-[#B45309]">
+          <span className="flex items-center gap-1 text-status-warning-foreground">
             <Clock className="size-3.5" /> Esfriando
           </span>
         ) : null}

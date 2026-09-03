@@ -205,10 +205,7 @@ export function PipelineBoard({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Button
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          onClick={() => setDialogState({ mode: "create" })}
-        >
+        <Button onClick={() => setDialogState({ mode: "create" })}>
           Novo lead
         </Button>
       </div>
