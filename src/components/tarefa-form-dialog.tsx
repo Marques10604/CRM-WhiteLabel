@@ -50,7 +50,7 @@ type ActionState =
 /**
  * Modal de criar/editar tarefa (TAREFA-01, D-05/D-06) — molde de
  * `lead-form-dialog.tsx` podado para os 2 únicos campos da tarefa
- * (`descricao` + `data`), sem as 3 seções `bg-[#F4F4F5] p-6` do form de lead.
+ * (`descricao` + `data`), sem as 3 seções destacadas do form de lead.
  *
  * CONTRATO: o client NUNCA reenvia os dados já transformados pelo resolver do
  * react-hook-form — `onSubmit` monta `new FormData(formRef.current)` do DOM
@@ -267,11 +267,7 @@ export function TarefaFormDialog({ open, onOpenChange, tarefa }: TarefaFormDialo
                   Concluir
                 </Button>
               ) : null}
-              <Button
-                type="submit"
-                className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-                disabled={pending}
-              >
+              <Button type="submit" disabled={pending}>
                 {pending ? "Salvando..." : "Salvar"}
               </Button>
             </DialogFooter>

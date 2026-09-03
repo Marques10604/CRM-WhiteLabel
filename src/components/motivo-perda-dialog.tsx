@@ -89,7 +89,6 @@ export function MotivoPerdaDialog({
             Cancelar
           </Button>
           <Button
-            className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
             disabled={motivoPerdaId == null}
             onClick={() => {
               if (motivoPerdaId == null) return;

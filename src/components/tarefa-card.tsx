@@ -59,7 +59,7 @@ export function TarefaCard({ tarefa, dateClassName, onEdit }: TarefaCardProps) {
           onEdit(tarefa);
         }
       }}
-      className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488]"
+      className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex min-w-0 items-center gap-2">
         <ListTodo className="size-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -92,7 +92,7 @@ export function TarefaCard({ tarefa, dateClassName, onEdit }: TarefaCardProps) {
         >
           {/* Repouso: Circle cinza calmo. Hover/foco por teclado: CircleCheck em teal. */}
           <Circle className="size-4 text-muted-foreground group-hover:hidden group-focus-visible:hidden" />
-          <CircleCheck className="hidden size-4 text-[#0D9488] group-hover:block group-focus-visible:block" />
+          <CircleCheck className="hidden size-4 text-primary group-hover:block group-focus-visible:block" />
         </Button>
       </div>
     </div>

@@ -144,8 +144,8 @@ export function MotivoPerdaCombobox({
           {(item: MotivoPerdaItem) =>
             item.value === CREATE_VALUE ? (
               <ComboboxItem key={CREATE_VALUE} value={item}>
-                <Plus className="size-4 text-[#0D9488]" />
-                <span className="text-[#0D9488]">{`Criar "${item.label}"`}</span>
+                <Plus className="size-4 text-primary" />
+                <span className="text-primary">{`Criar "${item.label}"`}</span>
               </ComboboxItem>
             ) : (
               <ComboboxItem key={item.value} value={item}>
@@ -155,7 +155,7 @@ export function MotivoPerdaCombobox({
           }
         </ComboboxList>
         {createError ? (
-          <p className="px-3 pb-2 text-sm text-[#DC2626]">{createError}</p>
+          <p className="px-3 pb-2 text-sm text-destructive">{createError}</p>
         ) : null}
       </ComboboxContent>
     </Combobox>
