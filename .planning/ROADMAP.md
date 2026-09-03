@@ -175,7 +175,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 19-02-PLAN.md — /brand-design ponta a ponta (paleta + tipografia escolhidas pelo usuário) + brand.md com nome SOLO e ressalva de colisão + README
+- [x] 19-02-PLAN.md — /brand-design ponta a ponta (paleta + tipografia escolhidas pelo usuário) + brand.md com nome SOLO e ressalva de colisão + README
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -218,7 +218,7 @@ Plans:
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
-| 19. Marca e Identidade Visual | v1.5 | 1/6 | In Progress|  |
+| 19. Marca e Identidade Visual | v1.5 | 2/6 | In Progress|  |
 
 ---
 

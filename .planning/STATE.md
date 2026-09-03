@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 ## Current Position
 
 Phase: 19 (marca-e-identidade-visual) — EXECUTING
-Plan: 2 of 6
-Status: Ready to execute
+Plan: 2 of 6 COMPLETO — próximo: 19-03
+Status: pausado (fim de sessão) — retomar com /gsd-execute-phase 19
 Last activity: 2026-09-03
 
 ## Performance Metrics
@@ -287,10 +287,57 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — Fase 18 completa 2026-09-02
+### ▶ COMEÇA AQUI (próxima sessão) — Fase 19 EM EXECUÇÃO, planos 19-01 e 19-02 completos (2026-09-03)
 
-**ONDE PARAMOS:** milestone v1.5, Fases **16, 17 e 18 fechadas**. Sobra 1 fase no v1.5: **19**
-(marca "SOLO" + `/brand-design`).
+**ONDE PARAMOS:** milestone v1.5, Fases 16/17/18 fechadas. **Fase 19 em execução** — 2 dos 6
+planos completos e commitados na `main` (não pushados). Retomar com:
+
+```
+/gsd-execute-phase 19
+```
+
+(vai pegar do plano **19-03**. Modo híbrido combinado: subagentes gsd-executor pros planos
+mecânicos, `/brand-design` foi rodado inline comigo no 19-02 — a parte interativa já passou.)
+
+**19-01 (Wave 0) — completo.** 3 sensores `.cjs` criados e registrados em `package.json`:
+`verify:brand` (grep-guard de cor hardcoded + nome antigo), `verify:brand-md` (estrutura do
+brand.md), `check:contrast` (WCAG AA dos tokens). `.gitignore` blindado (`.brand-preview/`,
+`*.css.bak`). `19-HUMAN-UAT.md` autorado com a definição D-19. 4 commits.
+
+**19-02 (/brand-design) — completo.** Rodei o skill inline com o usuário:
+- **Paleta escolhida: "Corrente Funda · Sóbria"** — navy profundo + teal contido (croma ~0.08),
+  mood serious+premium. Aplicada em `src/app/globals.css` (`:root` + `.dark`, 14 tokens core).
+  `--chart-*`/`--sidebar-*` intactos (são do 19-03). Backup em `globals.css.bak` (gitignorado).
+- **Tipografia: Geist mantida** (usuário viu 6 pares e preferiu manter — zero risco de reflow).
+  `--font-heading` = alias de `--font-sans` (D-18).
+- **`brand.md`** criado (paleta + tipografia + tom/voz + seção Nome SOLO com ressalva de
+  colisão verbatim D-01/D-02/D-03) → BRAND-01 cumprido. **`README.md`** criado.
+- **Desvio D-1:** wiring do `next/font` NÃO renomeado (`--font-geist-sans/-mono` mantidos + a
+  ponte `@theme inline`). Renomear pra `--font-sans` recria o bug de auto-referência já
+  resolvido (`.planning/debug/resolved/font-sans-self-reference.md`). Gate `verify-brand-md.cjs`
+  check #9 ajustado pra aceitar. Ver `19-02-SUMMARY.md` §Desvios.
+- 4 commits (`feat(19-02)` ×3 + `docs(19-02)`).
+
+**ESTADO DOS GATES agora (correto pra este ponto da fase):**
+- `verify:brand-md` → **exit 0** (9/9) ✅
+- `verify:brand` → exit 1 (121 findings / 32 arquivos) — RED até o refactor de cor dos planos 19-03/04/05
+- `check:contrast` → exit 1 — só pelos 20 `--status-*` ausentes; **zero FAIL em par core**. Fica verde no 19-03.
+- `tsc` 0 · `lint` 0 (4 warnings pré-existentes deferidos)
+
+**O QUE FALTA na Fase 19 (planos 19-03 → 19-06):**
+- **19-03:** escala semântica `--status-*` (neutral/info/warning/success/danger, light+dark) no
+  `@theme inline` + `:root`/`.dark`; alinhar os 8 `--sidebar-*` à paleta nova (incl. o
+  `--sidebar-primary` azul-roxo leftover ~linha 112); refatorar 4 arquivos de cor de status
+  (`etapa-badge.tsx`, `followup-dashboard.tsx`, `csv-import-preview-table.tsx`, `relatorios`).
+- **19-04:** refactor cor→token de 14 arquivos (pipeline, lista de leads, wizard CSV) — ~41 ocorrências.
+- **19-05:** 13 arquivos restantes + rename "CRM de Leads"→"SOLO" (`layout.tsx` title/description,
+  `app-sidebar.tsx` header + ícone "I"→"S", `package.json` name) + `bg-white`→token no `<body>`.
+  É aqui que `verify:brand` fica verde.
+- **19-06:** favicon `src/app/icon.svg` ("S"), portão dos 12 sensores, registro da não-regressão
+  visual (`19-HUMAN-UAT.md` — ao vivo se houver RAM, senão code+data não-bloqueante).
+
+**DEPOIS da Fase 19:** `/gsd-secure-phase 19` → `/gsd-close-phase 19` → `/gsd-complete-milestone`
+(v1.5 fecha).
 
 **FASE 18 COMPLETA (2026-09-02) — método code+data.** O UAT ao vivo no navegador foi bloqueado
 por hardware (host 4GB: `npm run dev` + Chrome + sessão Claude → ~200 MB livres, renderer
@@ -315,11 +362,18 @@ congelado). Decisão do usuário: verificar por **code+data** (leitura da superf
 (setas de ordenação, rodapé multi-página, cores de badges/seções, toasts, animações, layout
 esfriando+contador na mesma linha) e um import CSV real NOVO de ponta a ponta no `data/crm.db`.
 
-**FASE 18 FECHADA E PUSHADA (2026-09-02).** `18-VERIFICATION.md` `passed` (5/5 SC, goal-backward), `18-SECURITY.md` `verified` (threats_open 0 — pivô code+data anulou o caminho de escrita), `18-LEARNINGS.md` extraído. Tudo em `origin/main`.
+<details>
+<summary>Histórico — Fase 18 (Auditoria Retroativa) FECHADA E PUSHADA 2026-09-02</summary>
 
-**PRÓXIMO COMANDO:** `/gsd-plan-phase 19` — Fase 19: Marca e Identidade Visual (BRAND-01/02/03): nome do produto ("SOLO") + `/brand-design` (~6 paletas em preview HTML) + aplicar paleta/tipografia + renomear "CRM de Leads". **⚠ o `/brand-design` abre um preview HTML no navegador — pode esbarrar no mesmo limite de RAM da Fase 18; checar se dá pra gerar a preview sem dev server (é HTML estático) ou se precisa de plano B.** É a ÚLTIMA fase do v1.5 — depois `/gsd-complete-milestone`.
+`18-VERIFICATION.md` `passed` (5/5 SC, goal-backward), `18-SECURITY.md` `verified` (threats_open 0 — pivô code+data anulou o caminho de escrita), `18-LEARNINGS.md` extraído. Tudo em `origin/main`. `/gsd-plan-phase 19` rodado depois: 6 planos, 6 ondas sequenciais, PATTERNS/RESEARCH/VALIDATION criados.
+</details>
 
-**Pendência aberta (não bloqueia):** conferência humana do CR-01 da Fase 16 — o limite de "500 caracteres" do campo `interesse` no formulário manual passou a contar code points (antes: code units UTF-16). Mais correto, documentado, mas confirmar que é a semântica desejada.
+**Pendências abertas (não bloqueiam a Fase 19):**
+- **Fonte de fase (planos 19-03..06):** não pushar até fechar a fase. Commits `feat(19-01/02)` só na `main` local.
+- **CR-01 da Fase 16:** conferência humana do limite de "500 caracteres" do campo `interesse` (agora conta code points, antes code units UTF-16). Confirmar que é a semântica desejada.
+- **Dark mode toggle:** o usuário perguntou se vai poder usar claro/escuro. Resposta dada: NÃO nesta fase (D-16, "zero feature nova" da v1.5). Os tokens `.dark` ficam prontos e consistentes; o toggle (ThemeProvider + controle) é fase própria num milestone futuro. Se o usuário priorizar, abrir fase depois de fechar a v1.5.
+
+**Telemetria do skill `/brand-design`:** desligada em `~/.superstack/config.json` (`telemetryTier: off`) — estava `anonymous` com `convexUrl` configurado.
 
 ---
 
