@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
 status: executing
-last_updated: "2026-09-03T01:08:44.376Z"
+last_updated: "2026-09-03T13:38:06.460Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 10
-  percent: 67
+  completed_plans: 12
+  percent: 75
 ---
 
 # Project State
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 ## Current Position
 
 Phase: 19 (marca-e-identidade-visual) — EXECUTING
-Plan: 2 of 6 COMPLETO — próximo: 19-03
-Status: pausado (fim de sessão) — retomar com /gsd-execute-phase 19
+Plan: 3 of 6 COMPLETO — próximo: 19-04
+Status: Ready to execute
 Last activity: 2026-09-03
 
 ## Performance Metrics
@@ -96,6 +96,7 @@ Last activity: 2026-09-03
 | Phase 16 P01 | 18min | 3 tasks | 4 files |
 | Phase 17 P01 | 20min | 3 tasks | 10 files |
 | Phase 19 P01 | 30min | 3 tasks | 6 files |
+| Phase 19 P03 | 22 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -199,6 +200,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 17-01]: override de scripts/**/*.cjs no eslint.config.mjs desliga so no-require-imports (CommonJS deliberado dos harnesses); .claude/** no globalIgnores tira ferramental de agente do lint; 4 falsos-positivos react-hooks de src/ com eslint-disable-next-line documentado. npm run lint da raiz volta a exit 0 (LINT-01)
 - [Phase ?]: [Phase 19-01]: os 3 sensores de marca (verify:brand, verify:brand-md, check:contrast) nascem VERMELHOS por construção — estado RED do Nyquist; ficam verdes nas ondas 19-02..19-06
 - [Phase ?]: [Phase 19-01]: check-contrast.cjs faz conversão OKLCH->sRGB real (matriz inversa) + luminância WCAG; token ausente = falha explícita; :root/.dark por chaves balanceadas, var(--x) até 3 níveis
+- [Phase ?]: [Phase 19-03]: escala --status-* (5 famílias light+dark) definida à parte da marca (D-08); check:contrast VERDE 30/30, menor razão 5.22; --sidebar-* aliasados a var(--card/primary/accent/border/ring) nos 2 blocos, leftover azul-roxo do default shadcn removido
+- [Phase ?]: [Phase 19-03]: padrão STAGE_LABEL + STAGE_TOKEN (Record<Stage,string> de classe utilitária) separa rótulo de cor para não acoplar STAGE_OPTIONS; headerClass único no lugar de headerBg/headerText hex + style inline no followup-dashboard
 
 ### Pending Todos
 
@@ -305,34 +308,43 @@ brand.md), `check:contrast` (WCAG AA dos tokens). `.gitignore` blindado (`.brand
 `*.css.bak`). `19-HUMAN-UAT.md` autorado com a definição D-19. 4 commits.
 
 **19-02 (/brand-design) — completo.** Rodei o skill inline com o usuário:
+
 - **Paleta escolhida: "Corrente Funda · Sóbria"** — navy profundo + teal contido (croma ~0.08),
   mood serious+premium. Aplicada em `src/app/globals.css` (`:root` + `.dark`, 14 tokens core).
   `--chart-*`/`--sidebar-*` intactos (são do 19-03). Backup em `globals.css.bak` (gitignorado).
+
 - **Tipografia: Geist mantida** (usuário viu 6 pares e preferiu manter — zero risco de reflow).
   `--font-heading` = alias de `--font-sans` (D-18).
+
 - **`brand.md`** criado (paleta + tipografia + tom/voz + seção Nome SOLO com ressalva de
   colisão verbatim D-01/D-02/D-03) → BRAND-01 cumprido. **`README.md`** criado.
+
 - **Desvio D-1:** wiring do `next/font` NÃO renomeado (`--font-geist-sans/-mono` mantidos + a
   ponte `@theme inline`). Renomear pra `--font-sans` recria o bug de auto-referência já
   resolvido (`.planning/debug/resolved/font-sans-self-reference.md`). Gate `verify-brand-md.cjs`
   check #9 ajustado pra aceitar. Ver `19-02-SUMMARY.md` §Desvios.
+
 - 4 commits (`feat(19-02)` ×3 + `docs(19-02)`).
 
 **ESTADO DOS GATES agora (correto pra este ponto da fase):**
+
 - `verify:brand-md` → **exit 0** (9/9) ✅
 - `verify:brand` → exit 1 (121 findings / 32 arquivos) — RED até o refactor de cor dos planos 19-03/04/05
 - `check:contrast` → exit 1 — só pelos 20 `--status-*` ausentes; **zero FAIL em par core**. Fica verde no 19-03.
 - `tsc` 0 · `lint` 0 (4 warnings pré-existentes deferidos)
 
 **O QUE FALTA na Fase 19 (planos 19-03 → 19-06):**
+
 - **19-03:** escala semântica `--status-*` (neutral/info/warning/success/danger, light+dark) no
   `@theme inline` + `:root`/`.dark`; alinhar os 8 `--sidebar-*` à paleta nova (incl. o
   `--sidebar-primary` azul-roxo leftover ~linha 112); refatorar 4 arquivos de cor de status
   (`etapa-badge.tsx`, `followup-dashboard.tsx`, `csv-import-preview-table.tsx`, `relatorios`).
+
 - **19-04:** refactor cor→token de 14 arquivos (pipeline, lista de leads, wizard CSV) — ~41 ocorrências.
 - **19-05:** 13 arquivos restantes + rename "CRM de Leads"→"SOLO" (`layout.tsx` title/description,
   `app-sidebar.tsx` header + ícone "I"→"S", `package.json` name) + `bg-white`→token no `<body>`.
   É aqui que `verify:brand` fica verde.
+
 - **19-06:** favicon `src/app/icon.svg` ("S"), portão dos 12 sensores, registro da não-regressão
   visual (`19-HUMAN-UAT.md` — ao vivo se houver RAM, senão code+data não-bloqueante).
 
@@ -369,6 +381,7 @@ esfriando+contador na mesma linha) e um import CSV real NOVO de ponta a ponta no
 </details>
 
 **Pendências abertas (não bloqueiam a Fase 19):**
+
 - **Fonte de fase (planos 19-03..06):** não pushar até fechar a fase. Commits `feat(19-01/02)` só na `main` local.
 - **CR-01 da Fase 16:** conferência humana do limite de "500 caracteres" do campo `interesse` (agora conta code points, antes code units UTF-16). Confirmar que é a semântica desejada.
 - **Dark mode toggle:** o usuário perguntou se vai poder usar claro/escuro. Resposta dada: NÃO nesta fase (D-16, "zero feature nova" da v1.5). Os tokens `.dark` ficam prontos e consistentes; o toggle (ThemeProvider + controle) é fase própria num milestone futuro. Se o usuário priorizar, abrir fase depois de fechar a v1.5.
@@ -504,7 +517,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-03T01:08:35.923Z
+Last session: 2026-09-03T13:38:06.422Z
 
 **O que foi feito nesta sessão:**
 
