@@ -23,7 +23,7 @@ const ALL_VALUE = "__all__";
 
 /** Anel de foco na cor accent (UI-SPEC Color, linha 83) aplicado aos controles da toolbar. */
 const ACCENT_FOCUS_RING =
-  "focus-visible:border-[#0D9488] focus-visible:ring-[#0D9488]/50";
+  "focus-visible:border-ring focus-visible:ring-ring/50";
 
 type LeadTableToolbarProps = {
   table: Table<LeadRow>;
@@ -90,7 +90,7 @@ export function LeadTableToolbar({ table, nichos }: LeadTableToolbarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-[#F4F4F5] p-4">
+    <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-muted p-4">
       <div className="flex flex-col gap-1.5">
         <span className="text-[14px] leading-normal text-muted-foreground">Nicho</span>
         <Select value={nichoValue} onValueChange={handleNichoChange}>

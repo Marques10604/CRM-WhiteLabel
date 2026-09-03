@@ -104,7 +104,7 @@ export function LixeiraTable({ leads, nichos }: LixeiraTableProps) {
             disabled={isPending && restoringId === row.original.id}
             onClick={() => handleRestore(row.original)}
           >
-            <RotateCcw className="size-4 text-[#0D9488]" />
+            <RotateCcw className="size-4 text-primary" />
           </Button>
         ),
       },

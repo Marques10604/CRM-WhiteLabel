@@ -191,11 +191,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
                   </FieldContent>
                 </Field>
                 <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-                    disabled={pending}
-                  >
+                  <Button type="submit" disabled={pending}>
                     {pending ? "Salvando..." : "Salvar nota"}
                   </Button>
                 </div>
@@ -216,13 +212,13 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
                   {interacoes.map((interacao) => (
                     <div
                       key={interacao.id}
-                      className="flex flex-col gap-1 border-b border-zinc-200 py-4 last:border-b-0"
+                      className="flex flex-col gap-1 border-b py-4 last:border-b-0"
                     >
                       <div className="flex items-center gap-2">
                         {interacao.tipo === "nota_manual" ? (
                           <StickyNote className="size-4 text-muted-foreground" />
                         ) : (
-                          <MessageCircle className="size-4 text-[#0D9488]" />
+                          <MessageCircle className="size-4 text-primary" />
                         )}
                         <Badge variant="outline">{TIPO_LABELS[interacao.tipo]}</Badge>
                         <span className="text-[14px] text-muted-foreground">
@@ -246,7 +242,7 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
                               aria-label="Excluir nota"
                               onClick={() => setNotaParaExcluir(interacao.id)}
                             >
-                              <Trash2 className="size-4 text-[#DC2626]" />
+                              <Trash2 className="size-4 text-destructive" />
                             </Button>
                           </div>
                         ) : null}
@@ -270,7 +266,6 @@ export function LeadTimelineDialog({ open, onOpenChange, lead }: LeadTimelineDia
                             <Button
                               type="button"
                               size="sm"
-                              className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
                               disabled={
                                 textoEdicao.trim().length === 0 || salvandoEdicaoId === interacao.id
                               }

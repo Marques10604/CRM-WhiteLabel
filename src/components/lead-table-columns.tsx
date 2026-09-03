@@ -176,7 +176,7 @@ export const leadTableColumns: ColumnDef<LeadRow>[] = [
             table.options.meta?.onDeleteLead?.(row.original);
           }}
         >
-          <Trash2 className="size-4 text-[#DC2626]" />
+          <Trash2 className="size-4 text-destructive" />
         </Button>
       </div>
     ),

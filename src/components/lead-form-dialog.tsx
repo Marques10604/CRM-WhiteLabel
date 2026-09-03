@@ -213,7 +213,7 @@ export function LeadFormDialog({
               <input type="hidden" name="id" value={lead.id} readOnly />
             ) : null}
 
-            <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+            <div className="flex flex-col gap-4 rounded-lg bg-muted p-6">
               <h3 className="text-[20px] leading-tight font-semibold">Contato</h3>
 
               <Field data-invalid={!!errors.nome}>
@@ -321,7 +321,7 @@ export function LeadFormDialog({
               </Field>
             </div>
 
-            <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+            <div className="flex flex-col gap-4 rounded-lg bg-muted p-6">
               <h3 className="text-[20px] leading-tight font-semibold">Negócio</h3>
 
               <Field data-invalid={!!errors.nichoId}>
@@ -432,7 +432,7 @@ export function LeadFormDialog({
               </Field>
             </div>
 
-            <div className="flex flex-col gap-4 rounded-lg bg-[#F4F4F5] p-6">
+            <div className="flex flex-col gap-4 rounded-lg bg-muted p-6">
               <h3 className="text-[20px] leading-tight font-semibold">Acompanhamento</h3>
 
               <Field data-invalid={!!errors.notas}>
