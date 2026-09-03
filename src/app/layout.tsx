@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CRM de Leads",
-  description: "CRM pessoal para organizar leads e o funil de vendas.",
+  title: "SOLO",
+  description:
+    "CRM pra quem trabalha sozinho: organiza leads, pipeline e follow-ups.",
 };
 
 export default function RootLayout({
@@ -29,7 +30,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex bg-white">
+      <body className="min-h-full flex">
         <AppSidebar />
         <main className="min-w-0 flex-1 px-8 py-8">{children}</main>
         <Toaster />
