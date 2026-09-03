@@ -37,7 +37,7 @@ A fase dá cara de produto ao CRM:
 
 ### Refactor de cores para tokens (BRAND-02)
 - **D-06:** Refactor **completo** — todas as ~44 ocorrências de cor hardcoded em `src/` (22 arquivos) migram para tokens shadcn (`bg-primary`, `text-muted-foreground`, `bg-sidebar`, `border-border`, etc.). Alvos conhecidos: `bg-[#0D9488]` (teal), `bg-[#0D9488]/10`, `text-[#0D9488]`, `bg-[#F4F4F5]`, `text-zinc-400/500/700`, `hover:bg-zinc-200/60` em `app-sidebar.tsx`; `bg-white` em `layout.tsx:32`; e o restante mapeado pelo grep `(bg|text|border|ring)-(zinc|slate|gray|neutral|white|black|blue|green|red|amber|emerald)-?\d*`.
-- **D-07:** Motivo do refactor completo (não parcial): `/brand-design` só reescreve as CSS variables. Sem o refactor, sidebar / cards / badges continuariam com o teal antigo e o resultado ficaria pela metade (botão novo + sidebar velha).
+- **D-07:** Motivo do refactor completo (não parcial): `/brand-design` só reescreve as CSS variables. Sem o refactor, sidebar / cards / badges continuariam com o teal antigo e o resultado ficaria pela metade (botão novo + sidebar velha). [informational]
 - **D-08:** **Cores de status do pipeline** (Novo, Contatado, Negociação, Fechado, Perdido) usam uma **escala dedicada `--status-*`**, definida à parte da paleta de marca. Status precisa de cores mutuamente distinguíveis (verde / vermelho / âmbar / azul); derivá-las da marca quebraria a leitura do funil. O planner deve inventariar onde essas cores de status vivem hoje e criar os tokens `--status-*` em light + dark.
 
 ### Direção visual — input para `/brand-design`
@@ -48,8 +48,8 @@ A fase dá cara de produto ao CRM:
 - **D-13:** Executar o loop de regeneração do `/brand-design` até o usuário aprovar uma paleta no navegador (comportamento nativo do skill).
 
 ### Dark mode
-- **D-14:** Estado atual: dark mode é **código morto** — `next-themes` está instalado mas só `src/components/ui/sonner.tsx` o usa; não há `ThemeProvider` no layout, não há toggle, e `body` tem `bg-white` cravado. Só 16 usos de `dark:` em `src/`.
-- **D-15:** Esta fase: `/brand-design` escreve os tokens do bloco `.dark` em `globals.css` corretamente, e o refactor de cores (D-06) corrige `bg-white` e neutros cravados para tokens que respondem ao `.dark`. Isso é **limpeza de dívida**, não feature.
+- **D-14:** Estado atual: dark mode é **código morto** — `next-themes` está instalado mas só `src/components/ui/sonner.tsx` o usa; não há `ThemeProvider` no layout, não há toggle, e `body` tem `bg-white` cravado. Só 16 usos de `dark:` em `src/`. [informational]
+- **D-15:** Esta fase: `/brand-design` escreve os tokens do bloco `.dark` em `globals.css` corretamente, e o refactor de cores (D-06) corrige `bg-white` e neutros cravados para tokens que respondem ao `.dark`. Isso é **limpeza de dívida**, não feature. [informational]
 - **D-16:** **SEM toggle de tema na UI.** Adicionar `ThemeProvider` + controle seria feature nova e viola o princípio do milestone v1.5 ("Zero feature nova"). Ver Deferred Ideas.
 - **D-17:** Interpretação de "dark mode sem regressão" (Success Criteria #5): a verificação **força `.dark`** temporariamente (ex: adicionar a classe via devtools) e confere que os tokens `.dark` são internamente consistentes — contraste WCAG AA, legibilidade, nada quebrado. Não exige que dark mode seja acessível pela UI.
 
