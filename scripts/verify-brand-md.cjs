@@ -23,7 +23,12 @@
  *   6. ressalva de colisão (D-02): "colis" / "descart" / SoloCRM / Salesboom / gosolo
  *   7. src/app/globals.css.bak — backup que o skill cria no Passo 5 (não-negociável)
  *   8. src/app/layout.tsx importa de next/font/google
- *   9. src/app/layout.tsx usa `variable: "--font-sans|mono|serif|heading"`
+ *   9. src/app/layout.tsx registra uma fonte do next/font numa CSS variable
+ *      (`variable: "--font-..."`) — aceita tanto os nomes normalizados
+ *      (`--font-sans|mono|serif|heading`) quanto o wiring provado do projeto
+ *      (`--font-geist-sans|--font-geist-mono`), que a ponte `@theme inline` de
+ *      globals.css já resolve. Ver `.planning/debug/resolved/font-sans-self-reference.md`:
+ *      apontar o next/font direto para `--font-sans` recria um bug de auto-referência.
  *
  * Exit 0 = todas passaram. Exit 1 = alguma falhou.
  *
@@ -91,8 +96,8 @@ check(
 const layout = readIfExists(path.join("src", "app", "layout.tsx")) ?? "";
 check(/next\/font\/google/.test(layout), "layout.tsx importa de next/font/google");
 check(
-  /variable:\s*["']--font-(sans|mono|serif|heading)["']/.test(layout),
-  'layout.tsx usa variable: "--font-sans|mono|serif|heading"'
+  /variable:\s*["']--font-(sans|mono|serif|heading|geist-sans|geist-mono)["']/.test(layout),
+  'layout.tsx registra uma fonte do next/font numa CSS variable (--font-sans|mono|serif|heading ou --font-geist-sans|geist-mono)'
 );
 
 const summary = `\n[verify-brand-md] ${failed} de ${total} checagens falharam`;
