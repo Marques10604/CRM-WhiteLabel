@@ -255,7 +255,7 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
                       <Button
                         type="button"
                         size="lg"
-                        className="gap-1.5 bg-status-success font-semibold text-status-success-foreground shadow-sm hover:bg-status-success/90"
+                        className="gap-1.5 bg-status-success-foreground font-semibold text-status-success shadow-sm hover:bg-status-success-foreground/90"
                         aria-label={`Enviar WhatsApp para ${lead.nome}`}
                         disabled={normalizePhone(lead.telefone) === null}
                         title={

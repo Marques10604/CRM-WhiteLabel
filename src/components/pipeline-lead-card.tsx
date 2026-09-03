@@ -60,7 +60,7 @@ export function PipelineLeadCard({
       }}
       className={cn(
         "flex cursor-pointer flex-col gap-1 rounded-lg bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        isEsfriando ? "border-2 border-status-warning" : "border",
+        isEsfriando ? "border-2 border-status-warning-foreground" : "border",
         isDragging ? "z-10 opacity-70" : null
       )}
     >

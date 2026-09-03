@@ -214,7 +214,10 @@ export function WhatsAppPreviewDialog({
                         // exibir erro sobre ela confundiria o admin.
                       });
                   }}
-                  className={cn(buttonVariants(), "gap-1.5")}
+                  className={cn(
+                    buttonVariants(),
+                    "gap-1.5 bg-status-success-foreground text-status-success hover:bg-status-success-foreground/90"
+                  )}
                 >
                   <MessageCircle />
                   Abrir WhatsApp
