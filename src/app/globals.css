@@ -39,6 +39,16 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+  --color-status-info: var(--status-info);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-success: var(--status-success);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-foreground: var(--status-danger-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -73,15 +83,28 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+
+  /* escala semântica de status — NÃO derivada da marca (D-08) */
+  --status-neutral: oklch(0.97 0 0);
+  --status-neutral-foreground: oklch(0.37 0 0);
+  --status-info: oklch(0.93 0.05 255);
+  --status-info-foreground: oklch(0.45 0.16 255);
+  --status-warning: oklch(0.94 0.06 85);
+  --status-warning-foreground: oklch(0.44 0.11 65);
+  --status-success: oklch(0.94 0.06 155);
+  --status-success-foreground: oklch(0.45 0.13 155);
+  --status-danger: oklch(0.93 0.05 25);
+  --status-danger-foreground: oklch(0.48 0.19 25);
+
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -109,14 +132,27 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+
+  /* escala semântica de status — NÃO derivada da marca (D-08) */
+  --status-neutral: oklch(0.27 0 0);
+  --status-neutral-foreground: oklch(0.87 0 0);
+  --status-info: oklch(0.30 0.06 255);
+  --status-info-foreground: oklch(0.85 0.10 255);
+  --status-warning: oklch(0.32 0.06 70);
+  --status-warning-foreground: oklch(0.87 0.10 85);
+  --status-success: oklch(0.30 0.07 155);
+  --status-success-foreground: oklch(0.87 0.12 155);
+  --status-danger: oklch(0.30 0.08 25);
+  --status-danger-foreground: oklch(0.87 0.12 25);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
