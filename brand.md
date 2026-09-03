@@ -22,6 +22,14 @@ fraqueza do nome e o trade-off — para não gastar mais rodadas de naming agora
 A letra **"S"** sobre `--primary`, aplicada no selo do header da barra lateral (antes era um "I"
 placeholder).
 
+**Favicon (fase 19, plano 19-06):** `src/app/icon.svg` — retângulo `rx=7` na cor primária com o
+"S" em `primary-foreground`, servido pela convenção de arquivo `icon.svg` do App Router (gera o
+`<link rel="icon">` no `<head>`). O placeholder `src/app/favicon.ico` do Next foi removido. O SVG
+é estático e **carrega uma cópia literal** dos valores de `--primary` (`#197076`) e
+`--primary-foreground` (`#fbfefe`) — um arquivo servido como asset estático não enxerga as CSS
+variables do app. **Trocar a paleta exige atualizar `src/app/icon.svg` à mão.** O SVG não contém
+`<script>`, `<foreignObject>` nem qualquer referência externa — só formas e texto.
+
 ### Ressalva de colisão (D-02)
 
 **Nome descartável — trocar antes de qualquer movimento de produto, landing page ou venda.**
