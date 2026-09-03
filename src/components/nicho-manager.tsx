@@ -44,14 +44,14 @@ function NichoRow({ nicho }: { nicho: Nicho }) {
 
   if (!isEditing) {
     return (
-      <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-[#F4F4F5]">
+      <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-muted">
         <span className="text-sm">{nicho.nome}</span>
         <div className="flex items-center gap-1">
           <button
             type="button"
             aria-label={`Renomear ${nicho.nome}`}
             onClick={() => setIsEditing(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#0D9488]"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-primary"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -60,7 +60,7 @@ function NichoRow({ nicho }: { nicho: Nicho }) {
             aria-label={`Remover ${nicho.nome}`}
             disabled={isPending}
             onClick={() => setConfirmOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#DC2626]"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -103,7 +103,7 @@ function NichoRow({ nicho }: { nicho: Nicho }) {
         </Button>
       </div>
       {fieldError ? (
-        <span className="text-sm text-[#DC2626]">{fieldError}</span>
+        <span className="text-sm text-destructive">{fieldError}</span>
       ) : null}
     </form>
   );
@@ -131,7 +131,7 @@ export function NichoManager({ nichos }: { nichos: Nicho[] }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-1 rounded-md border border-[#F4F4F5]">
+      <div className="flex flex-col gap-1 rounded-md border">
         {nichos.length === 0 ? (
           <span className="px-3 py-2 text-sm text-muted-foreground">
             Nenhum nicho cadastrado.
@@ -171,14 +171,14 @@ export function NichoManager({ nichos }: { nichos: Nicho[] }) {
             </Button>
           </div>
           {fieldError ? (
-            <span className="text-sm text-[#DC2626]">{fieldError}</span>
+            <span className="text-sm text-destructive">{fieldError}</span>
           ) : null}
         </form>
       ) : (
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="flex w-fit items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-[#0D9488] hover:underline"
+          className="flex w-fit items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-primary hover:underline"
         >
           + Adicionar
         </button>

@@ -42,14 +42,13 @@ function TemplateRow({
   pending: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-[#F4F4F5]">
+    <div className="flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-muted">
       <div className="flex items-center gap-2">
         <span className="text-sm">{template.nome}</span>
         {template.isDefault ? (
           <Badge
             variant="outline"
-            className="border-transparent gap-1"
-            style={{ backgroundColor: "rgba(13, 148, 136, 0.1)", color: "#0D9488" }}
+            className="border-transparent gap-1 bg-primary/10 text-primary"
           >
             <Check className="h-3 w-3" />
             Padrão
@@ -59,7 +58,7 @@ function TemplateRow({
             type="button"
             onClick={onSetDefault}
             disabled={pending}
-            className="text-sm text-muted-foreground hover:text-[#0D9488] hover:underline disabled:opacity-50"
+            className="text-sm text-muted-foreground hover:text-primary hover:underline disabled:opacity-50"
           >
             Tornar padrão
           </button>
@@ -70,7 +69,7 @@ function TemplateRow({
           type="button"
           aria-label={`Editar ${template.nome}`}
           onClick={onEdit}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#0D9488]"
+          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-primary"
         >
           <Pencil className="h-4 w-4" />
         </button>
@@ -78,7 +77,7 @@ function TemplateRow({
           type="button"
           aria-label={`Excluir ${template.nome}`}
           onClick={onDelete}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-zinc-500 hover:text-[#DC2626]"
+          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -125,10 +124,7 @@ export function TemplateList({ templates }: TemplateListProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Button
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          onClick={() => setDialogState({ mode: "create" })}
-        >
+        <Button onClick={() => setDialogState({ mode: "create" })}>
           Novo template
         </Button>
       </div>
@@ -136,10 +132,7 @@ export function TemplateList({ templates }: TemplateListProps) {
       {templates.length === 0 ? (
         <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed py-16 text-center">
           <p className="text-sm text-muted-foreground">Nenhum template cadastrado ainda.</p>
-          <Button
-            className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-            onClick={() => setDialogState({ mode: "create" })}
-          >
+          <Button onClick={() => setDialogState({ mode: "create" })}>
             Novo template
           </Button>
         </div>
@@ -152,7 +145,7 @@ export function TemplateList({ templates }: TemplateListProps) {
             return (
               <div key={section.key} className="flex flex-col gap-1">
                 <h2 className="text-[20px] leading-tight font-semibold">{section.label}</h2>
-                <div className="flex flex-col gap-1 rounded-md border border-[#F4F4F5]">
+                <div className="flex flex-col gap-1 rounded-md border">
                   {items.map((template) => (
                     <TemplateRow
                       key={template.id}

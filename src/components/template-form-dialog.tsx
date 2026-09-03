@@ -194,11 +194,7 @@ export function TemplateFormDialog({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-              disabled={pending}
-            >
+            <Button type="submit" disabled={pending}>
               {pending ? "Salvando..." : "Salvar template"}
             </Button>
           </DialogFooter>

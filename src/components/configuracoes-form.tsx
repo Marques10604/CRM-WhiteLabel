@@ -167,7 +167,7 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
       noValidate
       className="flex flex-col gap-6"
     >
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 max-w-md">
+      <div className="rounded-lg border bg-card p-6 max-w-md">
         <FieldGroup>
           <Field data-invalid={!!errors.diasParadoNovo}>
             <FieldLabel htmlFor="diasParadoNovo">Novo</FieldLabel>
@@ -228,7 +228,7 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
         </FieldGroup>
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 max-w-md">
+      <div className="rounded-lg border bg-card p-6 max-w-md">
         <div className="flex flex-col gap-1">
           <h2 className="text-[20px] font-semibold leading-tight">
             Sequência de reabordagem
@@ -278,7 +278,7 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
                   title="Remover intervalo"
                   onClick={() => handleRemoverIntervalo(row.id)}
                 >
-                  <Trash2 className="size-4 text-[#DC2626]" />
+                  <Trash2 className="size-4 text-destructive" />
                 </Button>
               </div>
             ))
@@ -296,11 +296,7 @@ export function ConfiguracoesForm({ config }: { config: Configuracoes }) {
       </div>
 
       <div className="flex justify-end">
-        <Button
-          type="submit"
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          disabled={pending}
-        >
+        <Button type="submit" disabled={pending}>
           {pending ? "Salvando..." : "Salvar configurações"}
         </Button>
       </div>

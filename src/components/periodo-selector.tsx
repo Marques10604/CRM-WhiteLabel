@@ -41,7 +41,7 @@ import {
 
 /** Anel de foco na cor accent (11-UI-SPEC.md §Color linha 82) — mesmo literal de `lead-table-toolbar.tsx`. */
 const ACCENT_FOCUS_RING =
-  "focus-visible:border-[#0D9488] focus-visible:ring-[#0D9488]/50";
+  "focus-visible:border-ring focus-visible:ring-ring/50";
 
 const OPCOES = [
   { value: "30d", label: "Últimos 30 dias" },
