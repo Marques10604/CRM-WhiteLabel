@@ -191,7 +191,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 19-06-PLAN.md — package.json name, favicon icon.svg, portão de 12 sensores e registro da não-regressão visual (D-19)
+- [x] 19-06-PLAN.md — package.json name, favicon icon.svg, portão de 12 sensores e registro da não-regressão visual (D-19)
 
 **Cross-cutting constraints:**
 
@@ -218,7 +218,7 @@ Plans:
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
-| 19. Marca e Identidade Visual | v1.5 | 5/6 | In Progress|  |
+| 19. Marca e Identidade Visual | v1.5 | 6/6 | Complete   | 2026-09-03 |
 
 ---
 
