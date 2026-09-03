@@ -57,6 +57,36 @@ e marcar o cenário como `deferred`. Isso é aceitável e **não bloqueia** o fe
 
 ---
 
+## Portão automatizado (sensores)
+
+Executado do zero em 2026-09-03 (plano 19-06 Task 2), sequência única, começando por `rm -rf .next`.
+Processos `node` órfãos fechados antes do build (host 4GB).
+
+| Comando | Exit | Observação (números reais) |
+|---|---|---|
+| `npx tsc --noEmit` | 0 | sem erros de tipo |
+| `npm run lint` | 0 | 0 errors; 4 warnings `react-hooks/incompatible-library` pré-existentes (TanStack `useReactTable` em lead-table / lixeira-table / template-list / motivo-perda-manager — deferidos na Fase 17) |
+| `rm -rf .next && npm run build` | 0 | Turbopack; compilado em 17.5s + TypeScript 17.7s; **13 rotas** no route table; `Generating static pages (13/13)`; inclui a nova rota `○ /icon.svg` |
+| `npm run verify:brand` | 0 | **83 arquivos varridos**; zero cor hardcoded, zero nome antigo em `src/` + `package.json` |
+| `npm run verify:brand-md` | 0 | **9/9 checagens OK** (Paleta · Tipografia · Tom/Voz · Nome+"SOLO" · colisão D-02 · `globals.css.bak` · import `next/font/google` · var de fonte) |
+| `npm run check:contrast` | 0 | **30 pares OK, 0 falhas** (15 pares × `:root` + `.dark`); menor razão UI `--destructive/--background` = 5.22 (`:root`) / 5.46 (`.dark`), min 3; menor par de texto `--primary-foreground/--primary` = 5.54 (`:root`) |
+| `npm run guard:no-hard-delete` | 0 | escopo protegido leads / subnichos / interacoes / motivos_perda; `tarefas` fora por D-08 |
+| `npm run verify:schema` | 0 | tabelas leads/subnichos/interacoes/motivos_perda/tarefas + colunas `sequencia_posicao`/`sequencia_intervalos_dias`/`motivo_perda_id`/`interesse` presentes em `data/crm.db` |
+| `npm run test:lead-actions` | 0 | todas as asserções (inclui cobertura CR-01 de truncamento por code units) |
+| `npm run test:tarefa-actions` | 0 | 7 casos |
+| `npm run test:motivo-perda-actions` | 0 | 7 casos |
+| `npm run test:group-by-urgency` | 0 | régua de urgência + `buildDashboardItems` intercalado |
+
+**Provas consolidadas de BRAND-03:**
+
+- `git grep -nE "CRM de Leads|CRM LEADS|CRM Leads|crm-leads" -- src/ package.json` → exit 1 (sem resultado).
+- `node -e "console.log(require('./package.json').name)"` → `solo`.
+- `git status --porcelain` → só `.claude/` (ferramental de agente, alinhado ao `globalIgnores` da Fase 17); **sem** `.brand-preview/`, `*.css.bak` ou `.next/`.
+
+Os 12 sensores da fase estão verdes simultaneamente, na mesma árvore de trabalho, sem edição entre eles.
+
+---
+
 ## Cenários — 10 rotas × (claro + `.dark` forçado) = 20
 
 | # | Rota | Modo | O que conferir | Resultado | Nota |
