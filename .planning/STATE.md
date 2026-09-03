@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
 status: verifying
-last_updated: "2026-09-03T15:37:29.399Z"
+last_updated: "2026-09-03T23:52:24.332Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 4
