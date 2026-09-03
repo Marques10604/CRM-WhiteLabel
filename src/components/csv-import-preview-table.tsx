@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { NichoCombobox } from "@/components/nicho-combobox";
+import { cn } from "@/lib/utils";
 import { bulkImportLeads, type ConfirmedImportRow } from "@/actions/import-actions";
 import type { MappedCsvRow } from "@/lib/csv-import";
 import type { Nicho } from "@/types";
@@ -66,8 +67,10 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
       {(flags.duplicadoDb || flags.duplicadoLote) && (
         <Badge
           variant="outline"
-          className="w-fit gap-1 border-transparent"
-          style={{ backgroundColor: "#FEF3C7", color: "#B45309" }}
+          className={cn(
+            "w-fit gap-1 border-transparent",
+            "bg-status-warning text-status-warning-foreground"
+          )}
         >
           <TriangleAlert className="size-3" />
           Duplicado
@@ -76,8 +79,10 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
       {flags.nichoNovo && (
         <Badge
           variant="outline"
-          className="w-fit gap-1 border-transparent"
-          style={{ backgroundColor: "#DBEAFE", color: "#1D4ED8" }}
+          className={cn(
+            "w-fit gap-1 border-transparent",
+            "bg-status-info text-status-info-foreground"
+          )}
         >
           <Sparkles className="size-3" />
           Novo nicho
@@ -86,8 +91,10 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
       {flags.nichoBloqueado && (
         <Badge
           variant="outline"
-          className="w-fit gap-1 border-transparent"
-          style={{ backgroundColor: "#E4E4E7", color: "#3F3F46" }}
+          className={cn(
+            "w-fit gap-1 border-transparent",
+            "bg-status-neutral text-status-neutral-foreground"
+          )}
         >
           <CircleAlert className="size-3" />
           Sem nicho
@@ -96,8 +103,10 @@ function StatusBadges({ flags }: { flags: RowFlags }) {
       {flags.telefoneInvalido && (
         <Badge
           variant="outline"
-          className="w-fit gap-1 border-transparent"
-          style={{ backgroundColor: "#FEE2E2", color: "#B91C1C" }}
+          className={cn(
+            "w-fit gap-1 border-transparent",
+            "bg-status-danger text-status-danger-foreground"
+          )}
         >
           <CircleAlert className="size-3" />
           Telefone inválido — não será importado
@@ -152,8 +161,10 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
         {row.original.interesseTruncado && (
           <Badge
             variant="outline"
-            className="w-fit gap-1 border-transparent"
-            style={{ backgroundColor: "#FEF3C7", color: "#B45309" }}
+            className={cn(
+              "w-fit gap-1 border-transparent",
+              "bg-status-warning text-status-warning-foreground"
+            )}
           >
             <TriangleAlert className="size-3" />
             Cortado em 500 caracteres
@@ -186,7 +197,7 @@ const previewColumns: ColumnDef<PreviewRow>[] = [
             <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
-                className="size-4 accent-[#0D9488]"
+                className="size-4 accent-primary"
                 checked={override.importarMesmoAssim}
                 onChange={() => table.options.meta?.onToggleImportAnyway?.(r.rowIndex)}
               />
@@ -320,7 +331,7 @@ export function CsvImportPreviewTable({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1 rounded-lg bg-[#F4F4F5] p-4">
+      <div className="flex flex-col gap-1 rounded-lg bg-muted p-4">
         <h2 className="text-[20px] leading-tight font-semibold">Revise antes de importar</h2>
         <p className="text-sm text-muted-foreground">
           {rows.length} leads no arquivo · {duplicateCount} duplicados · {novoCount} nichos
@@ -377,12 +388,7 @@ export function CsvImportPreviewTable({
         <Button type="button" variant="outline" onClick={onBack} disabled={isPending}>
           Voltar ao mapeamento
         </Button>
-        <Button
-          type="button"
-          className="bg-[#0D9488] text-white hover:bg-[#0D9488]/90"
-          disabled={isPending}
-          onClick={handleConfirm}
-        >
+        <Button type="button" disabled={isPending} onClick={handleConfirm}>
           {isPending ? "Importando..." : "Confirmar importação"}
         </Button>
       </div>
