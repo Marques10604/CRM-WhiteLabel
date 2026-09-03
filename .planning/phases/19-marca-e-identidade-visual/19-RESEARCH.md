@@ -462,24 +462,27 @@ Grep de `"CRM de Leads"|"CRM LEADS"|"CRM Leads"` em `src/` retornou **exatamente
 | A6 | O skill pergunta sobre telemetria na 1ª execução e um `curl` de POST é emitido salvo opt-out | Package Legitimacy, Security | `[CITED: SKILL.md Preamble]` — comportamento confirmado no arquivo do skill. |
 | A7 | `check-contrast.cjs` consegue parsear `oklch()` e estimar contraste sRGB "bom o suficiente" para gate | Validation Architecture | OKLCH L ≠ luminância sRGB exatamente (o próprio `contrast-rules.md` avisa). O script serve de rede de segurança, não de verdade absoluta — o skill já auto-ajusta AA. Risco: falso-negativo raro. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Todas as quatro questões foram fechadas no planejamento da fase. Cada uma aponta para o plano
+> que travou a decisão — nenhuma decisão em aberto entra na execução.
 
 1. **Favicon / Open Graph (Claude's Discretion D-Discretion)**
    - What we know: `src/app/favicon.ico` é o placeholder do Next; sem `openGraph` no metadata; o ícone de marca da UI é a letra "S" em `<div>`, não um asset.
    - What's unclear: se vale gerar um `src/app/icon.svg` (ou `icon.tsx` com `ImageResponse`) com "S" na cor primária, e um OG image.
-   - Recommendation: fazer o **favicon** (um `icon.svg` com "S" sobre `--primary` — 10 min, é "cara de produto"); **adiar OG image** (precisa de arte, o app não é público). Anotar no plano.
+   - **RESOLVED:** favicon SIM — `src/app/icon.svg` com "S" sobre `--primary` (cópia literal da cor, registrada no `brand.md`), mais remoção do `favicon.ico` placeholder → **plano 19-06, Task 1**. Open Graph image e `metadataBase` **DIFERIDOS** (precisam de arte, o app não é público) → 19-CONTEXT §Deferred Ideas; o plano 19-05 Task 1 proíbe explicitamente adicionar `openGraph` ao metadata.
 
 2. **`--font-heading` com par serif (D-18)**
    - What we know: `font-heading` é usado só em `DialogTitle` (`ui/dialog.tsx:125`).
    - What's unclear: se o usuário vai escolher um par com serif no preview e se quer títulos de dialog em serif.
-   - Recommendation: default = manter `--font-heading: var(--font-sans)`. Se o usuário escolher serif e gostar da ideia no preview, apontar para o serif conscientemente. Decidir na hora da escolha, não travar o plano.
+   - **RESOLVED:** decidido no momento da escolha da tipografia — o `--font-heading` é materializado no `@theme inline` de `globals.css` → **plano 19-02, Task 2**. Default = `--font-heading: var(--font-sans)`; se o usuário escolher um par com serif e gostar no preview, apontar para o serif conscientemente. O plano 19-05 Task 3 proíbe alterar o `font-heading` do `DialogTitle` — a decisão vive no token, não no componente.
 
 3. **`--status-*`: 5 cores semânticas vs. 5 tokens por-etapa**
    - What we know: as 5 etapas mapeiam 1:1 para 5 cores, e essas mesmas 5 cores reaparecem no dashboard de urgência e nas flags do CSV.
-   - Recommendation: **5 semânticas** (`neutral/info/warning/success/danger`) — reusadas por etapa E por urgência E por flag. Menos tokens, semântica clara. `etapa-badge.tsx` mapeia etapa→token.
+   - **RESOLVED:** **5 semânticas** (`neutral/info/warning/success/danger`), criadas em `:root` e `.dark` e reusadas por etapa E por urgência E por flag; `etapa-badge.tsx` mapeia etapa→token → **plano 19-03** (Task 1 cria os tokens, Task 2 consome em `etapa-badge`, Task 3 em `followup-dashboard`/`relatorios`). O `check-contrast.cjs` valida os 5 pares `status-*-foreground/status-*` em ambos os blocos.
 
 4. **Botão WhatsApp verde (`#22C55E`) — `--status-success` ou token próprio?**
-   - Recommendation: usar `--status-success` (verde de "enviado/ganho" é a mesma família). Só criar `--whatsapp` se o usuário quiser o verde-WhatsApp canônico distinto do verde de "Fechado".
+   - **RESOLVED:** reusar `--status-success` (verde de "enviado/ganho" é a mesma família); nenhum token `--whatsapp` é criado → **plano 19-04**, na migração de `whatsapp-send-button` / `whatsapp-preview-dialog`.
 
 ## Environment Availability
 
