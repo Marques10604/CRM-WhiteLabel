@@ -143,6 +143,7 @@ Plans:
 **Plans**: 6 planos (sequenciais, 1 por wave — host 4GB, sem paralelo)
 
 Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado por hardware no host 4GB)
+
 - [x] **Wave 1** — 18-01-PLAN.md — Fase 1: `01-HUMAN-UAT.md` autorado (20 cenários); cenário 4 live; bloqueio de hardware diagnosticado
 - [x] **Wave 2** — 18-02-SUMMARY — Fase 1: 19 cenários por code+data + `01-HUMAN-UAT.md` complete + `01-VERIFICATION.md` passed
 - [x] **Wave 3** — 18-03-SUMMARY — Fase 2: `02-HUMAN-UAT.md` autorado (15 cenários) + `02-VERIFICATION.md` passed
@@ -168,12 +169,33 @@ Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado po
 **Plans**: 6 plans (6 ondas sequenciais)
 
 Plans:
+**Wave 1**
+
 - [ ] 19-01-PLAN.md — Wave 0: 3 sensores .cjs (cor hardcoded, brand.md, contraste WCAG) + .gitignore + checklist 19-HUMAN-UAT.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 19-02-PLAN.md — /brand-design ponta a ponta (paleta + tipografia escolhidas pelo usuário) + brand.md com nome SOLO e ressalva de colisão + README
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 19-03-PLAN.md — escala semântica --status-* em light+dark, alinhamento dos --sidebar-*, e refactor dos 4 arquivos de status
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 19-04-PLAN.md — refactor cor→token nos 14 arquivos de pipeline, lista de leads e wizard de CSV
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 19-05-PLAN.md — refactor dos 13 arquivos restantes + rename das superfícies visíveis para SOLO (sidebar, metadata, ícone S)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 19-06-PLAN.md — package.json name, favicon icon.svg, portão de 12 sensores e registro da não-regressão visual (D-19)
+
+**Cross-cutting constraints:**
+
+- D-16: nenhum ThemeProvider nem toggle de tema é adicionado
 
 **UI hint**: yes
 **Threat surface**: baixa — CSS variables, strings de metadata e carregamento de fonte; sem lógica nova. Passa pelo UI safety gate (`workflow.ui_phase` + `ui_safety_gate` ativos).
