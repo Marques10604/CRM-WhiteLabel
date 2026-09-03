@@ -171,7 +171,7 @@ Plans: 6/6 complete (método code+data — D-01 revisado, navegador bloqueado po
 Plans:
 **Wave 1**
 
-- [ ] 19-01-PLAN.md — Wave 0: 3 sensores .cjs (cor hardcoded, brand.md, contraste WCAG) + .gitignore + checklist 19-HUMAN-UAT.md
+- [x] 19-01-PLAN.md — Wave 0: 3 sensores .cjs (cor hardcoded, brand.md, contraste WCAG) + .gitignore + checklist 19-HUMAN-UAT.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -218,7 +218,7 @@ Plans:
 | 16. Correções de Code Review da Fase 15 | v1.5 | 2/2 | Complete    | 2026-09-01 |
 | 17. Limpeza de Lint do Repo | v1.5 | 1/1 | Complete    | 2026-09-02 |
 | 18. Auditoria Retroativa no Navegador | v1.5 | 6/6 | Complete    | 2026-09-02 |
-| 19. Marca e Identidade Visual | v1.5 | 0/6 | Planned     | - |
+| 19. Marca e Identidade Visual | v1.5 | 1/6 | In Progress|  |
 
 ---
 

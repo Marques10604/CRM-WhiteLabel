@@ -30,9 +30,9 @@ Fases já shipadas cujo comportamento nunca foi verificado com clique real. O ho
 
 ### Marca e Identidade Visual
 
-- [ ] **BRAND-01**: O app tem um nome de produto definido (candidato do usuário: "SOLO") — a decisão e o racional ficam registrados em `brand.md` na raiz do repo
-- [ ] **BRAND-02**: `/brand-design` rodado — ~6 paletas candidatas revisadas em preview HTML no navegador, uma escolhida pelo usuário e aplicada como shadcn CSS variables (light + dark) em `globals.css`, com a tipografia ligada via `next/font`
-- [ ] **BRAND-03**: `brand.md` escrito na raiz (paleta, tipografia, tom/voz); "CRM de Leads" renomeado para o nome escolhido no `layout.tsx` metadata (`<title>` + description), no header da sidebar (`app-sidebar.tsx`) e onde mais o nome antigo aparecer; nenhuma regressão visual nas telas existentes (verificação no navegador)
+- [x] **BRAND-01**: O app tem um nome de produto definido (candidato do usuário: "SOLO") — a decisão e o racional ficam registrados em `brand.md` na raiz do repo
+- [x] **BRAND-02**: `/brand-design` rodado — ~6 paletas candidatas revisadas em preview HTML no navegador, uma escolhida pelo usuário e aplicada como shadcn CSS variables (light + dark) em `globals.css`, com a tipografia ligada via `next/font`
+- [x] **BRAND-03**: `brand.md` escrito na raiz (paleta, tipografia, tom/voz); "CRM de Leads" renomeado para o nome escolhido no `layout.tsx` metadata (`<title>` + description), no header da sidebar (`app-sidebar.tsx`) e onde mais o nome antigo aparecer; nenhuma regressão visual nas telas existentes (verificação no navegador)
 
 ## Future Requirements
 
@@ -90,9 +90,9 @@ Preenchido na criação do roadmap (2026-08-31).
 | AUDIT-03 | Fase 18 | Complete |
 | AUDIT-04 | Fase 18 | Complete |
 | AUDIT-05 | Fase 18 | Complete |
-| BRAND-01 | Fase 19 | Pending |
-| BRAND-02 | Fase 19 | Pending |
-| BRAND-03 | Fase 19 | Pending |
+| BRAND-01 | Fase 19 | Complete |
+| BRAND-02 | Fase 19 | Complete |
+| BRAND-03 | Fase 19 | Complete |
 
 **Coverage:**
 

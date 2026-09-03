@@ -3,7 +3,7 @@ phase: 19
 slug: marca-e-identidade-visual
 status: approved
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-09-02
 ---
 
