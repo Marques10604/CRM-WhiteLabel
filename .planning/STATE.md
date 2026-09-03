@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
 status: executing
-last_updated: "2026-09-03T14:21:13.207Z"
+last_updated: "2026-09-03T15:25:46.270Z"
 last_activity: 2026-09-03
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 75
 ---
 
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 ## Current Position
 
 Phase: 19 (marca-e-identidade-visual) — EXECUTING
-Plan: 4 of 6 COMPLETO — próximo: 19-04
+Plan: 6 of 6 COMPLETO — próximo: 19-04
 Status: Ready to execute
 Last activity: 2026-09-03
 
@@ -98,6 +98,7 @@ Last activity: 2026-09-03
 | Phase 19 P01 | 30min | 3 tasks | 6 files |
 | Phase 19 P03 | 22 | 3 tasks | 5 files |
 | Phase 19 P04 | 18min | 3 tasks | 14 files |
+| Phase 19 P05 | 16min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -204,6 +205,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 19-03]: escala --status-* (5 famílias light+dark) definida à parte da marca (D-08); check:contrast VERDE 30/30, menor razão 5.22; --sidebar-* aliasados a var(--card/primary/accent/border/ring) nos 2 blocos, leftover azul-roxo do default shadcn removido
 - [Phase ?]: [Phase 19-03]: padrão STAGE_LABEL + STAGE_TOKEN (Record<Stage,string> de classe utilitária) separa rótulo de cor para não acoplar STAGE_OPTIONS; headerClass único no lugar de headerBg/headerText hex + style inline no followup-dashboard
 - [Phase 19]: [Phase 19-04]: refactor cor→token dos 14 arquivos de pipeline/lista-de-leads/wizard-CSV — só strings de className (41 ocorrencias), zero mudanca de logica/handlers; hover:bg-[#F4F4F5] de superficie interativa → hover:bg-accent (nao bg-muted), alinhado ao idioma isOver→bg-accent do 19-03; whatsapp-send-button usava teal de MARCA (nao o verde #22C55E) → text-primary — Refactor mecanico BRAND-02/D-06; verify:brand cai 88→47 findings, os 14 arquivos saem da lista; 19-05 herda lista fechada de 14 arquivos + package.json
+- [Phase ?]: [Phase 19-05]: refactor cor→token fechado nos 13 arquivos restantes + rename CRM de Leads→SOLO em 3 superfícies (layout title/description, app-sidebar header+ícone S, package.json name=solo); verify:brand exit 0 SEM RESSALVA pela 1ª vez na fase; overlay do dialog bg-black/10→bg-foreground/10 (converter, não allowlistar); escopo do rename travado por D-05
 
 ### Pending Todos
 
@@ -519,7 +521,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-03T14:20:15.495Z
+Last session: 2026-09-03T15:25:41.105Z
 
 **O que foi feito nesta sessão:**
 
