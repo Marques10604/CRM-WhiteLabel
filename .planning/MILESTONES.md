@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.5 Quitação de Débito e Auditoria Retroativa (Shipped: 2026-09-03)
+
+**Phases completed:** 4 phases (16-19), 15 plans, 28 tasks · 98 commits · 2026-09-01 → 2026-09-03
+
+**Delivered:** o CRM foi de "funciona, acho" para "auditado, polido, tem nome" — sem uma
+única feature funcional nova. Débito de code review e de lint quitado, comportamento shipado
+de 5 fases antigas verificado, e o produto ganhou nome ("SOLO"), paleta e favicon próprios.
+
+**Key accomplishments:**
+
+- **Fase 16 — 5 achados do `15-REVIEW.md` fechados.** `interesse` só-espaços grava `NULL` (não `''`) no create e no update (trim dentro do `z.preprocess`); a prévia do CSV mostra a coluna "Interesse" com badge de truncamento. Code review pegou 1 blocker (CR-01): o fix do `info` IN-02 podia abortar o import inteiro de uma célula com muitos emoji — corrigido, mudando o limite de 500 de code units para code points nos dois lados.
+- **Fase 17 — `npm run lint` da raiz volta a exit 0.** Dos 457 erros pré-existentes (débito desde a Fase 8), ~98% era ruído de ferramental: `.claude/**` entrou no `globalIgnores`, `scripts/**/*.cjs` ganhou override de `no-require-imports`, o worktree órfão foi removido, e os 4 erros reais de `src/` (falsos-positivos do React Compiler) receberam `eslint-disable` documentado. Zero runtime tocado.
+- **Fase 18 — comportamento shipado das Fases 1/2/4/6/8 verificado.** UAT ao vivo no navegador bloqueado pelo host de 4GB (dev + Chrome + sessão do agente não cabem) → pivô para **code+data**: leitura da superfície + query só-SELECT no `data/crm.db` + os 12 harnesses `test:*`/`verify:*`. `01/02-HUMAN-UAT.md` autorados do zero (20 + 15 cenários); os 5 `VERIFICATION.md` → `passed`. **0 issues de runtime.**
+- **Fase 19 — o CRM virou "SOLO".** Nome + ressalva de colisão em `brand.md`, paleta "Corrente Funda · Sóbria" (navy + teal, OKLCH light+dark) escolhida via `/brand-design`, favicon próprio (`icon.svg` "S"). 33 arquivos migrados de cor hardcoded → token shadcn; escala semântica `--status-*` criada à parte da marca. Portão de 12 sensores verde. Code review: 2 warnings de UX corrigidos (`c7acae5`), 2 de gate frouxo aceitos como débito. Security 0 threats open. Verification passed 5/5 (code+data).
+
+**Known deferred items at close:** 22 (see STATE.md Deferred Items) — 12 quick_tasks (falso positivo de checker), 5 todos de backlog PME, 2 seeds dormentes, 3 uat_gaps já resolvidos. Nenhum é bug real. Sem `v1.5-MILESTONE-AUDIT.md` — dispensado por decisão do usuário (milestone de quitação, 4/4 fases verificadas, Fase 18 já auditou retroativo).
+
+**Débito técnico incorrido:** WR-03/WR-04 da Fase 19 (2 gates `.cjs` com checagem frouxa — `check-contrast` não cobre pares fg-sobre-card; `verify-brand-md` casa substrings). Não-bloqueante, fechável num `/gsd-quick`. Confirmação puramente visual da Fase 19 (animações, toasts, digitação real) diferida para sessão com navegador.
+
+**Processo:** as 4 fases foram para `main` por push direto (sem PR — projeto solo, sem revisor), diferente das Fases ≤15. Tag `v1.5`.
+
+---
+
 ## v1.4 CRM Genérico Multi-Nicho — despivô (Shipped: 2026-08-31)
 
 **Phases completed:** 3 phases, 7 plans, 10 tasks

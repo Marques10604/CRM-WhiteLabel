@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Quitação de Débito e Auditoria Retroativa
-status: completed
-last_updated: "2026-09-03T23:56:08.952Z"
-last_activity: 2026-09-03
+status: Awaiting next milestone
+last_updated: "2026-09-04T00:00:47.191Z"
+last_activity: 2026-09-04 — Milestone v1.5 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 19 (marca-e-identidade-visual) — FECHADA E SHIPADA
-Plan: 6 of 6 completos · code review (2 WR corrigidos) · security 0 threats · verification passed 5/5 · learnings extraídos
-Status: Fase 19 shipada (push direto p/ main, 41 commits) — TODAS as 4 fases do v1.5 fechadas — próximo: /gsd-complete-milestone
-Last activity: 2026-09-03
+Phase: Milestone v1.5 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-04 — Milestone v1.5 completed and archived
 
 ## Performance Metrics
 
@@ -277,6 +277,15 @@ Aberto, carregado para o v1.3:
 
 Items acknowledged and carried forward.
 
+**Acknowledged no fecho do milestone v1.5 (2026-09-03):** `audit-open` listou 22 itens abertos —
+todos conhecidos e não-bloqueantes, aceitos como deferred pelo usuário: 12 quick_tasks (falso
+positivo do checker — todas têm SUMMARY.md, falta o campo `status:`), 3 uat_gaps já resolvidos
+(Fases 05/07/19, `open_scenario_count: 0`), 5 todos de backlog PME, 2 seeds dormentes.
+Sem `v1.5-MILESTONE-AUDIT.md` — dispensado (milestone de quitação, 4/4 fases já com
+`VERIFICATION.md` passed, Fase 18 foi ela própria auditoria retroativa). **+ novo:** WR-03/WR-04
+da Fase 19 (`19-REVIEW.md` — 2 gates `.cjs` frouxos) e a confirmação puramente visual da Fase 19
+(animações/toasts/digitação — host 4GB).
+
 **Atualizado 2026-09-02 (Fase 18 — AUDIT-01..05):** os `uat_gap`/`verification_gap` das Fases
 1, 2, 4, 6 e 8 foram RESOLVIDOS e removidos desta lista. `01/02-HUMAN-UAT.md` autorados e
 auditados; `04/06/08-HUMAN-UAT.md` executados; os 5 `VERIFICATION.md` agora estão `passed`
@@ -296,46 +305,46 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — v1.5 com as 4 fases FECHADAS, falta só o /gsd-complete-milestone (2026-09-03)
+### ▶ COMEÇA AQUI (próxima sessão) — MILESTONE v1.5 FECHADO E TAGUEADO (2026-09-03)
 
-**ONDE PARAMOS:** milestone v1.5 (Quitação de Débito e Auditoria Retroativa) — **Fases 16, 17,
-18 e 19 todas fechadas e shipadas na `main`** (push direto, sem PR — padrão deste milestone).
-`origin/main` em dia. Próximo e único passo:
+**ONDE PARAMOS:** o milestone **v1.5 "Quitação de Débito e Auditoria Retroativa"** está
+completo: 4 fases (16-19), 15 planos, todas shipadas na `main`. `/gsd-complete-milestone`
+rodado — ROADMAP colapsado, `REQUIREMENTS.md` arquivado em `milestones/v1.5-REQUIREMENTS.md`
+e removido, PROJECT.md evoluído, retrospectiva escrita, **tag `v1.5`** criada. `origin/main`
+em dia (push direto, sem PR — padrão deste milestone).
+
+**Próximo passo — escolha do usuário:**
 
 ```
-/gsd-complete-milestone
+/gsd-new-milestone     # define o v1.6 (direção + roadmap com fases novas — numeram de 20+)
 ```
 
-(arquiva o v1.5, cria a tag `v1.5`, evolui PROJECT.md, retrospectiva, e roteia pro
-`/gsd-new-milestone` — as fases continuam numerando de 20+.)
+Candidatos pro v1.6 (do `PROJECT.md` §Next Milestone Goals): dark mode toggle (tokens `.dark`
+já prontos da Fase 19), handoff Prospector→CRM (HANDOFF-01..03, se o Prospector existir),
+teste de nicho formal (CAMPANHA-01), backlog PME (tags, busca global, exportar CSV…).
 
-**FASE 19 (Marca e Identidade Visual) — FECHADA 2026-09-03.** 6 planos executados:
+**Débito que sobra (não bloqueia nada, mas registrar num `/gsd-quick` ou no v1.6):**
+- **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` com checagem frouxa (`check-contrast` não cobre
+  pares fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings acidentais). Correções
+  concretas em `19-REVIEW.md`.
+- **8 quick tasks de UI** acumuladas v1.0–v1.3 (nunca fora de milestone).
+- **Confirmação puramente visual da Fase 19** — animações, toasts, digitação real nos forms —
+  diferida (host 4GB não roda navegador + sessão). Fazer numa sessão com navegador.
+- Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
 
-- **Nome do produto = "SOLO"** (`brand.md` §Nome, racional D-01, ressalva de colisão D-02
-  verbatim — Salesboom Solo CRM / SoloCRM / gosolo.io; nome descartável). Rename só nas
-  superfícies visíveis (D-05): `layout.tsx` title/description, `app-sidebar.tsx` header + ícone
-  "S", `package.json` name=solo. Pasta do repo / imports / CI intactos.
-- **Paleta "Corrente Funda · Sóbria"** (navy + teal contido, OKLCH, `:root` + `.dark`) via
-  `/brand-design` rodado inline com o usuário. Tipografia Geist mantida (D-18). Favicon próprio
-  `src/app/icon.svg` ("S").
-- **33 arquivos migrados de cor hardcoded → token shadcn** (planos 19-03/04/05). Escala
-  semântica `--status-*` (5 famílias, light+dark, WCAG AA) criada à parte da marca (D-08).
-  `--sidebar-*` aliasados aos tokens core.
-- **Gates finais:** `verify:brand` 0 · `verify:brand-md` 9/9 · `check:contrast` 30/30 AA ·
-  `tsc` 0 · `lint` 0 (4 warnings pré-existentes) · `build` 13 rotas. Portão de 12 sensores verde.
-- **Code review** (`19-REVIEW.md`): 0 critical, 4 warnings, 3 infos. **WR-01/WR-02 corrigidos**
-  (commit `c7acae5` — borda "esfriando" e CTA de WhatsApp estavam pálidos por usar token de
-  fundo-de-badge onde precisava de peso visual). **WR-03/WR-04 + 3 infos = débito não-bloqueante**
-  (gates `.cjs` frouxos: `check-contrast` não cobre pares fg-sobre-card; `verify-brand-md` casa
-  substrings). Fecháveis num `/gsd-quick` no futuro.
-- **Security** (`19-SECURITY.md`): 16 threats, 0 open (14 mitigações verificadas, 2 riscos aceitos).
-- **Verification** (`19-VERIFICATION.md`): passed 5/5, método **code+data** (host 4GB não roda
-  dev+Chrome+sessão — precedente Fase 18). Confirmação puramente visual (animações, toasts,
-  digitação real) diferida como nota não-bloqueante.
-- **Learnings** extraídos (`19-LEARNINGS.md` — 12 decisões / 9 lições / 12 padrões / 6 surpresas).
+<details>
+<summary>Histórico — Fase 19 (Marca e Identidade Visual) FECHADA 2026-09-03</summary>
 
-**Débito que sobra do v1.5 (não bloqueia o complete-milestone):** WR-03/WR-04 da Fase 19,
-8 quick tasks de UI acumuladas, Fase 12 Teste 14 (skipped), backlog PME + 2 seeds.
+6 planos. Nome "SOLO" (`brand.md` §Nome + ressalva de colisão D-02: Salesboom Solo CRM /
+SoloCRM / gosolo.io — nome descartável). Rename só nas superfícies visíveis (D-05). Paleta
+"Corrente Funda · Sóbria" (navy + teal, OKLCH `:root`+`.dark`) via `/brand-design` inline.
+Tipografia Geist mantida (D-18). Favicon `src/app/icon.svg` ("S"). 33 arquivos cor→token;
+escala `--status-*` à parte da marca (D-08); `--sidebar-*` aliasados. Portão de 12 sensores
+verde. Code review: WR-01/WR-02 (UX pálida por token de fundo-de-badge) corrigidos em
+`c7acae5`; WR-03/WR-04 aceitos como débito. Security `19-SECURITY.md` 0 threats open (16:
+14 mitigadas, 2 aceitas). `19-VERIFICATION.md` passed 5/5 por **code+data**. `19-LEARNINGS.md`
+(12 decisões / 9 lições / 12 padrões / 6 surpresas). Ship: push direto p/ `main` (41 commits).
+</details>
 
 **FASE 18 COMPLETA (2026-09-02) — método code+data.** O UAT ao vivo no navegador foi bloqueado
 por hardware (host 4GB: `npm run dev` + Chrome + sessão Claude → ~200 MB livres, renderer
@@ -631,4 +640,4 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 ## Operator Next Steps
 
-- Plan the first phase with /gsd-plan-phase 16
+- Start the next milestone with /gsd-new-milestone

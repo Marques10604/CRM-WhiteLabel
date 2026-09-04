@@ -1,27 +1,24 @@
 # CRM de Leads
 
-## Current Milestone: v1.5 Quitação de Débito e Auditoria Retroativa
+## Current Milestone: a definir (v1.6)
 
-**Goal:** Levar o CRM a "auditado, polido, não mexo mais" — verificar no navegador o que nunca foi verificado, fechar os achados de code review em aberto e limpar o lint do repo. Zero feature nova.
+**Último milestone shipado:** v1.5 Quitação de Débito e Auditoria Retroativa — 2026-09-03 (Fases 16-19).
 
-**Target features:**
-- UAT retroativa no navegador das Fases 1, 2, 4, 6, 8 — promover `VERIFICATION.md` de `human_needed`/`partial` a `passed`/`complete` com evidência real, ou registrar as issues encontradas como quick tasks
-- Fechar os 5 achados do `15-REVIEW.md`: WR-01 (`interesse` só-espaço grava `''` em vez de `NULL`, contradiz D-04, sem teste), WR-02 (`interesse` some da prévia do import CSV), IN-01/02/03 (comentários "7 campos" desatualizados, `.slice(0,500)` parte surrogate pair, migração acumula backup)
-- Limpeza do `npm run lint` do repo inteiro — triagem dos 457 erros pré-existentes (`no-require-imports` nos `.cjs`, worktree órfão, falsos-positivos `react-hooks`) + config de supressão/correção, `npm run lint` volta a sair 0
-- **Marca e identidade visual** — nomear o app (**SOLO**, a confirmar via `/brand-design`), rodar `/brand-design` para escolher a paleta entre ~6 candidatas em preview HTML, aplicar a paleta escolhida (shadcn CSS vars light+dark), tipografia via `next/font`, e escrever `brand.md`. Renomear "CRM de Leads" → nome escolhido em `layout.tsx` metadata, sidebar e título
-
-**Fora deste milestone:** feature nova (backlog PME, handoff Prospector→CRM, campanhas de teste de nicho) → v1.6+; deploy/VPS → milestone próprio; seeds SEED-001/002 → gatilho "primeiro cliente pagante" não disparado.
-
-**Último milestone shipado:** v1.4 CRM Genérico Multi-Nicho (despivô) — 2026-08-31.
+Rodar `/gsd-new-milestone` para definir a direção e o roadmap do v1.6. Candidatos:
+- **Dark mode toggle** — os tokens `.dark` já estão prontos e consistentes (Fase 19); falta o `ThemeProvider` + controle na UI (foi deixado fora do v1.5 como "feature nova", D-16)
+- **Handoff Prospector→CRM** (HANDOFF-01..03) — quando o Prospector Inteligente AI existir
+- **Teste de nicho formal** (CAMPANHA-01) — se o nicho plano + filtro de intervalo não bastar
+- **Backlog PME** — tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal
 
 ## Current State
 
-**Shipado:** v1.4 CRM Genérico Multi-Nicho — despivô (2026-08-31) — Fases 13-15, 7 planos. PRs #4 e #5 mergeados em `main`.
+**Shipado:** v1.5 Quitação de Débito e Auditoria Retroativa (2026-09-03) — Fases 16-19, 15 planos, 98 commits. Push direto para `main` (sem PR — projeto solo). Tag `v1.5`.
 
-**O que o v1.4 entregou:**
-- **Despivô saúde → genérico** — o vocabulário `sub-nicho` saiu de toda a camada de código (schema Drizzle, tipos, Zod, queries, contrato de CSV, Server Actions) e virou `nicho`; os nomes físicos do banco (`subnichos`, `subnicho_id`) ficam intocados por D-01 (rename só de código, sem migração). A rota `/subnichos` → `/nichos` com redirect 301. Nenhuma string visível ao usuário menciona "área da saúde", "nutricionista" ou "terapeuta" — gate de grep COPY-01 verde.
-- **Filtro de intervalo customizado em `/relatorios`** — 4ª opção "Intervalo personalizado" no seletor de período, com 2 date pickers; as 3 seções (origem, nicho, motivos de perda) recalculam para qualquer janela; intervalo inválido cai em fallback com aviso; sobrevive a refresh via querystring.
-- **Campo "interesse / serviço desejado" no lead** — coluna `leads.interesse` opcional (texto livre, max 500), no formulário de lead e mapeável no wizard de importação CSV (com truncamento defensivo em 500 chars antes da validação, para célula gigante do CSV não abortar o lote).
+**O que o v1.5 entregou (zero feature funcional nova — só quitação de débito + marca):**
+- **Débito de code review quitado** (Fase 16) — os 5 achados do `15-REVIEW.md` fechados; `interesse` só-espaços agora grava `NULL` no create e no update (o `=== ""` era antes do trim — WR-01 do v1.4 finalmente resolvido). Code review pegou 1 blocker (CR-01): mudou o limite de 500 chars de code units para code points.
+- **`npm run lint` da raiz volta a exit 0** (Fase 17) — dos 457 erros pré-existentes, ~98% era ruído de ferramental (`.claude/**` no `globalIgnores`, override `.cjs`, worktree órfão removido, 4 `eslint-disable` documentados em `src/`).
+- **Comportamento shipado das Fases 1/2/4/6/8 verificado** (Fase 18) — UAT ao vivo bloqueado pelo host de 4GB → pivô para **code+data** (leitura de superfície + query só-SELECT no `data/crm.db` + 12 harnesses). `01/02-HUMAN-UAT.md` autorados do zero; os 5 `VERIFICATION.md` → `passed`; 0 issues de runtime.
+- **O CRM virou "SOLO"** (Fase 19) — nome + ressalva de colisão em `brand.md`, paleta "Corrente Funda · Sóbria" (navy + teal, OKLCH light+dark) via `/brand-design`, favicon próprio. 33 arquivos migrados de cor hardcoded → token shadcn; escala `--status-*` semântica criada à parte da marca. Code review: 2 warnings de UX corrigidos, 2 de gate frouxo aceitos como débito.
 
 **Próximo milestone:** a definir via `/gsd-new-milestone`.
 
@@ -32,6 +29,7 @@
 - **v1.1 Importação Inteligente** (2026-07-30, Fase 5) — wizard aceita mapear múltiplas colunas de inteligência do CSV do cowork concatenadas em notas.
 - **v1.2 Follow-up Automático** (2026-08-01, Fases 6-7) — auto-avanço Novo→Contatado ao abrir WhatsApp, contador de tentativas, `/configuracoes` de dias-parado por etapa.
 - **v1.3 Qualificação e Histórico de Leads** (2026-08-30, Fases 8-12) — origem governada, timeline de interações, sequência de follow-up escalonada, painel `/relatorios`, agenda / tarefas soltas.
+- **v1.4 CRM Genérico Multi-Nicho — despivô** (2026-08-31, Fases 13-15) — `sub-nicho → nicho` em toda a camada de código (nomes físicos do banco intocados, D-01), copy da UI neutralizada, filtro de intervalo customizado em `/relatorios`, campo "interesse / serviço desejado" no lead.
 
 </details>
 
@@ -72,12 +70,15 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Copy da UI neutralizada — nenhum label, placeholder, ajuda, exemplo ou estado vazio menciona "área da saúde" / "nutricionista" / "terapeuta" / nicho-pai; gate de grep COPY-01 — v1.4 (Fase 13), COPY-01
 - ✓ Filtro de intervalo de datas customizado (início–fim arbitrário) em `/relatorios`, além dos presets; as 3 seções respeitam o intervalo; inválido cai em fallback com aviso; sobrevive a refresh via querystring — v1.4 (Fase 14), METRICAS-03
 - ✓ Campo opcional "interesse / serviço desejado" no lead (texto livre, max 500), no formulário e mapeável no wizard de importação CSV com truncamento defensivo — v1.4 (Fase 15), LEAD-06
+- ✓ Marca e identidade visual — nome de produto "SOLO" (`brand.md` com racional + ressalva de colisão), paleta "Corrente Funda · Sóbria" (shadcn CSS vars OKLCH light+dark) via `/brand-design`, tipografia Geist via `next/font`, favicon próprio, "CRM de Leads" renomeado em toda superfície visível — v1.5 (Fase 19), BRAND-01/02/03
+- ✓ Escala de cor semântica `--status-*` (neutral/info/warning/success/danger, light+dark, WCAG AA) separada da paleta de marca; 33 arquivos migrados de cor hardcoded → token shadcn — v1.5 (Fase 19), D-08
+- ✓ Comportamento shipado das Fases 1/2/4/6/8 verificado (método code+data); `npm run lint` da raiz volta a exit 0 — v1.5 (Fases 17-18), AUDIT-01..05 / LINT-01
 
 ### Active
 
-**Milestone v1.5 Quitação de Débito e Auditoria Retroativa** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: UAT retroativa no navegador das Fases 1/2/4/6/8, fechar os 5 achados do `15-REVIEW.md`, limpar o `npm run lint` do repo, e marca/identidade visual (nome + paleta via `/brand-design`). Nenhuma feature funcional nova.
+**Nenhum milestone ativo.** Rodar `/gsd-new-milestone` para definir o v1.6.
 
-Candidatos adiados para v1.6+ (não neste milestone): handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
+Candidatos para o v1.6 (ver §Current Milestone acima): dark mode toggle, handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -104,10 +105,11 @@ Candidatos adiados para v1.6+ (não neste milestone): handoff Prospector→CRM (
 - Usuário é o próprio profissional (admin), atendendo leads de diferentes nichos (hoje: empresa de serviços de automação/IA; nichos rotativos vindos do futuro Prospector)
 - Leads chegam em lote via CSV entregue por um cowork parceiro; abordagem via Instagram e WhatsApp
 - Hoje os leads eram organizados em planilha do Google Sheets — processo desorganizado, esquecimento frequente de follow-up
-- **Estado pós-v1.4 (2026-08-31):** app roda localmente (`localhost:3000`), ~11.400 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. Repo publicado em `github.com/Marques10604/CRM-WhiteLabel`, branch `main`; PRs #4 (Fase 14) e #5 (Fases 13+15) mergeados.
+- **Estado pós-v1.5 (2026-09-03):** app roda localmente (`localhost:3000`), ~11.600 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. Repo `github.com/Marques10604/CRM-WhiteLabel`, branch `main`. Marca: nome "SOLO" (`package.json` `name: solo`, `brand.md` na raiz), paleta OKLCH em `globals.css` (`:root` + `.dark`), favicon `src/app/icon.svg`. Toda cor da UI vem de token shadcn (gate `verify:brand`); contraste WCAG AA verificado por `check:contrast` (30/30). Fases 16-19 foram para `main` por push direto (sem PR — projeto solo).
 - **Divergência lógico↔físico deliberada (D-01, Fase 13):** o Drizzle mapeia `nichos = sqliteTable("subnichos")` / `nichoId: integer("subnicho_id")` — o código diz "nicho", o banco continua "subnicho". Doc-comment no `schema.ts` registra. Uma migração de rename físico fica para quando/se houver outro motivo pra tocar o schema.
-- **Fluxo GSD maduro:** `/gsd-secure-phase` → `/close-phase` → PR desde a Fase 12; UAT de navegador real (extensão Claude no Chrome, nível DOM + verdade no `data/crm.db` no host de 4GB) nas Fases 9/11/12/13/14/15.
-- **Débito conhecido (herdado, ainda aberto):** Fases 1/2/4/6/8 nunca tiveram `/gsd-verify-work` formal / checagem manual completa no navegador; UAT gaps das Fases 04 (7), 06 (11), 08 (4) e verification_gaps das Fases 04/06/08 seguem em `STATE.md` §Deferred Items — todos de milestones já shipados, re-reconhecidos no fecho do v1.4. 8 quick tasks de UI/warnings acumuladas v1.0–v1.3, fora de milestone.
+- **Fluxo GSD maduro:** `/gsd-secure-phase` → `/close-phase` → PR desde a Fase 12; UAT de navegador real (extensão Claude no Chrome, nível DOM + verdade no `data/crm.db`) nas Fases 9/11/12/13/14/15. **A partir da Fase 18, o host de 4GB deixou de rodar `dev` + Chrome + sessão do agente junto** — a verificação passou a ser por **code+data** (leitura de superfície + query só-SELECT no `data/crm.db` + harnesses `test:*`/`verify:*`); a confirmação puramente visual fica diferida para uma sessão com navegador.
+- **Débito conhecido resolvido no v1.5:** as Fases 1/2/4/6/8 foram auditadas retroativamente (Fase 18) — os 5 `VERIFICATION.md` agora `passed`, 0 issues de runtime. `npm run lint` da raiz volta a exit 0 (Fase 17).
+- **Débito conhecido ainda aberto:** WR-03/WR-04 da Fase 19 (2 gates `.cjs` frouxos — `19-REVIEW.md`); confirmação puramente visual da Fase 19 (animações/toasts/digitação, host 4GB); Fase 12 Teste 14 (estado vazio do dashboard, skipped); 8 quick tasks de UI/warnings acumuladas v1.0–v1.3, fora de milestone.
 - **`npm run lint` global — RESOLVIDO na Fase 17 (LINT-01, 2026-09-01).** Saía com exit 1 desde a Fase 8 (457 erros pré-existentes: `no-require-imports` nos `.cjs`, worktree órfão, falsos-positivos de `react-hooks`). Quitado com `.claude/**` no `globalIgnores`, override escopado de `scripts/**/*.cjs`, remoção do worktree órfão e `eslint-disable-next-line` documentado nos 4 falsos-positivos de `src/`. `npm run lint` da raiz volta a sair 0.
 - **Direção de infraestrutura (definida 2026-08-27):** CRM + o produto novo "Prospector Inteligente AI" (topo de funil, pasta própria) rodam num VPS único quando prontos. O Prospector sobe primeiro; o CRM migra depois, ativando gate de senha no middleware + Litestream. Continua SQLite; Postgres só com multi-tenant real.
 
@@ -137,7 +139,12 @@ Candidatos adiados para v1.6+ (não neste milestone): handoff Prospector→CRM (
 | Rename `sub-nicho → nicho` só na camada de código; nomes físicos do banco intocados (D-01) | Evita migração, backup e o snapshot divergente do drizzle-kit; o valor do rename é a copy que o usuário vê, não o nome da coluna | ✓ Good — Fase 13, zero toque em dados |
 | Sugestão de intervalo em `/relatorios` resolvida por função pura `resolvePeriodoRelatorios` que nunca lança (valida + apara data futura + flag de rejeição) | Querystring é entrada não confiável; a tela não pode quebrar com `?from=banana` | ✓ Good — Fase 14 |
 | Truncamento de `interesse` do CSV em `mapCsvRows` (`.slice(0,500)`) antes do Zod, não no schema | Célula gigante do CSV do cowork nunca reprova a linha nem aborta o lote; `.max(500)` do Zod fica só para o input manual | ✓ Good — Fase 15, D-10 |
-| Campo opcional de texto livre = nullable + `z.preprocess` vazio→undefined + `?? null` explícito na Server Action + gate em `verify-schema.cjs` | Padrão reusado de `motivoPerdaId` (Fase 11); elimina a classe de bug "campo opcional grava `''` em vez de NULL" | ✓ Good — Fase 15 (2ª ocorrência); ⚠️ WR-01 aberto: `interesse` só-espaços ainda grava `''` (o `=== ""` roda antes do trim) — quick task |
+| Campo opcional de texto livre = nullable + `z.preprocess` vazio→undefined + `?? null` explícito na Server Action + gate em `verify-schema.cjs` | Padrão reusado de `motivoPerdaId` (Fase 11); elimina a classe de bug "campo opcional grava `''` em vez de NULL" | ✓ Good — Fase 15 (2ª ocorrência); WR-01 (só-espaços grava `''`) **resolvido na Fase 16**: trim movido para dentro do `z.preprocess` |
+| Verificação por **code+data** quando o host não roda navegador + sessão (leitura de superfície + query só-SELECT no `data/crm.db` + harnesses) | Host de 4GB: `dev` + Chrome + sessão do agente = OOM. Uma verificação incompleta mas honesta > um `human_needed` eterno | ✓ Good — Fases 18 e 19; 0 issues de runtime; confirmação puramente visual fica diferida e declarada |
+| Nome do produto = "SOLO", registrado como **descartável** em `brand.md` (ressalva de colisão verbatim: Salesboom Solo CRM / SoloCRM / gosolo.io) | Nome curto que vira verbo, casa com o app solo; a colisão é real, então a decisão vem com data de validade explícita | — Pendente — trocar antes de qualquer movimento de produto real |
+| Escala `--status-*` (cor de status de funil) definida **à parte** da paleta de marca (D-08) | Status precisa ser mutuamente distinguível e estável; a marca é trocável. Acoplar os dois travaria um ou outro | ✓ Good — Fase 19; 5 famílias light+dark, todas WCAG AA |
+| Refactor mecânico cor→token = **só strings de `className`**, `git diff` auditável linha a linha | 33 arquivos, alguns com lógica sensível (transação de WhatsApp, `startTransition`, `stopPropagation`); a disciplina é o que torna o code review viável | ⚠️ Revisit — o diff perfeito não impede erro de **julgamento de design**: 2 warnings de UX (token de fundo-de-badge onde precisava de peso) passaram e foram pegos só no code review |
+| Fases 16-19 para `main` por **push direto**, sem PR | Projeto solo, sem revisor — PR é cerimônia. O code review roda como etapa do GSD, não como review de PR | ✓ Good — consistente nas 4 fases do v1.5; tag `v1.5` |
 
 ## Evolution
 
@@ -148,4 +155,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-08-31 after starting milestone v1.5 (Quitação de Débito e Auditoria Retroativa)*
+*Last updated: 2026-09-03 after v1.5 milestone (Quitação de Débito e Auditoria Retroativa)*

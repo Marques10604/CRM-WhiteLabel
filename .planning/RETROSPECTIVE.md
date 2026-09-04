@@ -132,6 +132,52 @@
 
 ---
 
+## Milestone: v1.5 — Quitação de Débito e Auditoria Retroativa
+
+**Shipado:** 2026-09-03
+**Fases:** 4 (Fase 16–19) | **Planos:** 15 | **Commits:** 98 | **Sessões:** 2026-09-01 → 2026-09-03 (~3 dias) | **Ship:** push direto para `main` (sem PR — projeto solo), tag `v1.5`
+
+### O que foi construído
+- **Fase 16** — os 5 achados do `15-REVIEW.md` fechados. WR-01 (o `interesse` só-espaços que ainda gravava `''` desde o v1.4) resolvido movendo o trim para dentro do `z.preprocess`. Code review pegou 1 blocker (CR-01): o fix do `info` IN-02 (corte por code point) podia abortar o import de uma célula com muitos emoji porque `.max(500)` contava code units — o limite virou code points nos dois lados.
+- **Fase 17** — `npm run lint` da raiz volta a exit 0. Dos 457 erros pré-existentes, ~98% era ruído de ferramental: `.claude/**` no `globalIgnores`, override `no-require-imports` para `scripts/**/*.cjs`, worktree órfão removido, 4 `eslint-disable` documentados nos falsos-positivos do React Compiler em `src/`. Zero runtime tocado.
+- **Fase 18** — auditoria retroativa das Fases 1/2/4/6/8. UAT ao vivo no navegador bloqueado pelo host de 4GB → pivô para **code+data**: leitura da superfície (componente + Server Action + schema) + query só-SELECT no `data/crm.db` + os 12 harnesses `test:*`/`verify:*`. `01/02-HUMAN-UAT.md` autorados do zero (20 + 15 cenários); os 5 `VERIFICATION.md` → `passed`; 0 issues de runtime.
+- **Fase 19** — marca. Nome "SOLO" + ressalva de colisão em `brand.md`, paleta "Corrente Funda · Sóbria" (navy + teal, OKLCH light+dark) via `/brand-design` rodado inline, favicon `icon.svg` próprio. 33 arquivos migrados de cor hardcoded → token shadcn em 3 ondas; escala `--status-*` semântica criada à parte da marca (D-08); portão de 12 sensores verde.
+
+### O que funcionou bem
+- **`/brand-design` rodado inline com o usuário no loop** — o executor gsd não conduz o preview interativo. Preview HTML **estático** (`.brand-preview/*.html` sem dev server) foi o jeito de mostrar 6 paletas no host de 4GB. Rodada 2 de refino ("mais como a 4, teal mais sóbrio") convergiu rápido.
+- **Refactor mecânico cor→token disciplinado** — cada plano passou ao seguinte uma **lista fechada de arquivos + ocorrências**; cada task exigia `git diff` só com linhas de `className`. 33 arquivos, alguns com lógica sensível (transação de WhatsApp, `startTransition`, `stopPropagation`), zero regressão de comportamento.
+- **Sensor RED-por-construção** — os 3 gates de marca (`verify:brand`, `verify:brand-md`, `check:contrast`) foram escritos vermelhos de propósito na Onda 0 e fechados pelas ondas seguintes (121 → 88 → 47 → 0 findings). Estado RED do Nyquist na prática.
+- **Pivô para code+data foi a decisão certa** — em vez de travar a Fase 18 num `human_needed` eterno, uma verificação incompleta mas **honesta** (método declarado em cada `VERIFICATION.md`) destravou o milestone. 0 issues de runtime encontradas.
+- **Fases 16/17 minúsculas e previsíveis** — 17 foi 1 plano, config-only, `VERIFICATION.md` nasceu `passed` (sem UI, sem UAT).
+
+### O que foi ineficiente
+- **Débito de UAT de milestones antigos finalmente pago — mas custou um milestone inteiro** — a Fase 18 existe só porque as Fases 1/2/4/6/8 nunca tiveram verificação formal. 4 milestones re-listaram esse débito no `audit-open` antes de alguém escopar uma fase pra ele.
+- **O host de 4GB agora bloqueia o navegador de vez** — a partir da Fase 18, `dev` + Chrome + sessão do agente = OOM garantido. Toda a auditoria e a não-regressão visual da Fase 19 foram por code+data; a confirmação puramente visual (animações, toasts, digitação) fica diferida sem data.
+- **Code review achou 4 warnings numa fase "puramente mecânica"** — 2 eram regressões de UX reais: tokens de *fundo de badge* (`--status-warning`/`-success`, quase brancos) usados onde a cor precisava de peso visual (borda "esfriando", CTA de WhatsApp). O diff era perfeito; o **julgamento de qual token** estava errado.
+- **`audit-open` de novo com 22 itens no fecho** — 12 quick_tasks "missing" (falso positivo conhecido, 5º milestone seguido), 3 uat_gaps já resolvidos, 5 todos, 2 seeds. O checker nunca foi ajustado.
+- **`milestone.complete` CLI gerou uma lista de accomplishments suja** — fragmentos de SUMMARY cortados no meio ("47 ocorrências / 14 arquivos", "`npm run lint` da raiz volta a exit 0 — `.claude/"). Teve que ser reescrita à mão.
+
+### Padrões estabelecidos
+- **Verificação por code+data**: quando o host não roda navegador + sessão, cada cenário é provado por 3 evidências — leitura da superfície (`.tsx` + Server Action + schema), `build` exit 0, e o harness/`SELECT` relevante. O método fica declarado numa seção `## Método de Verificação` do `VERIFICATION.md`, nunca implícito.
+- **Escala de cor semântica separada da marca**: `--status-*` (status de funil) e `--sidebar-*` (chrome) são definidos à parte da paleta core; `--sidebar-*` viram *alias* (`var(--card)` etc.), não cópia de valores.
+- **Portão de fecho de fase visual = 12 sensores verdes no mesmo commit** (`tsc` + `lint` + `build` + 3 gates de marca + 2 guards + 4 harnesses), tabela `Comando | Exit | Observação` com números reais no `HUMAN-UAT.md`.
+- **Favicon da marca = `src/app/icon.svg` estático** (convenção App Router), cores hex literais copiadas de `globals.css`, zero conteúdo executável/externo. `favicon.ico` placeholder removido com `git rm`.
+- **`<Button>` primário: deletar a `className` de cor, não traduzir** — a variante default já cobre; mesmo idioma para `<a className={cn(buttonVariants(), ...)}>`.
+
+### Lições principais
+1. **Débito de verificação não se paga sozinho — precisa virar fase.** As Fases 1/2/4/6/8 só foram auditadas quando o usuário escopou um milestone inteiro pra isso. "Re-listar no `audit-open`" nunca resolveu.
+2. **Refactor mecânico ainda tem espaço pra erro de design.** "Só troca de `className`" com diff perfeito passou 2 regressões de UX — a escolha de *qual* token é a decisão, e o code review pós-refactor é onde ela é pega.
+3. **Verificação honesta e incompleta > `human_needed` eterno.** Declarar "verifiquei por code+data, a confirmação visual fica diferida" destrava o trabalho sem mentir sobre o que foi conferido.
+4. **`/brand-design` é interativo — precisa do orquestrador no loop com o usuário**, não de um subagente. Preview estático resolve o host de 4GB.
+5. **Projeto solo não precisa de PR.** Push direto pra `main` com o code review rodando como etapa do GSD foi consistente e sem atrito nas 4 fases — o PR era cerimônia.
+
+### Observações de custo
+- Mix de modelo: não medido
+- Sessões: ~3 dias corridos (2026-09-01 → 2026-09-03); Fases 16/17 numa recuperação/close-out, 18 num pivô de método, 19 + fechamento + complete-milestone numa sessão só
+- Notável: as skills de fechamento (`/go-and-do`, `/close-phase`, `/gsd-complete-milestone`) seguem assumindo OpenGSD; o `gsd-sdk` local faz a ponte, mas `phase complete` / `milestone` caem em fallback para o `gsd-tools.cjs` antigo — cada fechamento ainda adapta chamadas à mão
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -142,6 +188,7 @@
 | v1.1–v1.2 | não registrado | 3 | Shipparam sem entrada de retrospectiva; primeiro push pro GitHub (`main`), primeiro UAP humano via browser real (Fase 7) |
 | v1.3 | múltiplas (~29 dias) | 5 | `npm run build` virou gate normal (Turbopack); UAT de navegador via extensão Claude virou rotina (Fases 9/11/12); 1º fluxo completo secure→close→PR→merge; 3 PRs mergeados |
 | v1.4 | ~2 dias | 3 | Milestone de "rename + adições pequenas" — zero desvio de execução; fechamento via `/go-and-do`→`/close-phase`→`/gsd:complete-milestone` encadeados (adaptados ao `get-shit-done` antigo); 2 PRs mergeados; débito de UAT das Fases 04/06/08 re-reconhecido |
+| v1.5 | ~3 dias | 4 | Milestone de quitação de débito (zero feature nova); débito de UAT das Fases 1/2/4/6/8 **finalmente pago** (Fase 18, método code+data); `npm run lint` da raiz volta a exit 0 (Fase 17); marca "SOLO" + paleta OKLCH (Fase 19); host de 4GB bloqueia navegador de vez → verificação code+data vira padrão; **push direto pra `main`, sem PR** |
 
 ### Cumulative Quality
 
@@ -149,6 +196,7 @@
 |-----------|--------|-----------|---------------------|
 | v1.0 | 0 (sem suíte automatizada formal) | — | 0 pacotes novos além do scaffold inicial |
 | v1.3 | 5+ harnesses `.cjs` (`test:tarefa-actions`, `test:group-by-urgency`, `test:relatorios` 38 checagens, `test:interacao-actions`, `test:compute-sequencia`) + guardas de regressão provadas por mutação | régua de urgência, agregações de relatório, Server Actions de tarefa/interação, cálculo de sequência — todos com cobertura comportamental | 0 pacotes npm novos em todo o milestone; 0 blocos novos do registry shadcn |
+| v1.5 | +3 gates de marca (`verify:brand` grep-guard de cor+nome, `verify:brand-md` estrutura, `check:contrast` WCAG AA OKLCH→sRGB real 30 pares); `npm run lint` da raiz volta a exit 0; 5 `VERIFICATION.md` retroativos (Fases 1/2/4/6/8) por code+data | cor da UI 100% tokenizada (gate); contraste AA verificado light+dark; comportamento shipado de 5 fases antigas auditado | 0 pacotes npm novos; toda a Fase 19 é CSS + classes + 3 scripts `node:fs` |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -156,5 +204,7 @@
 2. Checkers baseados em grep ingênuo geram falsos positivos com frequência neste projeto — sempre verificar manualmente antes de agir sobre o alerta (o `audit-open` marcou os 12 quick_tasks como "missing" de novo no fechamento do v1.3)
 3. Quando a ferramenta muda (webpack → Turbopack no `next build`), revisitar as premissas que dependiam do comportamento antigo — o débito "build nunca rodou" só se acumulou por 5 fases porque ninguém rechecou
 4. Commits atômicos por task tornam qualquer plano retomável de uma interrupção sem artefato de handoff — provado na retomada da Fase 12-03
-5. Cortar o branch da fase ANTES do primeiro commit de código — no v1.4 a Fase 15 foi toda pra `main` local e o branch/PR teve que ser reconstruído retroativamente no fechamento
-6. As skills de fechamento novas (`/go-and-do`, `/close-phase`) assumem OpenGSD (`@opengsd/gsd-core`); este repo roda o `get-shit-done` antigo — os comandos `gsd-tools` divergem e cada fechamento adapta à mão
+5. Cortar o branch da fase ANTES do primeiro commit de código — no v1.4 a Fase 15 foi toda pra `main` local e o branch/PR teve que ser reconstruído retroativamente no fechamento. **Revisado no v1.5:** para um projeto solo sem revisor, push direto pra `main` (com o code review como etapa do GSD) foi mais simples e sem atrito — o PR era cerimônia
+6. As skills de fechamento novas (`/go-and-do`, `/close-phase`) assumem OpenGSD (`@opengsd/gsd-core`); este repo roda o `get-shit-done` antigo — os comandos `gsd-tools` divergem e cada fechamento adapta à mão (confirmado de novo no v1.5: `phase complete` e `milestone` caem em fallback)
+7. **Débito de verificação vira fase ou nunca se paga** — 4 milestones re-listaram os gaps das Fases 1/2/4/6/8 no `audit-open` antes do v1.5 escopar a Fase 18 pra isso (confirmado no v1.5)
+8. **Refactor mecânico ("só `className`") ainda carrega erro de julgamento de design** — no v1.5 a Fase 19 passou 2 regressões de UX com diff perfeito; a escolha de qual token é a decisão, pega só no code review pós-refactor
