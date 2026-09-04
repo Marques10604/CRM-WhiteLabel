@@ -12,10 +12,10 @@ Milestone pequeno — dois utilitários que faltavam. Zero mudança de schema, z
 
 Os tokens `.dark` já existem em `globals.css` e foram verificados na Fase 19 (contraste WCAG AA 30/30). Falta só o mecanismo de alternância. `next-themes` já está instalado (usado hoje só pelo `sonner`).
 
-- [ ] **THEME-01**: O admin alterna entre modo claro e escuro por um controle (switch sol/lua) no rodapé da sidebar
-- [ ] **THEME-02**: A escolha de tema persiste entre recarregamentos de página e sessões do navegador
-- [ ] **THEME-03**: No primeiro acesso (sem escolha salva), o app segue a preferência de esquema de cor do sistema operacional / navegador
-- [ ] **THEME-04**: O controle de tema mostra o estado atual e está acessível em qualquer tela; alternar o tema não causa flash de cor errada no carregamento
+- [x] **THEME-01**: O admin alterna entre modo claro e escuro por um controle (switch sol/lua) no rodapé da sidebar
+- [x] **THEME-02**: A escolha de tema persiste entre recarregamentos de página e sessões do navegador
+- [x] **THEME-03**: No primeiro acesso (sem escolha salva), o app segue a preferência de esquema de cor do sistema operacional / navegador
+- [x] **THEME-04**: O controle de tema mostra o estado atual e está acessível em qualquer tela; alternar o tema não causa flash de cor errada no carregamento
 
 ### Exportar CSV
 
@@ -65,10 +65,10 @@ Preenchida na criação do roadmap (2026-09-04). Fase 20 e Fase 21 são independ
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| THEME-01 | Phase 20 | Pending |
-| THEME-02 | Phase 20 | Pending |
-| THEME-03 | Phase 20 | Pending |
-| THEME-04 | Phase 20 | Pending |
+| THEME-01 | Phase 20 | Complete |
+| THEME-02 | Phase 20 | Complete |
+| THEME-03 | Phase 20 | Complete |
+| THEME-04 | Phase 20 | Complete |
 | EXPORT-01 | Phase 21 | Pending |
 | EXPORT-02 | Phase 21 | Pending |
 | EXPORT-03 | Phase 21 | Pending |

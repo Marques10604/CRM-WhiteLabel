@@ -97,7 +97,7 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 - O host não roda `dev` + navegador + sessão do agente juntos desde a Fase 18 — a verificação destas fases provavelmente será por **code+data** (declarar, precedente das Fases 18/19).
 - Ship por push direto na `main` (sem PR — projeto solo), consistente com as Fases 16-19.
 
-- [ ] **Fase 20: Tema / Dark Mode** — toggle sol/lua no rodapé da sidebar, persistido, respeita a preferência do sistema no 1º acesso, sem flash de cor errada
+- [x] **Fase 20: Tema / Dark Mode** (1/1 plano) — 2026-09-04 — THEME-01..04 · ThemeProvider next-themes + toggle sol/lua no rodapé da sidebar, sem FOUC · security 0 threats, verification passed 5/5 (code+data) · push direto p/ main
 - [ ] **Fase 21: Exportar CSV da Lista de Leads** — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + busca), com colunas legíveis por humano
 
 ### 📋 Backlog pós-v1.6 (sem milestone)

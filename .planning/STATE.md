@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 20 (Tema / Dark Mode) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
+Phase: 20 (Tema / Dark Mode) — FECHADA E SHIPADA
+Plan: 1 of 1 · security 0 threats · verification passed 5/5 (code+data) · learnings extraídos
+Status: Fase 20 shipada (push direto p/ main) — próximo: /gsd-plan-phase 21 (Exportar CSV)
 Last activity: 2026-09-04
 
 ## Performance Metrics
