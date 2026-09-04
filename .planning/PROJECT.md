@@ -1,14 +1,16 @@
 # CRM de Leads
 
-## Current Milestone: a definir (v1.6)
+## Current Milestone: v1.6 Dark Mode + Exportar CSV
+
+**Goal:** Dois utilitários pequenos que faltavam — o admin escolhe claro/escuro e leva os leads pra fora do sistema em CSV. Milestone deliberadamente pequeno; nada estrutural, zero mudança de schema.
+
+**Target features:**
+- **Toggle de dark mode** no rodapé da sidebar (switch sol/lua), visível em toda tela; lembra a escolha (localStorage) e respeita a preferência do sistema no primeiro acesso. `ThemeProvider` + classe `.dark` no `<html>` — os tokens `.dark` já existem e foram verificados (contraste 30/30) na Fase 19.
+- **Exportar CSV da lista de leads** — botão "Exportar CSV" em `/leads` que baixa exatamente o que está na tela, respeitando filtros (nicho, etapa, origem) e busca ativos; colunas legíveis (nicho e motivo de perda como nome, datas formatadas).
+
+**Key context:** a direção do usuário é "freela de build com IA + conteúdo primeiro"; o SOLO já está em uso real, então o v1.6 é pequeno de propósito. `next-themes` já está no projeto (só usado pelo `sonner` hoje). Fases numeram de 20.
 
 **Último milestone shipado:** v1.5 Quitação de Débito e Auditoria Retroativa — 2026-09-03 (Fases 16-19).
-
-Rodar `/gsd-new-milestone` para definir a direção e o roadmap do v1.6. Candidatos:
-- **Dark mode toggle** — os tokens `.dark` já estão prontos e consistentes (Fase 19); falta o `ThemeProvider` + controle na UI (foi deixado fora do v1.5 como "feature nova", D-16)
-- **Handoff Prospector→CRM** (HANDOFF-01..03) — quando o Prospector Inteligente AI existir
-- **Teste de nicho formal** (CAMPANHA-01) — se o nicho plano + filtro de intervalo não bastar
-- **Backlog PME** — tags livres, temperatura automática, busca global, exportar CSV, anexo por lead, campo de vendedor, meta mensal
 
 ## Current State
 
@@ -76,9 +78,9 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-**Nenhum milestone ativo.** Rodar `/gsd-new-milestone` para definir o v1.6.
+**Milestone v1.6 Dark Mode + Exportar CSV** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: toggle de dark mode no rodapé da sidebar (persistido, respeita preferência do sistema) e botão "Exportar CSV" em `/leads` respeitando os filtros ativos. Milestone pequeno, zero mudança de schema.
 
-Candidatos para o v1.6 (ver §Current Milestone acima): dark mode toggle, handoff Prospector→CRM (HANDOFF-01..03), teste de nicho formal (CAMPANHA-01), backlog PME.
+Candidatos adiados para v1.7+: handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir), teste de nicho formal (CAMPANHA-01), resto do backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal).
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -155,4 +157,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-09-03 after v1.5 milestone (Quitação de Débito e Auditoria Retroativa)*
+*Last updated: 2026-09-03 after starting milestone v1.6 (Dark Mode + Exportar CSV)*

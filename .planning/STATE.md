@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: Quitação de Débito e Auditoria Retroativa
-status: Awaiting next milestone
-last_updated: "2026-09-04T00:00:47.191Z"
-last_activity: 2026-09-04 — Milestone v1.5 completed and archived
+milestone: v1.6
+milestone_name: Dark Mode + Exportar CSV
+status: planning
+last_updated: "2026-09-04T00:13:40.695Z"
+last_activity: 2026-09-04
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: Milestone v1.5 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-04 — Milestone v1.5 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-04 — Milestone v1.6 started
 
 ## Performance Metrics
 
@@ -324,12 +324,15 @@ já prontos da Fase 19), handoff Prospector→CRM (HANDOFF-01..03, se o Prospect
 teste de nicho formal (CAMPANHA-01), backlog PME (tags, busca global, exportar CSV…).
 
 **Débito que sobra (não bloqueia nada, mas registrar num `/gsd-quick` ou no v1.6):**
+
 - **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` com checagem frouxa (`check-contrast` não cobre
   pares fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings acidentais). Correções
   concretas em `19-REVIEW.md`.
+
 - **8 quick tasks de UI** acumuladas v1.0–v1.3 (nunca fora de milestone).
 - **Confirmação puramente visual da Fase 19** — animações, toasts, digitação real nos forms —
   diferida (host 4GB não roda navegador + sessão). Fazer numa sessão com navegador.
+
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
 
 <details>
