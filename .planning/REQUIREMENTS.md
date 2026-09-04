@@ -98,37 +98,37 @@ Preenchida na criação do roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CAMPANHA-01 | TBD | Pending |
-| CAMPANHA-02 | TBD | Pending |
-| CAMPANHA-03 | TBD | Pending |
-| CAMPANHA-04 | TBD | Pending |
-| DIAGNOSTICO-01 | TBD | Pending |
-| DIAGNOSTICO-02 | TBD | Pending |
-| DIAGNOSTICO-03 | TBD | Pending |
-| DIAGNOSTICO-04 | TBD | Pending |
-| DIAGNOSTICO-05 | TBD | Pending |
-| DIAGNOSTICO-06 | TBD | Pending |
-| DIAGNOSTICO-07 | TBD | Pending |
-| DIAGNOSTICO-08 | TBD | Pending |
-| DIAGNOSTICO-09 | TBD | Pending |
-| DIAGNOSTICO-10 | TBD | Pending |
-| VEREDITO-01 | TBD | Pending |
-| VEREDITO-02 | TBD | Pending |
-| VEREDITO-03 | TBD | Pending |
-| PAINEL-01 | TBD | Pending |
-| PAINEL-02 | TBD | Pending |
-| PAINEL-03 | TBD | Pending |
-| TUTORIAL-01 | TBD | Pending |
-| TUTORIAL-02 | TBD | Pending |
-| TUTORIAL-03 | TBD | Pending |
-| TUTORIAL-04 | TBD | Pending |
-| TUTORIAL-05 | TBD | Pending |
+| CAMPANHA-01 | Phase 22 | Pending |
+| CAMPANHA-02 | Phase 22 | Pending |
+| CAMPANHA-03 | Phase 22 | Pending |
+| CAMPANHA-04 | Phase 22 | Pending |
+| DIAGNOSTICO-01 | Phase 23 | Pending |
+| DIAGNOSTICO-02 | Phase 23 | Pending |
+| DIAGNOSTICO-03 | Phase 23 | Pending |
+| DIAGNOSTICO-04 | Phase 23 | Pending |
+| DIAGNOSTICO-05 | Phase 23 | Pending |
+| DIAGNOSTICO-06 | Phase 23 | Pending |
+| DIAGNOSTICO-07 | Phase 23 | Pending |
+| DIAGNOSTICO-08 | Phase 23 | Pending |
+| DIAGNOSTICO-09 | Phase 23 | Pending |
+| DIAGNOSTICO-10 | Phase 23 | Pending |
+| VEREDITO-01 | Phase 24 | Pending |
+| VEREDITO-02 | Phase 24 | Pending |
+| VEREDITO-03 | Phase 24 | Pending |
+| PAINEL-01 | Phase 24 | Pending |
+| PAINEL-02 | Phase 24 | Pending |
+| PAINEL-03 | Phase 24 | Pending |
+| TUTORIAL-01 | Phase 25 | Pending |
+| TUTORIAL-02 | Phase 25 | Pending |
+| TUTORIAL-03 | Phase 25 | Pending |
+| TUTORIAL-04 | Phase 25 | Pending |
+| TUTORIAL-05 | Phase 25 | Pending |
 
 **Coverage:**
 - v1.7 requirements: 25 total
-- Mapped to phases: 0 (preenchido pelo roadmapper)
-- Unmapped: 25 ⚠️ (esperado antes do roadmap)
+- Mapped to phases: 25 (Fases 22-25)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-04*
-*Last updated: 2026-09-04 after initial definition*
+*Last updated: 2026-09-04 after roadmap creation (Fases 22-25)*

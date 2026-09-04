@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-09-04T19:05:48.747Z"
 last_activity: 2026-09-04
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Planejando o próximo milestone (v1.7)
+**Current focus:** Roadmap do v1.7 criado (Fases 22-25) — pronto para `/gsd-plan-phase 22`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-09-04 — Milestone v1.7 started
+Phase: 22 of 25 (Campanha de Exploração de Nicho)
+Plan: — (ainda não planejado)
+Status: Ready to plan
+Last activity: 2026-09-04 — Roadmap v1.7 criado (Fases 22-25), REQUIREMENTS.md traceability 25/25
 
 ## Performance Metrics
 
@@ -109,6 +109,7 @@ Last activity: 2026-09-04 — Milestone v1.7 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- Roadmap v1.7: 4 fases (22-25) — granularidade `coarse` (3-5), derivadas das 5 categorias de requisitos (CAMPANHA/DIAGNOSTICO/VEREDITO/PAINEL/TUTORIAL). VEREDITO+PAINEL combinados numa única Fase 24 (mesmo padrão da Fase 11 do v1.3): o veredito é campo da campanha, o painel reaproveita `/relatorios`, e o Mapa de Nichos é a tela que lista campanhas — os 3 formam uma única capacidade coerente "decisão + resultado". Fase 23 (Diagnóstico de IA) isolada por ser a 1ª integração de IA do projeto (workflow.ai_integration_phase: true) — precisa de tratamento de framework/eval que as outras fases não precisam. Fase 25 (Tutorial) por último de propósito, para poder tourar as telas de campanha/nicho já prontas, apesar de ser código independente (React Joyride, sem schema). Dependências: 22 (sem dep) → 23 (dep 22) → 24 (dep 22+23) → 25 (dep 24, soft).
 - Roadmap v1.6: 2 fases (20-21), **independentes entre si** — granularidade `coarse` + escopo pequeno (7 reqs, zero mudança de schema). Fase 20 = Tema / Dark Mode (THEME-01..04, só liga o toggle sobre os tokens `.dark` prontos da Fase 19; D-16 da Fase 19 suspensa). Fase 21 = Exportar CSV (EXPORT-01..03, botão na toolbar de `/leads` serializando as linhas filtradas via PapaParse já instalado). Verificação provável por code+data (host 4GB, precedente Fases 18/19); ship por push direto na `main`.
 - Roadmap v1.3: 5 fases (8-12), não 6 como o `research/SUMMARY.md` sugeriu — Painel de Métricas (METRICAS-01/02) e Relatório de Motivos de Perda (PERDA-01) combinados numa única Phase 11, por compartilharem a mesma infraestrutura de página `/relatorios` e por `config.json` pedir granularidade `coarse` (3-5 fases)
 - Roadmap v1.3: ORIGEM-03 (gate Inbound não recebe sugestão de sequência) mapeado para Phase 10 (Sequência), não Phase 8 (Origem) — o comportamento observável só existe quando a própria sequência escalonada existe; Phase 10 depende de Phase 8 por causa disso
@@ -315,6 +316,38 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
+### ▶ COMEÇA AQUI (próxima sessão) — ROADMAP v1.7 CRIADO (2026-09-04)
+
+**ONDE PARAMOS:** o roadmap do milestone **v1.7 "Exploração de Nicho"** foi criado — 4 fases
+(22-25), 25 requisitos, 100% cobertura mapeada em `REQUIREMENTS.md`. `ROADMAP.md` ganhou o bloco
+`### 🚧 v1.7 Exploração de Nicho` (checklist + `#### Phase N:` detalhado por fase — Goal/Depends
+on/Requirements/Success Criteria/UI hint), sem tocar nos `<details>` colapsados de v1.0–v1.6.
+Nenhuma fase ainda foi planejada (sem `PLAN.md`).
+
+**Estrutura das 4 fases:**
+
+1. **Fase 22 — Campanha de Exploração de Nicho** (CAMPANHA-01..04): entidade `campanhas` (nicho + oferta + janela ~90d + meta), estado, vínculo opcional de lead, tela de listagem. Sem dependência — usa `nichos`/`leads` já existentes.
+2. **Fase 23 — Diagnóstico de IA da Campanha** (DIAGNOSTICO-01..10): botão sob demanda, busca na web + fontes citadas obrigatórias, saturação/gatilhos de dor/objeções/ticket médio/rascunho de mensagem/veredito sugerido. Depende da Fase 22. **1ª integração de IA de verdade do projeto** — vai precisar de tratamento `/gsd-ai-integration-phase` ou `/gsd-plan-phase --ai` (framework candidato: Vercel AI SDK + Claude com tool de busca na web; eval anti-genérico estrutural automatizável por harness direto, sem navegador — host 4GB).
+3. **Fase 24 — Veredito e Mapa de Nichos** (VEREDITO-01..03, PAINEL-01..03): usuário registra veredito final (pode divergir da IA) com data; painel da campanha reaproveita as funções de `/relatorios`; tela nova "Mapa de Nichos". Depende das Fases 22 e 23 (compara com o veredito sugerido, DIAGNOSTICO-09).
+4. **Fase 25 — Tour Guiado do CRM** (TUTORIAL-01..05): React Joyride cobrindo TODO o CRM (dashboard/leads/pipeline/relatórios + as telas novas de campanha/nicho), pulável a qualquer passo, reiniciável por ponto de acesso fixo, estado "já viu" persistente. Depende da Fase 24 (para tourar as telas prontas) mas é pura UI/lib cliente, sem schema.
+
+**Próximo passo:** `/gsd-plan-phase 22`.
+
+**Zero WhatsApp, zero VPS, zero infra nova neste milestone** (deliberado — ver `.planning/DIRECAO-v1.7-2026-09-04.md`, Caminho A escolhido pelo usuário).
+
+**Débito herdado (não bloqueia, carregado do v1.6):**
+
+- **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` frouxos (`check-contrast` não cobre pares
+  fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings). Correções em `19-REVIEW.md`.
+- **8 quick tasks de UI** acumuladas v1.0–v1.3.
+- **Confirmação puramente visual das Fases 19/20/21** — animações, toasts, o download real do
+  CSV, "abre no Excel", troca de tema ao vivo, sem-flash em hard reload — diferida (host 4GB).
+  Fazer numa sessão com navegador.
+- Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
+
+<details>
+<summary>Histórico — Fechamento do milestone v1.6 e definição da direção do v1.7 (2026-09-04)</summary>
+
 ### ▶ COMEÇA AQUI (próxima sessão) — MILESTONE v1.6 FECHADO E TAGUEADO (2026-09-04)
 
 **ONDE PARAMOS:** o milestone **v1.6 "Dark Mode + Exportar CSV"** está completo: 2 fases
@@ -356,6 +389,7 @@ campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Pr
   Fazer numa sessão com navegador.
 
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
+</details>
 
 <details>
 <summary>Histórico — Fases 20 e 21 (v1.6) FECHADAS 2026-09-04</summary>
