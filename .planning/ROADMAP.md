@@ -119,7 +119,8 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
   3. Num navegador sem escolha salva, o app abre no esquema (claro ou escuro) configurado no sistema operacional.
   4. Ao carregar qualquer página, o conteúdo já aparece na cor final — sem flash claro antes de aplicar o escuro (nem o contrário).
   5. O controle indica visualmente qual tema está ativo no momento.
-**Plans**: TBD
+**Plans**: 1 plano
+- [ ] 20-01-PLAN.md — ThemeProvider + toggle sol/lua no rodapé da sidebar, persistência via next-themes, sem FOUC
 **UI hint**: yes
 
 ### Phase 21: Exportar CSV da Lista de Leads
@@ -150,5 +151,5 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
 
 | Fase | Planos | Status | Completada |
 |------|--------|--------|-----------|
-| 20. Tema / Dark Mode | 0/TBD | Not started | - |
+| 20. Tema / Dark Mode | 0/1 | Planned | - |
 | 21. Exportar CSV da Lista de Leads | 0/TBD | Not started | - |
