@@ -4,6 +4,7 @@ title: "Exportar dados em CSV"
 area: general
 priority: "NOVAS IDEIAS PME — avaliar prioridade, não urgente (varredura 2026-08-01)"
 files: []
+resolves_phase: 21
 ---
 
 ## Problem
