@@ -98,7 +98,7 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 - Ship por push direto na `main` (sem PR — projeto solo), consistente com as Fases 16-19.
 
 - [x] **Fase 20: Tema / Dark Mode** (1/1 plano) — 2026-09-04 — THEME-01..04 · ThemeProvider next-themes + toggle sol/lua no rodapé da sidebar, sem FOUC · security 0 threats, verification passed 5/5 (code+data) · push direto p/ main
-- [ ] **Fase 21: Exportar CSV da Lista de Leads** — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + busca), com colunas legíveis por humano
+- [ ] **Fase 21: Exportar CSV da Lista de Leads** (0/1 plano) — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + ordenação), com colunas legíveis por humano
 
 ### 📋 Backlog pós-v1.6 (sem milestone)
 
@@ -124,15 +124,16 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
 **UI hint**: yes
 
 ### Phase 21: Exportar CSV da Lista de Leads
-**Goal**: O admin baixa a lista de leads de `/leads` como um arquivo CSV que reflete exatamente os filtros e a busca ativos na tabela naquele momento, com colunas legíveis por humano.
+**Goal**: O admin baixa a lista de leads de `/leads` como um arquivo CSV que reflete exatamente os filtros e a ordenação ativos na tabela naquele momento, com colunas legíveis por humano.
 **Depends on**: Nada — independente da Fase 20; trabalha sobre a tabela de `/leads` já existente
 **Requirements**: EXPORT-01, EXPORT-02, EXPORT-03
 **Success Criteria** (o que precisa ser VERDADE):
   1. Em `/leads` há um botão "Exportar CSV" na toolbar da tabela, e clicá-lo baixa um arquivo `.csv`.
-  2. Com filtros (nicho, etapa, origem) e/ou busca aplicados, o CSV contém só as linhas visíveis naquele momento — não a base inteira.
+  2. Com os filtros da toolbar (nicho, etapa, intervalo de follow-up) e/ou a ordenação aplicados, o CSV contém só as linhas visíveis naquele momento — não a base inteira.
   3. Abrindo o CSV numa planilha: cada lead é uma linha, nicho e motivo de perda aparecem como nome (não id), e as datas estão formatadas de forma legível.
   4. O arquivo abre corretamente em Excel / Google Sheets — separador e codificação reconhecidos, acentos preservados.
-**Plans**: TBD
+**Plans**: 1 plano
+- [ ] 21-01-PLAN.md — módulo puro de serialização CSV (BOM UTF-8 + `;`, colunas legíveis, guard de CSV injection) + `motivoPerdaNome` no `LeadRow` + botão "Exportar CSV" na toolbar de `/leads`
 **UI hint**: yes
 
 ## Progress
@@ -145,11 +146,11 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
 | v1.3 Qualificação e Histórico | 8-12 | 20 | ✅ 2026-08-30 |
 | v1.4 CRM Genérico Multi-Nicho | 13-15 | 7 | ✅ 2026-08-31 |
 | v1.5 Quitação de Débito e Auditoria Retroativa | 16-19 | 15 | ✅ 2026-09-03 |
-| v1.6 Dark Mode + Exportar CSV | 20-21 | TBD | 🚧 planejamento |
+| v1.6 Dark Mode + Exportar CSV | 20-21 | 2 | 🚧 planejamento |
 
 ### v1.6 — detalhe por fase
 
 | Fase | Planos | Status | Completada |
 |------|--------|--------|-----------|
 | 20. Tema / Dark Mode | 1/1 | Complete   | 2026-09-04 |
-| 21. Exportar CSV da Lista de Leads | 0/TBD | Not started | - |
+| 21. Exportar CSV da Lista de Leads | 0/1 | Planned | - |
