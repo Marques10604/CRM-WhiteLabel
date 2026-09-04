@@ -25,7 +25,8 @@
     "test:motivo-perda-actions": "node scripts/test-motivo-perda-actions.cjs",
     "test:tarefa-actions": "node scripts/test-tarefa-actions.cjs",
     "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
-    "test:relatorios": "node scripts/test-relatorios-queries.cjs"
+    "test:relatorios": "node scripts/test-relatorios-queries.cjs",
+    "test:lead-csv-export": "node scripts/test-lead-csv-export.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
