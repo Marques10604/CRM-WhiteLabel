@@ -2,7 +2,7 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
-status: verifying
+status: verified
 last_updated: "2026-09-04T11:58:47.168Z"
 last_activity: 2026-09-04
 progress:
