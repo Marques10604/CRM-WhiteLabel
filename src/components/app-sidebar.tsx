@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Clock,
   Users,
@@ -72,6 +73,9 @@ export function AppSidebar() {
           );
         })}
       </nav>
+      <div className="mt-auto px-[14px] pt-3 pb-5">
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }
