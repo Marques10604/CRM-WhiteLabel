@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, Download, X } from "lucide-react";
+import { toast } from "sonner";
 import type { Table } from "@tanstack/react-table";
 
+import { buildLeadsCsv, leadsCsvFilename } from "@/lib/lead-csv-export";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -20,6 +22,21 @@ import { DEFAULT_SORTING, type FollowUpDateRange, type LeadRow } from "@/compone
 import type { Nicho } from "@/types";
 
 const ALL_VALUE = "__all__";
+
+/**
+ * Único código DOM da Fase 21 (D-21-01) — mora aqui, não no módulo puro
+ * `lead-csv-export.ts`. Materializa o texto do CSV num arquivo e dispara o
+ * download client-side, sem Server Action nem rota de API.
+ */
+function downloadCsv(filename: string, csv: string): void {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
 
 /** Anel de foco na cor accent (UI-SPEC Color, linha 83) aplicado aos controles da toolbar. */
 const ACCENT_FOCUS_RING =
@@ -77,6 +94,16 @@ export function LeadTableToolbar({ table, nichos }: LeadTableToolbarProps) {
     setRangeEnd(date);
     applyDateRange(rangeStart, date);
     setEndPopoverOpen(false);
+  }
+
+  function handleExport() {
+    // getSortedRowModel() é subconjunto de getFilteredRowModel() — reflete os 3
+    // filtros da toolbar (nicho/etapa/follow-up) E a ordenação ativa (EXPORT-02).
+    const rows = table.getSortedRowModel().rows.map((row) => row.original);
+    downloadCsv(leadsCsvFilename(), buildLeadsCsv(rows));
+    toast.success(
+      rows.length === 1 ? "1 lead exportado." : `${rows.length} leads exportados.`
+    );
   }
 
   function handleClearFilters() {
@@ -168,6 +195,11 @@ export function LeadTableToolbar({ table, nichos }: LeadTableToolbarProps) {
           </PopoverContent>
         </Popover>
       </div>
+
+      <Button variant="outline" size="sm" onClick={handleExport} className="gap-1">
+        <Download className="size-3.5" />
+        Exportar CSV
+      </Button>
 
       <Button variant="ghost" size="sm" onClick={handleClearFilters} className="gap-1">
         <X className="size-3.5" />
