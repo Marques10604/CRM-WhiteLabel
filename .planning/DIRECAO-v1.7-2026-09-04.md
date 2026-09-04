@@ -235,3 +235,55 @@ sozinho (b)?* — continua sem resposta, e é ela que decide se o Prospector alg
 
 *Escrito por: sessão Claude Code, 2026-09-04. Parecer, não decisão. O `/gsd-new-milestone` do
 v1.7 está pausado esperando a direção do usuário.*
+
+---
+
+## 10. Addendum — pesquisa na internet (2026-09-04, a pedido do usuário)
+
+Fontes: [XP One — Cold Outreach 2026](https://xp-one.io/blog/cold-outreach-2026-complete-guide) ·
+[Sbl.so — WhatsApp Cold Outreach B2B Guide 2026](https://sbl.so/whatsapp/whatsapp-cold-outreach-b2b-guide/) ·
+[GMCS — WhatsApp Business API Compliance 2026](https://gmcsco.com/your-simple-guide-to-whatsapp-api-compliance-2026/) ·
+[Prospecta IA 360 — landing page](https://lp.prospectaia360.com/) ·
+[Vindi — Guia de Micro-SaaS](https://blog.vindi.com.br/micro-saas/) ·
+[Prime Technologies — Outbound Lead Gen Blueprint 2026](https://www.primetechnologiesglobal.com/blog/outbound-lead-generation)
+
+### Confirmado: cold pela API oficial continua proibido em 2026
+Múltiplas fontes independentes (2026) confirmam: **"true cold outreach via the official API is
+basically impossible without violating policy"** — 1ª mensagem exige template aprovado + consentimento
+documentado; listas frias por definição não têm isso. Violação = queda de quality rating, limite de
+mensagens, banimento. Isso bate exatamente com o que o `PARECER` do Prospector já tinha levantado.
+
+### Um concorrente real reivindica "100% oficial" e ainda assim "dispara frio" — a nuance importa
+Fui ver a landing do **Prospecta IA 360** (o concorrente direto mapeado). Eles dizem: *"Operamos
+com WhatsApp Oficial, em total conformidade"* — e são **Meta Tech Provider**. Ao mesmo tempo,
+o fluxo deles é garimpo (LinkedIn + Google) → disparo multi-canal (WhatsApp, e-mail, ligação) →
+qualificação por voz.
+
+**Eu não sei o mecanismo exato deles** (não dá pra ver isso numa landing page) — mas a explicação
+mais provável é que o **toque frio de verdade acontece por e-mail/LinkedIn** (canais sem a mesma
+restrição de opt-in) e o WhatsApp só entra **depois** que já houve alguma interação (ex.: clique
+num link, resposta ao e-mail) — nesse ponto já não é mais 100% frio pro WhatsApp. Ou seja: **"100%
+oficial" pode ser verdade E ainda assim não contradizer a regra de cold** — se o WhatsApp for o
+canal de warm-up, não o de 1º contato. **Não copie a alegação deles sem entender o mecanismo real** —
+mas é uma pista de arquitetura: **e-mail/LinkedIn como ponta fria, WhatsApp como ponta quente** é
+um caminho que **não esbarra no problema de ban/LGPD do garimpo cold via WhatsApp**.
+
+### Achado que reforça o Caminho A: "funciona em todo nicho" é o oposto do seu diferencial
+A FAQ do Prospecta IA 360 diz: *"Testamos em 47 nichos diferentes. Funciona em todos."* — eles
+vendem **generalidade** como prova de robustez. Isso é o oposto exato da tese "exploração lenta
+com veredito por nicho" (§2 deste doc). Ninguém no mercado brasileiro mapeado está vendendo
+"eu te ajudo a descobrir SE vale a pena, nicho por nicho" — todos vendem "funciona em qualquer
+nicho, dispara mais". **O espaço pro diferencial do §2 continua livre.**
+
+### Micro-SaaS: foco estreito bate mais que "tudo em um"
+Fontes de 2026 sobre Micro-SaaS confirmam: diferente de plataformas "All-in-One", o modelo que
+funciona pra 1 pessoa/time pequeno é **resolver um problema específico pra um segmento
+específico** — não competir em amplitude com quem já tem escala. Isso reforça o **Caminho A**:
+construir bem a exploração-de-nicho-com-veredito (estreito, específico) em vez de tentar replicar
+o pipeline completo garimpo→disparo→CRM dos concorrentes maiores.
+
+### Arquitetura de CRM+WhatsApp confirmada (pro dia em que existir)
+Fontes técnicas de 2026 confirmam o modelo do §7: inbox compartilhado + webhook do BSP oficial
+(360dialog, Wati, Wassenger, MessageBird) → parse do payload → cria/atualiza registro no CRM. Erro
+comum: webhook mal configurado faz mensagem recebida não aparecer no CRM. Nada disso muda a
+conclusão do §7 — é infraestrutura real, não feature pequena.
