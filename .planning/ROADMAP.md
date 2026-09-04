@@ -98,7 +98,7 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 - Ship por push direto na `main` (sem PR — projeto solo), consistente com as Fases 16-19.
 
 - [x] **Fase 20: Tema / Dark Mode** (1/1 plano) — 2026-09-04 — THEME-01..04 · ThemeProvider next-themes + toggle sol/lua no rodapé da sidebar, sem FOUC · security 0 threats, verification passed 5/5 (code+data) · push direto p/ main
-- [ ] **Fase 21: Exportar CSV da Lista de Leads** (0/1 plano) — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + ordenação), com colunas legíveis por humano
+- [x] **Fase 21: Exportar CSV da Lista de Leads** (1/1 plano) — 2026-09-04 — EXPORT-01..03 · botão na toolbar → `getSortedRowModel().rows` (respeita filtros+ordenação), módulo puro `lead-csv-export.ts` (BOM UTF-8 + `;` + guard de CSV injection), harness 38 asserções · code review PASS, security 0 threats, verification passed 4/4 (code+data) · push direto p/ main
 
 ### 📋 Backlog pós-v1.6 (sem milestone)
 

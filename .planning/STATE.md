@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
-status: verified
-last_updated: "2026-09-04T11:58:47.168Z"
+status: completed
+last_updated: "2026-09-04T12:04:43.592Z"
 last_activity: 2026-09-04
 progress:
   total_phases: 2
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 21 (Exportar CSV da Lista de Leads) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
+Phase: 21 (Exportar CSV da Lista de Leads) — FECHADA E SHIPADA
+Plan: 1 of 1 · plan-checker PASS · security 0 threats · verification passed 4/4 (code+data) · learnings extraídos
+Status: Fase 21 shipada — TODAS as 2 fases do v1.6 fechadas — próximo: /gsd-complete-milestone
 Last activity: 2026-09-04
 
 ## Performance Metrics
