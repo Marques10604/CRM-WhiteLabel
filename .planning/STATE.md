@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.6
-milestone_name: Dark Mode + Exportar CSV
-status: Awaiting next milestone
-last_updated: "2026-09-04T12:08:59.423Z"
-last_activity: 2026-09-04 — Milestone v1.6 completed and archived
+milestone: v1.7
+milestone_name: Exploração de Nicho
+status: planning
+last_updated: "2026-09-04T19:05:48.747Z"
+last_activity: 2026-09-04
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: Milestone v1.6 completo e tagueado (Fases 20-21) — nenhum milestone ativo
+Phase: Not started (defining requirements)
 Plan: —
-Status: Aguardando `/gsd-new-milestone` (v1.7). Direção do usuário: fundir Prospector + CRM.
-Last activity: 2026-09-04 — Milestone v1.6 fechado e arquivado
+Status: Defining requirements
+Last activity: 2026-09-04 — Milestone v1.7 started
 
 ## Performance Metrics
 
@@ -346,12 +346,15 @@ Candidatos v1.7: backlog PME (tags livres, busca global, temperatura automática
 campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM.
 
 **Débito herdado (não bloqueia):**
+
 - **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` frouxos (`check-contrast` não cobre pares
   fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings). Correções em `19-REVIEW.md`.
+
 - **8 quick tasks de UI** acumuladas v1.0–v1.3.
 - **Confirmação puramente visual das Fases 19/20/21** — animações, toasts, o download real do
   CSV, "abre no Excel", troca de tema ao vivo, sem-flash em hard reload — diferida (host 4GB).
   Fazer numa sessão com navegador.
+
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
 
 <details>

@@ -1,12 +1,50 @@
 # CRM de Leads
 
-## Current Milestone: a definir (v1.7)
+## Current Milestone: v1.7 Exploração de Nicho
+
+**Goal:** Dar ao CRM o objeto de 1ª classe que é o diferencial real do produto — a **campanha de
+exploração de nicho** com diagnóstico de IA, veredito e loop de resultado real — sem WhatsApp,
+sem VPS, sem infra nova. É o primeiro degrau concreto rumo à visão de longo prazo do usuário
+("Prospector embutido no CRM"), materializado de um jeito seguro (nenhum disparo automático,
+nenhuma exposição de LGPD/ban).
+
+**Contexto da decisão (2026-09-04):** a direção de longo prazo do usuário é fundir Prospector +
+CRM. Antes de escopar, escrevi `.planning/DIRECAO-v1.7-2026-09-04.md` (parecer + pesquisa na
+internet) respondendo dúvidas sobre diferencial real, parceria com a Meta (não libera cold),
+concorrentes que vendem "2 em 1", e as áreas cinzentas de fundir os produtos (apaga o firewall
+legal do Prospector). Rodamos 3 "Briefings de Nicho" ao vivo na conversa (costureira, motoboy,
+estética, usando WebSearch real) como MVP conversacional — discriminou de verdade (mudar
+ângulo / aprofundar / abandonar, um veredito diferente por nicho) e validou a estrutura contra
+frameworks de mercado de 2026 (Build-Measure-Learn, market-entry scoring). O usuário escolheu o
+**Caminho A** dos 3 propostos: construir o objeto "nicho/campanha" dentro do CRM atual.
+
+**Target features:**
+- **Campanha de exploração de nicho** — nicho (lista existente) + oferta (o que pretende vender,
+  obrigatório) + janela de tempo (~90 dias) + meta de conversão. Leads podem se vincular a uma
+  campanha (além do nicho geral).
+- **Diagnóstico de IA sob demanda** (botão, sempre fresco por campanha, nunca reusado do nicho) —
+  índice de saturação numérico (conta concorrentes achados), até 3 gatilhos de dor (o mais forte
+  marcado), 2-3 objeções + resposta, ticket médio com fonte, cada achado marcado como dado
+  quantificável vs. alegação de marketing do concorrente, rascunho de 1ª mensagem editável.
+  Exige fontes citadas — sem fonte, rejeitado (mesmo padrão anti-genérico do Prospector).
+- **Veredito é do usuário, não da IA** — a IA sugere (aprofundar/mudar ângulo/abandonar), o
+  usuário registra o veredito final (pode divergir), com data.
+- **Loop de resultado real** — o painel da campanha agrega os leads vinculados a ela (contagem,
+  conversão, motivos de perda, ticket médio), reaproveitando as funções já existentes de
+  `/relatorios`.
+- **Mapa de Nichos** — tela nova listando todas as campanhas já criadas: nicho, veredito da IA,
+  veredito final, resultado real. A régua pessoal do usuário, mesmo sozinho, crescendo com o tempo.
+
+**Key context:** puxa integração de IA de verdade (modelo com busca na web) — não é feature de
+CRM comum, vai precisar de escolha de framework + estratégia de avaliação (evitar saída
+genérica, mesmo risco que o próprio research do Prospector já mapeou pra essa ideia). Prospector
+Inteligente AI segue como **semente parada** (pasta própria, parecer em
+`PARECER-E-COORDENADAS-2026-09-04.md`).
 
 **Último milestone shipado:** v1.6 Dark Mode + Exportar CSV — 2026-09-04 (Fases 20-21).
 
-Rodar `/gsd-new-milestone` para definir a direção e o roadmap do v1.7. **Direção do usuário (2026-09-04):** o alvo é um "CRM com o Prospector embutido" — disparos + organização de leads + nichos testáveis numa coisa só (NÃO 2 produtos separados como o planejamento parado do Prospector assume). O Prospector Inteligente AI fica como **semente parada** (planejamento completo em `C:\Users\Vencedor\Desktop\Prospector Inteligente AI`, parecer em `PARECER-E-COORDENADAS-2026-09-04.md`); reabrir a conversa de arquitetura antes de qualquer construção.
-
-Candidatos: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM (HANDOFF-01..03).
+Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por
+lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03).
 
 ## Current State
 
@@ -75,9 +113,9 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 ### Active
 
-**Nenhum milestone ativo.** Rodar `/gsd-new-milestone` para definir o v1.7.
+**Milestone v1.7 Exploração de Nicho** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: campanha de exploração de nicho (nicho + oferta + janela + meta) com diagnóstico de IA sob demanda (saturação, gatilhos de dor, objeções, ticket médio, fontes citadas), veredito registrado pelo usuário, loop de resultado real via leads vinculados, e tela "Mapa de Nichos". Zero WhatsApp, zero VPS.
 
-Candidatos para o v1.7 (ver §Current Milestone acima): backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM (HANDOFF-01..03). Direção de fundo do usuário: fundir Prospector + CRM.
+Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir). Direção de fundo do usuário: fundir Prospector + CRM — este milestone é o primeiro degrau seguro rumo a isso.
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -157,4 +195,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-09-04 after v1.6 milestone (Dark Mode + Exportar CSV)*
+*Last updated: 2026-09-04 after starting milestone v1.7 (Exploração de Nicho)*
