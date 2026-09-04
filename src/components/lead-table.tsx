@@ -113,6 +113,11 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
     [nichos]
   );
 
+  const motivoPerdaNomeById = useMemo(
+    () => new Map(motivosPerda.map((motivo) => [motivo.id, motivo.nome])),
+    [motivosPerda]
+  );
+
   const firstContactTemplate = useMemo(
     () => templates.find((template) => template.tipo === "primeiro_contato" && template.isDefault),
     [templates]
@@ -123,8 +128,12 @@ export function LeadTable({ leads, nichos, motivosPerda, templates }: LeadTableP
       leads.map((lead) => ({
         ...lead,
         nichoNome: nichoNameById.get(lead.nichoId) ?? "—",
+        motivoPerdaNome:
+          lead.motivoPerdaId != null
+            ? (motivoPerdaNomeById.get(lead.motivoPerdaId) ?? "")
+            : "",
       })),
-    [leads, nichoNameById]
+    [leads, nichoNameById, motivoPerdaNomeById]
   );
 
   const table = useReactTable({

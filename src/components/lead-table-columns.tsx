@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { EtapaBadge } from "@/components/etapa-badge";
 import type { Lead } from "@/types";
 
-/** Lead com o nome do nicho já resolvido (join client-side em lead-table.tsx). */
-export type LeadRow = Lead & { nichoNome: string };
+/**
+ * Lead com o nome do nicho e do motivo de perda já resolvidos (join
+ * client-side em lead-table.tsx). `motivoPerdaNome` é `""` quando o lead não
+ * tem motivo de perda (a maioria) — ver D-21-02.
+ */
+export type LeadRow = Lead & { nichoNome: string; motivoPerdaNome: string };
 
 /**
  * Callbacks de ação de linha (D-08) injetados via `meta` do `useReactTable`
