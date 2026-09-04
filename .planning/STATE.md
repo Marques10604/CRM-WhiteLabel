@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
 status: planning
-last_updated: "2026-09-04T00:13:40.695Z"
+last_updated: "2026-09-04T12:00:00.000Z"
 last_activity: 2026-09-04
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 19 — marca-e-identidade-visual
+**Current focus:** Fase 20 — Tema / Dark Mode (v1.6, roadmap criado)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 20 — Tema / Dark Mode (não iniciada)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-04 — Milestone v1.6 started
+Status: Roadmap v1.6 criado — pronto para `/gsd-plan-phase 20`
+Last activity: 2026-09-04 — Roadmap v1.6 criado (Fases 20-21, 7 requisitos, 100% cobertura)
 
 ## Performance Metrics
 
@@ -108,6 +108,7 @@ Last activity: 2026-09-04 — Milestone v1.6 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
+- Roadmap v1.6: 2 fases (20-21), **independentes entre si** — granularidade `coarse` + escopo pequeno (7 reqs, zero mudança de schema). Fase 20 = Tema / Dark Mode (THEME-01..04, só liga o toggle sobre os tokens `.dark` prontos da Fase 19; D-16 da Fase 19 suspensa). Fase 21 = Exportar CSV (EXPORT-01..03, botão na toolbar de `/leads` serializando as linhas filtradas via PapaParse já instalado). Verificação provável por code+data (host 4GB, precedente Fases 18/19); ship por push direto na `main`.
 - Roadmap v1.3: 5 fases (8-12), não 6 como o `research/SUMMARY.md` sugeriu — Painel de Métricas (METRICAS-01/02) e Relatório de Motivos de Perda (PERDA-01) combinados numa única Phase 11, por compartilharem a mesma infraestrutura de página `/relatorios` e por `config.json` pedir granularidade `coarse` (3-5 fases)
 - Roadmap v1.3: ORIGEM-03 (gate Inbound não recebe sugestão de sequência) mapeado para Phase 10 (Sequência), não Phase 8 (Origem) — o comportamento observável só existe quando a própria sequência escalonada existe; Phase 10 depende de Phase 8 por causa disso
 - Roadmap v1.1: Phase 5 única (não múltiplas fases) — escopo de IMPORT-04/IMPORT-05 é pequeno e contido, um plano de goal único (dividido em tasks se necessário) é mais apropriado que fases artificiais
@@ -305,18 +306,25 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — MILESTONE v1.5 FECHADO E TAGUEADO (2026-09-03)
+### ▶ COMEÇA AQUI (próxima sessão) — ROADMAP v1.6 CRIADO (2026-09-04)
 
-**ONDE PARAMOS:** o milestone **v1.5 "Quitação de Débito e Auditoria Retroativa"** está
+**ONDE PARAMOS (2026-09-04):** o roadmap do milestone **v1.6 "Dark Mode + Exportar CSV"**
+está criado — 2 fases novas (Fase 20 Tema / Dark Mode → THEME-01..04; Fase 21 Exportar CSV
+→ EXPORT-01..03), independentes entre si, 7 requisitos, 100% de cobertura. `ROADMAP.md` tem
+a seção `🚧 v1.6` com goals e success criteria; a traceability do `REQUIREMENTS.md` está
+preenchida; `PROJECT.md` já aponta pro v1.6. **Próximo passo:** `/gsd-plan-phase 20`
+(ou `21` — não há ordem obrigatória entre elas).
+
+**Histórico — v1.5 (fechado e tagueado 2026-09-03):** o milestone **v1.5 "Quitação de Débito e Auditoria Retroativa"** está
 completo: 4 fases (16-19), 15 planos, todas shipadas na `main`. `/gsd-complete-milestone`
 rodado — ROADMAP colapsado, `REQUIREMENTS.md` arquivado em `milestones/v1.5-REQUIREMENTS.md`
 e removido, PROJECT.md evoluído, retrospectiva escrita, **tag `v1.5`** criada. `origin/main`
 em dia (push direto, sem PR — padrão deste milestone).
 
-**Próximo passo — escolha do usuário:**
+**Próximo passo:**
 
 ```
-/gsd-new-milestone     # define o v1.6 (direção + roadmap com fases novas — numeram de 20+)
+/gsd-plan-phase 20     # planeja a Fase 20 (Tema / Dark Mode). A Fase 21 pode vir antes ou depois.
 ```
 
 Candidatos pro v1.6 (do `PROJECT.md` §Next Milestone Goals): dark mode toggle (tokens `.dark`

@@ -61,7 +61,7 @@ Em `.planning/todos/pending/` — avaliar prioridade num milestone futuro: tags 
 
 ## Traceability
 
-Preenchida na criação do roadmap.
+Preenchida na criação do roadmap (2026-09-04). Fase 20 e Fase 21 são independentes — sem ordem de execução obrigatória entre elas.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -80,4 +80,4 @@ Preenchida na criação do roadmap.
 
 ---
 *Requirements defined: 2026-09-03*
-*Last updated: 2026-09-03 after initial definition*
+*Last updated: 2026-09-04 after roadmap creation (Fases 20-21)*

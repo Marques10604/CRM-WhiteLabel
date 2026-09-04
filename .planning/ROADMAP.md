@@ -8,7 +8,7 @@
 - ✅ **v1.3 Qualificação e Histórico de Leads** — Fases 8-12 (shipado 2026-08-30) — `.planning/milestones/v1.3-ROADMAP.md`
 - ✅ **v1.4 CRM Genérico Multi-Nicho (despivô)** — Fases 13-15 (shipado 2026-08-31) — `.planning/milestones/v1.4-ROADMAP.md`
 - ✅ **v1.5 Quitação de Débito e Auditoria Retroativa** — Fases 16-19 (shipado 2026-09-03) — `.planning/milestones/v1.5-ROADMAP.md`
-- 📋 **v1.6** — a definir (`/gsd-new-milestone`)
+- 🚧 **v1.6 Dark Mode + Exportar CSV** — Fases 20-21 (em planejamento)
 
 ## Phases
 
@@ -83,13 +83,54 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 
 </details>
 
-### 📋 v1.6 — a definir
+### 🚧 v1.6 Dark Mode + Exportar CSV (Fases 20-21) — EM PLANEJAMENTO
 
-Rodar `/gsd-new-milestone`. Candidatos (de `PROJECT.md` §Next Milestone Goals): dark mode toggle
-(tokens `.dark` já prontos da Fase 19), handoff Prospector→CRM (HANDOFF-01..03), teste de nicho
-formal (CAMPANHA-01), backlog PME (tags livres, temperatura automática, busca global, exportar
-CSV, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/WR-04 da Fase 19,
-8 quick tasks de UI, confirmação visual da Fase 19.
+**Meta do milestone:** Dois utilitários pequenos que faltavam — o admin escolhe claro/escuro e leva os leads pra fora do sistema em CSV. Nada estrutural, zero mudança de schema. As duas fases são independentes entre si.
+
+**Contexto herdado que os planos precisam:**
+- Stack: Next.js 16.2 (App Router, Turbopack) + Drizzle/SQLite + shadcn-on-Base-UI + Zod + react-hook-form + Tailwind v4.
+- `next-themes` **já é dependência** (hoje usado só pelo `sonner`). Dark mode = adicionar `ThemeProvider` + o controle de toggle; **não** adicionar biblioteca de tema nova.
+- O bloco de tokens `.dark` **já existe** em `src/app/globals.css` e foi verificado WCAG AA (30/30 pares de contraste) na Fase 19. A Fase 20 **não** redefine tokens — só liga o toggle. A constraint D-16 da Fase 19 ("sem ThemeProvider / sem toggle") está **explicitamente suspensa** por este milestone.
+- O toggle mora no rodapé da sidebar (`src/components/app-sidebar.tsx`), switch sol/lua, visível em toda tela. Tem que evitar FOUC / flash de cor errada no load (`next-themes` `attribute="class"` + `suppressHydrationWarning` no `<html>` em `src/app/layout.tsx`).
+- Export: `/leads` usa `@tanstack/react-table` (`src/components/lead-table.tsx` + `lead-table-toolbar.tsx` + `lead-table-columns.tsx`). PapaParse (5.5.4) já é dependência (usada no import CSV). O botão "Exportar CSV" vai na toolbar da lista e serializa as linhas atualmente filtradas/buscadas. Nicho e motivo de perda saem como nome, não id (os mapas id→nome já existem pro display da tabela). Datas formatadas (`date-fns` disponível).
+- Host de 4GB: comandos de verificação sempre sequenciais, nunca em paralelo.
+- O host não roda `dev` + navegador + sessão do agente juntos desde a Fase 18 — a verificação destas fases provavelmente será por **code+data** (declarar, precedente das Fases 18/19).
+- Ship por push direto na `main` (sem PR — projeto solo), consistente com as Fases 16-19.
+
+- [ ] **Fase 20: Tema / Dark Mode** — toggle sol/lua no rodapé da sidebar, persistido, respeita a preferência do sistema no 1º acesso, sem flash de cor errada
+- [ ] **Fase 21: Exportar CSV da Lista de Leads** — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + busca), com colunas legíveis por humano
+
+#### Fase 20: Tema / Dark Mode
+**Goal**: O admin passa a escolher entre tema claro e escuro por um controle no rodapé da sidebar; a escolha é lembrada entre sessões e o primeiro acesso segue a preferência do sistema, tudo sem flash de cor errada no carregamento.
+**Depends on**: Nada — os tokens `.dark` já vieram prontos da Fase 19; independente da Fase 21
+**Requirements**: THEME-01, THEME-02, THEME-03, THEME-04
+**Success Criteria** (o que precisa ser VERDADE):
+  1. O admin vê um controle sol/lua no rodapé da sidebar em qualquer tela, e acioná-lo troca a interface inteira entre claro e escuro na hora.
+  2. Depois de escolher um tema, dar refresh ou fechar e reabrir o navegador mantém o tema escolhido.
+  3. Num navegador sem escolha salva, o app abre no esquema (claro ou escuro) configurado no sistema operacional.
+  4. Ao carregar qualquer página, o conteúdo já aparece na cor final — sem flash claro antes de aplicar o escuro (nem o contrário).
+  5. O controle indica visualmente qual tema está ativo no momento.
+**Plans**: TBD
+**UI hint**: yes
+
+#### Fase 21: Exportar CSV da Lista de Leads
+**Goal**: O admin baixa a lista de leads de `/leads` como um arquivo CSV que reflete exatamente os filtros e a busca ativos na tabela naquele momento, com colunas legíveis por humano.
+**Depends on**: Nada — independente da Fase 20; trabalha sobre a tabela de `/leads` já existente
+**Requirements**: EXPORT-01, EXPORT-02, EXPORT-03
+**Success Criteria** (o que precisa ser VERDADE):
+  1. Em `/leads` há um botão "Exportar CSV" na toolbar da tabela, e clicá-lo baixa um arquivo `.csv`.
+  2. Com filtros (nicho, etapa, origem) e/ou busca aplicados, o CSV contém só as linhas visíveis naquele momento — não a base inteira.
+  3. Abrindo o CSV numa planilha: cada lead é uma linha, nicho e motivo de perda aparecem como nome (não id), e as datas estão formatadas de forma legível.
+  4. O arquivo abre corretamente em Excel / Google Sheets — separador e codificação reconhecidos, acentos preservados.
+**Plans**: TBD
+**UI hint**: yes
+
+### 📋 Backlog pós-v1.6 (sem milestone)
+
+Candidatos ainda em aberto: handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir),
+teste de nicho formal (CAMPANHA-01), backlog PME (tags livres, temperatura automática, busca
+global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/WR-04 da Fase 19,
+8 quick tasks de UI, confirmação puramente visual da Fase 19.
 
 ## Progress
 
@@ -101,4 +142,11 @@ CSV, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/WR-
 | v1.3 Qualificação e Histórico | 8-12 | 20 | ✅ 2026-08-30 |
 | v1.4 CRM Genérico Multi-Nicho | 13-15 | 7 | ✅ 2026-08-31 |
 | v1.5 Quitação de Débito e Auditoria Retroativa | 16-19 | 15 | ✅ 2026-09-03 |
-| v1.6 (a definir) | 20+ | — | 📋 planejamento |
+| v1.6 Dark Mode + Exportar CSV | 20-21 | TBD | 🚧 planejamento |
+
+### v1.6 — detalhe por fase
+
+| Fase | Planos | Status | Completada |
+|------|--------|--------|-----------|
+| 20. Tema / Dark Mode | 0/TBD | Not started | - |
+| 21. Exportar CSV da Lista de Leads | 0/TBD | Not started | - |
