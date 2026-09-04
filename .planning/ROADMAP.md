@@ -100,7 +100,16 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 - [ ] **Fase 20: Tema / Dark Mode** — toggle sol/lua no rodapé da sidebar, persistido, respeita a preferência do sistema no 1º acesso, sem flash de cor errada
 - [ ] **Fase 21: Exportar CSV da Lista de Leads** — botão "Exportar CSV" em `/leads` que baixa exatamente as linhas visíveis (filtros + busca), com colunas legíveis por humano
 
-#### Fase 20: Tema / Dark Mode
+### 📋 Backlog pós-v1.6 (sem milestone)
+
+Candidatos ainda em aberto: handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir),
+teste de nicho formal (CAMPANHA-01), backlog PME (tags livres, temperatura automática, busca
+global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/WR-04 da Fase 19,
+8 quick tasks de UI, confirmação puramente visual da Fase 19.
+
+## Phase Details
+
+### Phase 20: Tema / Dark Mode
 **Goal**: O admin passa a escolher entre tema claro e escuro por um controle no rodapé da sidebar; a escolha é lembrada entre sessões e o primeiro acesso segue a preferência do sistema, tudo sem flash de cor errada no carregamento.
 **Depends on**: Nada — os tokens `.dark` já vieram prontos da Fase 19; independente da Fase 21
 **Requirements**: THEME-01, THEME-02, THEME-03, THEME-04
@@ -113,7 +122,7 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
 **Plans**: TBD
 **UI hint**: yes
 
-#### Fase 21: Exportar CSV da Lista de Leads
+### Phase 21: Exportar CSV da Lista de Leads
 **Goal**: O admin baixa a lista de leads de `/leads` como um arquivo CSV que reflete exatamente os filtros e a busca ativos na tabela naquele momento, com colunas legíveis por humano.
 **Depends on**: Nada — independente da Fase 20; trabalha sobre a tabela de `/leads` já existente
 **Requirements**: EXPORT-01, EXPORT-02, EXPORT-03
@@ -124,13 +133,6 @@ Detalhes completos: `.planning/milestones/v1.5-ROADMAP.md`
   4. O arquivo abre corretamente em Excel / Google Sheets — separador e codificação reconhecidos, acentos preservados.
 **Plans**: TBD
 **UI hint**: yes
-
-### 📋 Backlog pós-v1.6 (sem milestone)
-
-Candidatos ainda em aberto: handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir),
-teste de nicho formal (CAMPANHA-01), backlog PME (tags livres, temperatura automática, busca
-global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/WR-04 da Fase 19,
-8 quick tasks de UI, confirmação puramente visual da Fase 19.
 
 ## Progress
 
