@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
-status: completed
-last_updated: "2026-09-04T12:04:43.592Z"
-last_activity: 2026-09-04
+status: Awaiting next milestone
+last_updated: "2026-09-04T12:08:59.423Z"
+last_activity: 2026-09-04 — Milestone v1.6 completed and archived
 progress:
   total_phases: 2
   completed_phases: 2
@@ -17,17 +17,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-31)
+See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 21 — Exportar CSV da Lista de Leads
+**Current focus:** Planejando o próximo milestone (v1.7)
 
 ## Current Position
 
-Phase: 21 (Exportar CSV da Lista de Leads) — FECHADA E SHIPADA
-Plan: 1 of 1 · plan-checker PASS · security 0 threats · verification passed 4/4 (code+data) · learnings extraídos
-Status: Fase 21 shipada — TODAS as 2 fases do v1.6 fechadas — próximo: /gsd-complete-milestone
-Last activity: 2026-09-04
+Phase: Milestone v1.6 completo e tagueado (Fases 20-21) — nenhum milestone ativo
+Plan: —
+Status: Aguardando `/gsd-new-milestone` (v1.7). Direção do usuário: fundir Prospector + CRM.
+Last activity: 2026-09-04 — Milestone v1.6 fechado e arquivado
 
 ## Performance Metrics
 
@@ -280,6 +280,13 @@ Aberto, carregado para o v1.3:
 
 Items acknowledged and carried forward.
 
+**Acknowledged no fecho do milestone v1.6 (2026-09-04):** `audit-open` listou os mesmos 22 itens
+do v1.5 (nenhum novo) — 12 quick_tasks (falso positivo do checker), 5 todos de backlog PME, 2
+seeds dormentes, 3 uat_gaps já resolvidos (Fases 05/07/19, 0 cenários abertos). Aceitos como
+deferred. Sem `v1.6-MILESTONE-AUDIT.md` — dispensado (milestone pequeno, ambas as fases
+verificadas por code+data). **+ novo:** confirmação puramente visual das Fases 20/21 (download
+real do CSV, "abre no Excel", troca de tema ao vivo, sem-flash em hard reload — host 4GB).
+
 **Acknowledged no fecho do milestone v1.5 (2026-09-03):** `audit-open` listou 22 itens abertos —
 todos conhecidos e não-bloqueantes, aceitos como deferred pelo usuário: 12 quick_tasks (falso
 positivo do checker — todas têm SUMMARY.md, falta o campo `status:`), 3 uat_gaps já resolvidos
@@ -308,42 +315,65 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — ROADMAP v1.6 CRIADO (2026-09-04)
+### ▶ COMEÇA AQUI (próxima sessão) — MILESTONE v1.6 FECHADO E TAGUEADO (2026-09-04)
 
-**ONDE PARAMOS (2026-09-04):** o roadmap do milestone **v1.6 "Dark Mode + Exportar CSV"**
-está criado — 2 fases novas (Fase 20 Tema / Dark Mode → THEME-01..04; Fase 21 Exportar CSV
-→ EXPORT-01..03), independentes entre si, 7 requisitos, 100% de cobertura. `ROADMAP.md` tem
-a seção `🚧 v1.6` com goals e success criteria; a traceability do `REQUIREMENTS.md` está
-preenchida; `PROJECT.md` já aponta pro v1.6. **Próximo passo:** `/gsd-plan-phase 20`
-(ou `21` — não há ordem obrigatória entre elas).
+**ONDE PARAMOS:** o milestone **v1.6 "Dark Mode + Exportar CSV"** está completo: 2 fases
+(20-21), 2 planos, todas shipadas na `main` (push direto, sem PR). `/gsd-complete-milestone`
+rodado — ROADMAP colapsado, `REQUIREMENTS.md` arquivado em `milestones/v1.6-REQUIREMENTS.md`
+e removido, PROJECT.md evoluído, retrospectiva escrita, **tag `v1.6`** criada. `origin/main`
+em dia.
 
-**Histórico — v1.5 (fechado e tagueado 2026-09-03):** o milestone **v1.5 "Quitação de Débito e Auditoria Retroativa"** está
-completo: 4 fases (16-19), 15 planos, todas shipadas na `main`. `/gsd-complete-milestone`
-rodado — ROADMAP colapsado, `REQUIREMENTS.md` arquivado em `milestones/v1.5-REQUIREMENTS.md`
-e removido, PROJECT.md evoluído, retrospectiva escrita, **tag `v1.5`** criada. `origin/main`
-em dia (push direto, sem PR — padrão deste milestone).
+**Nota:** o CLI `milestone.complete` deste repo (gsd-tools antigo) **contou errado** (21 fases /
+65 planos / 144 tasks — o repo inteiro) e gerou uma entrada de MILESTONES.md com accomplishments
+de todas as fases. Reescrito à mão para o v1.6 real (2 fases / 2 planos / 6 tasks). O archive
+`v1.6-ROADMAP.md` recebeu o ROADMAP já colapsado (chamei o CLI depois de reorganizar) — o detalhe
+das fases 20/21 foi acrescentado no fim do archive à mão.
 
-**Próximo passo:**
+**Próximo passo — escolha do usuário:**
 
 ```
-/gsd-plan-phase 20     # planeja a Fase 20 (Tema / Dark Mode). A Fase 21 pode vir antes ou depois.
+/gsd-new-milestone     # define o v1.7 (fases numeram de 22+)
 ```
 
-Candidatos pro v1.6 (do `PROJECT.md` §Next Milestone Goals): dark mode toggle (tokens `.dark`
-já prontos da Fase 19), handoff Prospector→CRM (HANDOFF-01..03, se o Prospector existir),
-teste de nicho formal (CAMPANHA-01), backlog PME (tags, busca global, exportar CSV…).
+**Direção do usuário (2026-09-04):** o alvo é **fundir Prospector + CRM** — disparos +
+organização de leads + nichos testáveis numa coisa só, NÃO os 2 produtos separados que o
+planejamento parado do Prospector assume. O **Prospector Inteligente AI fica como semente
+parada** (planejamento completo em `C:\Users\Vencedor\Desktop\Prospector Inteligente AI`, parecer
+em `PARECER-E-COORDENADAS-2026-09-04.md`). O `/gsd-new-milestone` do v1.7 deve reabrir a conversa
+de arquitetura antes de qualquer construção de disparo/prospecção.
 
-**Débito que sobra (não bloqueia nada, mas registrar num `/gsd-quick` ou no v1.6):**
+Candidatos v1.7: backlog PME (tags livres, busca global, temperatura automática, anexo por lead,
+campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM.
 
-- **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` com checagem frouxa (`check-contrast` não cobre
-  pares fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings acidentais). Correções
-  concretas em `19-REVIEW.md`.
-
-- **8 quick tasks de UI** acumuladas v1.0–v1.3 (nunca fora de milestone).
-- **Confirmação puramente visual da Fase 19** — animações, toasts, digitação real nos forms —
-  diferida (host 4GB não roda navegador + sessão). Fazer numa sessão com navegador.
-
+**Débito herdado (não bloqueia):**
+- **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` frouxos (`check-contrast` não cobre pares
+  fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings). Correções em `19-REVIEW.md`.
+- **8 quick tasks de UI** acumuladas v1.0–v1.3.
+- **Confirmação puramente visual das Fases 19/20/21** — animações, toasts, o download real do
+  CSV, "abre no Excel", troca de tema ao vivo, sem-flash em hard reload — diferida (host 4GB).
+  Fazer numa sessão com navegador.
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
+
+<details>
+<summary>Histórico — Fases 20 e 21 (v1.6) FECHADAS 2026-09-04</summary>
+
+**Fase 20 — Tema / Dark Mode.** `theme-provider.tsx` (wrapper next-themes) + `theme-toggle.tsx`
+(Sun/Moon no rodapé `mt-auto` da sidebar, guard `mounted` com placeholder de altura reservada) +
+`layout.tsx` (`suppressHydrationWarning` no `<html>`, `<ThemeProvider attribute="class"
+defaultTheme="system" enableSystem disableTransitionOnChange>` no `<body>`) + `verify-theme.cjs`.
+D-16 da Fase 19 suspensa. 1 auto-fix: `eslint-disable` no `useEffect(()=>setMounted(true))` (4ª
+ocorrência do mesmo falso-positivo do React Compiler). Executor bateu no limite de sessão DEPOIS
+de commitar as 3 tasks — orquestrador fechou o tracking. Security 0 threats, verification passed
+5/5 (code+data). `sonner` passou a respeitar o tema de brinde.
+
+**Fase 21 — Exportar CSV.** Módulo puro `src/lib/lead-csv-export.ts` (DOM-free: `buildLeadsCsv`
+/`leadRowToCsvRecord`/`sanitizeCsvCell`/`leadsCsvFilename`; BOM UTF-8 + `;`; guard de CSV
+injection prefixando `'`) + harness `.cjs` 38 asserções + 2 mutações. `LeadRow` ganhou
+`motivoPerdaNome`. Botão "Exportar CSV" na toolbar → `table.getSortedRowModel().rows` (todas as
+filtradas+ordenadas, todas as páginas). `downloadCsv` (Blob + `<a>`) na toolbar. **EXPORT-02 do
+REQUIREMENTS foi corrigido** (falava de "busca"/filtro "origem" que não existem na `/leads`).
+plan-checker PASS (3 concerns documentados). Security 0 threats, verification passed 4/4 (code+data).
+</details>
 
 <details>
 <summary>Histórico — Fase 19 (Marca e Identidade Visual) FECHADA 2026-09-03</summary>

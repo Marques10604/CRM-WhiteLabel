@@ -178,6 +178,48 @@
 
 ---
 
+## Milestone: v1.6 — Dark Mode + Exportar CSV
+
+**Shipado:** 2026-09-04
+**Fases:** 2 (Fase 20-21) | **Planos:** 2 | **Commits:** 25 | **Sessões:** ~1 dia (2026-09-03 → 2026-09-04) | **Ship:** push direto para `main` (sem PR), tag `v1.6`
+
+### O que foi construído
+- **Fase 20** — toggle de dark mode. `ThemeProvider` (next-themes, já era dependência via `sonner`) na raiz + switch sol/lua no rodapé da sidebar. Persiste em `localStorage` (100% da lib), 1º acesso segue o SO, sem flash de cor errada (`suppressHydrationWarning` + script pré-paint + `disableTransitionOnChange` + guard `mounted` com placeholder de altura reservada). Os tokens `.dark` já vinham prontos e verificados WCAG AA 30/30 da Fase 19 — D-16 daquela fase foi suspensa. `verify-theme.cjs` guarda a fiação dos 4 arquivos.
+- **Fase 21** — exportar CSV da lista de leads. Módulo puro `src/lib/lead-csv-export.ts` (DOM-free, testável por harness `.cjs`): BOM UTF-8 + delimitador `;` para Excel pt-BR, guard OWASP de formula injection (prefixa `'` em `= + - @`), 14 colunas legíveis (nicho/motivo por nome, valor em reais, datas `dd/MM/yyyy`). Botão na toolbar → `table.getSortedRowModel().rows` (todas as filtradas+ordenadas, todas as páginas). `downloadCsv` (Blob + `<a>`) na toolbar, único código DOM. `LeadRow` ganhou `motivoPerdaNome`. Harness com 38 asserções + 2 testes de mutação. **Zero API route** — o CRM continua "só Server Actions".
+
+### O que funcionou bem
+- **Modo enxuto foi a decisão certa.** O usuário pediu "milestone pequeno" e escolheu pular discuss/research/UI-SPEC/Nyquist/pattern-mapper nas 2 fases. As fases eram genuinamente pequenas (2-3 arquivos, deps já instaladas, padrões conhecidos) — o pipeline completo teria sido cerimônia. Manteve threat model + planner + plan-checker, que são baratos e pegaram coisa real.
+- **Plan-checker pagou nas 2 fases.** Fase 20: 2 concerns reais (rótulo `tdd` sem red-first; placeholder de hidratação sem altura reservada → nudge de layout). Fase 21: 3 concerns (todos "documentar no SUMMARY", mas úteis). Nenhum bloqueou, mas todos melhoraram o resultado.
+- **Módulo puro + trigger DOM separado (Fase 21).** `lead-csv-export.ts` DOM-free → testável por harness `.cjs` em Node sem navegador. É o que tornou a verificação code+data possível para uma feature de UI. 38 asserções + 2 testes de mutação (BOM, `sanitizeCsvCell`).
+- **`next-themes` "meio instalado" há meses.** Estava em `package.json` desde o scaffold do shadcn (o `sonner` importa `useTheme`), mas sem `ThemeProvider`. A Fase 20 só ativou o que já estava lá — zero `npm install`. E o `check:contrast` da Fase 19 já tinha verificado os tokens `.dark` sabendo que um dia seriam ligados.
+- **Recuperação de rate-limit da Fase 20.** O executor bateu no limite de sessão (429) DEPOIS de commitar as 3 tasks atômicas. O orquestrador fechou SUMMARY/STATE/ROADMAP e reverificou o portão por conta própria. Commits atômicos por task = fase resiliente a interrupção sem handoff.
+
+### O que foi inineficiente
+- **O CLI `milestone.complete` contou o repo inteiro** — reportou "21 fases / 65 planos / 144 tasks" para um milestone de 2 fases, e gerou uma entrada de MILESTONES.md com accomplishments de TODAS as fases (16-21 e antigas). Teve que ser reescrita à mão. 2º milestone seguido que o CLI erra a entrada (no v1.5 gerou fragmentos cortados; no v1.6 contou tudo).
+- **Ordem errada no `/gsd-complete-milestone`** — reorganizei o ROADMAP.md ANTES de chamar o CLI, então o archive `v1.6-ROADMAP.md` pegou o roadmap já colapsado (sem o detalhe das fases 20/21). Tive que acrescentar o detalhe no fim do archive à mão. O workflow diz "CLI archives as-is, THEN reorganize" — segui invertido.
+- **EXPORT-02 do REQUIREMENTS estava errado** — falava de "filtros (nicho, etapa, **origem**) e a **busca**", mas a `/leads` não tem busca textual nem filtro de origem. Só se descobriu ao ler o código da toolbar antes de planejar. Corrigido (honestidade, não scope change), mas mostra que o requisito foi escrito sem olhar a tela real.
+
+### Padrões estabelecidos
+- **Wrapper client fino de lib de terceiros**: `"use client"` + `React.ComponentProps<typeof Lib>` + passthrough puro. Isola o `"use client"` num arquivo de ~10 linhas; o `layout.tsx` (server) só importa.
+- **Guard `mounted` + placeholder de altura reservada**: para qualquer botão/indicador que dependa de estado só-cliente num layout de dimensão fixa — o placeholder usa a MESMA className base + spacer de ícone + `<span opacity-0>` para reservar a linha de texto.
+- **Export de tabela client-side = módulo puro + trigger DOM separado**: `lib/*-export.ts` (funções puras) + `downloadCsv(filename, text)` no componente do botão. A pureza é o que torna o teste code+data possível sem navegador.
+- **`getSortedRowModel().rows` para "exportar o que está filtrado"**: no TanStack v8 é core → filtered → sorted, pré-paginação — o modelo certo para "tudo que passa nos filtros, na ordem atual" (`getRowModel()` daria só a página visível).
+- **Nome de FK no `LeadRow` via Map no `data` useMemo**: `new Map(entidades.map(e => [e.id, e.nome]))` + `.get(fk) ?? fallback`. A prop vem SEM filtro de `deletedAt` (pra resolver FK apontando pra linha soft-deletada). 2ª ocorrência (após `nichoNome`) — vira padrão.
+
+### Lições principais
+1. **Milestone pequeno + modo enxuto funciona** — 2 fases, 2 planos, ~1 dia, plan-checker mantido. Escopar como "só 2 utilitários" desde o PROJECT.md e pular research/UI-SPEC foi proporcional.
+2. **O CLI `milestone.complete` não é confiável neste repo** — sempre reescrever a entrada do MILESTONES.md à mão, e chamar o CLI ANTES de reorganizar o ROADMAP.
+3. **Ler o código da tela antes de planejar pega requisito errado** — o EXPORT-02 falava de filtros que não existem. 5 minutos de leitura de `lead-table-toolbar.tsx` economizaram um plano com premissa furada.
+4. **Verificação code+data cobre lógica de biblioteca bem documentada** — o plan-checker validou o pipeline do TanStack lendo a doc, sem rodar o app. O que fica pro navegador é só a confirmação ocular (baixa? abre no Excel? troca o tema ao vivo?).
+5. **Dependência "meio instalada" é dívida silenciosa útil** — o `next-themes` sem provider por meses não custou nada e a Fase 19 já tinha verificado os tokens `.dark` de olho no futuro. Preparar o terreno numa fase e ligar noutra funcionou.
+
+### Observações de custo
+- Mix de modelo: planner Opus, executor + plan-checker Sonnet; não medido em %
+- Sessões: ~1 dia; a Fase 20 teve rate-limit no executor (429, recuperado); a Fase 21 rodou limpa em ~17 min
+- Notável: o fechamento do milestone (`/gsd-complete-milestone`) exigiu 2 correções manuais pós-CLI (entrada do MILESTONES.md + detalhe do archive)
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -189,6 +231,7 @@
 | v1.3 | múltiplas (~29 dias) | 5 | `npm run build` virou gate normal (Turbopack); UAT de navegador via extensão Claude virou rotina (Fases 9/11/12); 1º fluxo completo secure→close→PR→merge; 3 PRs mergeados |
 | v1.4 | ~2 dias | 3 | Milestone de "rename + adições pequenas" — zero desvio de execução; fechamento via `/go-and-do`→`/close-phase`→`/gsd:complete-milestone` encadeados (adaptados ao `get-shit-done` antigo); 2 PRs mergeados; débito de UAT das Fases 04/06/08 re-reconhecido |
 | v1.5 | ~3 dias | 4 | Milestone de quitação de débito (zero feature nova); débito de UAT das Fases 1/2/4/6/8 **finalmente pago** (Fase 18, método code+data); `npm run lint` da raiz volta a exit 0 (Fase 17); marca "SOLO" + paleta OKLCH (Fase 19); host de 4GB bloqueia navegador de vez → verificação code+data vira padrão; **push direto pra `main`, sem PR** |
+| v1.6 | ~1 dia | 2 | Milestone pequeno de propósito (2 utilitários) em modo enxuto (sem discuss/research/UI-SPEC/Nyquist); dark mode via next-themes (D-16 da Fase 19 suspensa) + export CSV client-side (módulo puro + harness); plan-checker mantido e pagou nas 2 fases; CLI `milestone.complete` errou a contagem (repo inteiro) 2º milestone seguido |
 
 ### Cumulative Quality
 
@@ -197,6 +240,7 @@
 | v1.0 | 0 (sem suíte automatizada formal) | — | 0 pacotes novos além do scaffold inicial |
 | v1.3 | 5+ harnesses `.cjs` (`test:tarefa-actions`, `test:group-by-urgency`, `test:relatorios` 38 checagens, `test:interacao-actions`, `test:compute-sequencia`) + guardas de regressão provadas por mutação | régua de urgência, agregações de relatório, Server Actions de tarefa/interação, cálculo de sequência — todos com cobertura comportamental | 0 pacotes npm novos em todo o milestone; 0 blocos novos do registry shadcn |
 | v1.5 | +3 gates de marca (`verify:brand` grep-guard de cor+nome, `verify:brand-md` estrutura, `check:contrast` WCAG AA OKLCH→sRGB real 30 pares); `npm run lint` da raiz volta a exit 0; 5 `VERIFICATION.md` retroativos (Fases 1/2/4/6/8) por code+data | cor da UI 100% tokenizada (gate); contraste AA verificado light+dark; comportamento shipado de 5 fases antigas auditado | 0 pacotes npm novos; toda a Fase 19 é CSS + classes + 3 scripts `node:fs` |
+| v1.6 | +`verify:theme` (guarda a fiação de 4 arquivos do dark mode); +`test:lead-csv-export` (38 asserções + 2 testes de mutação para a serialização CSV) | fiação de tema guardada; serialização CSV (colunas legíveis, BOM, guard de injection) com cobertura comportamental | 0 pacotes npm novos (next-themes e PapaParse já instalados) |
 
 ### Top Lessons (Verified Across Milestones)
 

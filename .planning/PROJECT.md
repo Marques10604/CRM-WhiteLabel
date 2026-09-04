@@ -1,26 +1,20 @@
 # CRM de Leads
 
-## Current Milestone: v1.6 Dark Mode + Exportar CSV
+## Current Milestone: a definir (v1.7)
 
-**Goal:** Dois utilitários pequenos que faltavam — o admin escolhe claro/escuro e leva os leads pra fora do sistema em CSV. Milestone deliberadamente pequeno; nada estrutural, zero mudança de schema.
+**Último milestone shipado:** v1.6 Dark Mode + Exportar CSV — 2026-09-04 (Fases 20-21).
 
-**Target features:**
-- **Toggle de dark mode** no rodapé da sidebar (switch sol/lua), visível em toda tela; lembra a escolha (localStorage) e respeita a preferência do sistema no primeiro acesso. `ThemeProvider` + classe `.dark` no `<html>` — os tokens `.dark` já existem e foram verificados (contraste 30/30) na Fase 19.
-- **Exportar CSV da lista de leads** — botão "Exportar CSV" em `/leads` que baixa exatamente o que está na tela, respeitando filtros (nicho, etapa, origem) e busca ativos; colunas legíveis (nicho e motivo de perda como nome, datas formatadas).
+Rodar `/gsd-new-milestone` para definir a direção e o roadmap do v1.7. **Direção do usuário (2026-09-04):** o alvo é um "CRM com o Prospector embutido" — disparos + organização de leads + nichos testáveis numa coisa só (NÃO 2 produtos separados como o planejamento parado do Prospector assume). O Prospector Inteligente AI fica como **semente parada** (planejamento completo em `C:\Users\Vencedor\Desktop\Prospector Inteligente AI`, parecer em `PARECER-E-COORDENADAS-2026-09-04.md`); reabrir a conversa de arquitetura antes de qualquer construção.
 
-**Key context:** a direção do usuário é "freela de build com IA + conteúdo primeiro"; o SOLO já está em uso real, então o v1.6 é pequeno de propósito. `next-themes` já está no projeto (só usado pelo `sonner` hoje). Fases numeram de 20.
-
-**Último milestone shipado:** v1.5 Quitação de Débito e Auditoria Retroativa — 2026-09-03 (Fases 16-19).
+Candidatos: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM (HANDOFF-01..03).
 
 ## Current State
 
-**Shipado:** v1.5 Quitação de Débito e Auditoria Retroativa (2026-09-03) — Fases 16-19, 15 planos, 98 commits. Push direto para `main` (sem PR — projeto solo). Tag `v1.5`.
+**Shipado:** v1.6 Dark Mode + Exportar CSV (2026-09-04) — Fases 20-21, 2 planos, 25 commits, ~1 dia. Push direto para `main` (sem PR — projeto solo). Tag `v1.6`.
 
-**O que o v1.5 entregou (zero feature funcional nova — só quitação de débito + marca):**
-- **Débito de code review quitado** (Fase 16) — os 5 achados do `15-REVIEW.md` fechados; `interesse` só-espaços agora grava `NULL` no create e no update (o `=== ""` era antes do trim — WR-01 do v1.4 finalmente resolvido). Code review pegou 1 blocker (CR-01): mudou o limite de 500 chars de code units para code points.
-- **`npm run lint` da raiz volta a exit 0** (Fase 17) — dos 457 erros pré-existentes, ~98% era ruído de ferramental (`.claude/**` no `globalIgnores`, override `.cjs`, worktree órfão removido, 4 `eslint-disable` documentados em `src/`).
-- **Comportamento shipado das Fases 1/2/4/6/8 verificado** (Fase 18) — UAT ao vivo bloqueado pelo host de 4GB → pivô para **code+data** (leitura de superfície + query só-SELECT no `data/crm.db` + 12 harnesses). `01/02-HUMAN-UAT.md` autorados do zero; os 5 `VERIFICATION.md` → `passed`; 0 issues de runtime.
-- **O CRM virou "SOLO"** (Fase 19) — nome + ressalva de colisão em `brand.md`, paleta "Corrente Funda · Sóbria" (navy + teal, OKLCH light+dark) via `/brand-design`, favicon próprio. 33 arquivos migrados de cor hardcoded → token shadcn; escala `--status-*` semântica criada à parte da marca. Code review: 2 warnings de UX corrigidos, 2 de gate frouxo aceitos como débito.
+**O que o v1.6 entregou (milestone pequeno de propósito — 2 utilitários que faltavam):**
+- **Toggle de dark mode** (Fase 20) — switch sol/lua no rodapé da sidebar, visível em toda tela, persiste (localStorage via `next-themes`), 1º acesso segue o SO, sem flash de cor errada (`suppressHydrationWarning` + script pré-paint). Os tokens `.dark` já vinham prontos e verificados WCAG AA 30/30 da Fase 19 — D-16 daquela fase foi suspensa. Bônus: o `sonner` (toast) já chamava `useTheme()` e passou a respeitar o tema.
+- **Exportar CSV da lista de leads** (Fase 21) — botão "Exportar CSV" na toolbar de `/leads` que baixa `table.getSortedRowModel().rows` (= todas as linhas filtradas + ordenadas, todas as páginas). Módulo puro `src/lib/lead-csv-export.ts` (BOM UTF-8 + delimitador `;` pro Excel pt-BR, guard de CSV injection prefixando `'`, colunas legíveis: nicho/motivo por nome, valor em reais, datas `dd/MM/yyyy`). 100% client-side — nenhuma API route nova (o CRM continua "só Server Actions"). Harness `.cjs` com 38 asserções + 2 testes de mutação.
 
 **Próximo milestone:** a definir via `/gsd-new-milestone`.
 
@@ -32,6 +26,7 @@
 - **v1.2 Follow-up Automático** (2026-08-01, Fases 6-7) — auto-avanço Novo→Contatado ao abrir WhatsApp, contador de tentativas, `/configuracoes` de dias-parado por etapa.
 - **v1.3 Qualificação e Histórico de Leads** (2026-08-30, Fases 8-12) — origem governada, timeline de interações, sequência de follow-up escalonada, painel `/relatorios`, agenda / tarefas soltas.
 - **v1.4 CRM Genérico Multi-Nicho — despivô** (2026-08-31, Fases 13-15) — `sub-nicho → nicho` em toda a camada de código (nomes físicos do banco intocados, D-01), copy da UI neutralizada, filtro de intervalo customizado em `/relatorios`, campo "interesse / serviço desejado" no lead.
+- **v1.5 Quitação de Débito e Auditoria Retroativa** (2026-09-03, Fases 16-19) — code review da Fase 15 fechado, `npm run lint` da raiz → 0, Fases 1/2/4/6/8 auditadas por code+data, marca "SOLO" + paleta OKLCH + favicon.
 
 </details>
 
@@ -75,12 +70,14 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Marca e identidade visual — nome de produto "SOLO" (`brand.md` com racional + ressalva de colisão), paleta "Corrente Funda · Sóbria" (shadcn CSS vars OKLCH light+dark) via `/brand-design`, tipografia Geist via `next/font`, favicon próprio, "CRM de Leads" renomeado em toda superfície visível — v1.5 (Fase 19), BRAND-01/02/03
 - ✓ Escala de cor semântica `--status-*` (neutral/info/warning/success/danger, light+dark, WCAG AA) separada da paleta de marca; 33 arquivos migrados de cor hardcoded → token shadcn — v1.5 (Fase 19), D-08
 - ✓ Comportamento shipado das Fases 1/2/4/6/8 verificado (método code+data); `npm run lint` da raiz volta a exit 0 — v1.5 (Fases 17-18), AUDIT-01..05 / LINT-01
+- ✓ Toggle de dark mode (claro / escuro / segue o sistema) no rodapé da sidebar, persistido em `localStorage`, sem flash de cor errada no carregamento — v1.6 (Fase 20), THEME-01..04
+- ✓ Exportar a lista de leads (filtrada + ordenada) para CSV legível — botão na toolbar de `/leads`, geração client-side, BOM UTF-8 + `;` para Excel pt-BR, nicho e motivo de perda por nome — v1.6 (Fase 21), EXPORT-01..03
 
 ### Active
 
-**Milestone v1.6 Dark Mode + Exportar CSV** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: toggle de dark mode no rodapé da sidebar (persistido, respeita preferência do sistema) e botão "Exportar CSV" em `/leads` respeitando os filtros ativos. Milestone pequeno, zero mudança de schema.
+**Nenhum milestone ativo.** Rodar `/gsd-new-milestone` para definir o v1.7.
 
-Candidatos adiados para v1.7+: handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir), teste de nicho formal (CAMPANHA-01), resto do backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal).
+Candidatos para o v1.7 (ver §Current Milestone acima): backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Prospector→CRM (HANDOFF-01..03). Direção de fundo do usuário: fundir Prospector + CRM.
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -107,7 +104,7 @@ Candidatos adiados para v1.7+: handoff Prospector→CRM (HANDOFF-01..03, quando 
 - Usuário é o próprio profissional (admin), atendendo leads de diferentes nichos (hoje: empresa de serviços de automação/IA; nichos rotativos vindos do futuro Prospector)
 - Leads chegam em lote via CSV entregue por um cowork parceiro; abordagem via Instagram e WhatsApp
 - Hoje os leads eram organizados em planilha do Google Sheets — processo desorganizado, esquecimento frequente de follow-up
-- **Estado pós-v1.5 (2026-09-03):** app roda localmente (`localhost:3000`), ~11.600 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form. Repo `github.com/Marques10604/CRM-WhiteLabel`, branch `main`. Marca: nome "SOLO" (`package.json` `name: solo`, `brand.md` na raiz), paleta OKLCH em `globals.css` (`:root` + `.dark`), favicon `src/app/icon.svg`. Toda cor da UI vem de token shadcn (gate `verify:brand`); contraste WCAG AA verificado por `check:contrast` (30/30). Fases 16-19 foram para `main` por push direto (sem PR — projeto solo).
+- **Estado pós-v1.6 (2026-09-04):** app roda localmente (`localhost:3000`), ~11.800 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form + `next-themes` (dark mode) + PapaParse (import + export CSV). Repo `github.com/Marques10604/CRM-WhiteLabel`, branch `main`, tag `v1.6`. Marca "SOLO"; paleta OKLCH `:root` + `.dark` **agora alternável pela UI** (toggle no rodapé da sidebar). Toda cor da UI vem de token shadcn (`verify:brand`); contraste WCAG AA por `check:contrast` (30/30). Fases 16-21 foram para `main` por push direto (sem PR — projeto solo).
 - **Divergência lógico↔físico deliberada (D-01, Fase 13):** o Drizzle mapeia `nichos = sqliteTable("subnichos")` / `nichoId: integer("subnicho_id")` — o código diz "nicho", o banco continua "subnicho". Doc-comment no `schema.ts` registra. Uma migração de rename físico fica para quando/se houver outro motivo pra tocar o schema.
 - **Fluxo GSD maduro:** `/gsd-secure-phase` → `/close-phase` → PR desde a Fase 12; UAT de navegador real (extensão Claude no Chrome, nível DOM + verdade no `data/crm.db`) nas Fases 9/11/12/13/14/15. **A partir da Fase 18, o host de 4GB deixou de rodar `dev` + Chrome + sessão do agente junto** — a verificação passou a ser por **code+data** (leitura de superfície + query só-SELECT no `data/crm.db` + harnesses `test:*`/`verify:*`); a confirmação puramente visual fica diferida para uma sessão com navegador.
 - **Débito conhecido resolvido no v1.5:** as Fases 1/2/4/6/8 foram auditadas retroativamente (Fase 18) — os 5 `VERIFICATION.md` agora `passed`, 0 issues de runtime. `npm run lint` da raiz volta a exit 0 (Fase 17).
@@ -146,7 +143,10 @@ Candidatos adiados para v1.7+: handoff Prospector→CRM (HANDOFF-01..03, quando 
 | Nome do produto = "SOLO", registrado como **descartável** em `brand.md` (ressalva de colisão verbatim: Salesboom Solo CRM / SoloCRM / gosolo.io) | Nome curto que vira verbo, casa com o app solo; a colisão é real, então a decisão vem com data de validade explícita | — Pendente — trocar antes de qualquer movimento de produto real |
 | Escala `--status-*` (cor de status de funil) definida **à parte** da paleta de marca (D-08) | Status precisa ser mutuamente distinguível e estável; a marca é trocável. Acoplar os dois travaria um ou outro | ✓ Good — Fase 19; 5 famílias light+dark, todas WCAG AA |
 | Refactor mecânico cor→token = **só strings de `className`**, `git diff` auditável linha a linha | 33 arquivos, alguns com lógica sensível (transação de WhatsApp, `startTransition`, `stopPropagation`); a disciplina é o que torna o code review viável | ⚠️ Revisit — o diff perfeito não impede erro de **julgamento de design**: 2 warnings de UX (token de fundo-de-badge onde precisava de peso) passaram e foram pegos só no code review |
-| Fases 16-19 para `main` por **push direto**, sem PR | Projeto solo, sem revisor — PR é cerimônia. O code review roda como etapa do GSD, não como review de PR | ✓ Good — consistente nas 4 fases do v1.5; tag `v1.5` |
+| Fases 16-21 para `main` por **push direto**, sem PR | Projeto solo, sem revisor — PR é cerimônia. O code review roda como etapa do GSD, não como review de PR | ✓ Good — consistente do v1.5 ao v1.6; tags `v1.5`/`v1.6` |
+| Dark mode via `next-themes` (`attribute="class"` + `defaultTheme="system"`) — a constraint D-16 da Fase 19 ("sem ThemeProvider/toggle") foi suspensa pelo v1.6 | Os tokens `.dark` já estavam prontos e verificados (Fase 19); ligar o toggle é `ThemeProvider` + 1 componente, não feature estrutural. `next-themes` já era dependência (via `sonner`) | ✓ Good — Fase 20; persistência 100% da lib, zero código de estado no projeto |
+| Export de CSV 100% client-side (`table.getSortedRowModel().rows` → módulo puro → `Blob` download) — nenhuma API route | Os dados já estão na tabela; o CRM continua "só Server Actions". Módulo puro DOM-free = testável por harness `.cjs` sem navegador | ✓ Good — Fase 21; harness com 38 asserções + 2 testes de mutação |
+| `sanitizeCsvCell` mitiga CSV/formula injection prefixando `'` em células que começam com `= + - @` | Parte dos dados (nome, notas) vem de CSV de um parceiro, não só do admin. Trade-off: o `'` fica visível em editor de texto puro (oculto no Excel/Sheets) | ✓ Good — Fase 21, D-21-04 |
 
 ## Evolution
 
@@ -157,4 +157,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-09-03 after starting milestone v1.6 (Dark Mode + Exportar CSV)*
+*Last updated: 2026-09-04 after v1.6 milestone (Dark Mode + Exportar CSV)*

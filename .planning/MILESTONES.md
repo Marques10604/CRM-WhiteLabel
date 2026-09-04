@@ -1,5 +1,26 @@
 # Milestones
 
+## v1.6 Dark Mode + Exportar CSV (Shipped: 2026-09-04)
+
+**Phases completed:** 2 phases (20-21), 2 plans, 6 tasks · 25 commits · 2026-09-03 → 2026-09-04
+
+**Delivered:** dois utilitários pequenos que faltavam — o admin escolhe claro/escuro e leva os
+leads pra fora do sistema em CSV. Milestone deliberadamente pequeno; zero mudança de schema,
+zero feature estrutural, nenhuma dependência nova.
+
+**Key accomplishments:**
+
+- **Fase 20 — toggle de dark mode.** `ThemeProvider` (next-themes, já era dependência via `sonner`) na raiz + switch sol/lua no rodapé da sidebar, visível em toda tela. Persiste em `localStorage` (100% da lib), 1º acesso segue o esquema do SO, sem flash de cor errada (`suppressHydrationWarning` + script pré-paint + guard `mounted`). Os tokens `.dark` já vinham prontos e verificados WCAG AA 30/30 da Fase 19 — a constraint D-16 daquela fase foi suspensa. Bônus: o `<Toaster />` do `sonner` já chamava `useTheme()` e passou a receber o tema real.
+- **Fase 21 — exportar CSV da lista de leads.** Botão "Exportar CSV" na toolbar de `/leads` que baixa `table.getSortedRowModel().rows` (todas as linhas filtradas + ordenadas, todas as páginas — não só a página de 25). Módulo puro `src/lib/lead-csv-export.ts` (DOM-free, testável): BOM UTF-8 + delimitador `;` para abrir certo no Excel pt-BR, guard OWASP de formula injection (prefixa `'` em `= + - @`), 14 colunas legíveis (nicho e motivo de perda por nome, valor em reais, datas `dd/MM/yyyy`). 100% client-side via PapaParse já instalado — nenhuma API route nova (o CRM continua "só Server Actions"). Harness `.cjs` com 38 asserções + 2 testes de mutação.
+
+**Known deferred items at close:** 22 (see STATE.md Deferred Items) — os mesmos do v1.5: 12 quick_tasks (falso positivo do checker), 5 todos de backlog PME, 2 seeds dormentes, 3 uat_gaps já resolvidos (Fases 05/07/19, 0 cenários abertos). Nenhum é bug real. Sem `v1.6-MILESTONE-AUDIT.md` — dispensado (milestone pequeno, ambas as fases verificadas por code+data).
+
+**Débito técnico incorrido:** nenhum novo. Herdado que continua: WR-03/WR-04 da Fase 19 (2 gates `.cjs` frouxos), 8 quick tasks de UI, confirmação puramente visual das Fases 19/20/21 (host 4GB não roda dev + navegador + sessão).
+
+**Processo:** as 2 fases foram para `main` por push direto (sem PR — projeto solo, code review roda como etapa do GSD). Modo enxuto (sem discuss/research/UI-SPEC/Nyquist/pattern-mapper) — escolha do usuário para um milestone pequeno. Tag `v1.6`. A Fase 20 teve o executor batendo no limite de sessão DEPOIS de commitar as 3 tasks — o orquestrador fechou o tracking e reverificou o portão.
+
+---
+
 ## v1.5 Quitação de Débito e Auditoria Retroativa (Shipped: 2026-09-03)
 
 **Phases completed:** 4 phases (16-19), 15 plans, 28 tasks · 98 commits · 2026-09-01 → 2026-09-03
