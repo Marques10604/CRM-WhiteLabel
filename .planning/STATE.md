@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 ## Current Position
 
-Phase: 20 — Tema / Dark Mode (não iniciada)
-Plan: —
-Status: Roadmap v1.6 criado — pronto para `/gsd-plan-phase 20`
-Last activity: 2026-09-04 — Roadmap v1.6 criado (Fases 20-21, 7 requisitos, 100% cobertura)
+Phase: 20 — Tema / Dark Mode — PLANEJADA (modo enxuto)
+Plan: 20-01 (1 plano, 3 tasks) · plan-checker PASS · pronto para `/gsd-execute-phase 20`
+Status: Fase 20 planejada — sem discuss/research/UI-SPEC por decisão do usuário (milestone pequeno)
+Last activity: 2026-09-03 — Fase 20 planejada
 
 ## Performance Metrics
 
