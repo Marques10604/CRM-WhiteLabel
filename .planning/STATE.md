@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
-status: planning
-last_updated: "2026-09-04T12:00:00.000Z"
+status: verifying
+last_updated: "2026-09-04T01:06:50.627Z"
 last_activity: 2026-09-04
 progress:
   total_phases: 2
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Fase 20 — Tema / Dark Mode (v1.6, roadmap criado)
+**Current focus:** Phase 20 — Tema / Dark Mode
 
 ## Current Position
 
-Phase: 20 — Tema / Dark Mode — PLANEJADA (modo enxuto)
-Plan: 20-01 (1 plano, 3 tasks) · plan-checker PASS · pronto para `/gsd-execute-phase 20`
-Status: Fase 20 planejada — sem discuss/research/UI-SPEC por decisão do usuário (milestone pequeno)
-Last activity: 2026-09-03 — Fase 20 planejada
+Phase: 20 (Tema / Dark Mode) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-09-04
 
 ## Performance Metrics
 
@@ -523,7 +523,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-03T15:37:09.420Z
+Last session: 2026-09-04T01:06:50.604Z
 
 **O que foi feito nesta sessão:**
 
