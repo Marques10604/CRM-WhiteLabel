@@ -20,7 +20,7 @@ Os tokens `.dark` já existem em `globals.css` e foram verificados na Fase 19 (c
 ### Exportar CSV
 
 - [ ] **EXPORT-01**: O admin exporta a lista de leads para um arquivo CSV a partir de `/leads`, por um botão "Exportar CSV"
-- [ ] **EXPORT-02**: O CSV exportado reflete os filtros (nicho, etapa, origem) e a busca aplicados na tabela naquele momento — não a base inteira
+- [ ] **EXPORT-02**: O CSV exportado reflete os filtros aplicados na tabela naquele momento (nicho, etapa, intervalo de follow-up — os que existem hoje na toolbar de `/leads`) — não a base inteira. Nota: a `/leads` NÃO tem busca textual nem filtro de "origem"; adicionar filtros novos está fora do escopo deste milestone pequeno.
 - [ ] **EXPORT-03**: As colunas do CSV são legíveis por humano — nicho e motivo de perda como nome (não id), datas formatadas, uma linha por lead
 
 ## Future Requirements
