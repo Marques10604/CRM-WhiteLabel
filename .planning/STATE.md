@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Dark Mode + Exportar CSV
 status: verifying
-last_updated: "2026-09-04T11:21:48.464Z"
+last_updated: "2026-09-04T11:58:47.168Z"
 last_activity: 2026-09-04
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 50
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 20 — Tema / Dark Mode
+**Current focus:** Phase 21 — Exportar CSV da Lista de Leads
 
 ## Current Position
 
-Phase: 20 (Tema / Dark Mode) — FECHADA E SHIPADA
-Plan: 1 of 1 · security 0 threats · verification passed 5/5 (code+data) · learnings extraídos
-Status: Fase 20 shipada (push direto p/ main) — próximo: /gsd-plan-phase 21 (Exportar CSV)
+Phase: 21 (Exportar CSV da Lista de Leads) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
 Last activity: 2026-09-04
 
 ## Performance Metrics
@@ -100,6 +100,7 @@ Last activity: 2026-09-04
 | Phase 19 P04 | 18min | 3 tasks | 14 files |
 | Phase 19 P05 | 16min | 3 tasks | 14 files |
 | Phase 19 P06 | 7min | 3 tasks | 3 files |
+| Phase 21 P01 | 17min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -209,6 +210,7 @@ Recent decisions affecting current work:
 - [Phase 19]: [Phase 19-04]: refactor cor→token dos 14 arquivos de pipeline/lista-de-leads/wizard-CSV — só strings de className (41 ocorrencias), zero mudanca de logica/handlers; hover:bg-[#F4F4F5] de superficie interativa → hover:bg-accent (nao bg-muted), alinhado ao idioma isOver→bg-accent do 19-03; whatsapp-send-button usava teal de MARCA (nao o verde #22C55E) → text-primary — Refactor mecanico BRAND-02/D-06; verify:brand cai 88→47 findings, os 14 arquivos saem da lista; 19-05 herda lista fechada de 14 arquivos + package.json
 - [Phase ?]: [Phase 19-05]: refactor cor→token fechado nos 13 arquivos restantes + rename CRM de Leads→SOLO em 3 superfícies (layout title/description, app-sidebar header+ícone S, package.json name=solo); verify:brand exit 0 SEM RESSALVA pela 1ª vez na fase; overlay do dialog bg-black/10→bg-foreground/10 (converter, não allowlistar); escopo do rename travado por D-05
 - [Phase ?]: [Phase 19-06] favicon da marca = src/app/icon.svg estatico (rx=7 #197076 + S #fbfefe), cores hex literais; favicon.ico removido; Fase 19 fechada: 12 sensores verdes, D-19 por code+data 26/26 (host 4GB)
+- [Phase ?]: Fase 21 (EXPORT-01/02/03): exportacao de /leads 100% client-side via table.getSortedRowModel() + PapaParse ja instalado; modulo puro lead-csv-export.ts (DOM-free, BOM UTF-8 + delimitador ;, guard OWASP de formula injection), trigger de download isolado na toolbar; LeadRow.motivoPerdaNome por Map; verificacao code+data (host 4GB), UAT de download/Excel diferida nao-bloqueante; ship push direto na main
 
 ### Pending Todos
 
@@ -523,7 +525,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-04T01:06:50.604Z
+Last session: 2026-09-04T11:58:47.132Z
 
 **O que foi feito nesta sessão:**
 

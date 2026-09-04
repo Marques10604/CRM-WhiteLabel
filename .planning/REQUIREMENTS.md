@@ -19,9 +19,9 @@ Os tokens `.dark` já existem em `globals.css` e foram verificados na Fase 19 (c
 
 ### Exportar CSV
 
-- [ ] **EXPORT-01**: O admin exporta a lista de leads para um arquivo CSV a partir de `/leads`, por um botão "Exportar CSV"
-- [ ] **EXPORT-02**: O CSV exportado reflete os filtros aplicados na tabela naquele momento (nicho, etapa, intervalo de follow-up — os que existem hoje na toolbar de `/leads`) — não a base inteira. Nota: a `/leads` NÃO tem busca textual nem filtro de "origem"; adicionar filtros novos está fora do escopo deste milestone pequeno.
-- [ ] **EXPORT-03**: As colunas do CSV são legíveis por humano — nicho e motivo de perda como nome (não id), datas formatadas, uma linha por lead
+- [x] **EXPORT-01**: O admin exporta a lista de leads para um arquivo CSV a partir de `/leads`, por um botão "Exportar CSV"
+- [x] **EXPORT-02**: O CSV exportado reflete os filtros aplicados na tabela naquele momento (nicho, etapa, intervalo de follow-up — os que existem hoje na toolbar de `/leads`) — não a base inteira. Nota: a `/leads` NÃO tem busca textual nem filtro de "origem"; adicionar filtros novos está fora do escopo deste milestone pequeno.
+- [x] **EXPORT-03**: As colunas do CSV são legíveis por humano — nicho e motivo de perda como nome (não id), datas formatadas, uma linha por lead
 
 ## Future Requirements
 
@@ -69,9 +69,9 @@ Preenchida na criação do roadmap (2026-09-04). Fase 20 e Fase 21 são independ
 | THEME-02 | Phase 20 | Complete |
 | THEME-03 | Phase 20 | Complete |
 | THEME-04 | Phase 20 | Complete |
-| EXPORT-01 | Phase 21 | Pending |
-| EXPORT-02 | Phase 21 | Pending |
-| EXPORT-03 | Phase 21 | Pending |
+| EXPORT-01 | Phase 21 | Complete |
+| EXPORT-02 | Phase 21 | Complete |
+| EXPORT-03 | Phase 21 | Complete |
 
 **Coverage:**
 - v1.6 requirements: 7 total

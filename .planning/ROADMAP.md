@@ -133,7 +133,7 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
   3. Abrindo o CSV numa planilha: cada lead é uma linha, nicho e motivo de perda aparecem como nome (não id), e as datas estão formatadas de forma legível.
   4. O arquivo abre corretamente em Excel / Google Sheets — separador e codificação reconhecidos, acentos preservados.
 **Plans**: 1 plano
-- [ ] 21-01-PLAN.md — módulo puro de serialização CSV (BOM UTF-8 + `;`, colunas legíveis, guard de CSV injection) + `motivoPerdaNome` no `LeadRow` + botão "Exportar CSV" na toolbar de `/leads`
+- [x] 21-01-PLAN.md — módulo puro de serialização CSV (BOM UTF-8 + `;`, colunas legíveis, guard de CSV injection) + `motivoPerdaNome` no `LeadRow` + botão "Exportar CSV" na toolbar de `/leads`
 **UI hint**: yes
 
 ## Progress
@@ -153,4 +153,4 @@ global, anexo por lead, campo de vendedor, meta mensal). Débito herdado: WR-03/
 | Fase | Planos | Status | Completada |
 |------|--------|--------|-----------|
 | 20. Tema / Dark Mode | 1/1 | Complete   | 2026-09-04 |
-| 21. Exportar CSV da Lista de Leads | 0/1 | Planned | - |
+| 21. Exportar CSV da Lista de Leads | 1/1 | Complete   | 2026-09-04 |
