@@ -14,6 +14,11 @@ export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // Guard de hidratação documentado do next-themes: o servidor não conhece o
+  // tema resolvido, então o botão só renderiza o estado real após montar no
+  // cliente. Mesmo falso-positivo do React Compiler já aceito no projeto
+  // (STATE.md decisão 07-02; lead-timeline-dialog.tsx, whatsapp-preview-dialog.tsx).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {

@@ -17,6 +17,7 @@
     "verify:brand": "node scripts/verify-no-hardcoded-colors.cjs",
     "verify:brand-md": "node scripts/verify-brand-md.cjs",
     "check:contrast": "node scripts/check-contrast.cjs",
+    "verify:theme": "node scripts/verify-theme.cjs",
     "test:lead-actions": "node scripts/test-lead-actions.cjs",
     "test:interacao-actions": "node scripts/test-interacao-actions.cjs",
     "test:mutation-guard": "node scripts/test-mutation-guard.cjs",
