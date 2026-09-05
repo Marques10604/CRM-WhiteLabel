@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: executing
-last_updated: "2026-09-05T13:29:03.450Z"
+status: verifying
+last_updated: "2026-09-05T13:41:42.697Z"
 last_activity: 2026-09-05
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 25
 ---
 
 # Project State
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 22 (campanha-de-explora-o-de-nicho) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
+Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFYING
+Plan: 2 of 2 — both complete
+Status: Phase complete — ready for verification
 Last activity: 2026-09-05
 
 ## Performance Metrics
@@ -102,6 +102,7 @@ Last activity: 2026-09-05
 | Phase 19 P06 | 7min | 3 tasks | 3 files |
 | Phase 21 P01 | 17min | 3 tasks | 6 files |
 | Phase 22 P01 | 15min | 3 tasks | 7 files |
+| Phase 22 P02 | 8min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -214,6 +215,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 19-06] favicon da marca = src/app/icon.svg estatico (rx=7 #197076 + S #fbfefe), cores hex literais; favicon.ico removido; Fase 19 fechada: 12 sensores verdes, D-19 por code+data 26/26 (host 4GB)
 - [Phase ?]: Fase 21 (EXPORT-01/02/03): exportacao de /leads 100% client-side via table.getSortedRowModel() + PapaParse ja instalado; modulo puro lead-csv-export.ts (DOM-free, BOM UTF-8 + delimitador ;, guard OWASP de formula injection), trigger de download isolado na toolbar; LeadRow.motivoPerdaNome por Map; verificacao code+data (host 4GB), UAT de download/Excel diferida nao-bloqueante; ship push direto na main
 - [Phase ?]: [Fase 22-01]: tabela campanhas criada via migração manual .cjs idempotente contra data/crm.db (44 leads intactos, rodada 2x); estado nasce 'explorando' e fica FORA dos schemas Zod (mudança é escopo Fase 24); metaConversao é texto livre; leads.campanhaId nullable FK set null; Server Actions com molde nichoExists+isForeignKeyViolation de lead-actions.ts
+- [Phase ?]: [Fase 22-02]: /campanhas (listagem + criação, estado vazio com CTA) e /campanhas/[id] (detalhe minimalista: nicho+oferta, estado, meta, janela) entregues + item "Campanhas" na sidebar. CampanhaFormDialog é CRIAÇÃO-APENAS (CAMPANHA-01 só pede criar; updateCampanha do 22-01 fica sem consumidor de UI até a Fase 24). Bloco de data extraído para sub-componente JanelaField usado 2x (useState de Popover por instância). Detalhe usa leftJoin com nichos + notFound() para id não-inteiro-positivo (T-22-07) e para campanha soft-deletada (T-22-08). /campanhas/[id] minimalista de propósito — Fases 23 (diagnóstico) e 24 (veredito/painel/Mapa de Nichos) ADICIONAM seções, sem retrabalho.
 
 ### Pending Todos
 
@@ -597,7 +599,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-05T13:28:58.558Z
+Last session: 2026-09-05T13:41:42.663Z
 
 **O que foi feito nesta sessão:**
 

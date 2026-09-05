@@ -103,7 +103,7 @@ exploração de nicho, com diagnóstico de IA anti-genérico, veredito registrad
 loop de resultado real fechando com o que `/relatorios` já calcula. Zero WhatsApp, zero VPS, zero
 infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminho A escolhido).
 
-- [ ] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem
+- [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (completed 2026-09-05)
 - [ ] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido
 - [ ] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos
 - [ ] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente
