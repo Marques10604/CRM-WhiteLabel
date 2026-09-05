@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Roadmap do v1.7 criado (Fases 22-25) — pronto para `/gsd-plan-phase 22`
+**Current focus:** Fase 22 (Campanha de Exploração de Nicho) planejada — pronta para `/gsd-execute-phase 22`
 
 ## Current Position
 
 Phase: 22 of 25 (Campanha de Exploração de Nicho)
-Plan: — (ainda não planejado)
-Status: Ready to plan
-Last activity: 2026-09-04 — Roadmap v1.7 criado (Fases 22-25), REQUIREMENTS.md traceability 25/25
+Plan: 0 of 2 executed (22-01, 22-02 escritos, 0 SUMMARY.md)
+Status: Planned, ready to execute
+Last activity: 2026-09-05 — Fase 22 planejada (22-01-PLAN.md, 22-02-PLAN.md), sessão pausada antes da execução (WIP aa6b15d)
 
 ## Performance Metrics
 
