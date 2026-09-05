@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: executing
-last_updated: "2026-09-05T14:12:52.115Z"
-last_activity: 2026-09-05 -- Phase 22 planning complete
+status: verifying
+last_updated: "2026-09-05T14:33:21.892Z"
+last_activity: 2026-09-05
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
-  percent: 0
+  completed_plans: 3
+  percent: 25
 ---
 
 # Project State
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFYING
-Plan: 2 of 2 — both complete
-Status: Ready to execute
-Last activity: 2026-09-05 -- Phase 22 planning complete
+Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFYING (re-verificação)
+Plan: 3 of 3 — 22-03 (gap closure CAMPANHA-03) executado
+Status: gap fechado — pronto para re-verificação da Fase 22
+Last activity: 2026-09-05 -- 22-03-PLAN.md executado (vínculo lead→campanha)
 
 ## Performance Metrics
 
@@ -103,6 +103,7 @@ Last activity: 2026-09-05 -- Phase 22 planning complete
 | Phase 21 P01 | 17min | 3 tasks | 6 files |
 | Phase 22 P01 | 15min | 3 tasks | 7 files |
 | Phase 22 P02 | 8min | 2 tasks | 6 files |
+| Phase 22 P03 | 15min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -216,6 +217,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Fase 21 (EXPORT-01/02/03): exportacao de /leads 100% client-side via table.getSortedRowModel() + PapaParse ja instalado; modulo puro lead-csv-export.ts (DOM-free, BOM UTF-8 + delimitador ;, guard OWASP de formula injection), trigger de download isolado na toolbar; LeadRow.motivoPerdaNome por Map; verificacao code+data (host 4GB), UAT de download/Excel diferida nao-bloqueante; ship push direto na main
 - [Phase ?]: [Fase 22-01]: tabela campanhas criada via migração manual .cjs idempotente contra data/crm.db (44 leads intactos, rodada 2x); estado nasce 'explorando' e fica FORA dos schemas Zod (mudança é escopo Fase 24); metaConversao é texto livre; leads.campanhaId nullable FK set null; Server Actions com molde nichoExists+isForeignKeyViolation de lead-actions.ts
 - [Phase ?]: [Fase 22-02]: /campanhas (listagem + criação, estado vazio com CTA) e /campanhas/[id] (detalhe minimalista: nicho+oferta, estado, meta, janela) entregues + item "Campanhas" na sidebar. CampanhaFormDialog é CRIAÇÃO-APENAS (CAMPANHA-01 só pede criar; updateCampanha do 22-01 fica sem consumidor de UI até a Fase 24). Bloco de data extraído para sub-componente JanelaField usado 2x (useState de Popover por instância). Detalhe usa leftJoin com nichos + notFound() para id não-inteiro-positivo (T-22-07) e para campanha soft-deletada (T-22-08). /campanhas/[id] minimalista de propósito — Fases 23 (diagnóstico) e 24 (veredito/painel/Mapa de Nichos) ADICIONAM seções, sem retrabalho.
+- [Phase ?]: [Fase 22-03] Vinculo lead->campanha (CAMPANHA-03, gap closure): campanhaId e o 3o campo opcional de leadBaseSchema (z.preprocess vazio->undefined + override ?? null na Server Action), SEM .refine (nao condicional a stage). OMITIDO de csvRowSchema (T-22-11). campanhaExists() indiferente a deletedAt (precedente nichoExists). CampanhaCombobox novo com item-sentinela 'Nenhuma campanha' (__nenhuma__). Prop campanhas OBRIGATORIA (sem default) forca tsc a provar fiacao das 3 telas /leads//pipeline. Sem revalidatePath('/campanhas') nas lead-actions (IN-01).
 
 ### Pending Todos
 
@@ -320,7 +322,23 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — ROADMAP v1.7 CRIADO (2026-09-04)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 22 GAP FECHADO, PRONTA PRA RE-VERIFICAÇÃO (2026-09-05)
+
+**ONDE PARAMOS:** o plano **22-03** (gap closure de CAMPANHA-03 / SC3) foi executado e commitado
+(`0c879de` schema+actions+harness, `746c988` combobox+dialog+fiação das 3 telas, `3f850fe`
+rastreabilidade). O único gap bloqueante do `22-VERIFICATION.md` está fechado: o usuário agora
+vincula opcionalmente um lead a uma campanha pelo formulário de lead (campo "Campanha" na seção
+Negócio, logo após Nicho), pode desvincular ("Nenhuma campanha"), `nichoId` nunca é afetado,
+`campanhaId` forjado é rejeitado antes de qualquer escrita — provado por `npm run test:lead-actions`
+(Casos 21-26). Gate completo do repo verde (tsc/lint/build/test/verify:schema/guard:no-hard-delete).
+`REQUIREMENTS.md`: CAMPANHA-03 → Complete. Ver `22-03-SUMMARY.md`.
+
+**Próximo passo:** re-rodar a verificação da Fase 22 (`/gsd-verify-phase 22` ou equivalente) —
+os 3 truths já verificados continuam válidos, o truth #3 agora deve passar. Há 3 checks de UAT
+humano NÃO-BLOQUEANTES listados no `22-03-SUMMARY.md` (host 4GB sem navegador nesta sessão).
+
+<details>
+<summary>Histórico — ROADMAP v1.7 criado (2026-09-04)</summary>
 
 **ONDE PARAMOS:** o roadmap do milestone **v1.7 "Exploração de Nicho"** foi criado — 4 fases
 (22-25), 25 requisitos, 100% cobertura mapeada em `REQUIREMENTS.md`. `ROADMAP.md` ganhou o bloco
@@ -350,6 +368,8 @@ Nenhuma fase ainda foi planejada (sem `PLAN.md`).
   Fazer numa sessão com navegador.
 
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
+
+</details>
 
 <details>
 <summary>Histórico — Fechamento do milestone v1.6 e definição da direção do v1.7 (2026-09-04)</summary>
@@ -599,7 +619,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-05T13:41:42.663Z
+Last session: 2026-09-05T14:32:59.406Z
 
 **O que foi feito nesta sessão:**
 
