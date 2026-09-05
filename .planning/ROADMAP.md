@@ -103,7 +103,7 @@ exploração de nicho, com diagnóstico de IA anti-genérico, veredito registrad
 loop de resultado real fechando com o que `/relatorios` já calcula. Zero WhatsApp, zero VPS, zero
 infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminho A escolhido).
 
-- [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (completed 2026-09-05)
+- [ ] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (22-01/22-02 shipados; `22-VERIFICATION.md` = gaps_found, CAMPANHA-03 em fechamento pelo plano 22-03)
 - [ ] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido
 - [ ] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos
 - [ ] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente
@@ -117,7 +117,10 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
   2. A campanha exibe um estado (explorando / veredito registrado / em escala / abandonada) visível na tela
   3. Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead
   4. Usuário lista todas as campanhas já criadas e navega até o detalhe de qualquer uma delas
-**Plans**: TBD
+**Plans**: 3 planos
+- [x] 22-01-PLAN.md — Fundação de dados: tabela `campanhas`, coluna `leads.campanha_id`, tipos, Zod e Server Actions
+- [x] 22-02-PLAN.md — UI de campanha: dialog de criação, badge de estado, `/campanhas`, `/campanhas/[id]`, item na sidebar
+- [ ] 22-03-PLAN.md — Gap closure (CAMPANHA-03): vínculo lead→campanha no formulário de lead, persistência e cobertura de teste
 **UI hint**: yes
 
 #### Phase 23: Diagnóstico de IA da Campanha
