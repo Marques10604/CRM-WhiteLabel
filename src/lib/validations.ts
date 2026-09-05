@@ -267,3 +267,42 @@ export const tarefaUpdateSchema = tarefaSchema.extend({
 });
 
 export type TarefaFormValues = z.input<typeof tarefaSchema>;
+
+/**
+ * Mensagem VERBATIM (Fase 22, CAMPANHA-01/02) para o `.refine` de janela
+ * inválida — compartilhada entre `campanhaSchema` e `campanhaUpdateSchema`
+ * (mesmo idioma DRY de `MOTIVO_PERDA_OBRIGATORIO_MSG` acima).
+ */
+const CAMPANHA_JANELA_INVALIDA_MSG = "A data de fim deve ser depois da data de início.";
+
+/**
+ * Contrato de campanha de exploração de nicho (CAMPANHA-01/02/04, Fase 22).
+ * `campanhaBaseSchema` é o objeto não-refinado (mesmo idioma de
+ * `leadBaseSchema`/`tarefaSchema`) — `campanhaUpdateSchema` deriva dele via
+ * `.extend`, nunca uma cópia paralela de campos.
+ *
+ * `estado` NÃO entra em nenhum dos dois schemas: nasce com o default físico
+ * `"explorando"` e sua mudança é escopo da Fase 24 (VEREDITO), fora deste
+ * plano.
+ */
+const campanhaBaseSchema = z.object({
+  nichoId: z.coerce.number().int().positive("Selecione um nicho."),
+  oferta: z.string().trim().min(1, "Descreva a oferta."),
+  metaConversao: z.string().trim().min(1, "Defina a meta de conversão."),
+  janelaInicio: z.coerce.date({ error: "Escolha a data de início." }),
+  janelaFim: z.coerce.date({ error: "Escolha a data de fim." }),
+});
+
+export const campanhaSchema = campanhaBaseSchema.refine(
+  (d) => d.janelaFim > d.janelaInicio,
+  { path: ["janelaFim"], message: CAMPANHA_JANELA_INVALIDA_MSG }
+);
+
+export type CampanhaFormValues = z.input<typeof campanhaSchema>;
+
+export const campanhaUpdateSchema = campanhaBaseSchema
+  .extend({ id: z.coerce.number().int().positive() })
+  .refine((d) => d.janelaFim > d.janelaInicio, {
+    path: ["janelaFim"],
+    message: CAMPANHA_JANELA_INVALIDA_MSG,
+  });

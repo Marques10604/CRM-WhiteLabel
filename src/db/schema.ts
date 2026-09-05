@@ -73,6 +73,65 @@ export const motivosPerda = sqliteTable(
   ]
 );
 
+/**
+ * Campanha de exploração de nicho (CAMPANHA-01/02/04, Fase 22 — v1.7). Objeto
+ * de 1ª classe: nicho + oferta (o que pretende vender) + janela de tempo
+ * (~90 dias) + meta de conversão + estado. Leads podem se vincular a uma
+ * campanha (via `leads.campanhaId` abaixo), além do nicho geral já existente.
+ *
+ * `nichoId` usa `onDelete: "restrict"` (diferente de `leads.nichoId`, também
+ * `restrict`) — não deixa apagar um nicho com campanha ativa, mesmo raciocínio
+ * de integridade referencial já usado no projeto inteiro.
+ *
+ * `metaConversao` é texto livre (não numérico) de propósito — "3 leads
+ * fechados" e "10% de resposta" são ambos formatos válidos que o usuário pode
+ * querer registrar; normalizar para número perderia expressividade sem
+ * ganho real para um usuário solo.
+ *
+ * `estado` (CAMPANHA-02) nasce sempre `"explorando"` (default físico) — a
+ * transição para os outros 3 valores (`veredito_registrado`, `em_escala`,
+ * `abandonada`) é escopo da Fase 24 (VEREDITO), fora deste plano.
+ *
+ * `deletedAt` segue o padrão default do projeto (soft-delete, LEAD-04) —
+ * `campanhas` NÃO entra na ALLOWLIST de `guard-no-hard-delete.cjs`.
+ *
+ * Os campos de diagnóstico de IA e veredito (Fases 23/24) são ADITIVOS em
+ * migrações futuras — fora do escopo desta tabela agora, propositalmente.
+ *
+ * Migração SEMPRE via `scripts/migrate-campanhas.cjs` manual, NUNCA
+ * `drizzle-kit push`/`generate` — mesmo precedente de `motivosPerda`/`tarefas`
+ * (dois incidentes destrutivos documentados nas Fases 06-01/07-01).
+ *
+ * Deve ser declarada ANTES de `leads` — a FK `leads.campanhaId` exige a
+ * tabela já definida (mesma ordem `motivosPerda` → `leads` de hoje).
+ */
+export const campanhas = sqliteTable(
+  "campanhas",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    nichoId: integer("nicho_id")
+      .notNull()
+      .references(() => nichos.id, { onDelete: "restrict" }),
+    oferta: text("oferta").notNull(),
+    metaConversao: text("meta_conversao").notNull(),
+    janelaInicio: integer("janela_inicio", { mode: "timestamp" }).notNull(),
+    janelaFim: integer("janela_fim", { mode: "timestamp" }).notNull(),
+    estado: text("estado", {
+      enum: ["explorando", "veredito_registrado", "em_escala", "abandonada"],
+    })
+      .notNull()
+      .default("explorando"),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("campanhas_nicho_id_idx").on(table.nichoId),
+    index("campanhas_deleted_at_idx").on(table.deletedAt),
+    index("campanhas_estado_idx").on(table.estado),
+  ]
+);
+
 export const leads = sqliteTable(
   "leads",
   {
@@ -107,6 +166,15 @@ export const leads = sqliteTable(
     // `src/`), mas NUNCA dropada do banco — reversibilidade (11-RESEARCH.md
     // Open Question 2). Substituída pela FK governada `motivoPerdaId` abaixo.
     motivoPerdaId: integer("motivo_perda_id").references(() => motivosPerda.id, { onDelete: "restrict" }), // NULLABLE de propósito: D-04 exige o motivo só quando `stage === "perdido"`; obrigatoriedade condicional mora no Zod/Server Action, nunca em constraint de banco (precedente `stageChangedAt`; nenhuma tabela do projeto usa CHECK constraint)
+    /**
+     * Vínculo opcional a uma campanha de exploração de nicho (CAMPANHA-03,
+     * Fase 22). NULLABLE, SEM default: um lead pode existir sem nunca ter
+     * sido vinculado a nenhuma campanha (a esmagadora maioria dos leads hoje).
+     * `onDelete: "set null"` — se a campanha for removida (soft-delete não
+     * dispara isso; só hard-delete real, que não acontece), o lead não trava,
+     * só desvincula.
+     */
+    campanhaId: integer("campanha_id").references(() => campanhas.id, { onDelete: "set null" }),
     stageChangedAt: integer("stage_changed_at", { mode: "timestamp" }), // nullable, sem default (Pitfall 2) — backfill via migração custom
     contactAttempts: integer("contact_attempts").notNull().default(0), // WA-08/D-04: acumula pela vida do lead, nunca zera ao mudar de etapa
     sequenciaPosicao: integer("sequencia_posicao").notNull().default(0), // SEQ-02/D-01/D-02/D-12: índice (0-based) do PRÓXIMO degrau da sequência de follow-up escalonada. Avança em registerWhatsAppContact quando o template usado é "follow_up" (D-01). Reseta para 0 quando o destino da mudança de etapa é "novo", tanto via updateLeadStage quanto via updateLead (D-02/D-12 — o reset vale pelo DESTINO, não pelo mecanismo do gesto). Nunca é capado/travado no write-path — "sequência esgotada" (posição além do último intervalo configurado) é tratado só na leitura, por computeSequenciaSugestao (D-10), nunca aqui. O DEFAULT 0 físico é exigido pelo SQLite no ALTER TABLE ADD COLUMN NOT NULL sobre tabela já populada (mesma restrição documentada em origemTipo acima).
@@ -122,6 +190,7 @@ export const leads = sqliteTable(
     index("leads_subnicho_id_idx").on(table.nichoId),
     index("leads_motivo_perda_id_idx").on(table.motivoPerdaId), // cobre o GROUP BY motivoPerdaId da Seção 3 do relatório (mesmo raciocínio de leads_subnicho_id_idx)
     index("leads_import_batch_id_idx").on(table.importBatchId),
+    index("leads_campanha_id_idx").on(table.campanhaId),
   ]
 );
 

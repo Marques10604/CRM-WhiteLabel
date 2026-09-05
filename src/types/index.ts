@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
-import type { leads, nichos, templates, interacoes, motivosPerda, tarefas } from "@/db/schema";
+import type { leads, nichos, templates, interacoes, motivosPerda, tarefas, campanhas } from "@/db/schema";
 
 export type Lead = InferSelectModel<typeof leads>;
 export type NewLead = InferInsertModel<typeof leads>;
@@ -18,3 +18,6 @@ export type NewInteracao = InferInsertModel<typeof interacoes>;
 
 export type Tarefa = InferSelectModel<typeof tarefas>;
 export type NewTarefa = InferInsertModel<typeof tarefas>;
+
+export type Campanha = InferSelectModel<typeof campanhas>;
+export type NewCampanha = InferInsertModel<typeof campanhas>;
