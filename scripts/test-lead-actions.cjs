@@ -117,6 +117,13 @@ async function runBehaviorTests() {
     // (db.select().from(leads) lista TODAS as colunas do schema) explode com
     // "no such column: interesse".
     "ALTER TABLE `leads` ADD `interesse` text;",
+    // Fase 22 (plano 22-01): tabela `campanhas` + FK nullable `leads.campanha_id`
+    // aplicadas via scripts/migrate-campanhas.cjs no banco real, nunca como
+    // arquivo .sql — mesmo débito de snapshot documentado acima. Sem isto,
+    // countLeads() (db.select().from(leads) lista TODAS as colunas do schema)
+    // explode com "no such column: campanha_id". DDL espelha migrate-campanhas.cjs.
+    "CREATE TABLE IF NOT EXISTS campanhas (id INTEGER PRIMARY KEY AUTOINCREMENT, nicho_id INTEGER NOT NULL REFERENCES subnichos(id), oferta TEXT NOT NULL, meta_conversao TEXT NOT NULL, janela_inicio INTEGER NOT NULL, janela_fim INTEGER NOT NULL, estado TEXT NOT NULL DEFAULT 'explorando', deleted_at INTEGER, created_at INTEGER NOT NULL DEFAULT (unixepoch()), updated_at INTEGER NOT NULL DEFAULT (unixepoch()));",
+    "ALTER TABLE `leads` ADD `campanha_id` integer REFERENCES `campanhas`(`id`);",
   ];
   for (const ddl of manualAlters) {
     try {
