@@ -37,6 +37,18 @@ export const motivoPerdaSchema = z.object({
  * `undefined -> null`). Fica FORA do `.omit()` de `csvRowSchema`, então
  * propaga automaticamente para o form (`leadSchema`) e o import CSV
  * (`csvRowSchema`). O limite de 500 é validado por CODE POINT
+ *
+ * `campanhaId` (Fase 22, CAMPANHA-03) é o TERCEIRO campo opcional do
+ * `leadBaseSchema` — FK nullable para `campanhas.id` (vínculo opcional do
+ * lead a uma campanha de exploração de nicho, além do `nichoId` geral).
+ * Mesmo `z.preprocess` "vazio/null/undefined -> undefined" de `motivoPerdaId`,
+ * mas SEM `.refine` de obrigatoriedade: o campo é opcional em qualquer etapa
+ * do funil, sem condicional por `stage`. O input nativo oculto do
+ * `<CampanhaCombobox>` emite string vazia quando nada está selecionado; o
+ * mesmo idioma "undefined do Zod -> null explícito" da Server Action grava
+ * NULL. Ao contrário de `interesse`, é OMITIDO em `csvRowSchema`: o CSV do
+ * cowork nunca traz campanha e omitir aqui fecha o vetor de injeção de FK
+ * pelo caminho de import (T-22-11).
  * (`Array.from(v).length`, CR-01 da Fase 16) — consistente nos dois lados:
  * bate com o truncamento por code point de `mapCsvRows` (D-08/D-10) e com o
  * badge de corte da prévia. No formulário manual o `.refine` é a única
@@ -95,6 +107,10 @@ const leadBaseSchema = z.object({
     (v) => (v === "" || v === null || v === undefined ? undefined : v),
     z.coerce.number().int().positive().optional()
   ),
+  campanhaId: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : v),
+    z.coerce.number().int().positive().optional()
+  ),
 });
 
 /** Mensagem VERBATIM de D-04 (11-UI-SPEC.md linha 120) — reutilizada em leadSchema e stageUpdateSchema. */
@@ -125,10 +141,13 @@ export type LeadFormValues = z.input<typeof leadSchema>;
  * Deriva de `leadBaseSchema` (não de `leadSchema`): `.omit()` só existe em
  * objeto não-refinado. `motivoPerdaId` é omitido porque o CSV nunca traz
  * motivo de perda — leads importados nascem sempre em "novo", nunca em
- * "perdido" (D-04).
+ * "perdido" (D-04). `campanhaId` (Fase 22, CAMPANHA-03) também é omitido: o
+ * CSV do cowork nunca traz campanha e o mapeamento de campanha no import está
+ * fora do escopo da fase — omitir aqui fecha o vetor de injeção de FK forjada
+ * pelo caminho de import (T-22-11).
  */
 export const csvRowSchema = leadBaseSchema
-  .omit({ nichoId: true, followUpDate: true, motivoPerdaId: true })
+  .omit({ nichoId: true, followUpDate: true, motivoPerdaId: true, campanhaId: true })
   .extend({
     nichoNome: z.string().trim().min(1, "Nicho é obrigatório."),
     origemTipo: z.enum(["inbound", "outbound"]).default(CSV_DEFAULTS.origemTipo),

@@ -10,7 +10,7 @@
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { interacoes, leads, motivosPerda, nichos } from "@/db/schema";
+import { campanhas, interacoes, leads, motivosPerda, nichos } from "@/db/schema";
 import { leadSchema, stageUpdateSchema, whatsappContactSchema } from "@/lib/validations";
 import type { Lead, Template } from "@/types";
 
@@ -62,6 +62,25 @@ async function motivoPerdaExists(motivoPerdaId: number): Promise<boolean> {
   return existing.length > 0;
 }
 
+/**
+ * Checagem de existência real do campanhaId no banco (CAMPANHA-03, Fase 22) —
+ * cópia linha-a-linha de `motivoPerdaExists`. Fecha o vetor de mass-assignment
+ * de FK forjada (T-22-10) antes de qualquer escrita, junto do backstop
+ * `isForeignKeyViolation` nos catch de FK.
+ *
+ * PROPOSITALMENTE indiferente a `deletedAt` — mesmo raciocínio de
+ * `nichoExists`/`motivoPerdaExists`: editar e salvar um lead cuja campanha foi
+ * removida (soft-delete) não pode passar a falhar sem o usuário ter mexido em
+ * nada no formulário (T-22-12).
+ */
+async function campanhaExists(campanhaId: number): Promise<boolean> {
+  const existing = await db
+    .select({ id: campanhas.id })
+    .from(campanhas)
+    .where(eq(campanhas.id, campanhaId));
+  return existing.length > 0;
+}
+
 export async function createLead(
   _prevState: ActionState,
   formData: FormData
@@ -84,6 +103,16 @@ export async function createLead(
     return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
   }
 
+  // CAMPANHA-03 / T-22-10: só checa quando o campo veio preenchido — vínculo
+  // de campanha é opcional. Um campanhaId forjado é rejeitado antes de
+  // qualquer escrita.
+  if (
+    parsed.data.campanhaId != null &&
+    !(await campanhaExists(parsed.data.campanhaId))
+  ) {
+    return { errors: { campanhaId: ["Selecione uma campanha válida."] } };
+  }
+
   let inserted: Lead;
   try {
     // Stampa stageChangedAt na criação (WR-01): sem isso, um lead criado
@@ -103,6 +132,11 @@ export async function createLead(
         // quando o stage é "perdido"; qualquer outro destino força null.
         motivoPerdaId:
           parsed.data.stage === "perdido" ? parsed.data.motivoPerdaId ?? null : null,
+        // CAMPANHA-03 / idioma "undefined do Zod -> null explícito" (igual
+        // interesse): o preprocess entrega undefined quando o combobox estava
+        // vazio; o insert grava NULL. Posicionado DEPOIS do spread de
+        // parsed.data para nunca ser sobrescrito por ele.
+        campanhaId: parsed.data.campanhaId ?? null,
         stageChangedAt: new Date(),
       })
       .returning();
@@ -110,7 +144,11 @@ export async function createLead(
     // Backstop de FK: nicho OU motivo de perda apagado ENTRE a
     // pré-checagem acima e este insert (janela de corrida check-then-write).
     // onDelete:"restrict" no schema faz o SQLite lançar
-    // SQLITE_CONSTRAINT_FOREIGNKEY nesse caso.
+    // SQLITE_CONSTRAINT_FOREIGNKEY nesse caso. O objeto de erro do SQLite não
+    // diz QUAL FK foi violada, então um campanhaId apagado nessa janela seria
+    // reportado como erro de nicho — imprecisão de rótulo aceita
+    // conscientemente (T-22-14); a pré-checagem `campanhaExists` é a barreira
+    // primária.
     if (isForeignKeyViolation(err)) {
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
@@ -153,6 +191,15 @@ export async function updateLead(
     return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
   }
 
+  // CAMPANHA-03 / T-22-10: mesmo gate de createLead — só quando o campo veio
+  // preenchido; campanhaId forjado é rejeitado antes de qualquer escrita.
+  if (
+    parsed.data.campanhaId != null &&
+    !(await campanhaExists(parsed.data.campanhaId))
+  ) {
+    return { errors: { campanhaId: ["Selecione uma campanha válida."] } };
+  }
+
   // Guard isNull(deletedAt): impede editar um lead soft-deletado via
   // chamada direta — leads na Lixeira só podem ser restaurados (01-04).
   // SELECT-then-compare (mesmo padrão de updateLeadStage): só grava
@@ -184,6 +231,13 @@ export async function updateLead(
         // condicional-por-VALOR-ALVO.
         motivoPerdaId:
           parsed.data.stage === "perdido" ? parsed.data.motivoPerdaId ?? null : null,
+        // CAMPANHA-03 — override LOAD-BEARING: é o que materializa o
+        // desvincular. Combobox limpo emite string vazia no FormData, o
+        // preprocess do Zod entrega undefined, e sem este `?? null` explícito
+        // o Drizzle omitiria a coluna do UPDATE e o id antigo ficaria preso no
+        // banco para sempre (mesma causa-raiz do WR-02 da Fase 11, resolvida
+        // do mesmo jeito). Posicionado DEPOIS do spread de parsed.data.
+        campanhaId: parsed.data.campanhaId ?? null,
         // D-02/D-12 (SEQ-02): reset de sequenciaPosicao para 0 sempre que o
         // DESTINO da edição é "novo" — o ciclo de reabordagem reinicia
         // porque o lead esfriou e voltou ao início do funil, seja por drag
@@ -201,7 +255,9 @@ export async function updateLead(
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
   } catch (err) {
-    // Mesmo backstop de FK do createLead (nicho ou motivo de perda).
+    // Mesmo backstop de FK do createLead (nicho, motivo de perda ou campanha —
+    // o SQLite não distingue qual FK falhou, T-22-14; a pré-checagem é a
+    // barreira primária).
     if (isForeignKeyViolation(err)) {
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };

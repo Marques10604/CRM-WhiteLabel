@@ -71,6 +71,18 @@ function staticCheckFkWiring() {
       `${name}: o catch de violação de FK retorna { errors: { nichoId: ["Selecione um nicho."] } }`
     );
   }
+
+  // Fase 22 (CAMPANHA-03): prova de fiação estática da persistência de
+  // campanhaId — nenhum caso de runtime detecta se alguém trocar o override
+  // explícito por um spread implícito de parsed.data.
+  check(
+    createBody.includes("campanhaId: parsed.data.campanhaId ?? null"),
+    "createLead: o corpo contém `campanhaId: parsed.data.campanhaId ?? null`"
+  );
+  check(
+    updateBody.includes("campanhaId: parsed.data.campanhaId ?? null"),
+    "updateLead: o corpo contém `campanhaId: parsed.data.campanhaId ?? null`"
+  );
 }
 
 // --- Comportamento em runtime contra um banco SQLite temporário isolado ---
@@ -139,6 +151,21 @@ async function runBehaviorTests() {
 
   const nichoInsert = setupDb.prepare("INSERT INTO subnichos (nome) VALUES (?)").run("Nutricionista");
   const nichoId = Number(nichoInsert.lastInsertRowid);
+
+  // Fase 22 (CAMPANHA-03): semeia DUAS campanhas ativas para os casos de
+  // vínculo lead → campanha (set / trocar / limpar / id forjado). janela_inicio
+  // e janela_fim são inteiros unix epoch (segundos).
+  const nowEpoch = Math.floor(Date.now() / 1000);
+  const janelaFimEpoch = nowEpoch + 90 * 24 * 60 * 60;
+  const campanhaStmt = setupDb.prepare(
+    "INSERT INTO campanhas (nicho_id, oferta, meta_conversao, janela_inicio, janela_fim) VALUES (?, ?, ?, ?, ?)"
+  );
+  const campanhaAId = Number(
+    campanhaStmt.run(nichoId, "Site institucional", "3 fechados", nowEpoch, janelaFimEpoch).lastInsertRowid
+  );
+  const campanhaBId = Number(
+    campanhaStmt.run(nichoId, "Automação de WhatsApp", "10% de resposta", nowEpoch, janelaFimEpoch).lastInsertRowid
+  );
   setupDb.close();
 
   // Importados DEPOIS de DB_FILE_NAME estar setado, para que src/db/client.ts
@@ -631,6 +658,98 @@ async function runBehaviorTests() {
       `csvRowSchema.safeParse(emoji truncado por mapCsvRows): success === true (got ${
         parsed.success ? "ok" : JSON.stringify(parsed.error?.issues)
       })`
+    );
+  }
+
+  // Caso 21 (CAMPANHA-03 / SC3): createLead com campanhaId de uma campanha
+  // existente -> insere 1 linha, campanha_id persiste, nichoId INTACTO.
+  let campanhaLeadId;
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(
+      createLead,
+      makeFormData({ campanhaId: String(campanhaAId) })
+    );
+    const after = await countLeads();
+    check(after === before + 1, `createLead com campanhaId: insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    campanhaLeadId = row?.id;
+    check(row?.campanhaId === campanhaAId, `createLead com campanhaId: campanha_id persistido === ${campanhaAId} (got ${row?.campanhaId})`);
+    check(row?.nichoId === nichoId, `createLead com campanhaId: nichoId permanece INTACTO === ${nichoId} (got ${row?.nichoId})`);
+  }
+
+  // Caso 22 (CAMPANHA-03): createLead SEM a chave campanhaId no FormData ->
+  // insere normalmente, campanha_id fica NULL (fluxo da maioria dos leads).
+  {
+    const before = await countLeads();
+    const outcome = await callToleratingRevalidate(createLead, makeFormData());
+    const after = await countLeads();
+    check(after === before + 1, `createLead sem campanhaId: insere exatamente 1 linha (antes=${before}, depois=${after})`);
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).orderBy(leads.id).limit(1).offset(before);
+    check(row?.campanhaId === null, `createLead sem campanhaId: campanha_id fica NULL (got ${JSON.stringify(row?.campanhaId)})`);
+    check(row?.nichoId === nichoId, `createLead sem campanhaId: nichoId intacto (got ${row?.nichoId})`);
+  }
+
+  // Caso 23 (CAMPANHA-03): updateLead trocando campanhaId da campanha A para a
+  // campanha B -> a linha passa a apontar para B, nichoId INTACTO.
+  {
+    const outcome = await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(campanhaLeadId), campanhaId: String(campanhaBId) })
+    );
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).where(eq(leads.id, campanhaLeadId));
+    check(row?.campanhaId === campanhaBId, `updateLead trocando campanha A->B: linha aponta para B === ${campanhaBId} (got ${row?.campanhaId})`);
+    check(row?.nichoId === nichoId, `updateLead trocando campanha: nichoId permanece INTACTO === ${nichoId} (got ${row?.nichoId})`);
+  }
+
+  // Caso 24 (CAMPANHA-03): updateLead com campanhaId string vazia (usuário
+  // escolheu "Nenhuma campanha") -> coluna vira NULL, nichoId INTACTO.
+  {
+    const outcome = await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(campanhaLeadId), campanhaId: "" })
+    );
+    if (outcome.threw) {
+      console.log("  (revalidatePath lançou fora do contexto Next, como esperado — verificado via leitura do banco)");
+    }
+    const [row] = await db.select().from(leads).where(eq(leads.id, campanhaLeadId));
+    check(row?.campanhaId === null, `updateLead com campanhaId vazio: campanha_id vira NULL (got ${JSON.stringify(row?.campanhaId)})`);
+    check(row?.nichoId === nichoId, `updateLead desvinculando campanha: nichoId permanece INTACTO === ${nichoId} (got ${row?.nichoId})`);
+  }
+
+  // Caso 25 (CAMPANHA-03 / T-22-10): createLead com campanhaId inexistente
+  // ("999999") -> NÃO insere nenhuma linha e retorna errors.campanhaId com a
+  // mensagem exata "Selecione uma campanha válida.".
+  {
+    const before = await countLeads();
+    const result = await createLead(undefined, makeFormData({ campanhaId: "999999" }));
+    const after = await countLeads();
+    check(after === before, "createLead com campanhaId inexistente: NÃO insere");
+    check(
+      Array.isArray(result?.errors?.campanhaId) &&
+        result.errors.campanhaId.includes("Selecione uma campanha válida."),
+      `createLead com campanhaId inexistente: errors.campanhaId inclui "Selecione uma campanha válida." (got ${JSON.stringify(result?.errors)})`
+    );
+  }
+
+  // Caso 26 (CAMPANHA-03 / T-22-11): csvRowSchema continua resolvendo uma
+  // linha de import SEM nenhuma noção de campanha — o import CSV não ganha nem
+  // aceita o campo (campanhaId omitido de csvRowSchema).
+  {
+    const parsed = csvRowSchema.safeParse(makeImportRow());
+    check(parsed.success === true, "csvRowSchema.safeParse(linha sem campanha): success === true");
+    check(
+      parsed.success && !("campanhaId" in parsed.data),
+      `csvRowSchema.safeParse: campanhaId ausente do resultado do parse (omitido) (got keys ${parsed.success ? Object.keys(parsed.data).join(",") : "n/a"})`
     );
   }
 
