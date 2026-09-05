@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: verifying
-last_updated: "2026-09-05T14:33:21.892Z"
+status: phase_complete
+last_updated: "2026-09-05T15:15:00.000Z"
 last_activity: 2026-09-05
 progress:
   total_phases: 4
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFYING (re-verificação)
-Plan: 3 of 3 — 22-03 (gap closure CAMPANHA-03) executado
-Status: gap fechado — pronto para re-verificação da Fase 22
-Last activity: 2026-09-05 -- 22-03-PLAN.md executado (vínculo lead→campanha)
+Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFICADA ✓ (4/4 must-haves)
+Plan: 3 of 3 — todos executados; 22-03-REVIEW.md fechado (WR-01/02/03, commit b9a2c44)
+Status: Fase 22 completa — pronta para fechar/shipar OU seguir para a Fase 23
+Last activity: 2026-09-05 -- re-verificação da Fase 22 passou; warnings do 22-03-REVIEW fechados
 
 ## Performance Metrics
 
@@ -322,20 +322,33 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 22 GAP FECHADO, PRONTA PRA RE-VERIFICAÇÃO (2026-09-05)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 22 VERIFICADA ✓, PRONTA PRA FECHAR (2026-09-05)
 
-**ONDE PARAMOS:** o plano **22-03** (gap closure de CAMPANHA-03 / SC3) foi executado e commitado
-(`0c879de` schema+actions+harness, `746c988` combobox+dialog+fiação das 3 telas, `3f850fe`
-rastreabilidade). O único gap bloqueante do `22-VERIFICATION.md` está fechado: o usuário agora
-vincula opcionalmente um lead a uma campanha pelo formulário de lead (campo "Campanha" na seção
-Negócio, logo após Nicho), pode desvincular ("Nenhuma campanha"), `nichoId` nunca é afetado,
-`campanhaId` forjado é rejeitado antes de qualquer escrita — provado por `npm run test:lead-actions`
-(Casos 21-26). Gate completo do repo verde (tsc/lint/build/test/verify:schema/guard:no-hard-delete).
-`REQUIREMENTS.md`: CAMPANHA-03 → Complete. Ver `22-03-SUMMARY.md`.
+**ONDE PARAMOS:** a **Fase 22 está completa e re-verificada (4/4 must-haves)**. O plano 22-03
+(gap closure de CAMPANHA-03 / SC3) foi executado (`0c879de`, `746c988`, `3f850fe`), o code review
+`22-03-REVIEW.md` rodou (3 warnings, 0 blockers), e os 3 warnings foram fechados no commit
+**`b9a2c44`**:
+- WR-01: `updateLead` revalida `/leads` (superfície de edição do campo Campanha)
+- WR-02: comentário do backstop de FK corrigido (`campanhaId` = `onDelete:"set null"`, campanha
+  nunca hard-deletada → backstop inalcançável, `campanhaExists()` é a única barreira)
+- WR-03: Caso 27 no harness — campanha soft-deletada continua salvável (T-22-12)
 
-**Próximo passo:** re-rodar a verificação da Fase 22 (`/gsd-verify-phase 22` ou equivalente) —
-os 3 truths já verificados continuam válidos, o truth #3 agora deve passar. Há 3 checks de UAT
-humano NÃO-BLOQUEANTES listados no `22-03-SUMMARY.md` (host 4GB sem navegador nesta sessão).
+`22-VERIFICATION.md` atualizado: `gaps_found` → `passed`, seção "Re-Verification" adicionada.
+Gate completo verde (tsc/lint/build/test:lead-actions[1-27]/verify:schema/guard:no-hard-delete).
+`REQUIREMENTS.md`: CAMPANHA-03 → Complete.
+
+**Próximo passo:** fechar a Fase 22 — `/gsd-close-phase 22` (extract-learnings → ship/PR) ou
+`/gsd-ship 22`. Depois seguir para a **Fase 23 — Diagnóstico de IA da Campanha** (1ª integração
+de IA de verdade; `/gsd-ai-integration-phase 23` ou `/gsd-plan-phase 23 --ai`).
+
+**Débito NÃO-BLOQUEANTE que continua aberto:**
+- 3 checks de UAT humano do `22-03-SUMMARY.md` + 3 da seção "Human Verification Required" do
+  `22-VERIFICATION.md` (host 4GB sem navegador — fluxo React de vincular campanha ao lead nas
+  telas `/leads` `/pipeline` `/`)
+- `22-REVIEW.md` WR-01..WR-04 (sobre `campanha-actions.ts`: divergência `onDelete` schema×DDL,
+  `updateCampanha` reporta sucesso em 0 linhas, dialog descarta erros de campo, sem
+  `test-campanha-actions.cjs`) — conjunto DIFERENTE do `22-03-REVIEW.md`; herdado, não bloqueia
+- IN-02 do `22-03-REVIEW`: rótulo "Nenhuma campanha" colide com o placeholder do combobox
 
 <details>
 <summary>Histórico — ROADMAP v1.7 criado (2026-09-04)</summary>

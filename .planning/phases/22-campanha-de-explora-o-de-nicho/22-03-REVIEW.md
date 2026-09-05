@@ -20,7 +20,16 @@ findings:
   warning: 3
   info: 3
   total: 6
-status: issues_found
+status: resolved
+resolved_by: b9a2c44
+resolved_at: 2026-09-05
+resolution: >
+  WR-01 (updateLead revalida /leads), WR-02 (comentário do backstop de FK
+  corrigido para onDelete:"set null" / backstop inalcançável para campanha),
+  WR-03 (Caso 27 no harness: campanha soft-deletada continua salvável, T-22-12)
+  — todos fechados no commit b9a2c44. Gate completo verde. IN-01/02/03 aceitos
+  como débito menor (IN-02 = colisão do rótulo "Nenhuma campanha" com o
+  placeholder; IN-01/03 = notas de manutenção do idioma de campo opcional).
 ---
 
 # Fase 22 (plano 22-03): Relatório de Code Review
@@ -170,6 +179,22 @@ futuro dos campos opcionais.
 
 ---
 
+## Resolução — 2026-09-05 (commit `b9a2c44`)
+
+| Achado | Ação |
+| --- | --- |
+| **WR-01** | `updateLead` agora chama `revalidatePath("/leads")` além de `/` e `/pipeline` (`lead-actions.ts:272`). |
+| **WR-02** | Comentário do `catch` de FK reescrito em `createLead` e `updateLead`: `campanhaId` usa `onDelete:"set null"`, campanhas nunca são hard-deletadas → backstop de FK para campanha é inalcançável, `campanhaExists()` é a única barreira. |
+| **WR-03** | Caso 27 em `scripts/test-lead-actions.cjs`: soft-delete de uma campanha vinculada, depois `updateLead` re-enviando o mesmo `campanhaId` → assere que salva sem erro e preserva `campanha_id` + `nichoId` (T-22-12). |
+| IN-01 | Aceito como débito — nota de manutenção (`z.preprocess` alarga `z.input` para `unknown`; os 3 campos opcionais devem mudar juntos num refactor futuro). |
+| IN-02 | Aceito como débito menor — rótulo do sentinela "Nenhuma campanha" colide com o placeholder; desvincular via busca textual exige campo limpo. Impacto pequeno. |
+| IN-03 | Igual a IN-01 (mesma raiz). |
+
+Gate completo verde após o fix: `tsc` 0 · `lint` 0 · `build` 0 · `test:lead-actions` OK (1-27) · `verify:schema` 0 · `guard:no-hard-delete` 0.
+
+---
+
 _Revisado: 2026-09-05_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Profundidade: standard_
+_Resolvido: 2026-09-05 (b9a2c44)_

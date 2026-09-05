@@ -1,12 +1,26 @@
 ---
 phase: 22-campanha-de-explora-o-de-nicho
 verified: 2026-09-05T13:54:57Z
-status: gaps_found
-score: 3/4 must-haves verified
+re_verified: 2026-09-05T15:10:00Z
+status: passed
+score: 4/4 must-haves verified
 overrides_applied: 0
+re_verification_note: >
+  Re-verificação após o plano 22-03 (gap closure de CAMPANHA-03) + o fix
+  b9a2c44 (WR-01/02/03 do 22-03-REVIEW). O truth #3 agora passa: campo
+  "Campanha" em lead-form-dialog.tsx (seção Negócio, após Nicho), `campanhaId`
+  em leadBaseSchema, persistido em createLead/updateLead sob gate
+  `campanhaExists` (FK forjada rejeitada), `nichoId` nunca afetado — provado
+  por `npm run test:lead-actions` Casos 21-27. Gate completo verde (tsc, lint,
+  build, test:lead-actions, verify:schema, guard:no-hard-delete). Os 3 checks
+  de UAT humano abaixo permanecem NÃO-BLOQUEANTES (host 4GB sem navegador).
+gaps_resolved:
+  - truth: "Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead (SC3 / CAMPANHA-03)"
+    resolved_by: "22-03-PLAN (commits 0c879de, 746c988, 3f850fe) + fix b9a2c44"
+    status: verified
 gaps:
   - truth: "Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead (SC3 / CAMPANHA-03)"
-    status: failed
+    status: resolved_2026-09-05
     reason: >
       Apenas a fundação de dados foi entregue. A coluna `leads.campanha_id` existe no
       schema.ts e está aplicada em data/crm.db (FK presente), mas NÃO existe nenhuma
@@ -61,10 +75,10 @@ human_verification:
 | --- | --- | --- | --- |
 | 1 | Usuário cria uma campanha escolhendo um nicho da lista existente, definindo oferta (texto livre), janela de tempo (padrão ~90 dias, editável) e meta de conversão | ✓ VERIFIED | `campanha-form-dialog.tsx`: `NichoCombobox` (nicho), `Textarea` (oferta), `Input` (metaConversao), 2× `JanelaField` Popover+Calendar; defaults `startOfDay(new Date())` e `startOfDay(addDays(new Date(), 90))` (linhas 146-147). Wired: `useActionState(createCampanha)` → `campanhaSchema.safeParse` → `db.insert(campanhas).returning()` (`campanha-actions.ts:59-82`). Tabela `campanhas` com 10 colunas aplicada em `data/crm.db`. `tsc --noEmit` exit 0. Fluxo vivo pendente de UAT humano. |
 | 2 | A campanha exibe um estado (explorando / veredito registrado / em escala / abandonada) visível na tela | ✓ VERIFIED | `campanha-estado-badge.tsx`: `ESTADO_LABEL` + `ESTADO_TOKEN` para os 4 estados. Renderizado em `campanha-list.tsx:74` (lista) e `campanhas/[id]/page.tsx:49` (detalhe). Coluna `estado TEXT NOT NULL DEFAULT 'explorando'` confirmada no DB; enum no `schema.ts`. |
-| 3 | Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead | ✗ FAILED | Só a fundação de dados existe: `leads.campanhaId` no `schema.ts:177` e coluna `campanha_id` + FK aplicadas em `data/crm.db`. NENHUMA UI/ação/validação: `lead-form-dialog.tsx` sem referência a campanha; `lead-actions.ts` sem referência a campanha; `leadBaseSchema` sem `campanhaId`. Usuário não consegue vincular um lead a uma campanha em lugar nenhum do app. CAMPANHA-03 omitido dos 2 planos; plano "22-03" citado no 22-01-PLAN nunca foi criado. |
+| 3 | Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead | ✓ VERIFIED (re-verif. 2026-09-05) | Fechado pelo plano 22-03 + fix `b9a2c44`. `leadBaseSchema` tem `campanhaId` opcional (`z.preprocess` vazio→undefined), omitido em `csvRowSchema` (T-22-11). `createLead`/`updateLead` gravam `campanhaId: parsed.data.campanhaId ?? null` sob gate `campanhaExists()` — FK forjada rejeitada com "Selecione uma campanha válida." antes de qualquer escrita (T-22-10). `nichoId` asserido intacto em todos os casos. Campo "Campanha" em `lead-form-dialog.tsx` (seção Negócio, após Nicho) + `CampanhaCombobox` (com "Nenhuma campanha" pra desvincular), fiado nas 3 telas (`/leads`, `/`, `/pipeline`) via prop obrigatória. `updateLead` revalida `/leads` (WR-01). Casos 21-27 de `test:lead-actions` verdes, incl. Caso 27 (campanha soft-deletada continua salvável, T-22-12). Fluxo React vivo pendente de UAT humano (não-bloqueante). |
 | 4 | Usuário lista todas as campanhas já criadas e navega até o detalhe de qualquer uma delas | ✓ VERIFIED | `/campanhas/page.tsx` → `CampanhaList` (query `isNull(deletedAt)` ordenada por `createdAt` desc) → `<Link href={`/campanhas/${campanha.id}`}>` por item (`campanha-list.tsx:62`). `/campanhas/[id]/page.tsx` renderiza detalhe (guard de inteiro positivo + `notFound()` + `notFound()` para soft-deletada). `app-sidebar.tsx:26` tem `{ href: "/campanhas", label: "Campanhas", icon: Target }`. Estado vazio com CTA presente. `npm run build` passou (nota da task). |
 
-**Score:** 3/4 truths verified
+**Score:** 4/4 truths verified (era 3/4 na verificação inicial; truth #3 fechado pelo plano 22-03 + fix `b9a2c44` — ver `re_verification_note` no frontmatter)
 
 ### Required Artifacts
 
@@ -122,7 +136,7 @@ Nenhuma probe convencional (`scripts/*/tests/probe-*.sh`) neste projeto; fase n�
 | --- | --- | --- | --- | --- |
 | CAMPANHA-01 | 22-01, 22-02 | Cria campanha (nicho + oferta + janela ~90d editável + meta) | ✓ SATISFIED | Truth #1 |
 | CAMPANHA-02 | 22-01, 22-02 | Campanha tem estado (4 valores) visível | ✓ SATISFIED | Truth #2 |
-| CAMPANHA-03 | **nenhum plano (ORPHANED)** | Lead vinculável a uma campanha (campo opcional) além do nicho geral | ✗ BLOCKED | Truth #3 — só a coluna DB existe; sem UI/ação/validação. Atribuído a Phase 22 em REQUIREMENTS.md (linha 24), ausente do frontmatter `requirements` dos dois planos |
+| CAMPANHA-03 | 22-03 (gap closure) | Lead vinculável a uma campanha (campo opcional) além do nicho geral | ✓ SATISFIED | Truth #3 (re-verificado 2026-09-05). `REQUIREMENTS.md` → Complete |
 | CAMPANHA-04 | 22-01, 22-02 | Lista e navega campanhas criadas | ✓ SATISFIED | Truth #4 |
 
 ### Anti-Patterns Found
@@ -201,5 +215,31 @@ ROADMAP (mover o critério #3 / requisito da Phase 22 para a Phase 24).
 
 ---
 
+## Re-Verification — 2026-09-05 (após 22-03 + fix WR-01/02/03)
+
+**Status: `gaps_found` → `passed` (4/4).**
+
+O único gap bloqueante (truth #3 / CAMPANHA-03) foi fechado:
+
+| Evidência | Verificado |
+| --- | --- |
+| `campanhaId` opcional em `leadBaseSchema` (`src/lib/validations.ts`), omitido em `csvRowSchema` (`.omit`) | ✓ grep + Caso 26 |
+| `campanhaExists()` + gate de FK forjada antes de qualquer escrita em `createLead`/`updateLead` (`src/actions/lead-actions.ts`) | ✓ Caso 25 (rejeita `999999` com msg exata) |
+| `campanhaId: parsed.data.campanhaId ?? null` — persiste e materializa o desvincular | ✓ Casos 21/23/24 |
+| `nichoId` nunca afetado por operação de campanha | ✓ asserido em todos os Casos 21-27 |
+| Campo "Campanha" em `lead-form-dialog.tsx` + `CampanhaCombobox` fiado nas 3 telas (prop obrigatória força `tsc`) | ✓ grep + `tsc --noEmit` exit 0 |
+| `updateLead` revalida `/leads` (WR-01 do 22-03-REVIEW) | ✓ grep `lead-actions.ts:272` |
+| Comentário do backstop de FK corrigido para `onDelete:"set null"` (WR-02) | ✓ grep |
+| Campanha soft-deletada continua salvável ao re-salvar o lead (WR-03 / T-22-12) | ✓ Caso 27 (novo) |
+
+**Gate completo:** `tsc --noEmit` 0 · `lint` 0 (4 warnings pré-existentes de TanStack Table) · `build` 0 (14 rotas) · `test:lead-actions` OK (Casos 1-27) · `verify:schema` 0 · `guard:no-hard-delete` 0.
+
+**UAT humano ainda pendente (NÃO-BLOQUEANTE — host 4GB sem navegador):** os 3 checks de UI da seção "Human Verification Required" acima + os 3 checks do `22-03-SUMMARY.md` (abrir/salvar/reabrir lead com campanha nas telas `/leads`, `/pipeline`, `/`).
+
+**Débito herdado do `22-REVIEW.md` (WR-01..WR-04, sobre `campanha-actions.ts`) — continua aberto, não bloqueia a fase.** É um conjunto de warnings diferente do `22-03-REVIEW.md` (já fechado).
+
+---
+
 _Verified: 2026-09-05T13:54:57Z_
-_Verifier: Claude (gsd-verifier)_
+_Re-verified: 2026-09-05_
+_Verifier: Claude (gsd-verifier / in-session code+data re-verification)_
