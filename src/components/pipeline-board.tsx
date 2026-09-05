@@ -18,12 +18,14 @@ import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
-import type { Lead, MotivoPerda, Nicho, Template } from "@/types";
+import type { Campanha, Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 type PipelineBoardProps = {
   leads: Lead[];
   nichos: Nicho[];
   motivosPerda: MotivoPerda[];
+  /** Campanhas de exploração de nicho (CAMPANHA-03) — repassadas ao LeadFormDialog. Sem filtro de deletedAt. */
+  campanhas: Campanha[];
   esfriandoLeadIds: number[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
@@ -73,6 +75,7 @@ export function PipelineBoard({
   leads,
   nichos,
   motivosPerda,
+  campanhas,
   esfriandoLeadIds,
   templates,
   sugestaoPorLead,
@@ -253,6 +256,7 @@ export function PipelineBoard({
         }}
         nichos={nichos}
         motivosPerda={motivosPerda}
+        campanhas={campanhas}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}

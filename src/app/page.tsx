@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { motivosPerda, nichos, templates } from "@/db/schema";
+import { campanhas, motivosPerda, nichos, templates } from "@/db/schema";
 import {
   buildDashboardItems,
   computeSequenciaSugestao,
@@ -31,6 +31,7 @@ export default async function Home() {
     allNichos,
     allMotivosPerda,
     allTemplates,
+    allCampanhas,
     config,
     ultimaInteracaoPorLead,
   ] = await Promise.all([
@@ -39,6 +40,9 @@ export default async function Home() {
     db.select().from(nichos),
     db.select().from(motivosPerda),
     db.select().from(templates),
+    // Sem filtro de deletedAt (mesmo motivo de nichos/motivosPerda) — mapa
+    // id→rótulo; o filtro de seleção mora no <CampanhaCombobox>.
+    db.select().from(campanhas),
     getConfiguracoes(),
     getUltimaInteracaoWhatsAppPorLead(),
   ]);
@@ -68,6 +72,7 @@ export default async function Home() {
         proximos7Dias={proximos7Dias}
         nichos={allNichos}
         motivosPerda={allMotivosPerda}
+        campanhas={allCampanhas}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}
       />

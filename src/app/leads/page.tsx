@@ -1,6 +1,6 @@
 import { asc, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, motivosPerda, nichos, templates } from "@/db/schema";
+import { campanhas, leads, motivosPerda, nichos, templates } from "@/db/schema";
 import { LeadTable } from "@/components/lead-table";
 
 /**
@@ -11,7 +11,7 @@ import { LeadTable } from "@/components/lead-table";
  * disparado pelo `LeadFormDialog` ao criar um lead manualmente aqui.
  */
 export default async function LeadsPage() {
-  const [activeLeads, allNichos, allMotivosPerda, allTemplates] = await Promise.all([
+  const [activeLeads, allNichos, allMotivosPerda, allTemplates, allCampanhas] = await Promise.all([
     db
       .select()
       .from(leads)
@@ -28,6 +28,11 @@ export default async function LeadsPage() {
     // cujo motivo foi removido (filtro `deletedAt === null || id === value`).
     db.select().from(motivosPerda),
     db.select().from(templates),
+    // Sem filtro de deletedAt: mesmo motivo dos arrays de nichos/motivosPerda
+    // acima — serve de mapa id→rótulo e precisa exibir a campanha de um lead
+    // cujo vínculo aponta para uma campanha removida; o filtro de seleção mora
+    // no <CampanhaCombobox>.
+    db.select().from(campanhas),
   ]);
 
   return (
@@ -37,6 +42,7 @@ export default async function LeadsPage() {
         leads={activeLeads}
         nichos={allNichos}
         motivosPerda={allMotivosPerda}
+        campanhas={allCampanhas}
         templates={allTemplates}
       />
     </div>

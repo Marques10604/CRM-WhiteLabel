@@ -1,7 +1,7 @@
 import { asc, isNull } from "drizzle-orm";
 import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
-import { leads, motivosPerda, nichos, templates } from "@/db/schema";
+import { campanhas, leads, motivosPerda, nichos, templates } from "@/db/schema";
 import {
   computeSequenciaSugestao,
   getConfiguracoes,
@@ -33,6 +33,7 @@ export default async function PipelinePage() {
     allNichos,
     allMotivosPerda,
     allTemplates,
+    allCampanhas,
     config,
     ultimaInteracaoPorLead,
   ] = await Promise.all([
@@ -44,6 +45,9 @@ export default async function PipelinePage() {
     db.select().from(nichos),
     db.select().from(motivosPerda),
     db.select().from(templates),
+    // Sem filtro de deletedAt (mesmo motivo de nichos/motivosPerda) — mapa
+    // id→rótulo; o filtro de seleção mora no <CampanhaCombobox>.
+    db.select().from(campanhas),
     getConfiguracoes(),
     getUltimaInteracaoWhatsAppPorLead(),
   ]);
@@ -86,6 +90,7 @@ export default async function PipelinePage() {
         leads={activeLeads}
         nichos={allNichos}
         motivosPerda={allMotivosPerda}
+        campanhas={allCampanhas}
         esfriandoLeadIds={esfriandoLeadIds}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}

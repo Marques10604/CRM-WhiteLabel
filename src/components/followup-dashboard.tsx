@@ -14,7 +14,7 @@ import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { normalizePhone } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 import type { DashboardItem } from "@/db/queries";
-import type { Lead, MotivoPerda, Nicho, Tarefa, Template } from "@/types";
+import type { Campanha, Lead, MotivoPerda, Nicho, Tarefa, Template } from "@/types";
 
 type FollowupDashboardProps = {
   vencidos: DashboardItem[];
@@ -22,6 +22,8 @@ type FollowupDashboardProps = {
   proximos7Dias: DashboardItem[];
   nichos: Nicho[];
   motivosPerda: MotivoPerda[];
+  /** Campanhas de exploração de nicho (CAMPANHA-03) — repassadas ao LeadFormDialog. Sem filtro de deletedAt. */
+  campanhas: Campanha[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
 };
@@ -63,6 +65,7 @@ export function FollowupDashboard({
   proximos7Dias,
   nichos,
   motivosPerda,
+  campanhas,
   templates,
   sugestaoPorLead,
 }: FollowupDashboardProps) {
@@ -262,6 +265,7 @@ export function FollowupDashboard({
         }}
         nichos={nichos}
         motivosPerda={motivosPerda}
+        campanhas={campanhas}
         lead={dialogLead}
         templates={templates}
         firstContactTemplate={firstContactTemplate}

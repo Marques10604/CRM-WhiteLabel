@@ -34,6 +34,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { NichoCombobox } from "@/components/nicho-combobox";
 import { MotivoPerdaCombobox } from "@/components/motivo-perda-combobox";
+import { CampanhaCombobox } from "@/components/campanha-combobox";
 import { DiscardChangesDialog } from "@/components/discard-changes-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
@@ -41,7 +42,7 @@ import { createLead, updateLead } from "@/actions/lead-actions";
 import { leadSchema, type LeadFormValues } from "@/lib/validations";
 import { formatCentsToBRL } from "@/lib/money";
 import { useFirstContactTrigger } from "@/hooks/use-first-contact-trigger";
-import type { Lead, MotivoPerda, Nicho, Template } from "@/types";
+import type { Campanha, Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 type LeadFormDialogProps = {
   open: boolean;
@@ -49,6 +50,13 @@ type LeadFormDialogProps = {
   nichos: Nicho[];
   /** Lista governada de motivos de perda (D-04) — alimenta o combobox do campo condicional "Motivo da perda". */
   motivosPerda: MotivoPerda[];
+  /**
+   * Campanhas de exploração de nicho — alimenta o campo OPCIONAL de vínculo
+   * lead→campanha (CAMPANHA-03). Vem SEM filtro de `deletedAt` de propósito
+   * (mesmo idioma de `motivosPerda`): o filtro de seleção mora no
+   * `<CampanhaCombobox>` (`deletedAt === null || id === value`).
+   */
+  campanhas: Campanha[];
   /** Presença de `lead` decide o modo: undefined = criar, definido = editar (D-07). */
   lead?: Lead;
   /** Template padrão de 1º contato, usado pelo auto-gatilho WA-04 (D-19). */
@@ -94,6 +102,7 @@ export function LeadFormDialog({
   onOpenChange,
   nichos,
   motivosPerda,
+  campanhas,
   lead,
   firstContactTemplate,
   templates,
@@ -139,6 +148,9 @@ export function LeadFormDialog({
       nichoId: lead?.nichoId,
       stage: lead?.stage ?? "novo",
       motivoPerdaId: lead?.motivoPerdaId ?? undefined,
+      // CAMPANHA-03: vínculo opcional de campanha — mesma forma de motivoPerdaId
+      // acima (id salvo na edição, undefined na criação).
+      campanhaId: lead?.campanhaId ?? undefined,
     },
   });
 
@@ -343,6 +355,29 @@ export function LeadFormDialog({
                     Nicho do lead (ex: dentista, e-commerce de roupa, academia).
                   </FieldDescription>
                   <FieldError errors={[errors.nichoId]} />
+                </FieldContent>
+              </Field>
+
+              <Field data-invalid={!!errors.campanhaId}>
+                <FieldLabel htmlFor="campanhaId">Campanha</FieldLabel>
+                <FieldContent>
+                  <Controller
+                    control={form.control}
+                    name="campanhaId"
+                    render={({ field }) => (
+                      <CampanhaCombobox
+                        campanhas={campanhas}
+                        nichos={nichos}
+                        value={(field.value as number | null | undefined) ?? null}
+                        onValueChange={(id) => field.onChange(id ?? undefined)}
+                        invalid={!!errors.campanhaId}
+                      />
+                    )}
+                  />
+                  <FieldDescription>
+                    Vincule este lead a uma campanha de exploração de nicho. Opcional.
+                  </FieldDescription>
+                  <FieldError errors={[errors.campanhaId]} />
                 </FieldContent>
               </Field>
 
