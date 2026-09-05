@@ -21,7 +21,7 @@ mercado 2026 (Build-Measure-Learn, market-entry scoring, problem tiers).
 
 - [x] **CAMPANHA-01**: O usuário cria uma campanha de exploração de nicho escolhendo um nicho da lista existente (`/nichos`), definindo a oferta (texto livre — o que pretende vender nesse nicho), a janela de tempo (padrão ~90 dias, editável) e a meta de conversão.
 - [x] **CAMPANHA-02**: A campanha tem um estado: explorando / veredito registrado / em escala / abandonada.
-- [ ] **CAMPANHA-03**: Um lead pode ser vinculado a uma campanha (campo opcional), além do seu nicho geral — o painel da campanha agrega os leads *dela*, não todo o nicho no período.
+- [x] **CAMPANHA-03**: Um lead pode ser vinculado a uma campanha (campo opcional), além do seu nicho geral — o painel da campanha agrega os leads *dela*, não todo o nicho no período.
 - [x] **CAMPANHA-04**: O usuário lista e navega as campanhas já criadas.
 
 ### DIAGNOSTICO — Diagnóstico de IA da campanha
@@ -100,7 +100,7 @@ Preenchida na criação do roadmap.
 |-------------|-------|--------|
 | CAMPANHA-01 | Phase 22 | Complete |
 | CAMPANHA-02 | Phase 22 | Complete |
-| CAMPANHA-03 | Phase 22 | Pending |
+| CAMPANHA-03 | Phase 22 | Complete |
 | CAMPANHA-04 | Phase 22 | Complete |
 | DIAGNOSTICO-01 | Phase 23 | Pending |
 | DIAGNOSTICO-02 | Phase 23 | Pending |
@@ -131,4 +131,4 @@ Preenchida na criação do roadmap.
 
 ---
 *Requirements defined: 2026-09-04*
-*Last updated: 2026-09-04 after roadmap creation (Fases 22-25)*
+*Last updated: 2026-09-05 — CAMPANHA-03 fechado pelo plano 22-03 (gap closure: vínculo lead→campanha)*
