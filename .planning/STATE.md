@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: planning
-last_updated: "2026-09-04T19:05:48.747Z"
-last_activity: 2026-09-04
+status: executing
+last_updated: "2026-09-05T13:29:03.450Z"
+last_activity: 2026-09-05
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Fase 22 (Campanha de Exploração de Nicho) planejada — pronta para `/gsd-execute-phase 22`
+**Current focus:** Phase 22 — campanha-de-explora-o-de-nicho
 
 ## Current Position
 
-Phase: 22 of 25 (Campanha de Exploração de Nicho)
-Plan: 0 of 2 executed (22-01, 22-02 escritos, 0 SUMMARY.md)
-Status: Planned, ready to execute
-Last activity: 2026-09-05 — Fase 22 planejada (22-01-PLAN.md, 22-02-PLAN.md), sessão pausada antes da execução (WIP aa6b15d)
+Phase: 22 (campanha-de-explora-o-de-nicho) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-09-05
 
 ## Performance Metrics
 
@@ -101,6 +101,7 @@ Last activity: 2026-09-05 — Fase 22 planejada (22-01-PLAN.md, 22-02-PLAN.md), 
 | Phase 19 P05 | 16min | 3 tasks | 14 files |
 | Phase 19 P06 | 7min | 3 tasks | 3 files |
 | Phase 21 P01 | 17min | 3 tasks | 6 files |
+| Phase 22 P01 | 15min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -212,6 +213,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 19-05]: refactor cor→token fechado nos 13 arquivos restantes + rename CRM de Leads→SOLO em 3 superfícies (layout title/description, app-sidebar header+ícone S, package.json name=solo); verify:brand exit 0 SEM RESSALVA pela 1ª vez na fase; overlay do dialog bg-black/10→bg-foreground/10 (converter, não allowlistar); escopo do rename travado por D-05
 - [Phase ?]: [Phase 19-06] favicon da marca = src/app/icon.svg estatico (rx=7 #197076 + S #fbfefe), cores hex literais; favicon.ico removido; Fase 19 fechada: 12 sensores verdes, D-19 por code+data 26/26 (host 4GB)
 - [Phase ?]: Fase 21 (EXPORT-01/02/03): exportacao de /leads 100% client-side via table.getSortedRowModel() + PapaParse ja instalado; modulo puro lead-csv-export.ts (DOM-free, BOM UTF-8 + delimitador ;, guard OWASP de formula injection), trigger de download isolado na toolbar; LeadRow.motivoPerdaNome por Map; verificacao code+data (host 4GB), UAT de download/Excel diferida nao-bloqueante; ship push direto na main
+- [Phase ?]: [Fase 22-01]: tabela campanhas criada via migração manual .cjs idempotente contra data/crm.db (44 leads intactos, rodada 2x); estado nasce 'explorando' e fica FORA dos schemas Zod (mudança é escopo Fase 24); metaConversao é texto livre; leads.campanhaId nullable FK set null; Server Actions com molde nichoExists+isForeignKeyViolation de lead-actions.ts
 
 ### Pending Todos
 
@@ -339,10 +341,12 @@ Nenhuma fase ainda foi planejada (sem `PLAN.md`).
 
 - **WR-03/WR-04 da Fase 19** — 2 gates `.cjs` frouxos (`check-contrast` não cobre pares
   fg-sobre-`card`/`muted`; `verify-brand-md` casa substrings). Correções em `19-REVIEW.md`.
+
 - **8 quick tasks de UI** acumuladas v1.0–v1.3.
 - **Confirmação puramente visual das Fases 19/20/21** — animações, toasts, o download real do
   CSV, "abre no Excel", troca de tema ao vivo, sem-flash em hard reload — diferida (host 4GB).
   Fazer numa sessão com navegador.
+
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
 
 <details>
@@ -389,6 +393,7 @@ campo de vendedor, meta mensal), teste de nicho formal (CAMPANHA-01), handoff Pr
   Fazer numa sessão com navegador.
 
 - Fase 12 Teste 14 (estado vazio do dashboard, skipped), 5 todos de backlog PME, 2 seeds dormentes.
+
 </details>
 
 <details>
@@ -592,7 +597,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-04T11:58:47.132Z
+Last session: 2026-09-05T13:28:58.558Z
 
 **O que foi feito nesta sessão:**
 
