@@ -753,6 +753,43 @@ async function runBehaviorTests() {
     );
   }
 
+  // Caso 27 (CAMPANHA-03 / T-22-12): re-salvar um lead cuja campanha foi
+  // soft-deletada NÃO pode passar a falhar. O combobox mantém a campanha
+  // vinculada visível (`campanha.deletedAt === null || campanha.id === value`),
+  // então o form re-envia esse campanhaId no submit mesmo sem o usuário mexer
+  // nele — `campanhaExists()` é PROPOSITALMENTE indiferente a `deletedAt` pra
+  // que essa re-gravação continue passando.
+  {
+    // Re-vincula o lead de teste à campanha A (Caso 24 tinha zerado o vínculo).
+    await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(campanhaLeadId), campanhaId: String(campanhaAId) })
+    );
+    // Soft-delete da campanha A direto no banco (mesma mecânica de setupDb).
+    const softDeleteDb = new Database(tmpDb);
+    softDeleteDb
+      .prepare("UPDATE campanhas SET deleted_at = ? WHERE id = ?")
+      .run(Math.floor(Date.now() / 1000), campanhaAId);
+    softDeleteDb.close();
+
+    const outcome = await callToleratingRevalidate(
+      updateLead,
+      makeFormData({ id: String(campanhaLeadId), campanhaId: String(campanhaAId) })
+    );
+    // `threw` = revalidatePath lançou DEPOIS do write (sucesso). `!threw` =
+    // deve ter retornado { success: true }, nunca { errors }.
+    check(
+      outcome.threw || outcome.result?.success === true,
+      `updateLead re-salvando lead com campanha soft-deletada: sem errors (got ${JSON.stringify(outcome.result)})`
+    );
+    const [row] = await db.select().from(leads).where(eq(leads.id, campanhaLeadId));
+    check(
+      row?.campanhaId === campanhaAId,
+      `updateLead com campanha soft-deletada: vínculo preservado === ${campanhaAId} (got ${JSON.stringify(row?.campanhaId)})`
+    );
+    check(row?.nichoId === nichoId, `updateLead com campanha soft-deletada: nichoId INTACTO === ${nichoId} (got ${row?.nichoId})`);
+  }
+
   try {
     fs.unlinkSync(tmpDb);
   } catch {

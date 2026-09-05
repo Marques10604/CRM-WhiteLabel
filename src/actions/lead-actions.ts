@@ -143,12 +143,13 @@ export async function createLead(
   } catch (err) {
     // Backstop de FK: nicho OU motivo de perda apagado ENTRE a
     // pré-checagem acima e este insert (janela de corrida check-then-write).
-    // onDelete:"restrict" no schema faz o SQLite lançar
-    // SQLITE_CONSTRAINT_FOREIGNKEY nesse caso. O objeto de erro do SQLite não
-    // diz QUAL FK foi violada, então um campanhaId apagado nessa janela seria
-    // reportado como erro de nicho — imprecisão de rótulo aceita
-    // conscientemente (T-22-14); a pré-checagem `campanhaExists` é a barreira
-    // primária.
+    // As FKs de nicho/motivo não têm onDelete no schema (NO ACTION), então o
+    // SQLite lança SQLITE_CONSTRAINT_FOREIGNKEY nesse caso. `campanhaId` usa
+    // onDelete:"set null" (schema.ts) — uma campanha removida nessa janela
+    // zera a coluna em vez de lançar, então a pré-checagem `campanhaExists` é
+    // a única barreira (T-22-14). O objeto de erro do SQLite não diz QUAL FK
+    // falhou; um erro de FK aqui é sempre rotulado como nicho — imprecisão
+    // aceita conscientemente.
     if (isForeignKeyViolation(err)) {
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
@@ -255,9 +256,9 @@ export async function updateLead(
       })
       .where(and(eq(leads.id, id), isNull(leads.deletedAt)));
   } catch (err) {
-    // Mesmo backstop de FK do createLead (nicho, motivo de perda ou campanha —
-    // o SQLite não distingue qual FK falhou, T-22-14; a pré-checagem é a
-    // barreira primária).
+    // Mesmo backstop de FK do createLead: nicho/motivo (NO ACTION) podem
+    // lançar; campanha (onDelete:"set null") não. O SQLite não distingue qual
+    // FK falhou (T-22-14); a pré-checagem é a barreira primária.
     if (isForeignKeyViolation(err)) {
       if (parsed.data.stage === "perdido") {
         return { errors: { motivoPerdaId: ["Selecione o motivo da perda."] } };
@@ -268,6 +269,7 @@ export async function updateLead(
   }
 
   revalidatePath("/");
+  revalidatePath("/leads");
   revalidatePath("/pipeline");
   return { success: true };
 }
