@@ -26,7 +26,7 @@ const rows = db
 const tableNames = new Set(rows.filter((r) => r.type === "table").map((r) => r.name));
 const indexNames = new Set(rows.filter((r) => r.type === "index").map((r) => r.name));
 
-const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda", "tarefas"];
+const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda", "tarefas", "campanhas"];
 const requiredIndexes = [
   "subnicho_nome_unique_idx",
   "interacoes_lead_id_idx",
@@ -34,6 +34,9 @@ const requiredIndexes = [
   "motivo_perda_nome_unique_idx",
   "tarefas_concluida_em_idx",
   "tarefas_data_idx",
+  "campanhas_nicho_id_idx",
+  "campanhas_deleted_at_idx",
+  "campanhas_estado_idx",
 ];
 
 const missingTables = requiredTables.filter((t) => !tableNames.has(t));
@@ -108,6 +111,42 @@ if (tableNames.has("tarefas")) {
   }
 }
 
+// Gate de sync de schema para a tabela campanhas (Fase 22, CAMPANHA-01/02):
+// exige exatamente o conjunto de colunas físicas, nem a mais nem a menos.
+// Conjunto estrito é seguro aqui porque a tabela nasce nesta fase e não
+// acumula colunas por fase (diferente de 'leads') — mesmo idioma dos blocos
+// de 'interacoes'/'tarefas' acima.
+const REQUIRED_CAMPANHAS_COLUMNS = [
+  "id",
+  "nicho_id",
+  "oferta",
+  "meta_conversao",
+  "janela_inicio",
+  "janela_fim",
+  "estado",
+  "deleted_at",
+  "created_at",
+  "updated_at",
+];
+
+if (tableNames.has("campanhas")) {
+  const campanhasColumns = db
+    .prepare("PRAGMA table_info(campanhas)")
+    .all()
+    .map((c) => c.name);
+  const columnSet = new Set(campanhasColumns);
+  const requiredSet = new Set(REQUIRED_CAMPANHAS_COLUMNS);
+
+  const missingColumns = REQUIRED_CAMPANHAS_COLUMNS.filter((c) => !columnSet.has(c));
+  const extraColumns = campanhasColumns.filter((c) => !requiredSet.has(c));
+
+  if (missingColumns.length > 0 || extraColumns.length > 0) {
+    fail(
+      `colunas de 'campanhas' divergentes — faltando: [${missingColumns.join(", ")}], extras: [${extraColumns.join(", ")}]`
+    );
+  }
+}
+
 // Gate permanente de PRESENÇA para as duas colunas da Sequência de
 // Follow-up Escalonada (Fase 10, SEQ-01/SEQ-02). Deliberadamente checagem de
 // PRESENÇA, não de conjunto estrito (diferente do bloco de 'interacoes'
@@ -125,6 +164,9 @@ if (tableNames.has("leads")) {
   if (!leadsColumns.has("interesse")) {
     fail("coluna ausente: leads.interesse (Fase 15, LEAD-06)");
   }
+  if (!leadsColumns.has("campanha_id")) {
+    fail("coluna ausente: leads.campanha_id (Fase 22, CAMPANHA-03)");
+  }
 }
 
 if (tableNames.has("configuracoes")) {
@@ -136,7 +178,7 @@ if (tableNames.has("configuracoes")) {
 
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id'/'interesse' presentes e conjunto estrito de colunas de 'tarefas' conferido em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas'/'campanhas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id'/'interesse'/'campanha_id' presentes e conjunto estrito de colunas de 'tarefas'/'campanhas' conferido em",
   DB_PATH
 );
 process.exit(0);
