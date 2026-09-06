@@ -1,10 +1,11 @@
 ---
 phase: 23
 slug: diagn-stico-de-ia-da-campanha
-status: draft
+status: approved
 shadcn_initialized: true
 preset: base-nova
 created: 2026-09-05
+reviewed_at: 2026-09-05
 ---
 
 # Phase 23 — Contrato de Design de UI
@@ -70,7 +71,7 @@ Grade de 4px (Tailwind default, mantida pela `brand.md` — "Mantenha a grade de
 | — | 64px (`py-16`) | Padding vertical do estado vazio (paridade exata com `campanha-list.tsx`) |
 
 **Exceções:**
-- `gap-0.5` (2px) entre `dt` e `dd` de um par rótulo→valor — herdado do `<dl>` existente em `campanhas/[id]/page.tsx`.
+- `gap-0.5` (2px) entre `dt` e `dd` de um par rótulo→valor — herdado do `<dl>` existente em `campanhas/[id]/page.tsx` (padrão de par rótulo→valor já em produção; não é folga nova, é continuidade de um componente aprovado).
 - `h-5` (altura fixa) do primitivo `Badge` do shadcn — primitivo de biblioteca, não se ajusta à grade.
 
 ---
@@ -79,17 +80,19 @@ Grade de 4px (Tailwind default, mantida pela `brand.md` — "Mantenha a grade de
 
 Escala **travada pela `brand.md`** (§"Escala de tipografia"). Geist em todos os papéis; Geist Mono para números que importam e URLs.
 
+Esta seção usa **no máximo 4 tamanhos** para os componentes novos: `text-xl` / `text-base` / `text-sm` / `text-xs`. O H1 `text-[28px]` da página é **herdado e fixo** (título da campanha, fora do escopo desta fase).
+
 | Papel | Classe | Peso | Line height | Uso nesta fase |
 |-------|--------|------|-------------|----------------|
-| H1 (página) | `text-[28px] leading-tight` | 600 (semibold) | ~1.15 | Já existe — título da campanha, não muda |
+| H1 (página) | `text-[28px] leading-tight` | 600 (semibold) | ~1.15 | Já existe — título da campanha, não muda (herdado, não conta no teto de 4) |
 | H2 (seção) | `text-xl font-semibold` | 600 | 1.2 (`leading-tight` opcional) | "Diagnóstico de IA" |
-| H3 (subseção) | `text-base font-medium` | 500 | 1.5 | "Gatilhos de dor", "Objeções", "Ticket médio", "Achados", "Rascunho de 1ª mensagem", "Fontes" |
+| H3 (subseção) | `text-base font-semibold` | 600 | 1.5 | "Gatilhos de dor", "Objeções", "Ticket médio", "Achados", "Rascunho de 1ª mensagem", "Fontes" |
 | Corpo | `text-sm` | 400 | 1.5 | Texto de gatilho, objeção/resposta, `leitura` da saturação, justificativa do veredito |
-| Número-destaque | `text-3xl font-mono tabular-nums` | 400 | 1.1 | Índice de saturação (contagem de concorrentes) |
+| Número-destaque | `text-xl font-mono tabular-nums font-semibold` | 600 | 1.2 | Índice de saturação (contagem de concorrentes) — a ênfase de "número herói" vem do mono + tabular-nums + peso 600, **não** de um tamanho maior (evita colisão com o H1 de 28px) |
 | Caption / meta | `text-xs text-muted-foreground` | 400 | 1.4 | Timestamp, contagem de fontes/tokens/buscas, avisos ("não vinculante", "nunca enviado") |
-| Mono inline | `font-mono tabular-nums` | 400 | herda | Valor do ticket (`R$ …`), token counts, domínio das URLs |
+| Mono inline | `font-mono tabular-nums` (herda `text-sm`) | 400 | herda | Valor do ticket (`R$ …`), token counts, domínio das URLs |
 
-**Pesos declarados:** 400 (regular) e 600 (semibold) como base; **500 (medium) para títulos de card** — os 3 vêm da `brand.md` e são a escala oficial do produto. Itálico é usado **uma vez, com função semântica**: o texto de uma `alegacao_marketing` renderiza em `italic text-muted-foreground` para nunca competir visualmente com um dado (ver §Color / DIAGNOSTICO-07).
+**Pesos declarados:** apenas **2** nesta seção — 400 (regular) para todo corpo/caption e 600 (semibold) para todos os títulos e o número-destaque. O peso **500 (medium)** da escala completa da `brand.md` **não é usado** aqui: cada ênfase de título resolve em 600, cada texto de leitura em 400. Isso mantém a seção dentro do teto de 2 pesos sem contrariar a `brand.md` (que permite, não obriga, os 3 pesos). Itálico é usado **uma vez, com função semântica**: o texto de uma `alegacao_marketing` renderiza em `italic text-muted-foreground` para nunca competir visualmente com um dado (ver §Color / DIAGNOSTICO-07).
 
 ---
 
@@ -198,11 +201,14 @@ A seção é o último filho do `<div className="flex flex-col gap-6">` de `camp
   │     h3 "Diagnóstico não gerado" · p motivo · timestamp · <Button outline> "Tentar de novo"
   │
   └─ ESTADO RESULTADO  (flex flex-col gap-4)
+        • Ponto focal único ao concluir a geração: o número do índice de saturação + sua `leitura`.
+          Os demais ~9 blocos têm peso visual uniforme e secundário — o executor não deve dar
+          ênfase competindo (sem outra "hero number", sem outra borda de acento além do gatilho mais forte).
         ├─ linha de metadados (text-xs mono muted)
-        ├─ bloco Saturação  (rounded-lg border bg-card p-4): número text-3xl mono + rótulo + leitura
+        ├─ bloco Saturação  (rounded-lg border bg-card p-4): número text-xl font-mono tabular-nums font-semibold + rótulo + leitura
         ├─ bloco Gatilhos    (gap-3): 1–3 cards; o "mais forte" com border-primary + badge "Mais forte"
         │      cada card: texto do gatilho + link "observável em" (ExternalLink)
-        ├─ bloco Objeções    (gap-3): 2–3 pares — objeção (font-medium) / "Resposta sugerida:" (text-sm)
+        ├─ bloco Objeções    (gap-3): 2–3 pares — objeção (font-semibold) / "Resposta sugerida:" (text-sm)
         ├─ bloco Ticket      (rounded-lg border bg-card p-4): valor mono + "Base: …" + link de fonte
         ├─ bloco Achados     (flex flex-col gap-2): cada linha = <AchadoTipoBadge> + afirmação + link
         ├─ bloco Rascunho    (<RascunhoMensagem>): Textarea + "Copiar mensagem" + nota
@@ -244,11 +250,11 @@ Nenhum `npx shadcn add` de registry externo nesta fase. Os componentes novos (`D
 
 ## Checker Sign-Off
 
-- [ ] Dimensão 1 Copywriting: PASS
-- [ ] Dimensão 2 Visuais: PASS
-- [ ] Dimensão 3 Color: PASS
-- [ ] Dimensão 4 Typography: PASS
-- [ ] Dimensão 5 Spacing: PASS
-- [ ] Dimensão 6 Registry Safety: PASS
+- [x] Dimensão 1 Copywriting: PASS
+- [x] Dimensão 2 Visuais: PASS
+- [x] Dimensão 3 Color: PASS
+- [x] Dimensão 4 Typography: PASS (bloqueio inicial de tipografia resolvido na revisão 1)
+- [x] Dimensão 5 Spacing: PASS
+- [x] Dimensão 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-09-05 (gsd-ui-checker, após 1 revisão)
