@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
 status: phase_complete
-last_updated: "2026-09-05T20:30:00.000Z"
+last_updated: "2026-09-05T23:22:00.000Z"
 last_activity: 2026-09-05
 progress:
   total_phases: 4
@@ -24,11 +24,12 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — AI-SPEC gerada (commit 2b80cc8)
-Plan: 0 of TBD — planejamento ainda não começou
-Status: `/gsd-ai-integration-phase 23` completo — framework (Vercel AI SDK), contexto de domínio e estratégia de avaliação travados no 23-AI-SPEC.md. Próximo: `/gsd-plan-phase 23` (o planner consome a AI-SPEC).
-Sem CONTEXT.md (pulou o /gsd-discuss-phase); framework escolhido pelo usuário direto.
-Last activity: 2026-09-05 -- Fase 22 fechada (push direto na main); AI-SPEC da Fase 23 gerada
+Phase: 23 (Diagnóstico de IA da Campanha) — PLANEJANDO (meio do /gsd-plan-phase)
+Plan: 0 of TBD — planos ainda não escritos; planner (opus) é o próximo subagente
+Status: `/gsd-plan-phase 23` em andamento. Prontos: 23-AI-SPEC.md (2b80cc8), 23-UI-SPEC.md (6/6 PASS, 90be328), 23-RESEARCH.md (e636a0e), 23-VALIDATION.md (11c8b90). gsd-pattern-mapper estava rodando quando salvamos — ver .continue-here.md da pasta da fase.
+**Retomar: `/gsd-plan-phase 23`** (resumível — pula pesquisa/Nyquist/pattern-mapper se os arquivos existem, vai direto pro planner → plan-checker).
+Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões da sessão registradas no .continue-here.md.
+Last activity: 2026-09-05 (noite) -- Fase 22 fechada; Fase 23 AI-SPEC + UI-SPEC + RESEARCH + VALIDATION prontos; planejamento pausado (usuário foi dormir)
 
 ### Setup pendente do usuário para a Fase 23 (antes de executar)
 - Criar `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
