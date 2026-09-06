@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 Phase: 23 (Diagnóstico de IA da Campanha) — PLANEJANDO (meio do /gsd-plan-phase)
 Plan: 0 of TBD — planos ainda não escritos; planner (opus) é o próximo subagente
-Status: `/gsd-plan-phase 23` em andamento. Prontos: 23-AI-SPEC.md (2b80cc8), 23-UI-SPEC.md (6/6 PASS, 90be328), 23-RESEARCH.md (e636a0e), 23-VALIDATION.md (11c8b90). gsd-pattern-mapper estava rodando quando salvamos — ver .continue-here.md da pasta da fase.
+Status: `/gsd-plan-phase 23` pausado. TODOS os pré-planner prontos: 23-AI-SPEC.md (2b80cc8), 23-UI-SPEC.md (6/6 PASS, 90be328), 23-RESEARCH.md (e636a0e), 23-VALIDATION.md (11c8b90), 23-PATTERNS.md (b9e99e3). Falta só o planner + plan-checker. Ver .continue-here.md da pasta da fase.
 **Retomar: `/gsd-plan-phase 23`** (resumível — pula pesquisa/Nyquist/pattern-mapper se os arquivos existem, vai direto pro planner → plan-checker).
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões da sessão registradas no .continue-here.md.
 Last activity: 2026-09-05 (noite) -- Fase 22 fechada; Fase 23 AI-SPEC + UI-SPEC + RESEARCH + VALIDATION prontos; planejamento pausado (usuário foi dormir)
