@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
 status: phase_complete
-last_updated: "2026-09-05T15:15:00.000Z"
+last_updated: "2026-09-05T20:30:00.000Z"
 last_activity: 2026-09-05
 progress:
   total_phases: 4
@@ -20,14 +20,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 22 — campanha-de-explora-o-de-nicho
+**Current focus:** Phase 23 — diagn-stico-de-ia-da-campanha
 
 ## Current Position
 
-Phase: 22 (campanha-de-explora-o-de-nicho) — VERIFICADA ✓ (4/4 must-haves)
-Plan: 3 of 3 — todos executados; 22-03-REVIEW.md fechado (WR-01/02/03, commit b9a2c44)
-Status: Fase 22 completa — pronta para fechar/shipar OU seguir para a Fase 23
-Last activity: 2026-09-05 -- re-verificação da Fase 22 passou; warnings do 22-03-REVIEW fechados
+Phase: 23 (Diagnóstico de IA da Campanha) — AI-SPEC gerada (commit 2b80cc8)
+Plan: 0 of TBD — planejamento ainda não começou
+Status: `/gsd-ai-integration-phase 23` completo — framework (Vercel AI SDK), contexto de domínio e estratégia de avaliação travados no 23-AI-SPEC.md. Próximo: `/gsd-plan-phase 23` (o planner consome a AI-SPEC).
+Sem CONTEXT.md (pulou o /gsd-discuss-phase); framework escolhido pelo usuário direto.
+Last activity: 2026-09-05 -- Fase 22 fechada (push direto na main); AI-SPEC da Fase 23 gerada
+
+### Setup pendente do usuário para a Fase 23 (antes de executar)
+- Criar `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
+- Habilitar a "Web Search" tool nas configurações da ORGANIZAÇÃO no Console da Anthropic (senão a chamada volta HTTP 400)
 
 ## Performance Metrics
 
