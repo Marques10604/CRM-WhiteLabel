@@ -134,13 +134,29 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
   4. Um diagnóstico sem nenhuma fonte (URL) citada é rejeitado pelo sistema, e o usuário vê isso em vez de um resultado genérico
   5. O diagnóstico inclui um rascunho de 1ª mensagem editável (nunca enviado automaticamente) e termina com um veredito sugerido pela IA (aprofundar/mudar ângulo/abandonar); o usuário pode regenerar quando quiser, e cada geração aparece como um evento novo e visível, sem cache escondendo o custo
 **Plans**: 7 planos em 5 ondas
+
+**Onda 1:**
 - [ ] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
+
+**Onda 2** *(bloqueada na Onda 1):*
 - [ ] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema
-- [ ] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()`
-- [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5
+- [ ] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()` *(checkpoint humano: aprovar `npm i` de `ai`/`@ai-sdk/anthropic`)*
+
+**Onda 3** *(bloqueada nas Ondas 1–2):*
+- [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
+
+**Onda 4** *(bloqueada na Onda 3):*
 - [ ] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
-- [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold
+- [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
+
+**Onda 5** *(bloqueada na Onda 4):*
 - [ ] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico
+
+**Cross-cutting constraints** (aparecem em 2+ planos):
+- Gate anti-genérico é harness estrutural que chama a função direto, sem navegador (23-01, 23-03, 23-04, 23-06)
+- `ANTHROPIC_API_KEY` só server-side, nunca em client component nem bundle (23-03, 23-04, 23-07)
+- Nenhum cache: cada geração é linha nova append-only em `diagnosticos`, custo sempre visível (23-04, 23-07)
+- `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (D-23-01); Server Action em `src/actions/diagnostico-actions.ts` (D-23-02)
 **UI hint**: yes
 **Rationale (IA)**: `config.json` tem `workflow.ai_integration_phase: true` — esta fase precisa do tratamento de `/gsd-ai-integration-phase` ou `/gsd-plan-phase --ai` no planejamento: escolha de framework (Vercel AI SDK + Claude com tool de busca na web é o candidato natural) e uma estratégia de avaliação contra saída genérica/inútil, espelhando o padrão anti-genérico já validado na pesquisa do próprio Prospector (forçar especificidade, exigir fontes citadas, rejeitar saída sem fundamento). O host de 4GB não roda navegador + sessão do agente juntos — a avaliação de qualidade "é útil de verdade" continua sendo julgamento humano, mas os portões estruturais anti-genérico (tem fonte, tem índice numérico, rejeita sem fonte, etc.) devem ser automatizáveis por um harness que chama a função de diagnóstico diretamente e faz asserções estruturais, sem precisar de navegador.
 

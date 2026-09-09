@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: phase_complete
-last_updated: "2026-09-05T23:22:00.000Z"
-last_activity: 2026-09-05
+status: ready_to_execute
+last_updated: "2026-09-09T00:00:00.000Z"
+last_activity: 2026-09-09
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
+  total_plans: 10
   completed_plans: 3
   percent: 25
 ---
@@ -24,12 +24,16 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — PLANEJANDO (meio do /gsd-plan-phase)
-Plan: 0 of TBD — planos ainda não escritos; planner (opus) é o próximo subagente
-Status: `/gsd-plan-phase 23` pausado. TODOS os pré-planner prontos: 23-AI-SPEC.md (2b80cc8), 23-UI-SPEC.md (6/6 PASS, 90be328), 23-RESEARCH.md (e636a0e), 23-VALIDATION.md (11c8b90), 23-PATTERNS.md (b9e99e3). Falta só o planner + plan-checker. Ver .continue-here.md da pasta da fase.
-**Retomar: `/gsd-plan-phase 23`** (resumível — pula pesquisa/Nyquist/pattern-mapper se os arquivos existem, vai direto pro planner → plan-checker).
-Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões da sessão registradas no .continue-here.md.
-Last activity: 2026-09-05 (noite) -- Fase 22 fechada; Fase 23 AI-SPEC + UI-SPEC + RESEARCH + VALIDATION prontos; planejamento pausado (usuário foi dormir)
+Phase: 23 (Diagnóstico de IA da Campanha) — PLANEJADA ✓, pronta para executar
+Plan: 0 of 7 — 7 planos em 5 ondas escritos e verificados (commits 344d24b + revisão 2e26c8e)
+Status: `/gsd-plan-phase 23` CONCLUÍDO (2026-09-09). Planner (opus) → 7 planos; plan-checker (sonnet) 1ª passada 0 blockers/5 warnings → revisão dirigida (5/5 tratados) → re-checagem **VERIFICATION PASSED**. Cobertura DIAGNOSTICO-01..10 completa. 3 decisões do planner aprovadas pelo usuário: D-23-01 (`criado_em` integer timestamp), D-23-02 (Server Action em `src/actions/diagnostico-actions.ts`), D-23-06 (sem "busca ao vivo" real — consultas renderizadas após a geração). D-23-07 registrada na revisão (coluna `aviso` separada de `erro` no schema).
+**Próximo passo: `/gsd-execute-phase 23`** (`/clear` antes).
+Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
+Last activity: 2026-09-09 -- `/gsd-plan-phase 23` rodado até o fim; 7 planos verificados; ROADMAP + STATE atualizados à mão (shim `gsd-sdk` global quebrado — ver Blockers).
+
+### 2 avisos menores do plan-checker aceitos como dívida (não bloqueiam execução)
+- 23-05 `must_haves.truths` não captura o bloco "Ressalva:" novo (a acceptance criterion `grep -c "Ressalva: "` já cobre a execução) — alinhamento de metadados
+- 23-05 `depends_on: ["23-04"]` poderia ser `["23-02"]` (componentes puros só precisam do tipo `Diagnostico` + semântica `aviso`) — otimização de paralelismo, não correção
 
 ### Setup pendente do usuário para a Fase 23 (antes de executar)
 - Criar `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
@@ -253,6 +257,7 @@ Resolvidos no v1.0, limpos no fechamento do milestone:
 
 Aberto, carregado para o v1.3:
 
+- **Shim global `gsd-sdk` quebrado (descoberto 2026-09-09):** `C:\Users\Vencedor\AppData\Roaming\npm\gsd-sdk` aponta para `C:\Users\Vencedor\Desktop\Todas as Pastas\Framework GDS\bin\gsd-sdk.js` — essa pasta não existe mais (movida/removida do Desktop). Funcionou no início da sessão de 2026-09-09 e quebrou no meio dela. Efeito: passos de gate do plan-phase (`state.planned-phase`, `roadmap.annotate-dependencies`) e provavelmente comandos GSD futuros falham. **Workaround usado:** STATE.md + ROADMAP.md editados à mão; `gap-analysis` rodado pelo tool local `.claude/get-shit-done/bin/gsd-tools.cjs`. **Fix:** reapontar o shim para o `gsd-sdk.js` na localização nova da pasta "Framework GDS", ou reinstalar o pacote do framework.
 - Cross-cutting: continuar vigiando scope creep para auth/multi-usuário/mobile/WhatsApp Business API em toda fase nova — explicitamente fora de escopo por `PROJECT.md`.
 - Phase 8: backup de `data/crm.db` antes de qualquer `drizzle-kit push` que altere a tabela `leads` (dados reais de `origem` já sujos — `"Importação CSV"`, `"Teste"`, `"insta"`, confirmado por query direta em `research/SUMMARY.md`).
 - Phase 9/Phase 12: `interacoes` e `tarefas` precisam entrar em `scripts/guard-no-hard-delete.cjs` no mesmo commit que as cria, com decisão explícita de soft-delete (default recomendado: sem `deletedAt`, YAGNI) documentada como D-XX no momento da fase.
@@ -328,7 +333,29 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 22 VERIFICADA ✓, PRONTA PRA FECHAR (2026-09-05)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 PLANEJADA ✓, PRONTA PRA EXECUTAR (2026-09-09)
+
+**ONDE PARAMOS:** `/gsd-plan-phase 23` rodou do início ao fim. 7 planos em 5 ondas
+(`23-01`..`23-07`), commits `344d24b` (planos) + `2e26c8e` (revisão dos 5 warnings do
+plan-checker). Re-checagem final: **VERIFICATION PASSED**. Cobertura DIAGNOSTICO-01..10 completa.
+
+**3 decisões do planner APROVADAS pelo usuário** (não re-perguntar):
+- **D-23-01** — `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (corrige AI-SPEC §4)
+- **D-23-02** — Server Action em `src/actions/diagnostico-actions.ts` (não co-locada)
+- **D-23-06** — sem "busca ao vivo": spinner + aviso de custo no pending; consultas reais
+  (`diagnosticos.buscas`) renderizadas só após a geração (23-05 Task 3, bloco 2)
+- **D-23-07** (registrada na revisão) — coluna `aviso` TEXT separada de `erro` no schema `diagnosticos` (11 colunas)
+
+**Próximo passo:** `/clear` e então `/gsd-execute-phase 23`.
+
+**Setup do usuário ANTES de executar a Onda 3+** (Ondas 1–2, exceto o `npm i`, rodam sem isso):
+- `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
+- Habilitar a "Web Search" tool nas configs da ORGANIZAÇÃO no Console da Anthropic (senão HTTP 400)
+
+**2 avisos menores do plan-checker aceitos como dívida** (ver "Current Position" acima) — não bloqueiam.
+
+<details>
+<summary>Histórico — Fase 22 verificada e fechada (2026-09-05)</summary>
 
 **ONDE PARAMOS:** a **Fase 22 está completa e re-verificada (4/4 must-haves)**. O plano 22-03
 (gap closure de CAMPANHA-03 / SC3) foi executado (`0c879de`, `746c988`, `3f850fe`), o code review
@@ -355,6 +382,8 @@ de IA de verdade; `/gsd-ai-integration-phase 23` ou `/gsd-plan-phase 23 --ai`).
   `updateCampanha` reporta sucesso em 0 linhas, dialog descarta erros de campo, sem
   `test-campanha-actions.cjs`) — conjunto DIFERENTE do `22-03-REVIEW.md`; herdado, não bloqueia
 - IN-02 do `22-03-REVIEW`: rótulo "Nenhuma campanha" colide com o placeholder do combobox
+
+</details>
 
 <details>
 <summary>Histórico — ROADMAP v1.7 criado (2026-09-04)</summary>
