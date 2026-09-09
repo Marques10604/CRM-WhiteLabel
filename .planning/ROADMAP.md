@@ -133,7 +133,14 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
   3. Cada achado do diagnóstico aparece marcado visualmente como "dado quantificável" ou "alegação de marketing do concorrente" — nunca misturado sem distinção
   4. Um diagnóstico sem nenhuma fonte (URL) citada é rejeitado pelo sistema, e o usuário vê isso em vez de um resultado genérico
   5. O diagnóstico inclui um rascunho de 1ª mensagem editável (nunca enviado automaticamente) e termina com um veredito sugerido pela IA (aprofundar/mudar ângulo/abandonar); o usuário pode regenerar quando quiser, e cada geração aparece como um evento novo e visível, sem cache escondendo o custo
-**Plans**: TBD
+**Plans**: 7 planos em 5 ondas
+- [ ] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
+- [ ] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema
+- [ ] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()`
+- [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5
+- [ ] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
+- [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold
+- [ ] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico
 **UI hint**: yes
 **Rationale (IA)**: `config.json` tem `workflow.ai_integration_phase: true` — esta fase precisa do tratamento de `/gsd-ai-integration-phase` ou `/gsd-plan-phase --ai` no planejamento: escolha de framework (Vercel AI SDK + Claude com tool de busca na web é o candidato natural) e uma estratégia de avaliação contra saída genérica/inútil, espelhando o padrão anti-genérico já validado na pesquisa do próprio Prospector (forçar especificidade, exigir fontes citadas, rejeitar saída sem fundamento). O host de 4GB não roda navegador + sessão do agente juntos — a avaliação de qualidade "é útil de verdade" continua sendo julgamento humano, mas os portões estruturais anti-genérico (tem fonte, tem índice numérico, rejeita sem fonte, etc.) devem ser automatizáveis por um harness que chama a função de diagnóstico diretamente e faz asserções estruturais, sem precisar de navegador.
 
