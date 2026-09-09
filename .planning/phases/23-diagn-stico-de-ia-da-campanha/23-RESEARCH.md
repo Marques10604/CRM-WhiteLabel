@@ -652,28 +652,43 @@ export const maxDuration = 120; // segundos — a Server Action de diagnóstico 
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Todas as 5 perguntas foram dispostas no planejamento da Fase 23 (planos 23-01 a 23-07).
+> A disposição de cada uma está anotada no próprio item.
 
 1. **`effort` / `maxOutputTokens` / `temperature` no Sonnet 5 via `@ai-sdk/anthropic@4.0.49`**
    - O que sabemos: adaptive thinking sempre on; `effort` existe (`low..max`); tokens de thinking = output e contam contra `maxOutputTokens`.
    - O que falta: se `providerOptions.anthropic.effort` é repassado nesta versão do provider; qual `maxOutputTokens` real evita truncamento; se `temperature` é honrado.
+   - **Disposição: RESOLVIDA via spike em 23-04 Task 3** — a medição real fixa `maxOutputTokens`,
+     `effort` e `temperature`, registrados como D-23-04 no SUMMARY de 23-04.
    - Recomendação: 1ª task da Onda 1 é um "spike" — uma chamada real de `gerarDiagnostico` com log completo de `usage`/`finishReason`/`steps`, ajustar `effort` e `maxOutputTokens` a partir do observado, documentar como decisão da fase.
 
 2. **`criado_em`: ISO string (AI-SPEC §4) vs `integer` timestamp (convenção do projeto)**
    - O que sabemos: todo timestamp do schema é `integer({mode:"timestamp"})` + `unixepoch()`. O AI-SPEC §4 diz "`criadoEm` (ISO string, padrão do projeto)" — mas ISO string **não** é o padrão do projeto.
+   - **Disposição: RESOLVIDA por D-23-01** (plano 23-02, Task 1) — `integer({ mode: "timestamp" })`
+     com default `(unixepoch())`; o 23-AI-SPEC §4 está errado neste ponto.
    - Recomendação: usar `integer("criado_em", { mode: "timestamp" }).notNull().default(sql\`(unixepoch())\`)` (Pattern 1). Se o planner discordar, decidir explicitamente e documentar — não deixar o executor escolher.
 
 3. **Localização do arquivo de Server Action + shape do `ActionState`**
    - O que sabemos: UI-SPEC pede `src/app/campanhas/[id]/actions.ts`; o projeto tem tudo em `src/actions/*.ts`. O `ActionState` do projeto usa `{ errors: Record<string,string[]> }` para erros de campo; o diagnóstico tem 0 campos e 1 erro operacional.
+   - **Disposição: RESOLVIDA por D-23-02 e D-23-03** (plano 23-04, bloco `<interfaces>`) —
+     arquivo em `src/actions/diagnostico-actions.ts`; retorno
+     `{ success: true; diagnosticoId } | { success: false; erro } | undefined`.
    - Recomendação: `src/actions/diagnostico-actions.ts` (consistência com os `test-*-actions.cjs`), com return `{ success: true; diagnosticoId } | { success: false; erro: string } | undefined`. Aceitável seguir o UI-SPEC (co-locado) se o planner preferir — o harness resolve `@/app/...` igual.
 
 4. **`eval-diagnostico.mjs` e o dataset de 12 nichos-referência**
    - O que sabemos: AI-SPEC §5 quer 3 gold (costureira→`mudar_angulo`, motoboy particular→`aprofundar`, estética→`abandonar`) + 4 difíceis + 1 adversarial + ~4 reais.
    - O que falta: os 3 gold + 4 difíceis podem virar **fixtures de payload esperado** (escritos à mão) antes da função existir; os reais dependem de campanhas do usuário.
+   - **Disposição: RESOLVIDA pela estrutura de ondas** — fixtures estruturais na Onda 1 (plano 23-01,
+     harness `test:diagnostico-estrutural`); `eval-diagnostico.mjs` e o dataset de nichos no plano 23-06.
    - Recomendação: Onda 0 cria as fixtures estruturais (bons/ruins) para o harness CI; o `eval-diagnostico.mjs` e o dataset de nichos ficam na Onda 2, com os 3 gold obrigatórios e os demais "conforme o usuário criar campanhas". Não bloquear a fase no dataset completo.
 
 5. **Histórico de gerações anteriores na UI**
    - O que sabemos: UI-SPEC §6 quer disclosure "Ver gerações anteriores (n)" — lista compacta read-only, sem rota `/diagnosticos`.
+   - **Disposição: RESOLVIDA no plano 23-07 Task 2** — query única de todas as linhas ordenadas por
+     `criadoEm` desc, com a mais recente derivada em memória e o disclosure read-only
+     "Ver gerações anteriores (n)".
    - Sem gap — só sinalizado para o planner incluir a query "todas as linhas de `diagnosticos` da campanha, ordenadas por `criado_em` desc" além da "última linha".
 
 ---
