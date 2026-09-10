@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, integer, text, uniqueIndex, index } from "drizzle-orm/sqlite-core";
 
+import type { Diagnostico } from "@/lib/ai/diagnostico-schema";
+
 /**
  * Lista governada extensível de nichos de lead (NICHO-01/NICHO-02).
  *
@@ -129,6 +131,79 @@ export const campanhas = sqliteTable(
     index("campanhas_nicho_id_idx").on(table.nichoId),
     index("campanhas_deleted_at_idx").on(table.deletedAt),
     index("campanhas_estado_idx").on(table.estado),
+  ]
+);
+
+/**
+ * Diagnóstico de IA da campanha (DIAGNOSTICO-01/10, Fase 23 — v1.7). Cada
+ * clique no botão "Gerar diagnóstico" grava UMA linha nova aqui — tabela
+ * APPEND-ONLY, 1 linha por geração. NÃO há cache nem checagem "já existe
+ * diagnóstico pra essa campanha" (DIAGNOSTICO-10): regenerar é sempre uma
+ * chamada de API nova e sempre uma linha nova, com `input_tokens` /
+ * `output_tokens` / `buscas` gravados pra manter o custo visível na UI.
+ *
+ * SEM coluna de soft-delete e SEM remoção física de linha — nenhuma geração
+ * (nem uma que falhou) pode ser apagada, o que sustenta DIAGNOSTICO-10 (o
+ * custo sempre visível) e o valor de trilha de auditoria da tabela. Por isso
+ * `diagnosticos` NÃO entra na ALLOWLIST de `scripts/guard-no-hard-delete.cjs`:
+ * não existe superfície autorizada a remover linha daqui.
+ *
+ * `campanhaId` usa `onDelete: "restrict"` — campanha nunca é hard-deletada
+ * (só soft-delete via `campanhas.deletedAt`), mesmo raciocínio de integridade
+ * referencial de `interacoes.leadId`.
+ *
+ * `payload` (o objeto validado por `diagnosticoSchema`) é NULLABLE: fica NULL
+ * quando `status` é `"falhou"` — uma falha é evento visível e persistido,
+ * NUNCA um resultado parcial gravado como se fosse válido (DIAGNOSTICO-02).
+ * Ao LER de volta, o `payload` é re-validado com o mesmo `diagnosticoSchema`
+ * (fronteira de confiança do banco).
+ *
+ * `erro` × `aviso` são colunas SEPARADAS com semânticas que nunca se cruzam
+ * (D-23-07):
+ *  - `erro` é preenchida SOMENTE quando `status` é `"falhou"` — a mensagem da
+ *    falha fatal; nesse caso `payload` é NULL.
+ *  - `aviso` é preenchida SOMENTE quando `status` é `"ok"` — uma ressalva
+ *    NÃO-FATAL de uma geração que passou (hoje, o `avisoCrossCheck` de
+ *    `gerarDiagnostico()`: URLs citadas dentro do objeto que não constam em
+ *    `res.sources`).
+ * Reusar `erro` pros dois casos tornaria impossível distinguir por SQL
+ * "falhou" de "passou com ressalva" e faria o bloco de erro da UI (plano
+ * 23-07) disparar em cima de uma geração válida.
+ *
+ * `criadoEm` é `integer({ mode: "timestamp" })` com default `(unixepoch())`
+ * (D-23-01), NÃO ISO string — todo timestamp do projeto usa esse idioma (ver
+ * `campanhas.createdAt`, `tarefas.data`) e o `format()` do date-fns na UI
+ * espera `Date`/número. O 23-AI-SPEC §4 diz "ISO string" e está errado.
+ *
+ * Migração SEMPRE via `scripts/migrate-diagnosticos.cjs` manual, NUNCA
+ * `drizzle-kit push`/`generate` — mesmo precedente de `campanhas`/`tarefas`
+ * (dois incidentes destrutivos documentados nas Fases 06-01/07-01, snapshot do
+ * drizzle-kit divergente do banco real desde a Fase 4).
+ *
+ * Declarada logo após `campanhas` por proximidade da FK (não há FK de `leads`
+ * para `diagnosticos`, então a ordem antes de `leads` não é obrigatória).
+ */
+export const diagnosticos = sqliteTable(
+  "diagnosticos",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    campanhaId: integer("campanha_id")
+      .notNull()
+      .references(() => campanhas.id, { onDelete: "restrict" }),
+    payload: text("payload", { mode: "json" }).$type<Diagnostico>(), // NULL quando status = "falhou" (D-23-07)
+    fontes: text("fontes", { mode: "json" }).$type<{ url: string; title?: string }[]>(),
+    buscas: text("buscas", { mode: "json" }).$type<string[]>(),
+    status: text("status", { enum: ["ok", "falhou"] }).notNull(),
+    erro: text("erro"), // preenchida SOMENTE quando status = "falhou" — falha fatal, payload NULL (D-23-07)
+    aviso: text("aviso"), // preenchida SOMENTE quando status = "ok" — ressalva não-fatal de geração válida (D-23-07)
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    criadoEm: integer("criado_em", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  },
+  (table) => [
+    index("diagnosticos_campanha_id_idx").on(table.campanhaId),
+    index("diagnosticos_criado_em_idx").on(table.criadoEm),
+    index("diagnosticos_status_idx").on(table.status),
   ]
 );
 
