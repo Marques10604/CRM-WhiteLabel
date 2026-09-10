@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
 status: executing
-last_updated: "2026-09-10T12:25:29.873Z"
+last_updated: "2026-09-10T13:59:07.726Z"
 last_activity: 2026-09-10
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 5
-  percent: 50
+  completed_plans: 6
+  percent: 25
 ---
 
 # Project State
@@ -25,9 +25,10 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 ## Current Position
 
 Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING
-Plan: 3 of 7
-Status: 23-01 + 23-02 completos. Onda 1 fechada — tabela `diagnosticos` viva em `data/crm.db` (11 colunas, 3 índices, FK restrict), migração idempotente (2x), gate `verify:schema` estrito + mutação provada.
-**Próximo passo: Onda 2 — executar 23-03** (`src/lib/ai/gerar-diagnostico.ts` + prompt; spike de `maxOutputTokens`). Precisa do setup de `ANTHROPIC_API_KEY` + Web Search.
+Plan: 4 of 7
+Status: Ready to execute
+23-01 + 23-02 + 23-03 completos. Onda 2 fechada — `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` instalados (pins exatos, aprovação humana de legitimidade), `SYSTEM_PROMPT` anti-genérico versionado em `src/lib/ai/diagnostico-prompt.ts`, e `gerarDiagnostico()` em `src/lib/ai/gerar-diagnostico.ts` (server-only, DB-free, web search + `Output.object` + gate de fontes + `avisoCrossCheck`). Nenhuma chamada real à API ainda.
+**Próximo passo: Onda 3 — executar 23-04** (Server Action `src/actions/diagnostico-actions.ts` + spike de `maxOutputTokens`/`effort`/nome do campo da query). **Precisa do setup do usuário: `.env.local` com `ANTHROPIC_API_KEY` + Web Search habilitada no Console da organização Anthropic** — o 23-04 faz a 1ª chamada paga.
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
 Last activity: 2026-09-10
 
@@ -118,6 +119,7 @@ Last activity: 2026-09-10
 | Phase 22 P03 | 15min | 3 tasks | 11 files |
 | Phase 23 P01 | 25 | 3 tasks | 12 files |
 | Phase 23 P02 | 12min | 3 tasks | 3 files |
+| Phase 23 P03 | 18min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -234,6 +236,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Fase 22-03] Vinculo lead->campanha (CAMPANHA-03, gap closure): campanhaId e o 3o campo opcional de leadBaseSchema (z.preprocess vazio->undefined + override ?? null na Server Action), SEM .refine (nao condicional a stage). OMITIDO de csvRowSchema (T-22-11). campanhaExists() indiferente a deletedAt (precedente nichoExists). CampanhaCombobox novo com item-sentinela 'Nenhuma campanha' (__nenhuma__). Prop campanhas OBRIGATORIA (sem default) forca tsc a provar fiacao das 3 telas /leads//pipeline. Sem revalidatePath('/campanhas') nas lead-actions (IN-01).
 - [Phase ?]: [Fase 23-01]: contrato do diagnóstico (diagnosticoSchema Zod + helpers de gate) importa só zod — importável pelo harness .cjs; gate de fontes lê result.sources, nunca URLs do modelo; urlSegura allowlist http/https antes de href do LLM. 9 fixtures + harness de 61 asserções sem API/sem banco.
 - [Phase ?]: [Fase 23-02]: tabela `diagnosticos` (append-only, 11 colunas, 3 índices, FK `campanha_id` onDelete restrict) criada via `scripts/migrate-diagnosticos.cjs` manual idempotente contra `data/crm.db` (rodada 2x: 0 campanhas + 44 leads intactos, zero drizzle-kit). D-23-01: `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()`. D-23-07: `erro` (só status=falhou, payload NULL) e `aviso` (só status=ok, ressalva não-fatal) são colunas SEPARADAS. Sem soft-delete → fora da ALLOWLIST de guard-no-hard-delete. `import type { Diagnostico }` em schema.ts (sem efeito colateral). `verify:schema` ganha conjunto estrito (missing E extra) + 3 índices; mutação provada (DROP numa cópia → exit 1).
+- [Phase 23]: [Fase 23-03] Vercel AI SDK instalado (ai@7.0.93 + @ai-sdk/anthropic@4.0.49, pins EXATOS; aprovação humana de legitimidade — ambos repo github.com/vercel/ai, publisher Vercel, sem postinstall). SYSTEM_PROMPT anti-genérico versionado (src/lib/ai/diagnostico-prompt.ts, 10 blocos). gerarDiagnostico() em src/lib/ai/gerar-diagnostico.ts: server-only (T-23-01), DB-free, generateText + Output.object + webSearch_20250305 (maxUses 6, BR) + isStepCount(10), retry manual MAX_TENTATIVAS=2, gate DIAGNOSTICO-02 lê res.sources, cross-check FM2 -> avisoCrossCheck (não bloqueia, D-23-07). maxOutputTokens 16000 + effort low são ponto de partida — spike do 23-04 confirma. NENHUMA chamada real à API neste plano. DIAGNOSTICO-02..10 seguem Pending (behavior só fecha com 23-04/23-05). — Separar o cérebro (prompt+chamada+gate) da fiação com banco/UI; a função DB-free é o que o eval do 23-06 chama direto.
 
 ### Pending Todos
 
@@ -339,24 +342,24 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 PLANEJADA ✓, PRONTA PRA EXECUTAR (2026-09-09)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 EM EXECUÇÃO: ONDAS 1–2 FECHADAS, ONDA 3 (23-04) É A PRÓXIMA (2026-09-10)
 
-**ONDE PARAMOS:** `/gsd-plan-phase 23` rodou do início ao fim. 7 planos em 5 ondas
-(`23-01`..`23-07`), commits `344d24b` (planos) + `2e26c8e` (revisão dos 5 warnings do
-plan-checker). Re-checagem final: **VERIFICATION PASSED**. Cobertura DIAGNOSTICO-01..10 completa.
+**ONDE PARAMOS:** `23-01`, `23-02` e `23-03` executados e commitados na `main`.
 
-**3 decisões do planner APROVADAS pelo usuário** (não re-perguntar):
+- **23-01** (`f524cab`/`d90db3d`/`9e82bb7`): `diagnosticoSchema` + helpers de gate + 9 fixtures + harness `test:diagnostico-estrutural` (61 asserções).
+- **23-02** (`75cdeda`/`7984a56`/`cecc0ba`/`c52ba63`): tabela `diagnosticos` viva em `data/crm.db` (migração idempotente 2x) + gate `verify:schema` estrito.
+- **23-03** (`d0381ae`/`fb133f8`/`5e822e3`): `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos, aprovação humana de legitimidade), `SYSTEM_PROMPT` anti-genérico versionado, `gerarDiagnostico()` server-only/DB-free (web search + `Output.object` + gate de fontes + `avisoCrossCheck`). tsc/lint/harness/build todos verdes. **Nenhuma chamada real à API ainda.**
 
-- **D-23-01** — `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (corrige AI-SPEC §4)
-- **D-23-02** — Server Action em `src/actions/diagnostico-actions.ts` (não co-locada)
-- **D-23-06** — sem "busca ao vivo": spinner + aviso de custo no pending; consultas reais
-  (`diagnosticos.buscas`) renderizadas só após a geração (23-05 Task 3, bloco 2)
+**Decisões do planner APROVADAS pelo usuário** (não re-perguntar):
 
-- **D-23-07** (registrada na revisão) — coluna `aviso` TEXT separada de `erro` no schema `diagnosticos` (11 colunas)
+- **D-23-01** — `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (corrige AI-SPEC §4) — APLICADA em 23-02
+- **D-23-02** — Server Action em `src/actions/diagnostico-actions.ts` (não co-locada) — a fazer em 23-04
+- **D-23-06** — sem "busca ao vivo": spinner + aviso de custo no pending; consultas reais só após a geração (23-05)
+- **D-23-07** — coluna `aviso` TEXT separada de `erro` no schema `diagnosticos` — APLICADA em 23-02, consumida por `avisoCrossCheck` no 23-03
 
-**Próximo passo:** `/clear` e então `/gsd-execute-phase 23`.
+**Próximo passo:** `/gsd-execute-phase 23` (retoma na Onda 3 = plano `23-04`, Server Action + spike).
 
-**Setup do usuário ANTES de executar a Onda 3+** (Ondas 1–2, exceto o `npm i`, rodam sem isso):
+**Setup do usuário OBRIGATÓRIO ANTES do 23-04** (o 23-04 faz a 1ª chamada paga à API):
 
 - `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
 - Habilitar a "Web Search" tool nas configs da ORGANIZAÇÃO no Console da Anthropic (senão HTTP 400)
@@ -681,7 +684,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-10T12:18:56.595Z
+Last session: 2026-09-10T13:43:06.435Z
 
 **O que foi feito nesta sessão:**
 

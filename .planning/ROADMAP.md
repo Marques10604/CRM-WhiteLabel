@@ -139,8 +139,8 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [x] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
 
 **Onda 2** *(bloqueada na Onda 1):*
-- [ ] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema
-- [ ] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()` *(checkpoint humano: aprovar `npm i` de `ai`/`@ai-sdk/anthropic`)*
+- [x] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema
+- [x] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()` *(checkpoint humano: aprovar `npm i` de `ai`/`@ai-sdk/anthropic`)*
 
 **Onda 3** *(bloqueada nas Ondas 1–2):*
 - [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
