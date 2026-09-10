@@ -36,17 +36,15 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-[240px] shrink-0 flex-col bg-sidebar">
-      <div className="flex items-center gap-2.5 px-[18px] pt-5 pb-[22px]">
+    <aside className="sticky top-0 flex h-dvh w-[240px] shrink-0 flex-col overflow-y-auto bg-sidebar">
+      <div className="flex items-center gap-3 px-4 pt-5 pb-6">
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-[13px] font-bold text-primary-foreground"
+          className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-base font-bold text-primary-foreground"
           aria-hidden="true"
         >
           S
         </div>
-        <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-          SOLO
-        </span>
+        <span className="text-xl font-bold text-sidebar-foreground">SOLO</span>
       </div>
       <p className="px-[14px] pt-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
         Principal
