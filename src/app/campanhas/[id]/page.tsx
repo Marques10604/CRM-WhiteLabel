@@ -5,6 +5,13 @@ import { format } from "date-fns";
 import { db } from "@/db/client";
 import { campanhas, nichos } from "@/db/schema";
 import { CampanhaEstadoBadge } from "@/components/campanha-estado-badge";
+import { DiagnosticoSecao } from "@/components/diagnostico-secao";
+
+// A Server Action de diagnóstico (plano 23-04) leva de 30 a 90 segundos.
+// Localmente `next dev`/`next start` não impõem limite; este valor documenta a
+// expectativa e cobre um eventual deploy. `runtime` NÃO é declarado de propósito
+// — o default Node é obrigatório (`better-sqlite3` não carrega em edge).
+export const maxDuration = 120;
 
 /**
  * Rota de detalhe `/campanhas/[id]` (CAMPANHA-01/02, Fase 22). Layout
@@ -62,6 +69,8 @@ export default async function CampanhaDetalhePage({
           </dd>
         </div>
       </dl>
+
+      <DiagnosticoSecao campanhaId={campanhaId} />
     </div>
   );
 }
