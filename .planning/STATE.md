@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING (PAUSADA no limite de sessão)
-Plan: 5 of 7 (23-05 parcial)
-Status: Pausado — retomar às 13:50 (America/Sao_Paulo) quando o limite de sessão resetar
+Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING (PAUSADA aguardando créditos Anthropic)
+Plan: 4/7 com SUMMARY (23-01, 23-02, 23-03, 23-05) — 23-04 quase completo (só falta Task 3)
+Status: Pausado — falta saldo na conta Anthropic para o spike (23-04) e o eval (23-06). O limite de sessão do Claude Code também reseta 13:50 BRT.
 
 ### Feito e commitado
 - **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções)
@@ -34,11 +34,10 @@ Status: Pausado — retomar às 13:50 (America/Sao_Paulo) quando o limite de ses
 - **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
 - **23-04 Task 1** ✅ Server Action `src/actions/diagnostico-actions.ts` (commit `f578ade`) — valida/gera/persiste/revalida, insert de sucesso (com `aviso`) e de falha (com `erro`)
 - **23-04 Task 3 (parcial)** `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` (commit `aa3556b`), NÃO em `package.json`
-- **23-05 Task 1** ✅ badges `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (commit `e3c5817`, feito pelo orquestrador após o executor cair no 429) — tsc/lint/verify:brand/check:contrast verdes
+- **23-05** ✅ COMPLETO (3 tasks, SUMMARY escrito). `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (`e3c5817`), `rascunho-mensagem.tsx` (`fd140ba`), `diagnostico-resultado.tsx` (`aaa8747`). Feito inline pelo orquestrador (executor caiu no 429). tsc/lint/verify:brand/check:contrast/build verdes.
 
 ### Pendente
-- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, ajustar `gerar-diagnostico.ts`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo de créditos zerado na conta Anthropic** — usuário precisa comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`). Workspace-scoping já resolvido (chave nova no `.env.local`).
-- **23-05 Tasks 2-3** — `rascunho-mensagem.tsx` (client, textarea controlado, sem caminho de envio) + `diagnostico-resultado.tsx` (11 blocos, distinção dado×alegação em 3 eixos, `urlSegura` em todo href, bloco "buscando:" de D-23-06). Não precisa de API. Depois: `23-05-SUMMARY.md`.
+- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, remover `temperature: 0.3` (inerte), ajustar `maxOutputTokens`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo de créditos zerado na conta Anthropic** — usuário precisa comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`). Workspace-scoping já resolvido (chave nova no `.env.local`).
 - **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos.**
 - **23-07** — seção "Diagnóstico de IA" em `/campanhas/[id]` (botão + estados + histórico).
 - Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier`.

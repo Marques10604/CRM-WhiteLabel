@@ -146,7 +146,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
 
 **Onda 4** *(bloqueada na Onda 3):*
-- [ ] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
+- [x] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
 - [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
 
 **Onda 5** *(bloqueada na Onda 4):*
