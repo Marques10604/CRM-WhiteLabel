@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
 status: executing
-last_updated: "2026-09-10T12:19:03.385Z"
+last_updated: "2026-09-10T12:25:29.873Z"
 last_activity: 2026-09-10
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 4
-  percent: 40
+  completed_plans: 5
+  percent: 50
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 ## Current Position
 
 Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING
-Plan: 2 of 7
-Status: 23-01 completo (contrato Zod + fixtures + harness estrutural, 61 asserções verdes). Onda 1 restante: 23-02.
-**Próximo passo: executar 23-02** (`src/db/schema.ts` + `migrate-diagnosticos.cjs`).
+Plan: 3 of 7
+Status: 23-01 + 23-02 completos. Onda 1 fechada — tabela `diagnosticos` viva em `data/crm.db` (11 colunas, 3 índices, FK restrict), migração idempotente (2x), gate `verify:schema` estrito + mutação provada.
+**Próximo passo: Onda 2 — executar 23-03** (`src/lib/ai/gerar-diagnostico.ts` + prompt; spike de `maxOutputTokens`). Precisa do setup de `ANTHROPIC_API_KEY` + Web Search.
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
 Last activity: 2026-09-10
 
@@ -117,6 +117,7 @@ Last activity: 2026-09-10
 | Phase 22 P02 | 8min | 2 tasks | 6 files |
 | Phase 22 P03 | 15min | 3 tasks | 11 files |
 | Phase 23 P01 | 25 | 3 tasks | 12 files |
+| Phase 23 P02 | 12min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -232,6 +233,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Fase 22-02]: /campanhas (listagem + criação, estado vazio com CTA) e /campanhas/[id] (detalhe minimalista: nicho+oferta, estado, meta, janela) entregues + item "Campanhas" na sidebar. CampanhaFormDialog é CRIAÇÃO-APENAS (CAMPANHA-01 só pede criar; updateCampanha do 22-01 fica sem consumidor de UI até a Fase 24). Bloco de data extraído para sub-componente JanelaField usado 2x (useState de Popover por instância). Detalhe usa leftJoin com nichos + notFound() para id não-inteiro-positivo (T-22-07) e para campanha soft-deletada (T-22-08). /campanhas/[id] minimalista de propósito — Fases 23 (diagnóstico) e 24 (veredito/painel/Mapa de Nichos) ADICIONAM seções, sem retrabalho.
 - [Phase ?]: [Fase 22-03] Vinculo lead->campanha (CAMPANHA-03, gap closure): campanhaId e o 3o campo opcional de leadBaseSchema (z.preprocess vazio->undefined + override ?? null na Server Action), SEM .refine (nao condicional a stage). OMITIDO de csvRowSchema (T-22-11). campanhaExists() indiferente a deletedAt (precedente nichoExists). CampanhaCombobox novo com item-sentinela 'Nenhuma campanha' (__nenhuma__). Prop campanhas OBRIGATORIA (sem default) forca tsc a provar fiacao das 3 telas /leads//pipeline. Sem revalidatePath('/campanhas') nas lead-actions (IN-01).
 - [Phase ?]: [Fase 23-01]: contrato do diagnóstico (diagnosticoSchema Zod + helpers de gate) importa só zod — importável pelo harness .cjs; gate de fontes lê result.sources, nunca URLs do modelo; urlSegura allowlist http/https antes de href do LLM. 9 fixtures + harness de 61 asserções sem API/sem banco.
+- [Phase ?]: [Fase 23-02]: tabela `diagnosticos` (append-only, 11 colunas, 3 índices, FK `campanha_id` onDelete restrict) criada via `scripts/migrate-diagnosticos.cjs` manual idempotente contra `data/crm.db` (rodada 2x: 0 campanhas + 44 leads intactos, zero drizzle-kit). D-23-01: `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()`. D-23-07: `erro` (só status=falhou, payload NULL) e `aviso` (só status=ok, ressalva não-fatal) são colunas SEPARADAS. Sem soft-delete → fora da ALLOWLIST de guard-no-hard-delete. `import type { Diagnostico }` em schema.ts (sem efeito colateral). `verify:schema` ganha conjunto estrito (missing E extra) + 3 índices; mutação provada (DROP numa cópia → exit 1).
 
 ### Pending Todos
 
