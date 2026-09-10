@@ -150,7 +150,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
 
 **Onda 5** *(bloqueada na Onda 4):*
-- [ ] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico
+- [x] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico
 
 **Cross-cutting constraints** (aparecem em 2+ planos):
 - Gate anti-genérico é harness estrutural que chama a função direto, sem navegador (23-01, 23-03, 23-04, 23-06)

@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 ## Current Position
 
 Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING (PAUSADA aguardando créditos Anthropic)
-Plan: 4/7 com SUMMARY (23-01, 23-02, 23-03, 23-05) — 23-04 quase completo (só falta Task 3)
-Status: Pausado — falta saldo na conta Anthropic para o spike (23-04) e o eval (23-06). O limite de sessão do Claude Code também reseta 13:50 BRT.
+Plan: 5/7 com SUMMARY (23-01, 23-02, 23-03, 23-05, 23-07) — 23-04 só falta a Task 3 (spike)
+Status: Pausado — **TODO o código sem custo já foi feito**. Falta só o que gasta API: 23-04 Task 3 (spike) e 23-06 (eval). Precisa de saldo na conta Anthropic. Limite de sessão do Claude Code também esteve ativo (reset 13:50 BRT).
 
 ### Feito e commitado
 - **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções)
@@ -34,13 +34,14 @@ Status: Pausado — falta saldo na conta Anthropic para o spike (23-04) e o eval
 - **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
 - **23-04 Task 1** ✅ Server Action `src/actions/diagnostico-actions.ts` (commit `f578ade`) — valida/gera/persiste/revalida, insert de sucesso (com `aviso`) e de falha (com `erro`)
 - **23-04 Task 3 (parcial)** `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` (commit `aa3556b`), NÃO em `package.json`
-- **23-05** ✅ COMPLETO (3 tasks, SUMMARY escrito). `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (`e3c5817`), `rascunho-mensagem.tsx` (`fd140ba`), `diagnostico-resultado.tsx` (`aaa8747`). Feito inline pelo orquestrador (executor caiu no 429). tsc/lint/verify:brand/check:contrast/build verdes.
+- **23-05** ✅ COMPLETO (3 tasks, SUMMARY). `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (`e3c5817`), `rascunho-mensagem.tsx` (`fd140ba`), `diagnostico-resultado.tsx` (`aaa8747`). Feito inline pelo orquestrador (executor caiu no 429).
+- **23-07** ✅ COMPLETO (3 tasks, SUMMARY). `gerar-diagnostico-button.tsx` (`1288755`), `diagnostico-secao.tsx` (`d96db06`), `page.tsx` estendido com `maxDuration` + `<DiagnosticoSecao>` (`14dc4fe`). Feito inline. tsc/lint/build (14 rotas)/verify:schema/guard/harness verdes. Rodado antes do 23-04 Task 3 (arquivos disjuntos, sem chamada de API).
 
-### Pendente
-- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, remover `temperature: 0.3` (inerte), ajustar `maxOutputTokens`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo de créditos zerado na conta Anthropic** — usuário precisa comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`). Workspace-scoping já resolvido (chave nova no `.env.local`).
+### Pendente (SÓ o que gasta crédito)
+- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, **remover `temperature: 0.3` (inerte — assumption A3 falhou)**, ajustar `maxOutputTokens`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo zerado na Anthropic** — comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`, ~US$5). Workspace-scoping já resolvido (chave nova no `.env.local`).
 - **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos.**
-- **23-07** — seção "Diagnóstico de IA" em `/campanhas/[id]` (botão + estados + histórico).
-- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier`.
+- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier` → só rodam depois que 23-04 + 23-06 fecharem.
+- **UAT humano** da fase: fluxo do botão em `/campanhas/[id]` (vazio → gerar → pending → resultado → regenerar → histórico), claro + escuro. Também precisa de crédito (gera diagnóstico real).
 
 ### Medições parciais do spike (do request body antes do 400 de saldo)
 - `effort: "low"` → **é repassado** pelo `@ai-sdk/anthropic@4.0.49` (`output_config.effort`). Assumption A2 confirmada.
