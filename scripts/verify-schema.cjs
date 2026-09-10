@@ -26,7 +26,15 @@ const rows = db
 const tableNames = new Set(rows.filter((r) => r.type === "table").map((r) => r.name));
 const indexNames = new Set(rows.filter((r) => r.type === "index").map((r) => r.name));
 
-const requiredTables = ["leads", "subnichos", "interacoes", "motivos_perda", "tarefas", "campanhas"];
+const requiredTables = [
+  "leads",
+  "subnichos",
+  "interacoes",
+  "motivos_perda",
+  "tarefas",
+  "campanhas",
+  "diagnosticos",
+];
 const requiredIndexes = [
   "subnicho_nome_unique_idx",
   "interacoes_lead_id_idx",
@@ -37,6 +45,9 @@ const requiredIndexes = [
   "campanhas_nicho_id_idx",
   "campanhas_deleted_at_idx",
   "campanhas_estado_idx",
+  "diagnosticos_campanha_id_idx",
+  "diagnosticos_criado_em_idx",
+  "diagnosticos_status_idx",
 ];
 
 const missingTables = requiredTables.filter((t) => !tableNames.has(t));
@@ -147,6 +158,46 @@ if (tableNames.has("campanhas")) {
   }
 }
 
+// Gate de sync de schema para a tabela diagnosticos (Fase 23,
+// DIAGNOSTICO-01/10): exige exatamente o conjunto de 11 colunas físicas, nem
+// a mais nem a menos. Conjunto estrito (missing E extra) é seguro aqui porque
+// a tabela nasce nesta fase e não acumula colunas por fase (diferente de
+// 'leads') — mesmo idioma dos blocos de 'interacoes'/'tarefas'/'campanhas'
+// acima, mesmo precedente da decisão 12-01. `erro` e `aviso` são colunas
+// SEPARADAS (D-23-07): `erro` só com status='falhou', `aviso` só com
+// status='ok'.
+const REQUIRED_DIAGNOSTICOS_COLUMNS = [
+  "id",
+  "campanha_id",
+  "payload",
+  "fontes",
+  "buscas",
+  "status",
+  "erro",
+  "aviso",
+  "input_tokens",
+  "output_tokens",
+  "criado_em",
+];
+
+if (tableNames.has("diagnosticos")) {
+  const diagnosticosColumns = db
+    .prepare("PRAGMA table_info(diagnosticos)")
+    .all()
+    .map((c) => c.name);
+  const columnSet = new Set(diagnosticosColumns);
+  const requiredSet = new Set(REQUIRED_DIAGNOSTICOS_COLUMNS);
+
+  const missingColumns = REQUIRED_DIAGNOSTICOS_COLUMNS.filter((c) => !columnSet.has(c));
+  const extraColumns = diagnosticosColumns.filter((c) => !requiredSet.has(c));
+
+  if (missingColumns.length > 0 || extraColumns.length > 0) {
+    fail(
+      `colunas de 'diagnosticos' divergentes — faltando: [${missingColumns.join(", ")}], extras: [${extraColumns.join(", ")}]`
+    );
+  }
+}
+
 // Gate permanente de PRESENÇA para as duas colunas da Sequência de
 // Follow-up Escalonada (Fase 10, SEQ-01/SEQ-02). Deliberadamente checagem de
 // PRESENÇA, não de conjunto estrito (diferente do bloco de 'interacoes'
@@ -178,7 +229,7 @@ if (tableNames.has("configuracoes")) {
 
 db.close();
 console.log(
-  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas'/'campanhas' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id'/'interesse'/'campanha_id' presentes e conjunto estrito de colunas de 'tarefas'/'campanhas' conferido em",
+  "[verify-schema] OK: tabelas 'leads'/'subnichos'/'interacoes'/'motivos_perda'/'tarefas'/'campanhas'/'diagnosticos' e índices esperados presentes, colunas 'sequencia_posicao'/'sequencia_intervalos_dias'/'motivo_perda_id'/'interesse'/'campanha_id' presentes e conjunto estrito de colunas de 'tarefas'/'campanhas'/'diagnosticos' conferido em",
   DB_PATH
 );
 process.exit(0);
