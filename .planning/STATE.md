@@ -24,13 +24,35 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING
-Plan: 4 of 7
-Status: Ready to execute
-23-01 + 23-02 + 23-03 completos. Onda 2 fechada — `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` instalados (pins exatos, aprovação humana de legitimidade), `SYSTEM_PROMPT` anti-genérico versionado em `src/lib/ai/diagnostico-prompt.ts`, e `gerarDiagnostico()` em `src/lib/ai/gerar-diagnostico.ts` (server-only, DB-free, web search + `Output.object` + gate de fontes + `avisoCrossCheck`). Nenhuma chamada real à API ainda.
-**Próximo passo: Onda 3 — executar 23-04** (Server Action `src/actions/diagnostico-actions.ts` + spike de `maxOutputTokens`/`effort`/nome do campo da query). **Precisa do setup do usuário: `.env.local` com `ANTHROPIC_API_KEY` + Web Search habilitada no Console da organização Anthropic** — o 23-04 faz a 1ª chamada paga.
+Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING (PAUSADA no limite de sessão)
+Plan: 5 of 7 (23-05 parcial)
+Status: Pausado — retomar às 13:50 (America/Sao_Paulo) quando o limite de sessão resetar
+
+### Feito e commitado
+- **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções)
+- **23-02** ✅ tabela `diagnosticos` (11 colunas, migração `.cjs` idempotente rodada contra `data/crm.db`, gate de schema)
+- **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
+- **23-04 Task 1** ✅ Server Action `src/actions/diagnostico-actions.ts` (commit `f578ade`) — valida/gera/persiste/revalida, insert de sucesso (com `aviso`) e de falha (com `erro`)
+- **23-04 Task 3 (parcial)** `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` (commit `aa3556b`), NÃO em `package.json`
+- **23-05 Task 1** ✅ badges `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (commit `e3c5817`, feito pelo orquestrador após o executor cair no 429) — tsc/lint/verify:brand/check:contrast verdes
+
+### Pendente
+- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, ajustar `gerar-diagnostico.ts`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo de créditos zerado na conta Anthropic** — usuário precisa comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`). Workspace-scoping já resolvido (chave nova no `.env.local`).
+- **23-05 Tasks 2-3** — `rascunho-mensagem.tsx` (client, textarea controlado, sem caminho de envio) + `diagnostico-resultado.tsx` (11 blocos, distinção dado×alegação em 3 eixos, `urlSegura` em todo href, bloco "buscando:" de D-23-06). Não precisa de API. Depois: `23-05-SUMMARY.md`.
+- **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos.**
+- **23-07** — seção "Diagnóstico de IA" em `/campanhas/[id]` (botão + estados + histórico).
+- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier`.
+
+### Medições parciais do spike (do request body antes do 400 de saldo)
+- `effort: "low"` → **é repassado** pelo `@ai-sdk/anthropic@4.0.49` (`output_config.effort`). Assumption A2 confirmada.
+- `temperature: 0.3` → **inerte** neste provider (some do request quando `effort` está setado). Assumption A3 falhou — remover a linha de `gerar-diagnostico.ts` e registrar em D-23-04.
+- `maxOutputTokens: 16000` → vira `max_tokens: 16000`. Consumo real / `finishReason` / nº de fontes / nome do campo da query (A5) — não medidos.
+
+### Retomada
+`/gsd-execute-phase 23` re-descobre planos, pula os com SUMMARY, retoma de 23-04 (ou faz 23-05 Tasks 2-3 primeiro, que não dependem de crédito). O `.env.local` já tem chave workspace-scoped; falta só o saldo.
+
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
-Last activity: 2026-09-10
+Last activity: 2026-09-10 — pausado no limite de sessão (429), reset 13:50 BRT
 
 ### 2 avisos menores do plan-checker aceitos como dívida (não bloqueiam execução)
 
