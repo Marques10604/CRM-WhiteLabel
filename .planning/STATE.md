@@ -342,26 +342,35 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 ONDA 3 (23-04) EM EXECUÇÃO, BLOQUEADA NA TASK 3 (2026-09-10)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 ONDA 3 (23-04) EM EXECUÇÃO, BLOQUEADA NA TASK 3 POR SALDO ANTHROPIC (2026-09-10)
 
-**BLOQUEIO ATIVO (23-04 Task 3 — spike do modelo):** a `ANTHROPIC_API_KEY` do
-`.env.local` **NÃO é workspace-scoped**. A 1ª chamada real devolveu HTTP 400:
-`"This API key is not scoped to a workspace, so this request must include the
-anthropic-workspace-id header..."`. **Não é sobre a Web Search** (a tool passou;
-`effort:"low"` foi aceito e aparece no request body; o provider manda
-`temperature:undefined` quando `effort` está setado — dado parcial de D-23-04).
-**Fix (usuário):** no Console da Anthropic, gerar uma **API key scoped a um
-workspace** (Settings → API keys → Create Key → escolher um Workspace, não
-"default/account") e substituir a linha do `.env.local`. Zero mudança de código.
-Alternativa: fornecer o `anthropic-workspace-id` (aí precisa de mudança de código
-em `gerar-diagnostico.ts` + nova env var). Depois: re-rodar
-`node scripts/spike-modelo-diagnostico.mjs` UMA vez (host 4GB, fechar node antes),
-registrar D-23-04 e ajustar `src/lib/ai/gerar-diagnostico.ts`.
+**BLOQUEIO ATIVO (23-04 Task 3 — spike do modelo) — 2ª iteração (2026-09-10):** a
+chave AGORA é workspace-scoped (resposta trouxe `anthropic-workspace-id:
+wrkspc_01DV6kbx2RESjCE4BLEobsTv`, sem mais o erro de scoping). A 2ª chamada real
+devolveu HTTP 400: **`"Your credit balance is too low to access the Anthropic
+API. Please go to Plans & Billing to upgrade or purchase credits."`** (request_id
+`req_011CeuxKXvc6pHLQnS4XFtCx`). **Não é código, não é Web Search, não é scoping** —
+é saldo/billing da conta Anthropic.
+**Fix (usuário):** no Console da Anthropic → Plans & Billing → comprar créditos
+(ou ativar auto-reload / adicionar cartão). O spike gasta ~US$0,15–0,25. Depois:
+re-rodar `node scripts/spike-modelo-diagnostico.mjs` UMA vez (host 4GB, fechar
+node antes), registrar D-23-04 e ajustar `src/lib/ai/gerar-diagnostico.ts`. Zero
+mudança de código para desbloquear.
+
+**Dados parciais de D-23-04 já medidos** (do request body da chamada que chegou à API):
+- `effort: "low"` É repassado pelo `@ai-sdk/anthropic@4.0.49` dentro de
+  `output_config.effort` — aceito, o request alcançou o endpoint do modelo.
+- `temperature` sai como `undefined` no request body sempre que `effort` está
+  setado — ou seja, `temperature: 0.3` no código É INERTE via este provider
+  (assumption A3 falhou na prática: o param nunca chega à API). Decidir na
+  re-execução: remover a linha `temperature: 0.3` e registrar em D-23-04.
+- `maxOutputTokens: 16000` → vai como `max_tokens: 16000`. Consumo real de tokens
+  / `finishReason` AINDA não medidos (precisa de uma chamada bem-sucedida).
 
 **Progresso 23-04:**
 - Task 1 ✅ commit `f578ade` — `src/actions/diagnostico-actions.ts` (tsc/lint/guard verdes)
-- Task 2 ✅ `.env.local` existe com `ANTHROPIC_API_KEY`, não rastreado; Web Search confirmada pelo usuário — MAS a chave não é workspace-scoped (descoberto na Task 3)
-- Task 3 ⛔ commit parcial `aa3556b` — `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` prontos; medição/D-23-04/ajuste de `gerar-diagnostico.ts` PENDENTES do fix da chave
+- Task 2 ✅ `.env.local` com `ANTHROPIC_API_KEY` workspace-scoped, não rastreado; Web Search confirmada pelo usuário
+- Task 3 ⛔ commit parcial `aa3556b` — spike + stub loader prontos; chamada real BLOQUEADA por saldo Anthropic. Medição completa/D-23-04/ajuste de `gerar-diagnostico.ts` PENDENTES da compra de créditos.
 
 **ONDE PARAMOS (ondas 1-2):** `23-01`, `23-02` e `23-03` executados e commitados na `main`.
 
