@@ -11,6 +11,7 @@
     "migrate:tarefas": "node scripts/migrate-tarefas.cjs",
     "migrate:interesse": "node scripts/migrate-interesse.cjs",
     "migrate:campanhas": "node scripts/migrate-campanhas.cjs",
+    "migrate:diagnosticos": "node scripts/migrate-diagnosticos.cjs",
     "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",
@@ -25,6 +26,7 @@
     "test:compute-sequencia": "node scripts/test-compute-sequencia-sugestao.cjs",
     "test:motivo-perda-actions": "node scripts/test-motivo-perda-actions.cjs",
     "test:tarefa-actions": "node scripts/test-tarefa-actions.cjs",
+    "test:diagnostico-estrutural": "node scripts/test-diagnostico-estrutural.cjs",
     "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs",
     "test:lead-csv-export": "node scripts/test-lead-csv-export.cjs"
