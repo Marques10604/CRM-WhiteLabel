@@ -124,6 +124,7 @@ export function LeadFormDialog({
 
   const form = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
+    mode: "onBlur",
     defaultValues: {
       nome: lead?.nome ?? "",
       telefone: lead?.telefone ?? "",

@@ -139,6 +139,7 @@ export function CampanhaFormDialog({ open, onOpenChange, nichos }: CampanhaFormD
 
   const form = useForm<CampanhaFormValues>({
     resolver: zodResolver(campanhaSchema),
+    mode: "onBlur",
     defaultValues: {
       nichoId: undefined,
       oferta: "",

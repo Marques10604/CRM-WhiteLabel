@@ -106,9 +106,9 @@ export default async function RelatoriosPage({
           <TableHeader>
             <TableRow>
               <TableHead>Origem</TableHead>
-              <TableHead>Total de leads</TableHead>
-              <TableHead>Fechados</TableHead>
-              <TableHead>Taxa de conversão</TableHead>
+              <TableHead className="text-right font-mono tabular-nums">Total de leads</TableHead>
+              <TableHead className="text-right font-mono tabular-nums">Fechados</TableHead>
+              <TableHead className="text-right font-mono tabular-nums">Taxa de conversão</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -124,10 +124,14 @@ export default async function RelatoriosPage({
               linhasOrigem.map((linha) => (
                 <TableRow key={linha.origemTipo}>
                   <TableCell className="text-foreground">{linha.label}</TableCell>
-                  <TableCell className="text-foreground">{linha.total}</TableCell>
-                  <TableCell className="text-foreground">{linha.fechados}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
+                    {linha.total}
+                  </TableCell>
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
+                    {linha.fechados}
+                  </TableCell>
                   {/* Ênfase por PESO, nunca por cor (11-UI-SPEC.md linha 82). */}
-                  <TableCell className="font-semibold text-foreground">
+                  <TableCell className="text-right font-mono tabular-nums font-semibold text-foreground">
                     {formatarTaxa(linha.taxa)}
                   </TableCell>
                 </TableRow>
@@ -147,7 +151,7 @@ export default async function RelatoriosPage({
             <TableHeader>
               <TableRow>
                 <TableHead>Nicho</TableHead>
-                <TableHead>Total de leads</TableHead>
+                <TableHead className="text-right font-mono tabular-nums">Total de leads</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -157,7 +161,9 @@ export default async function RelatoriosPage({
               {contagemNicho.map((linha) => (
                 <TableRow key={linha.nichoId}>
                   <TableCell className="text-foreground">{linha.nome}</TableCell>
-                  <TableCell className="text-foreground">{linha.total}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
+                    {linha.total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -183,14 +189,16 @@ export default async function RelatoriosPage({
             <TableHeader>
               <TableRow>
                 <TableHead>Motivo da perda</TableHead>
-                <TableHead>Leads perdidos</TableHead>
+                <TableHead className="text-right font-mono tabular-nums">Leads perdidos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {contagemMotivoPerda.map((linha) => (
                 <TableRow key={linha.motivoPerdaId ?? linha.nome}>
                   <TableCell className="text-foreground">{linha.nome}</TableCell>
-                  <TableCell className="text-foreground">{linha.total}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
+                    {linha.total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
