@@ -52,7 +52,7 @@ Status: Pausado — **TODO o código sem custo já foi feito**. Falta só o que 
 `/gsd-execute-phase 23` re-descobre planos, pula os com SUMMARY, retoma de 23-04 (ou faz 23-05 Tasks 2-3 primeiro, que não dependem de crédito). O `.env.local` já tem chave workspace-scoped; falta só o saldo.
 
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
-Last activity: 2026-09-10 — pausado no limite de sessão (429), reset 13:50 BRT
+Last activity: 2026-09-10 — Fase 23 pausada aguardando créditos Anthropic (23-04 Task 3 + 23-06). Fora da fase: 23-05 e 23-07 feitos inline; revisão UI/UX com ui-ux-pro-max → quick 260910-p6x (6 correções seguras) shipado; 4 itens maiores da revisão viraram backlog.
 
 ### 2 avisos menores do plan-checker aceitos como dívida (não bloqueiam execução)
 
@@ -324,6 +324,7 @@ Aberto, carregado para o v1.3:
 | 260828-gna | Corrigir deadlock ao arrastar card para "Perdido" no /pipeline (bug do UAT da Fase 11, Teste 5): setMotivoPerdaState({open:true}) saiu de dentro de startTransition(async → await new Promise); agora o drop para Perdido só enfileira + abre o modal (urgente), e "Salvar motivo" dispara uma nova transição normal que move+persiste. "Cancelar" só descarta (card nunca moveu). +MotivoPerdaDialog só bloqueia dismiss Esc/clique-fora, +dedup da fila. Verificado ao vivo (janela visível): modal abre sem freeze, card não move no drop, Cancelar fecha limpo. | 2026-08-28 | fbf7abd..1dd794b | [260828-gna-corrigir-deadlock-drag-perdido](./quick/260828-gna-corrigir-deadlock-drag-perdido/) |
 | 2026-08-29 | fast | Kanban do /pipeline cabe as 5 colunas na tela sem rolar pro lado: colunas flex-1 min-w-[200px] + gap-3, linha de badges do card com flex-wrap, <main> com min-w-0. Verificado no navegador (5 colunas visíveis, 0 scroll horizontal). | ✅ 5b52ffa |
 | 2026-08-29 | fast | Nome do lead no card do pipeline em 1 linha com reticências (truncate + title no hover), em vez de quebrar linha. | ✅ 0a72800 |
+| 260910-p6x | Correções seguras da revisão ui-ux-pro-max: reduced-motion global + skip-link "Pular para o conteúdo" (globals.css/layout.tsx); tabular-nums nas colunas numéricas de /relatorios; `mode:"onBlur"` nos forms de lead e campanha; stepper "Passo N de 3" + skeleton de prévia no wizard de import CSV. 6 itens, 3 commits. Gates verdes (tsc/lint/verify:brand/check:contrast/verify:theme/test:relatorios/build). NÃO tocou pipeline-board nem followup-dashboard. | 2026-09-10 | 8e9f39e, 4f242c7, 53ff179 | [260910-p6x-corre-es-seguras-da-revis-o-ui-ux-pro-ma](./quick/260910-p6x-corre-es-seguras-da-revis-o-ui-ux-pro-ma/) |
 
 ## Deferred Items
 
