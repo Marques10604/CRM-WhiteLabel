@@ -33,6 +33,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex">
+        <a
+          href="#conteudo"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:border focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:ring-2 focus:ring-ring"
+        >
+          Pular para o conteúdo
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -40,7 +46,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppSidebar />
-          <main className="min-w-0 flex-1 px-8 py-8">{children}</main>
+          <main id="conteudo" tabIndex={-1} className="min-w-0 flex-1 px-8 py-8">
+            {children}
+          </main>
           <Toaster />
         </ThemeProvider>
       </body>

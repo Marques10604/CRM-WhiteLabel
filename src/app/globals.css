@@ -166,3 +166,21 @@
     @apply font-sans;
   }
 }
+
+/*
+ * Acessibilidade: respeitar "reduzir movimento" do sistema operacional.
+ * Bloco solto de propósito (fora de @layer, fora de :root/.dark):
+ * - fora de @layer para vencer os utilitários do Tailwind v4 (que vivem em layer própria);
+ * - fora de :root/.dark para não quebrar o parser de chaves balanceadas
+ *   de scripts/check-contrast.cjs.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
