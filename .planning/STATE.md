@@ -342,9 +342,28 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 EM EXECUÇÃO: ONDAS 1–2 FECHADAS, ONDA 3 (23-04) É A PRÓXIMA (2026-09-10)
+### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 ONDA 3 (23-04) EM EXECUÇÃO, BLOQUEADA NA TASK 3 (2026-09-10)
 
-**ONDE PARAMOS:** `23-01`, `23-02` e `23-03` executados e commitados na `main`.
+**BLOQUEIO ATIVO (23-04 Task 3 — spike do modelo):** a `ANTHROPIC_API_KEY` do
+`.env.local` **NÃO é workspace-scoped**. A 1ª chamada real devolveu HTTP 400:
+`"This API key is not scoped to a workspace, so this request must include the
+anthropic-workspace-id header..."`. **Não é sobre a Web Search** (a tool passou;
+`effort:"low"` foi aceito e aparece no request body; o provider manda
+`temperature:undefined` quando `effort` está setado — dado parcial de D-23-04).
+**Fix (usuário):** no Console da Anthropic, gerar uma **API key scoped a um
+workspace** (Settings → API keys → Create Key → escolher um Workspace, não
+"default/account") e substituir a linha do `.env.local`. Zero mudança de código.
+Alternativa: fornecer o `anthropic-workspace-id` (aí precisa de mudança de código
+em `gerar-diagnostico.ts` + nova env var). Depois: re-rodar
+`node scripts/spike-modelo-diagnostico.mjs` UMA vez (host 4GB, fechar node antes),
+registrar D-23-04 e ajustar `src/lib/ai/gerar-diagnostico.ts`.
+
+**Progresso 23-04:**
+- Task 1 ✅ commit `f578ade` — `src/actions/diagnostico-actions.ts` (tsc/lint/guard verdes)
+- Task 2 ✅ `.env.local` existe com `ANTHROPIC_API_KEY`, não rastreado; Web Search confirmada pelo usuário — MAS a chave não é workspace-scoped (descoberto na Task 3)
+- Task 3 ⛔ commit parcial `aa3556b` — `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` prontos; medição/D-23-04/ajuste de `gerar-diagnostico.ts` PENDENTES do fix da chave
+
+**ONDE PARAMOS (ondas 1-2):** `23-01`, `23-02` e `23-03` executados e commitados na `main`.
 
 - **23-01** (`f524cab`/`d90db3d`/`9e82bb7`): `diagnosticoSchema` + helpers de gate + 9 fixtures + harness `test:diagnostico-estrutural` (61 asserções).
 - **23-02** (`75cdeda`/`7984a56`/`cecc0ba`/`c52ba63`): tabela `diagnosticos` viva em `data/crm.db` (migração idempotente 2x) + gate `verify:schema` estrito.
