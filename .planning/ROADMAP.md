@@ -136,7 +136,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 **Plans**: 7 planos em 5 ondas
 
 **Onda 1:**
-- [ ] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
+- [x] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
 
 **Onda 2** *(bloqueada na Onda 1):*
 - [ ] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema

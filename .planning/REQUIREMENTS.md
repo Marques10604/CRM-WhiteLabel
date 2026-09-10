@@ -27,14 +27,14 @@ mercado 2026 (Build-Measure-Learn, market-entry scoring, problem tiers).
 ### DIAGNOSTICO — Diagnóstico de IA da campanha
 
 - [ ] **DIAGNOSTICO-01**: O usuário gera, sob demanda (botão explícito), um diagnóstico de IA para a campanha — nunca automático ao criar, e sempre gerado do zero (nunca reusado de outra geração, mesmo do mesmo nicho).
-- [ ] **DIAGNOSTICO-02**: O diagnóstico pesquisa a web e cita fontes (URLs); um diagnóstico sem nenhuma fonte citada é rejeitado pelo sistema.
-- [ ] **DIAGNOSTICO-03**: O diagnóstico apresenta um índice de saturação numérico, baseado na contagem de concorrentes diretos encontrados na pesquisa.
-- [ ] **DIAGNOSTICO-04**: O diagnóstico lista até 3 gatilhos de dor observáveis do nicho (não genéricos), com o mais forte destacado.
-- [ ] **DIAGNOSTICO-05**: O diagnóstico lista de 2 a 3 objeções esperadas, cada uma com uma resposta sugerida.
-- [ ] **DIAGNOSTICO-06**: O diagnóstico estima um ticket médio para a oferta, citando a base/fonte usada.
-- [ ] **DIAGNOSTICO-07**: Cada achado do diagnóstico é marcado como "dado quantificável" (contagem, preço) ou "alegação de marketing do concorrente" (afirmação de landing page/blog de quem vende) — nunca misturados sem distinção visual.
-- [ ] **DIAGNOSTICO-08**: O diagnóstico inclui um rascunho de 1ª mensagem/abordagem, editável pelo usuário — nunca enviado automaticamente (sem integração de disparo).
-- [ ] **DIAGNOSTICO-09**: O diagnóstico termina com um veredito **sugerido** pela IA (aprofundar / mudar ângulo / abandonar) — não vinculante, é insumo pro veredito do usuário.
+- [x] **DIAGNOSTICO-02**: O diagnóstico pesquisa a web e cita fontes (URLs); um diagnóstico sem nenhuma fonte citada é rejeitado pelo sistema.
+- [x] **DIAGNOSTICO-03**: O diagnóstico apresenta um índice de saturação numérico, baseado na contagem de concorrentes diretos encontrados na pesquisa.
+- [x] **DIAGNOSTICO-04**: O diagnóstico lista até 3 gatilhos de dor observáveis do nicho (não genéricos), com o mais forte destacado.
+- [x] **DIAGNOSTICO-05**: O diagnóstico lista de 2 a 3 objeções esperadas, cada uma com uma resposta sugerida.
+- [x] **DIAGNOSTICO-06**: O diagnóstico estima um ticket médio para a oferta, citando a base/fonte usada.
+- [x] **DIAGNOSTICO-07**: Cada achado do diagnóstico é marcado como "dado quantificável" (contagem, preço) ou "alegação de marketing do concorrente" (afirmação de landing page/blog de quem vende) — nunca misturados sem distinção visual.
+- [x] **DIAGNOSTICO-08**: O diagnóstico inclui um rascunho de 1ª mensagem/abordagem, editável pelo usuário — nunca enviado automaticamente (sem integração de disparo).
+- [x] **DIAGNOSTICO-09**: O diagnóstico termina com um veredito **sugerido** pela IA (aprofundar / mudar ângulo / abandonar) — não vinculante, é insumo pro veredito do usuário.
 - [ ] **DIAGNOSTICO-10**: O usuário pode regenerar o diagnóstico da mesma campanha quando quiser — cada geração é uma chamada nova e visível (sem cache escondendo o custo).
 
 ### VEREDITO — Decisão do usuário
@@ -103,14 +103,14 @@ Preenchida na criação do roadmap.
 | CAMPANHA-03 | Phase 22 | Complete |
 | CAMPANHA-04 | Phase 22 | Complete |
 | DIAGNOSTICO-01 | Phase 23 | Pending |
-| DIAGNOSTICO-02 | Phase 23 | Pending |
-| DIAGNOSTICO-03 | Phase 23 | Pending |
-| DIAGNOSTICO-04 | Phase 23 | Pending |
-| DIAGNOSTICO-05 | Phase 23 | Pending |
-| DIAGNOSTICO-06 | Phase 23 | Pending |
-| DIAGNOSTICO-07 | Phase 23 | Pending |
-| DIAGNOSTICO-08 | Phase 23 | Pending |
-| DIAGNOSTICO-09 | Phase 23 | Pending |
+| DIAGNOSTICO-02 | Phase 23 | Complete |
+| DIAGNOSTICO-03 | Phase 23 | Complete |
+| DIAGNOSTICO-04 | Phase 23 | Complete |
+| DIAGNOSTICO-05 | Phase 23 | Complete |
+| DIAGNOSTICO-06 | Phase 23 | Complete |
+| DIAGNOSTICO-07 | Phase 23 | Complete |
+| DIAGNOSTICO-08 | Phase 23 | Complete |
+| DIAGNOSTICO-09 | Phase 23 | Complete |
 | DIAGNOSTICO-10 | Phase 23 | Pending |
 | VEREDITO-01 | Phase 24 | Pending |
 | VEREDITO-02 | Phase 24 | Pending |

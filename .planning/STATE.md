@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: ready_to_execute
-last_updated: "2026-09-09T00:00:00.000Z"
-last_activity: 2026-09-09
+status: executing
+last_updated: "2026-09-10T12:19:03.385Z"
+last_activity: 2026-09-10
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 3
-  percent: 25
+  completed_plans: 4
+  percent: 40
 ---
 
 # Project State
@@ -20,22 +20,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 23 — diagn-stico-de-ia-da-campanha
+**Current focus:** Phase 23 — Diagnóstico de IA da Campanha
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — PLANEJADA ✓, pronta para executar
-Plan: 0 of 7 — 7 planos em 5 ondas escritos e verificados (commits 344d24b + revisão 2e26c8e)
-Status: `/gsd-plan-phase 23` CONCLUÍDO (2026-09-09). Planner (opus) → 7 planos; plan-checker (sonnet) 1ª passada 0 blockers/5 warnings → revisão dirigida (5/5 tratados) → re-checagem **VERIFICATION PASSED**. Cobertura DIAGNOSTICO-01..10 completa. 3 decisões do planner aprovadas pelo usuário: D-23-01 (`criado_em` integer timestamp), D-23-02 (Server Action em `src/actions/diagnostico-actions.ts`), D-23-06 (sem "busca ao vivo" real — consultas renderizadas após a geração). D-23-07 registrada na revisão (coluna `aviso` separada de `erro` no schema).
-**Próximo passo: `/gsd-execute-phase 23`** (`/clear` antes).
+Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING
+Plan: 2 of 7
+Status: 23-01 completo (contrato Zod + fixtures + harness estrutural, 61 asserções verdes). Onda 1 restante: 23-02.
+**Próximo passo: executar 23-02** (`src/db/schema.ts` + `migrate-diagnosticos.cjs`).
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
-Last activity: 2026-09-09 -- `/gsd-plan-phase 23` rodado até o fim; 7 planos verificados; ROADMAP + STATE atualizados à mão (shim `gsd-sdk` global quebrado — ver Blockers).
+Last activity: 2026-09-10
 
 ### 2 avisos menores do plan-checker aceitos como dívida (não bloqueiam execução)
+
 - 23-05 `must_haves.truths` não captura o bloco "Ressalva:" novo (a acceptance criterion `grep -c "Ressalva: "` já cobre a execução) — alinhamento de metadados
 - 23-05 `depends_on: ["23-04"]` poderia ser `["23-02"]` (componentes puros só precisam do tipo `Diagnostico` + semântica `aviso`) — otimização de paralelismo, não correção
 
 ### Setup pendente do usuário para a Fase 23 (antes de executar)
+
 - Criar `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
 - Habilitar a "Web Search" tool nas configurações da ORGANIZAÇÃO no Console da Anthropic (senão a chamada volta HTTP 400)
 
@@ -114,6 +116,7 @@ Last activity: 2026-09-09 -- `/gsd-plan-phase 23` rodado até o fim; 7 planos ve
 | Phase 22 P01 | 15min | 3 tasks | 7 files |
 | Phase 22 P02 | 8min | 2 tasks | 6 files |
 | Phase 22 P03 | 15min | 3 tasks | 11 files |
+| Phase 23 P01 | 25 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -228,6 +231,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Fase 22-01]: tabela campanhas criada via migração manual .cjs idempotente contra data/crm.db (44 leads intactos, rodada 2x); estado nasce 'explorando' e fica FORA dos schemas Zod (mudança é escopo Fase 24); metaConversao é texto livre; leads.campanhaId nullable FK set null; Server Actions com molde nichoExists+isForeignKeyViolation de lead-actions.ts
 - [Phase ?]: [Fase 22-02]: /campanhas (listagem + criação, estado vazio com CTA) e /campanhas/[id] (detalhe minimalista: nicho+oferta, estado, meta, janela) entregues + item "Campanhas" na sidebar. CampanhaFormDialog é CRIAÇÃO-APENAS (CAMPANHA-01 só pede criar; updateCampanha do 22-01 fica sem consumidor de UI até a Fase 24). Bloco de data extraído para sub-componente JanelaField usado 2x (useState de Popover por instância). Detalhe usa leftJoin com nichos + notFound() para id não-inteiro-positivo (T-22-07) e para campanha soft-deletada (T-22-08). /campanhas/[id] minimalista de propósito — Fases 23 (diagnóstico) e 24 (veredito/painel/Mapa de Nichos) ADICIONAM seções, sem retrabalho.
 - [Phase ?]: [Fase 22-03] Vinculo lead->campanha (CAMPANHA-03, gap closure): campanhaId e o 3o campo opcional de leadBaseSchema (z.preprocess vazio->undefined + override ?? null na Server Action), SEM .refine (nao condicional a stage). OMITIDO de csvRowSchema (T-22-11). campanhaExists() indiferente a deletedAt (precedente nichoExists). CampanhaCombobox novo com item-sentinela 'Nenhuma campanha' (__nenhuma__). Prop campanhas OBRIGATORIA (sem default) forca tsc a provar fiacao das 3 telas /leads//pipeline. Sem revalidatePath('/campanhas') nas lead-actions (IN-01).
+- [Phase ?]: [Fase 23-01]: contrato do diagnóstico (diagnosticoSchema Zod + helpers de gate) importa só zod — importável pelo harness .cjs; gate de fontes lê result.sources, nunca URLs do modelo; urlSegura allowlist http/https antes de href do LLM. 9 fixtures + harness de 61 asserções sem API/sem banco.
 
 ### Pending Todos
 
@@ -340,15 +344,18 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 plan-checker). Re-checagem final: **VERIFICATION PASSED**. Cobertura DIAGNOSTICO-01..10 completa.
 
 **3 decisões do planner APROVADAS pelo usuário** (não re-perguntar):
+
 - **D-23-01** — `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (corrige AI-SPEC §4)
 - **D-23-02** — Server Action em `src/actions/diagnostico-actions.ts` (não co-locada)
 - **D-23-06** — sem "busca ao vivo": spinner + aviso de custo no pending; consultas reais
   (`diagnosticos.buscas`) renderizadas só após a geração (23-05 Task 3, bloco 2)
+
 - **D-23-07** (registrada na revisão) — coluna `aviso` TEXT separada de `erro` no schema `diagnosticos` (11 colunas)
 
 **Próximo passo:** `/clear` e então `/gsd-execute-phase 23`.
 
 **Setup do usuário ANTES de executar a Onda 3+** (Ondas 1–2, exceto o `npm i`, rodam sem isso):
+
 - `.env.local` na raiz com `ANTHROPIC_API_KEY=sk-ant-...`
 - Habilitar a "Web Search" tool nas configs da ORGANIZAÇÃO no Console da Anthropic (senão HTTP 400)
 
@@ -361,9 +368,11 @@ plan-checker). Re-checagem final: **VERIFICATION PASSED**. Cobertura DIAGNOSTICO
 (gap closure de CAMPANHA-03 / SC3) foi executado (`0c879de`, `746c988`, `3f850fe`), o code review
 `22-03-REVIEW.md` rodou (3 warnings, 0 blockers), e os 3 warnings foram fechados no commit
 **`b9a2c44`**:
+
 - WR-01: `updateLead` revalida `/leads` (superfície de edição do campo Campanha)
 - WR-02: comentário do backstop de FK corrigido (`campanhaId` = `onDelete:"set null"`, campanha
   nunca hard-deletada → backstop inalcançável, `campanhaExists()` é a única barreira)
+
 - WR-03: Caso 27 no harness — campanha soft-deletada continua salvável (T-22-12)
 
 `22-VERIFICATION.md` atualizado: `gaps_found` → `passed`, seção "Re-Verification" adicionada.
@@ -375,12 +384,15 @@ Gate completo verde (tsc/lint/build/test:lead-actions[1-27]/verify:schema/guard:
 de IA de verdade; `/gsd-ai-integration-phase 23` ou `/gsd-plan-phase 23 --ai`).
 
 **Débito NÃO-BLOQUEANTE que continua aberto:**
+
 - 3 checks de UAT humano do `22-03-SUMMARY.md` + 3 da seção "Human Verification Required" do
   `22-VERIFICATION.md` (host 4GB sem navegador — fluxo React de vincular campanha ao lead nas
   telas `/leads` `/pipeline` `/`)
+
 - `22-REVIEW.md` WR-01..WR-04 (sobre `campanha-actions.ts`: divergência `onDelete` schema×DDL,
   `updateCampanha` reporta sucesso em 0 linhas, dialog descarta erros de campo, sem
   `test-campanha-actions.cjs`) — conjunto DIFERENTE do `22-03-REVIEW.md`; herdado, não bloqueia
+
 - IN-02 do `22-03-REVIEW`: rótulo "Nenhuma campanha" colide com o placeholder do combobox
 
 </details>
@@ -667,7 +679,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-05T14:32:59.406Z
+Last session: 2026-09-10T12:18:56.595Z
 
 **O que foi feito nesta sessão:**
 
