@@ -1,0 +1,65 @@
+{
+  "indice_saturacao": {
+    "concorrentes_diretos": 7,
+    "leitura": "Sete ateliês de costura sob medida atendem a mesma região central, mas quase nenhum foca em ajuste expresso para eventos com prazo garantido.",
+    "fontes": [
+      "https://www.instagram.com/costuraatelie",
+      "https://www.olx.com.br/brasil?q=ajuste-roupa"
+    ]
+  },
+  "gatilhos_dor": [
+    {
+      "gatilho": "Noivas relatam atraso na entrega do vestido ajustado a menos de uma semana do casamento.",
+      "observavel_em": "https://www.reclameaqui.com.br/empresa/atelie-costura",
+      "mais_forte": true
+    },
+    {
+      "gatilho": "Clientes reclamam que não conseguem falar pelo WhatsApp para marcar a prova de roupa.",
+      "observavel_em": "https://www.instagram.com/costuraatelie",
+      "mais_forte": false
+    }
+  ],
+  "objecoes": [
+    {
+      "objecao": "Já tenho uma costureira de confiança há anos.",
+      "resposta_sugerida": "Proponho um primeiro ajuste teste sem compromisso para você comparar prazo e acabamento antes de decidir trocar."
+    },
+    {
+      "objecao": "Costura sob medida é cara demais.",
+      "resposta_sugerida": "O ajuste bem-feito evita a recompra da peça e cabe no orçamento de um evento único como um casamento."
+    }
+  ],
+  "ticket_medio": {
+    "valor_estimado_brl": 180,
+    "base": "Faixa observada em anúncios de ajuste de vestido de festa na OLX e na tabela de preços publicada pelo blog do setor.",
+    "fonte_url": "https://blog.corttex.com.br/precos-costura-sob-medida"
+  },
+  "achados": [
+    {
+      "afirmacao": "Sete ateliês diretos anunciam ajuste sob medida na mesma região central.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.olx.com.br/brasil?q=ajuste-roupa"
+    },
+    {
+      "afirmacao": "Anúncios de ajuste de vestido de festa variam de R$ 120 a R$ 250 na OLX.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.olx.com.br/brasil?q=ajuste-roupa"
+    },
+    {
+      "afirmacao": "Um concorrente se descreve como 'o melhor ateliê de alta-costura da cidade'.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://www.instagram.com/costuraatelie"
+    }
+  ],
+  "rascunho_primeira_mensagem": "Oi, Marina! Vi que você faz ajuste de vestido de festa. Muitas noivas ficam ansiosas com o prazo de entrega perto do casamento. Eu faço ajuste expresso com prova marcada em até 48h e data de entrega garantida. Posso te explicar como funciona?",
+  "veredito_sugerido": {
+    "decisao": "mudar_angulo",
+    "justificativa": "O mercado tem concorrência relevante, mas ninguém ocupa o nicho de ajuste expresso para eventos com prazo garantido. Vale entrar por esse ângulo estreito em vez de competir em costura sob medida genérica."
+  },
+  "_sources": [
+    { "sourceType": "url", "url": "https://www.instagram.com/costuraatelie", "title": "Ateliê de costura no Instagram" },
+    { "sourceType": "url", "url": "https://www.olx.com.br/brasil?q=ajuste-roupa", "title": "OLX - ajuste de roupa" },
+    { "sourceType": "url", "url": "https://www.reclameaqui.com.br/empresa/atelie-costura", "title": "Reclame Aqui - ateliê de costura" },
+    { "sourceType": "url", "url": "https://blog.corttex.com.br/precos-costura-sob-medida", "title": "Blog Corttex - preços de costura sob medida" }
+  ]
+}

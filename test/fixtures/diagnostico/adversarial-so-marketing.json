@@ -1,0 +1,75 @@
+{
+  "indice_saturacao": {
+    "concorrentes_diretos": 5,
+    "leitura": "Cinco concorrentes diretos, e quase toda a informação pública disponível é material de venda das próprias empresas.",
+    "fontes": [
+      "https://www.olx.com.br/brasil?q=servico-x",
+      "https://www.concorrente.com.br/sobre"
+    ]
+  },
+  "gatilhos_dor": [
+    {
+      "gatilho": "Concorrentes afirmam nas redes que os clientes sofrem com falta de profissionalismo do mercado.",
+      "observavel_em": "https://www.instagram.com/concorrentetop",
+      "mais_forte": true
+    },
+    {
+      "gatilho": "Uma landing page diz que 90% dos clientes estão insatisfeitos com os fornecedores atuais.",
+      "observavel_em": "https://www.concorrente.com.br/sobre",
+      "mais_forte": false
+    }
+  ],
+  "objecoes": [
+    {
+      "objecao": "Os concorrentes já dizem que o mercado é ruim, então há oportunidade.",
+      "resposta_sugerida": "Essa frase é discurso de venda deles, não dado; é preciso confirmar a dor numa fonte independente antes de apostar."
+    },
+    {
+      "objecao": "A landing page cita 90% de insatisfação.",
+      "resposta_sugerida": "É um número de marketing sem metodologia divulgada; trato como alegação, nunca como base para o veredito."
+    }
+  ],
+  "ticket_medio": {
+    "valor_estimado_brl": 500,
+    "base": "Único ponto de preço observável veio de um anúncio real na OLX; o resto das páginas só promete melhor custo-benefício sem valor.",
+    "fonte_url": "https://www.olx.com.br/brasil?q=servico-x"
+  },
+  "achados": [
+    {
+      "afirmacao": "Um anúncio real na OLX lista o serviço por R$ 500.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.olx.com.br/brasil?q=servico-x"
+    },
+    {
+      "afirmacao": "Cinco perfis de concorrentes diretos foram encontrados na busca.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.concorrente.com.br/sobre"
+    },
+    {
+      "afirmacao": "Um concorrente se descreve como 'a solução definitiva do mercado'.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://www.instagram.com/concorrentetop"
+    },
+    {
+      "afirmacao": "Uma landing page afirma ser 'líder absoluta em satisfação do cliente'.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://www.concorrente.com.br/sobre"
+    },
+    {
+      "afirmacao": "Um blog do setor promete 'o melhor custo-benefício do país'.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://blog.setor.com.br/tendencias"
+    }
+  ],
+  "rascunho_primeira_mensagem": "Oi! Estou estudando esse mercado e vi que quase tudo que se fala vem das próprias empresas concorrentes. Queria entender de verdade onde dói pra você hoje, sem o filtro do marketing. Pode me contar como funciona o seu processo atual?",
+  "veredito_sugerido": {
+    "decisao": "mudar_angulo",
+    "justificativa": "A maior parte dos sinais é copy de concorrente, não dado de mercado. Com apenas um ponto de preço real e a dor ainda não confirmada por fonte independente, o certo é reposicionar a pesquisa antes de comprometer a janela de 90 dias."
+  },
+  "_sources": [
+    { "sourceType": "url", "url": "https://www.olx.com.br/brasil?q=servico-x", "title": "OLX - serviço X" },
+    { "sourceType": "url", "url": "https://www.concorrente.com.br/sobre", "title": "Concorrente - página sobre" },
+    { "sourceType": "url", "url": "https://www.instagram.com/concorrentetop", "title": "Concorrente top no Instagram" },
+    { "sourceType": "url", "url": "https://blog.setor.com.br/tendencias", "title": "Blog do setor - tendências" }
+  ]
+}

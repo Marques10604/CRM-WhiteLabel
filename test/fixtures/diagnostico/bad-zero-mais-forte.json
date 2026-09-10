@@ -1,0 +1,66 @@
+{
+  "indice_saturacao": {
+    "concorrentes_diretos": 4,
+    "leitura": "Quatro concorrentes diretos atendem a mesma faixa de clientes na região analisada.",
+    "fontes": ["https://www.olx.com.br/brasil?q=exemplo"]
+  },
+  "gatilhos_dor": [
+    {
+      "gatilho": "Clientes relatam demora no atendimento inicial pelas redes sociais.",
+      "observavel_em": "https://www.instagram.com/exemplo",
+      "mais_forte": false
+    },
+    {
+      "gatilho": "Pequenos negócios dizem perder pedidos por falta de retorno rápido.",
+      "observavel_em": "https://www.reclameaqui.com.br/empresa/exemplo",
+      "mais_forte": false
+    },
+    {
+      "gatilho": "Donos de negócio afirmam não ter tempo de responder mensagens no fim do dia.",
+      "observavel_em": "https://www.instagram.com/exemplo",
+      "mais_forte": false
+    }
+  ],
+  "objecoes": [
+    {
+      "objecao": "Já resolvo isso sozinho hoje.",
+      "resposta_sugerida": "Proponho um teste curto para medir quanto tempo isso realmente consome por semana."
+    },
+    {
+      "objecao": "Não é prioridade agora.",
+      "resposta_sugerida": "Entendo; deixo um material rápido e retomo em duas semanas com um caso parecido com o seu."
+    }
+  ],
+  "ticket_medio": {
+    "valor_estimado_brl": 300,
+    "base": "Faixa observada em anúncios do serviço equivalente na OLX na mesma região analisada.",
+    "fonte_url": "https://www.olx.com.br/brasil?q=exemplo"
+  },
+  "achados": [
+    {
+      "afirmacao": "Quatro concorrentes diretos anunciam o serviço na região.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.olx.com.br/brasil?q=exemplo"
+    },
+    {
+      "afirmacao": "Os preços anunciados variam de R$ 200 a R$ 400.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.olx.com.br/brasil?q=exemplo"
+    },
+    {
+      "afirmacao": "Um concorrente se diz 'o melhor da região' na bio do perfil.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://www.instagram.com/exemplo"
+    }
+  ],
+  "rascunho_primeira_mensagem": "Oi! Vi que voce atende esse tipo de cliente e queria entender como funciona o seu atendimento inicial hoje. Posso te fazer duas perguntas rapidas sobre isso?",
+  "veredito_sugerido": {
+    "decisao": "aprofundar",
+    "justificativa": "Concorrencia moderada e dor recorrente relatada em fontes publicas indicam que vale investigar o nicho com mais profundidade."
+  },
+  "_sources": [
+    { "sourceType": "url", "url": "https://www.olx.com.br/brasil?q=exemplo", "title": "OLX - busca" },
+    { "sourceType": "url", "url": "https://www.instagram.com/exemplo", "title": "Instagram" },
+    { "sourceType": "url", "url": "https://www.reclameaqui.com.br/empresa/exemplo", "title": "Reclame Aqui" }
+  ]
+}

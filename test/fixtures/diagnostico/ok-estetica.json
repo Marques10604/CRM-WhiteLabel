@@ -1,0 +1,65 @@
+{
+  "indice_saturacao": {
+    "concorrentes_diretos": 22,
+    "leitura": "Mais de vinte clínicas de estética disputam o mesmo público na região, várias com franquia e verba alta de anúncio pago.",
+    "fontes": [
+      "https://www.google.com/maps/search/clinica+estetica",
+      "https://www.instagram.com/esteticaglow"
+    ]
+  },
+  "gatilhos_dor": [
+    {
+      "gatilho": "Clientes reclamam de fila e remarcação constante nas clínicas de estética grandes.",
+      "observavel_em": "https://www.reclameaqui.com.br/categoria/estetica",
+      "mais_forte": true
+    },
+    {
+      "gatilho": "Donas de clínica pequena dizem não conseguir competir com o preço das franquias.",
+      "observavel_em": "https://www.instagram.com/esteticaglow",
+      "mais_forte": false
+    }
+  ],
+  "objecoes": [
+    {
+      "objecao": "O mercado é grande, tem espaço para todo mundo.",
+      "resposta_sugerida": "O volume existe, mas a disputa por anúncio já derruba a margem de quem entra agora sem marca conhecida."
+    },
+    {
+      "objecao": "Posso me diferenciar pelo atendimento.",
+      "resposta_sugerida": "Atendimento premium ajuda a reter cliente, mas não resolve o custo de aquisição num mercado com 22 concorrentes ativos."
+    }
+  ],
+  "ticket_medio": {
+    "valor_estimado_brl": 250,
+    "base": "Preço médio de procedimento estético facial divulgado em tabelas de clínicas locais e no blog do setor de beleza.",
+    "fonte_url": "https://blog.belezapro.com.br/precos-procedimentos"
+  },
+  "achados": [
+    {
+      "afirmacao": "Vinte e duas clínicas de estética aparecem no mapa para a mesma região.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://www.google.com/maps/search/clinica+estetica"
+    },
+    {
+      "afirmacao": "Procedimentos faciais são anunciados entre R$ 150 e R$ 400.",
+      "tipo": "dado_quantificavel",
+      "fonte_url": "https://blog.belezapro.com.br/precos-procedimentos"
+    },
+    {
+      "afirmacao": "Uma rede se posiciona como 'a clínica de estética número 1 do Brasil'.",
+      "tipo": "alegacao_marketing",
+      "fonte_url": "https://www.instagram.com/esteticaglow"
+    }
+  ],
+  "rascunho_primeira_mensagem": "Oi! Sei que o mercado de estética é concorrido e que clínica pequena sofre para competir com franquia. Antes de investir pesado em anúncio, vale entender se existe um recorte menos disputado. Posso te mostrar o que encontrei sobre a região?",
+  "veredito_sugerido": {
+    "decisao": "abandonar",
+    "justificativa": "Mercado saturado, com mais de vinte concorrentes bem financiados e guerra de preço em anúncio. O ticket médio não cobre o custo de aquisição para um entrante solo sem marca; melhor direcionar o esforço para outro nicho."
+  },
+  "_sources": [
+    { "sourceType": "url", "url": "https://www.google.com/maps/search/clinica+estetica", "title": "Google Maps - clínicas de estética" },
+    { "sourceType": "url", "url": "https://www.instagram.com/esteticaglow", "title": "Clínica de estética no Instagram" },
+    { "sourceType": "url", "url": "https://www.reclameaqui.com.br/categoria/estetica", "title": "Reclame Aqui - categoria estética" },
+    { "sourceType": "url", "url": "https://blog.belezapro.com.br/precos-procedimentos", "title": "Blog BelezaPro - preços de procedimentos" }
+  ]
+}
