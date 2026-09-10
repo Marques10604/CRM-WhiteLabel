@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { decodeCsvFile } from "@/lib/csv-encoding";
 import {
   detectWithinBatchDuplicatePhones,
@@ -105,6 +106,58 @@ async function detectEncodingLabel(file: File): Promise<"UTF-8" | "Windows-1252"
 }
 
 const DEFAULT_OVERRIDE: RowOverride = { importarMesmoAssim: false, nichoOverrideId: null };
+
+/** Os 3 passos do wizard, na ordem em que o admin os percorre. */
+const IMPORT_STEPS = [
+  { numero: 1, rotulo: "Upload" },
+  { numero: 2, rotulo: "Mapeamento" },
+  { numero: 3, rotulo: "Prévia" },
+] as const;
+
+/**
+ * Indicador de progresso "Passo N de 3" acima de cada tela do wizard.
+ * Sub-componente local (só um consumidor, pequeno demais para arquivo/registry).
+ * O `animate-pulse` do skeleton e as transições são neutralizados pelo bloco
+ * global `@media (prefers-reduced-motion)` — sem guarda própria aqui.
+ */
+function ImportStepper({ current }: { current: 1 | 2 | 3 }) {
+  return (
+    <nav aria-label="Progresso da importação" className="flex flex-col gap-2">
+      <p className="text-sm font-medium text-foreground">Passo {current} de 3</p>
+      <ol className="flex items-center gap-3">
+        {IMPORT_STEPS.map((step) => {
+          const ativo = step.numero === current;
+          return (
+            <li
+              key={step.numero}
+              aria-current={ativo ? "step" : undefined}
+              className="flex items-center gap-2"
+            >
+              <span
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-full border text-xs font-medium",
+                  ativo
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground"
+                )}
+              >
+                {step.numero}
+              </span>
+              <span
+                className={cn(
+                  "text-sm",
+                  ativo ? "font-medium text-foreground" : "text-muted-foreground"
+                )}
+              >
+                {step.rotulo}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
 
 // `templates` é recebido para a futura tela pós-importação (D-14, plano
 // 02-03) — ainda não usado nesta wave, mantido na assinatura para que a
@@ -310,44 +363,64 @@ export function CsvImportWizard({ nichos, templates }: CsvImportWizardProps) {
 
   if (state.step === "upload") {
     return (
-      <CsvUploadDropzone
-        onFileSelected={handleFileSelected}
-        fileName={state.fileName}
-        error={state.error}
-        onReset={handleReset}
-      />
+      <div className="flex flex-col gap-6">
+        <ImportStepper current={1} />
+        <CsvUploadDropzone
+          onFileSelected={handleFileSelected}
+          fileName={state.fileName}
+          error={state.error}
+          onReset={handleReset}
+        />
+      </div>
     );
   }
 
   if (state.step === "mapping") {
     return (
-      <CsvColumnMapper
-        headers={Object.keys(state.parsedRows[0] ?? {})}
-        mapping={state.mapping}
-        onMappingChange={handleMappingChange}
-        detectedDelimiter={state.detectedDelimiter}
-        detectedEncoding={state.detectedEncoding}
-        onContinue={handleContinueToPreview}
-        extraNotasColumns={state.extraNotasColumns}
-        onExtraNotasColumnsChange={handleExtraNotasColumnsChange}
-      />
+      <div className="flex flex-col gap-6">
+        <ImportStepper current={2} />
+        <CsvColumnMapper
+          headers={Object.keys(state.parsedRows[0] ?? {})}
+          mapping={state.mapping}
+          onMappingChange={handleMappingChange}
+          detectedDelimiter={state.detectedDelimiter}
+          detectedEncoding={state.detectedEncoding}
+          onContinue={handleContinueToPreview}
+          extraNotasColumns={state.extraNotasColumns}
+          onExtraNotasColumnsChange={handleExtraNotasColumnsChange}
+        />
+      </div>
     );
   }
 
   if (!previewRows) {
-    return <p className="text-sm text-muted-foreground">Carregando prévia...</p>;
+    return (
+      <div className="flex flex-col gap-6">
+        <ImportStepper current={3} />
+        <div className="flex flex-col gap-2" aria-busy="true" aria-live="polite">
+          <span className="sr-only">Carregando prévia...</span>
+          <div className="h-10 rounded bg-muted animate-pulse" />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-12 rounded bg-muted/60 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <CsvImportPreviewTable
-      rows={previewRows}
-      nichos={nichos}
-      overrides={overrides}
-      onToggleImportAnyway={handleToggleImportAnyway}
-      onAssignNicho={handleAssignNicho}
-      unknownNichoNames={previewSupportData?.unknownNichoNames ?? []}
-      onImported={handleImported}
-      onBack={handleBackToMapping}
-    />
+    <div className="flex flex-col gap-6">
+      <ImportStepper current={3} />
+      <CsvImportPreviewTable
+        rows={previewRows}
+        nichos={nichos}
+        overrides={overrides}
+        onToggleImportAnyway={handleToggleImportAnyway}
+        onAssignNicho={handleAssignNicho}
+        unknownNichoNames={previewSupportData?.unknownNichoNames ?? []}
+        onImported={handleImported}
+        onBack={handleBackToMapping}
+      />
+    </div>
   );
 }
