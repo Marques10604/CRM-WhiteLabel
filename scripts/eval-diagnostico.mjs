@@ -281,9 +281,25 @@ async function main() {
         console.log("  portões estruturais: OK");
       }
 
+      // O juiz é um custo SEPARADO da geração. Se ele falhar (ex.: o próprio
+      // juiz não emitiu um objeto válido), isso NÃO pode derrubar o resultado
+      // da geração que já teve sucesso — o caso ainda vira uma linha "ok" no
+      // relatório, só sem notas de juiz (Rule 1 - bug corrigido no plano
+      // 23-06: um catch único em volta de geração+juiz perdia o veredito real
+      // de casos cujo juiz falhasse).
       console.log("  chamando o juiz (2º custo por caso)...");
-      const { julgamento, uso: usoJuiz } = await rodarJuiz(r.diagnostico);
-      console.log("  juiz OK");
+      let julgamento = null;
+      let usoJuiz = null;
+      let juizErro = null;
+      try {
+        const resJuiz = await rodarJuiz(r.diagnostico);
+        julgamento = resJuiz.julgamento;
+        usoJuiz = resJuiz.uso;
+        console.log("  juiz OK");
+      } catch (errJuiz) {
+        juizErro = errJuiz instanceof Error ? errJuiz.message : String(errJuiz);
+        console.error(`  juiz LANÇOU (não derruba o resultado da geração): ${juizErro}`);
+      }
 
       resultados.push({
         caso,
@@ -299,6 +315,7 @@ async function main() {
         vereditoResultado,
         julgamento,
         usoJuiz,
+        juizErro,
       });
     } catch (err) {
       const duracaoS = (Date.now() - t0) / 1000;
@@ -325,9 +342,10 @@ function estimarCusto(resultado) {
   const custoBuscas = resultado.buscas.length * 0.01;
   const custoGeracao =
     (resultado.uso.inputTokens / 1e6) * 2 + (resultado.uso.outputTokens / 1e6) * 10;
-  const custoJuiz =
-    ((resultado.usoJuiz.inputTokens ?? 0) / 1e6) * 2 +
-    ((resultado.usoJuiz.outputTokens ?? 0) / 1e6) * 10;
+  const custoJuiz = resultado.usoJuiz
+    ? ((resultado.usoJuiz.inputTokens ?? 0) / 1e6) * 2 +
+      ((resultado.usoJuiz.outputTokens ?? 0) / 1e6) * 10
+    : 0;
   return custoBuscas + custoGeracao + custoJuiz;
 }
 
@@ -394,14 +412,21 @@ function montarRelatorio(resultados, escopo) {
       linhas.push(`**Aviso de cross-check (não bloqueia):** ${r.avisoCrossCheck}`);
       linhas.push("");
     }
-    linhas.push("**Notas do juiz (dimensões subjetivas):**");
-    linhas.push("");
-    linhas.push("| dimensão | veredicto | nota | razão |");
-    linhas.push("|----------|-----------|------|-------|");
-    for (const [chave, valor] of Object.entries(r.julgamento)) {
-      linhas.push(`| ${chave} | ${valor.veredicto} | ${valor.nota}/5 | ${valor.razao} |`);
+    if (r.julgamento) {
+      linhas.push("**Notas do juiz (dimensões subjetivas):**");
+      linhas.push("");
+      linhas.push("| dimensão | veredicto | nota | razão |");
+      linhas.push("|----------|-----------|------|-------|");
+      for (const [chave, valor] of Object.entries(r.julgamento)) {
+        linhas.push(`| ${chave} | ${valor.veredicto} | ${valor.nota}/5 | ${valor.razao} |`);
+      }
+      linhas.push("");
+    } else {
+      linhas.push(
+        `**Notas do juiz: INDISPONÍVEIS** — a chamada do juiz falhou (\`${r.juizErro}\`), mas o veredito e os portões estruturais acima vêm da geração real, que teve sucesso.`,
+      );
+      linhas.push("");
     }
-    linhas.push("");
     linhas.push(
       `**Fontes coletadas (${r.fontes.length}):** ${r.fontes.map((f) => f.url).join(", ")}`,
     );
@@ -455,9 +480,18 @@ function montarRelatorio(resultados, escopo) {
   );
   linhas.push("");
 
-  const nomeArquivo = `${dataISO}-eval-diagnostico.md`;
+  // Nunca sobrescrever silenciosamente um relatório do mesmo dia — é comum
+  // rodar o eval 2x no mesmo dia (ex.: baseline + re-execução após reforçar a
+  // rubrica) e cada execução é evidência comparável (D-23-05). Se o nome-base
+  // já existir, incrementa um sufixo numérico até achar um nome livre.
   const relatorioDir = path.join(ROOT, "test/reports");
   fs.mkdirSync(relatorioDir, { recursive: true });
+  let nomeArquivo = `${dataISO}-eval-diagnostico.md`;
+  let sufixo = 2;
+  while (fs.existsSync(path.join(relatorioDir, nomeArquivo))) {
+    nomeArquivo = `${dataISO}-eval-diagnostico-${sufixo}.md`;
+    sufixo += 1;
+  }
   const caminhoCompleto = path.join(relatorioDir, nomeArquivo);
   fs.writeFileSync(caminhoCompleto, linhas.join("\n") + "\n", "utf8");
 
