@@ -191,3 +191,28 @@ export function urlSegura(u: string): boolean {
     return false;
   }
 }
+
+/**
+ * Normaliza uma URL para o cross-check FM2 (comparação de citações contra
+ * `res.sources` — `gerar-diagnostico.ts`, `scripts/eval-diagnostico.mjs`).
+ * `new URL(u).href` reescreve a string em forma canônica, absorvendo
+ * diferença puramente cosmética que NÃO muda o recurso apontado — host em
+ * maiúsculas, porta padrão explícita (`:443`/`:80`), caminho raiz vazio
+ * (`https://a.com` vira `https://a.com/`) — SEM alterar protocolo, path
+ * (além da raiz), query ou fragmento. Testado manualmente (node -e): barra
+ * final num sub-caminho (`/x` × `/x/`) e query string diferente CONTINUAM
+ * contando como mismatch — são recursos potencialmente diferentes de fato,
+ * `new URL().href` não os funde. Investigação do 23-REVIEW.md (WR-01/WR-04):
+ * antes deste helper, o cross-check era comparação de string exata sem
+ * nenhuma tolerância, inflando a contagem de "URL fora das fontes" com
+ * diferenças que não eram alucinação de verdade.
+ * Se a string não for uma URL parseável, devolve a própria string original
+ * (cai de volta em comparação exata — pior caso, não quebra).
+ */
+export function normalizarUrl(u: string): string {
+  try {
+    return new URL(u).href;
+  } catch {
+    return u;
+  }
+}

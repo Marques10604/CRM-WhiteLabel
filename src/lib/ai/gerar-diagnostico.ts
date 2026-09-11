@@ -30,6 +30,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import {
   diagnosticoSchema,
   filtrarFontes,
+  normalizarUrl,
   type Diagnostico,
 } from "./diagnostico-schema";
 import {
@@ -69,6 +70,15 @@ type GerarDiagnosticoResultado = {
   uso: { inputTokens: number; outputTokens: number };
   buscas: string[];
   avisoCrossCheck: string | null;
+  /**
+   * Lista real (rotulada por campo de origem) das URLs citadas dentro do
+   * objeto que não bateram, após normalização, com nenhuma URL de
+   * `res.sources` — investigação do 23-REVIEW.md (WR-01/WR-04). Vazio quando
+   * `avisoCrossCheck` é `null`. Não persistida no banco hoje (só o
+   * `avisoCrossCheck` agregado vai pra `diagnosticos.erro`/aviso) — exposta
+   * aqui pra quem precisar da granularidade (ex.: `scripts/eval-diagnostico.mjs`).
+   */
+  urlsForaDasFontes: { campo: string; url: string }[];
 };
 
 type GerarDiagnosticoOpcoes = {
@@ -157,21 +167,33 @@ export async function gerarDiagnostico(
       const diagnostico = res.output as Diagnostico;
 
       // 2. Cross-check FM2 — conta URLs citadas no objeto ausentes das fontes
-      //    reais. Não bloqueia (já resta >= 1 fonte real pelo gate acima); a
-      //    Server Action grava o aviso em `diagnosticos.aviso` (D-23-07).
-      const urlsReais = new Set(fontes.map((f) => f.url));
-      const urlsCitadas: string[] = [
-        ...diagnostico.achados.map((a) => a.fonte_url),
-        diagnostico.ticket_medio.fonte_url,
-        ...diagnostico.gatilhos_dor.map((g) => g.observavel_em),
-        ...diagnostico.indice_saturacao.fontes,
+      //    reais. Comparação por URL NORMALIZADA (23-REVIEW.md WR-01/WR-04):
+      //    string exata inflava a contagem com diferença puramente cosmética
+      //    (barra final, host em maiúsculas) que não é alucinação de fato.
+      //    Não bloqueia (já resta >= 1 fonte real pelo gate acima); a Server
+      //    Action grava o aviso agregado em `diagnosticos.aviso` (D-23-07).
+      const urlsReais = new Set(fontes.map((f) => normalizarUrl(f.url)));
+      const urlsCitadas: { campo: string; url: string }[] = [
+        ...diagnostico.achados.map((a, i) => ({
+          campo: `achados[${i}].fonte_url`,
+          url: a.fonte_url,
+        })),
+        { campo: "ticket_medio.fonte_url", url: diagnostico.ticket_medio.fonte_url },
+        ...diagnostico.gatilhos_dor.map((g, i) => ({
+          campo: `gatilhos_dor[${i}].observavel_em`,
+          url: g.observavel_em,
+        })),
+        ...diagnostico.indice_saturacao.fontes.map((url, i) => ({
+          campo: `indice_saturacao.fontes[${i}]`,
+          url,
+        })),
       ];
-      const foraDasFontes = urlsCitadas.filter(
-        (u) => !urlsReais.has(u),
-      ).length;
+      const urlsForaDasFontes = urlsCitadas.filter(
+        ({ url }) => !urlsReais.has(normalizarUrl(url)),
+      );
       const avisoCrossCheck =
-        foraDasFontes > 0
-          ? `${foraDasFontes} URL(s) citada(s) no diagnóstico não constam nas fontes reais da busca.`
+        urlsForaDasFontes.length > 0
+          ? `${urlsForaDasFontes.length} URL(s) citada(s) no diagnóstico não constam nas fontes reais da busca.`
           : null;
 
       // 3.
@@ -184,6 +206,7 @@ export async function gerarDiagnostico(
         },
         buscas: buscasTentativa,
         avisoCrossCheck,
+        urlsForaDasFontes,
       };
     } catch (err) {
       ultimoErro = err;

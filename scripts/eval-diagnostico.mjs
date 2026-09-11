@@ -90,7 +90,7 @@ if (!process.env.ANTHROPIC_API_KEY) {
 }
 
 const { gerarDiagnostico } = await import("@/lib/ai/gerar-diagnostico");
-const { diagnosticoSchema, urlSegura } = await import(
+const { diagnosticoSchema, urlSegura, normalizarUrl } = await import(
   "@/lib/ai/diagnostico-schema"
 );
 const { generateText, Output } = await import("ai");
@@ -206,21 +206,30 @@ function aplicarPortoesEstruturais(diagnostico, fontesReais, buscas) {
     falhas.push("fontes reais: 0 (o gate de zero-fontes deveria ter rejeitado antes)");
   }
 
-  const urlsReais = new Set(fontesReais.map((f) => f.url));
+  // Cross-check FM2 sobre URL NORMALIZADA (23-REVIEW.md WR-01/WR-04) — string
+  // exata inflava a contagem com diferença cosmética (barra final, host em
+  // maiúsculas) que não é alucinação de fato. Reimplementado aqui de propósito
+  // (não reusa gerarDiagnostico().urlsForaDasFontes) — o eval é um 2º
+  // verificador independente da mesma regra, no molde do harness de CI.
+  const urlsReais = new Set(fontesReais.map((f) => normalizarUrl(f.url)));
   const urlsCitadas = [
-    ...diagnostico.achados.map((a) => a.fonte_url),
-    diagnostico.ticket_medio.fonte_url,
-    ...diagnostico.gatilhos_dor.map((g) => g.observavel_em),
-    ...diagnostico.indice_saturacao.fontes,
+    ...diagnostico.achados.map((a, i) => ({ campo: `achados[${i}].fonte_url`, url: a.fonte_url })),
+    { campo: "ticket_medio.fonte_url", url: diagnostico.ticket_medio.fonte_url },
+    ...diagnostico.gatilhos_dor.map((g, i) => ({ campo: `gatilhos_dor[${i}].observavel_em`, url: g.observavel_em })),
+    ...diagnostico.indice_saturacao.fontes.map((url, i) => ({ campo: `indice_saturacao.fontes[${i}]`, url })),
   ];
-  const foraDasFontes = urlsCitadas.filter((u) => !urlsReais.has(u));
-  if (foraDasFontes.length > 0) {
+  const mismatches = urlsCitadas.filter(
+    ({ url }) => !urlsReais.has(normalizarUrl(url)),
+  );
+  if (mismatches.length > 0) {
     falhas.push(
-      `cross-check: ${foraDasFontes.length} URL(s) citada(s) no objeto não constam nas fontes reais`,
+      `cross-check: ${mismatches.length} URL(s) citada(s) no objeto não constam nas fontes reais`,
     );
   }
 
-  const urlsRenderaveis = [...new Set([...urlsCitadas, ...urlsReais])];
+  const urlsRenderaveis = [
+    ...new Set([...urlsCitadas.map((c) => c.url), ...urlsReais]),
+  ];
   const urlsInseguras = urlsRenderaveis.filter((u) => !urlSegura(u));
   if (urlsInseguras.length > 0) {
     falhas.push(
@@ -232,7 +241,7 @@ function aplicarPortoesEstruturais(diagnostico, fontesReais, buscas) {
     falhas.push(`buscas: ${buscas.length} (teto ${MAX_USES})`);
   }
 
-  return falhas;
+  return { falhas, mismatches };
 }
 
 // ---------- Execução SEMPRE sequencial — nunca duas gerações ao mesmo tempo ----------
@@ -264,11 +273,8 @@ async function main() {
       );
       const duracaoS = (Date.now() - t0) / 1000;
 
-      const falhasEstruturais = aplicarPortoesEstruturais(
-        r.diagnostico,
-        r.fontes,
-        r.buscas,
-      );
+      const { falhas: falhasEstruturais, mismatches: mismatchesCrossCheck } =
+        aplicarPortoesEstruturais(r.diagnostico, r.fontes, r.buscas);
 
       let vereditoResultado = null;
       if (caso.categoria === "gold") {
@@ -318,6 +324,7 @@ async function main() {
         uso: r.uso,
         finishReason: telemetria?.finishReason ?? null,
         avisoCrossCheck: r.avisoCrossCheck,
+        mismatchesCrossCheck,
         falhasEstruturais,
         vereditoResultado,
         julgamento,
@@ -438,6 +445,14 @@ function montarRelatorio(resultados, escopo) {
     }
     if (r.avisoCrossCheck) {
       linhas.push(`**Aviso de cross-check (não bloqueia):** ${r.avisoCrossCheck}`);
+      linhas.push("");
+      // Lista REAL dos pares mismatched (não só a contagem) — investigação
+      // 23-REVIEW.md WR-01/WR-04. Sem isso não dá pra confirmar se o fix de
+      // normalização de URL (diagnostico-schema.ts normalizarUrl) funcionou.
+      linhas.push("**URLs citadas fora das fontes reais (campo → URL citada):**");
+      r.mismatchesCrossCheck.forEach(({ campo, url }) =>
+        linhas.push(`- \`${campo}\` → ${url}`),
+      );
       linhas.push("");
     }
     if (r.julgamento) {
