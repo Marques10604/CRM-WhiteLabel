@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: executing
-last_updated: "2026-09-10T13:59:07.726Z"
-last_activity: 2026-09-10
+status: Executando Fase 23 — só resta 23-06 (eval gold-set, precisa de crédito)
+last_updated: "2026-09-11T13:17:07.358Z"
+last_activity: 2026-09-11
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
+  completed_plans: 9
   percent: 25
 ---
 
@@ -20,39 +20,43 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 23 — Diagnóstico de IA da Campanha
+**Current focus:** Phase 23 — diagn-stico-de-ia-da-campanha
 
 ## Current Position
 
-Phase: 23 (Diagnóstico de IA da Campanha) — EXECUTING (PAUSADA aguardando créditos Anthropic)
-Plan: 5/7 com SUMMARY (23-01, 23-02, 23-03, 23-05, 23-07) — 23-04 só falta a Task 3 (spike)
-Status: Pausado — **TODO o código sem custo já foi feito**. Falta só o que gasta API: 23-04 Task 3 (spike) e 23-06 (eval). Precisa de saldo na conta Anthropic. Limite de sessão do Claude Code também esteve ativo (reset 13:50 BRT).
+Phase: 23 (diagn-stico-de-ia-da-campanha) — EXECUTING
+Plan: 6 of 7 com SUMMARY (23-01, 23-02, 23-03, 23-04, 23-05, 23-07) — só falta 23-06
+Status: Executando Fase 23 — só resta 23-06 (eval gold-set, precisa de crédito)
 
 ### Feito e commitado
+
 - **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções)
 - **23-02** ✅ tabela `diagnosticos` (11 colunas, migração `.cjs` idempotente rodada contra `data/crm.db`, gate de schema)
 - **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
-- **23-04 Task 1** ✅ Server Action `src/actions/diagnostico-actions.ts` (commit `f578ade`) — valida/gera/persiste/revalida, insert de sucesso (com `aviso`) e de falha (com `erro`)
-- **23-04 Task 3 (parcial)** `scripts/spike-modelo-diagnostico.mjs` + stub loader de `server-only` (commit `aa3556b`), NÃO em `package.json`
+- **23-04** ✅ COMPLETO (3 tasks, SUMMARY). Task 1: Server Action `src/actions/diagnostico-actions.ts` (`f578ade`). Task 2: setup do usuário confirmado. Task 3: spike medido contra a API real (3 chamadas pagas — `aa3556b` script + `9674494` fix) — D-23-04 registrada: `temperature` removido (inerte), `effort:"low"` mantido, `maxOutputTokens:16000` mantido, limites de `indice_saturacao.leitura`/`veredito_sugerido.justificativa` recalibrados por medição real (300→750 / 800→1400) e reforçados no `SYSTEM_PROMPT`.
 - **23-05** ✅ COMPLETO (3 tasks, SUMMARY). `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (`e3c5817`), `rascunho-mensagem.tsx` (`fd140ba`), `diagnostico-resultado.tsx` (`aaa8747`). Feito inline pelo orquestrador (executor caiu no 429).
-- **23-07** ✅ COMPLETO (3 tasks, SUMMARY). `gerar-diagnostico-button.tsx` (`1288755`), `diagnostico-secao.tsx` (`d96db06`), `page.tsx` estendido com `maxDuration` + `<DiagnosticoSecao>` (`14dc4fe`). Feito inline. tsc/lint/build (14 rotas)/verify:schema/guard/harness verdes. Rodado antes do 23-04 Task 3 (arquivos disjuntos, sem chamada de API).
+- **23-07** ✅ COMPLETO (3 tasks, SUMMARY). `gerar-diagnostico-button.tsx` (`1288755`), `diagnostico-secao.tsx` (`d96db06`), `page.tsx` estendido com `maxDuration` + `<DiagnosticoSecao>` (`14dc4fe`). Feito inline. tsc/lint/build (14 rotas)/verify:schema/guard/harness verdes.
 
 ### Pendente (SÓ o que gasta crédito)
-- **23-04 Task 3** — rodar `node scripts/spike-modelo-diagnostico.mjs` (1 chamada paga ~US$0,15–0,25), medir Sonnet 5, **remover `temperature: 0.3` (inerte — assumption A3 falhou)**, ajustar `maxOutputTokens`, registrar D-23-04, escrever `23-04-SUMMARY.md`, avançar STATE/ROADMAP. **BLOQUEADO: saldo zerado na Anthropic** — comprar crédito em Console → Plans & Billing (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`, ~US$5). Workspace-scoping já resolvido (chave nova no `.env.local`).
-- **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos.**
-- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier` → só rodam depois que 23-04 + 23-06 fecharem.
-- **UAT humano** da fase: fluxo do botão em `/campanhas/[id]` (vazio → gerar → pending → resultado → regenerar → histórico), claro + escuro. Também precisa de crédito (gera diagnóstico real).
 
-### Medições parciais do spike (do request body antes do 400 de saldo)
-- `effort: "low"` → **é repassado** pelo `@ai-sdk/anthropic@4.0.49` (`output_config.effort`). Assumption A2 confirmada.
-- `temperature: 0.3` → **inerte** neste provider (some do request quando `effort` está setado). Assumption A3 falhou — remover a linha de `gerar-diagnostico.ts` e registrar em D-23-04.
-- `maxOutputTokens: 16000` → vira `max_tokens: 16000`. Consumo real / `finishReason` / nº de fontes / nome do campo da query (A5) — não medidos.
+- **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos** (saldo Anthropic já resolvido pelo usuário nesta sessão — 23-04 consumiu 3 chamadas reais, ~US$0,45–0,75).
+- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier` → rodam depois que 23-06 fechar.
+- **UAT humano** da fase: fluxo do botão em `/campanhas/[id]` (vazio → gerar → pending → resultado → regenerar → histórico), claro + escuro. Também precisa de crédito (gera diagnóstico real) — agora desbloqueado, `gerarDiagnostico()` já validado ponta a ponta contra a API real no spike do 23-04.
+
+### Medição final do spike do 23-04 (3 chamadas reais, ver D-23-04)
+
+- `effort: "low"` → **é repassado** pelo `@ai-sdk/anthropic@4.0.49` (sem warning/erro). Assumption A2 confirmada.
+- `temperature: 0.3` → **inerte**, confirmado por warning explícito do AI SDK ("temperature is not supported ... and will be ignored"). Assumption A3 falhou — REMOVIDO de `gerar-diagnostico.ts`.
+- `maxOutputTokens: 16000` → outputTokens medido entre 2698 e 5279 nas 3 chamadas, `finishReason` sempre `"stop"` — mantido, folga confirmada.
+- Bug descoberto e corrigido: os limites de tamanho `indice_saturacao.leitura` (300) e `veredito_sugerido.justificativa` (800) do `diagnosticoSchema` (23-01) eram estimativas nunca testadas contra o modelo real — 2 das 3 chamadas falharam a validação Zod por causa disso. Corrigido com bloco explícito de limites no `SYSTEM_PROMPT` + tetos alargados (750/1400) como rede de segurança.
+- 3ª chamada (final): `finishReason: "stop"`, 28 fontes coletadas, 4 buscas específicas do nicho "costureira sob medida", `avisoCrossCheck` não-nulo (funcionando como esperado, D-23-07).
 
 ### Retomada
-`/gsd-execute-phase 23` re-descobre planos, pula os com SUMMARY, retoma de 23-04 (ou faz 23-05 Tasks 2-3 primeiro, que não dependem de crédito). O `.env.local` já tem chave workspace-scoped; falta só o saldo.
+
+`/gsd-execute-phase 23` re-descobre planos, pula os com SUMMARY, retoma de 23-06 (eval gold-set — checkpoint de aprovação do gold-set, precisa de crédito).
 
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
-Last activity: 2026-09-10 — Fase 23 pausada aguardando créditos Anthropic (23-04 Task 3 + 23-06). Fora da fase: 23-05 e 23-07 feitos inline; revisão UI/UX com ui-ux-pro-max → quick 260910-p6x (6 correções seguras) shipado; 4 itens maiores da revisão viraram backlog.
+Last activity: 2026-09-11
 
 ### 2 avisos menores do plan-checker aceitos como dívida (não bloqueiam execução)
 
@@ -142,6 +146,7 @@ Last activity: 2026-09-10 — Fase 23 pausada aguardando créditos Anthropic (23
 | Phase 23 P01 | 25 | 3 tasks | 12 files |
 | Phase 23 P02 | 12min | 3 tasks | 3 files |
 | Phase 23 P03 | 18min | 3 tasks | 4 files |
+| Phase 23 P04 | 45min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -259,6 +264,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Fase 23-01]: contrato do diagnóstico (diagnosticoSchema Zod + helpers de gate) importa só zod — importável pelo harness .cjs; gate de fontes lê result.sources, nunca URLs do modelo; urlSegura allowlist http/https antes de href do LLM. 9 fixtures + harness de 61 asserções sem API/sem banco.
 - [Phase ?]: [Fase 23-02]: tabela `diagnosticos` (append-only, 11 colunas, 3 índices, FK `campanha_id` onDelete restrict) criada via `scripts/migrate-diagnosticos.cjs` manual idempotente contra `data/crm.db` (rodada 2x: 0 campanhas + 44 leads intactos, zero drizzle-kit). D-23-01: `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()`. D-23-07: `erro` (só status=falhou, payload NULL) e `aviso` (só status=ok, ressalva não-fatal) são colunas SEPARADAS. Sem soft-delete → fora da ALLOWLIST de guard-no-hard-delete. `import type { Diagnostico }` em schema.ts (sem efeito colateral). `verify:schema` ganha conjunto estrito (missing E extra) + 3 índices; mutação provada (DROP numa cópia → exit 1).
 - [Phase 23]: [Fase 23-03] Vercel AI SDK instalado (ai@7.0.93 + @ai-sdk/anthropic@4.0.49, pins EXATOS; aprovação humana de legitimidade — ambos repo github.com/vercel/ai, publisher Vercel, sem postinstall). SYSTEM_PROMPT anti-genérico versionado (src/lib/ai/diagnostico-prompt.ts, 10 blocos). gerarDiagnostico() em src/lib/ai/gerar-diagnostico.ts: server-only (T-23-01), DB-free, generateText + Output.object + webSearch_20250305 (maxUses 6, BR) + isStepCount(10), retry manual MAX_TENTATIVAS=2, gate DIAGNOSTICO-02 lê res.sources, cross-check FM2 -> avisoCrossCheck (não bloqueia, D-23-07). maxOutputTokens 16000 + effort low são ponto de partida — spike do 23-04 confirma. NENHUMA chamada real à API neste plano. DIAGNOSTICO-02..10 seguem Pending (behavior só fecha com 23-04/23-05). — Separar o cérebro (prompt+chamada+gate) da fiação com banco/UI; a função DB-free é o que o eval do 23-06 chama direto.
+- [Phase 23-04]: D-23-04: temperature removido de gerar-diagnostico.ts (inerte no provider, warning explicito); effort:low mantido (confirmado); maxOutputTokens:16000 mantido (folga confirmada 2698-5279 tokens); limites de tamanho do diagnosticoSchema recalibrados por medicao real (leitura 300->750, justificativa 800->1400) com reforco no SYSTEM_PROMPT
 
 ### Pending Todos
 
@@ -373,29 +379,37 @@ revisão de UI/UX do CRM inteiro e aplicou os itens seguros dela. Nada pendente
 sem commit — `git status` limpo (só `.claude/` untracked, pré-existente).
 
 **Fase 23 — 5/7 planos com SUMMARY (23-01, 02, 03, 05, 07).** Parada, não travada:
+
 - **23-04 Task 3 (spike do modelo Sonnet 5)** e **23-06 (eval gold-set)** são os
   2 planos que faltam — **ambos bloqueados em saldo de créditos zerado na conta
   Anthropic** (não é bug, não é código). Ver o bloco "BLOQUEIO ATIVO" logo abaixo
   para o detalhe técnico (workspace-scoping já resolvido; só falta saldo).
+
 - **Pra retomar:** Console da Anthropic → Plans & Billing → comprar ~US$5 de
   crédito (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`) → `/gsd-execute-phase 23`
   retoma sozinho (spike → eval → verificação da fase).
 
 **Fora da fase 23, também hoje (paralelo, direto na `main`):**
+
 - Documento de contexto completo dos 2 projetos (CRM + Prospector Inteligente
   AI) entregue ao usuário: `C:\Users\Vencedor\Desktop\CONTEXTO-PROJETOS-crm-e-prospector.md`.
+
 - Ideia capturada: `.planning/todos/pending/2026-09-10-angulo-de-oferta-recomendado-no-diagnostico.md`
   (IA recomendar um ângulo de oferta pro nicho, não só analisar viabilidade — fase futura).
+
 - **Revisão de UI/UX completa do CRM** com a skill `ui-ux-pro-max` (terminal,
   não artifact). Resultado: 6 correções seguras aplicadas + 4 itens maiores no
   backlog:
+
   - **Quick `260910-p6x`** (commits `8e9f39e`/`4f242c7`/`53ff179`): reduced-motion
     global, skip-link, tabular-nums em `/relatorios`, `mode:"onBlur"` nos forms,
     stepper + skeleton no wizard de import CSV.
+
   - **Quick `260910-qnb`** (commit `29d75ca`): sidebar do CRM esticando até o
     fim da janela (`sticky top-0 h-dvh`) — corrige o "sidebar cortado" que o
     usuário mostrou por screenshot — e marca "SOLO" com mais presença (logo
     40px + nome 20px bold na cor do texto).
+
   - **Backlog** (`.planning/todos/pending/2026-09-10-review-uiux-0{2,3,5,6}-*.md`):
     KeyboardSensor no drag do pipeline, desaninhar elementos interativos
     (dashboard/pipeline/tarefa cards), varredura de `text-[..px]` → escala,
@@ -425,16 +439,20 @@ node antes), registrar D-23-04 e ajustar `src/lib/ai/gerar-diagnostico.ts`. Zero
 mudança de código para desbloquear.
 
 **Dados parciais de D-23-04 já medidos** (do request body da chamada que chegou à API):
+
 - `effort: "low"` É repassado pelo `@ai-sdk/anthropic@4.0.49` dentro de
   `output_config.effort` — aceito, o request alcançou o endpoint do modelo.
+
 - `temperature` sai como `undefined` no request body sempre que `effort` está
   setado — ou seja, `temperature: 0.3` no código É INERTE via este provider
   (assumption A3 falhou na prática: o param nunca chega à API). Decidir na
   re-execução: remover a linha `temperature: 0.3` e registrar em D-23-04.
+
 - `maxOutputTokens: 16000` → vai como `max_tokens: 16000`. Consumo real de tokens
   / `finishReason` AINDA não medidos (precisa de uma chamada bem-sucedida).
 
 **Progresso 23-04:**
+
 - Task 1 ✅ commit `f578ade` — `src/actions/diagnostico-actions.ts` (tsc/lint/guard verdes)
 - Task 2 ✅ `.env.local` com `ANTHROPIC_API_KEY` workspace-scoped, não rastreado; Web Search confirmada pelo usuário
 - Task 3 ⛔ commit parcial `aa3556b` — spike + stub loader prontos; chamada real BLOQUEADA por saldo Anthropic. Medição completa/D-23-04/ajuste de `gerar-diagnostico.ts` PENDENTES da compra de créditos.
@@ -779,7 +797,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-10T13:43:06.435Z
+Last session: 2026-09-11T13:17:07.332Z
 
 **O que foi feito nesta sessão:**
 

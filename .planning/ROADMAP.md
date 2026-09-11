@@ -143,7 +143,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [x] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()` *(checkpoint humano: aprovar `npm i` de `ai`/`@ai-sdk/anthropic`)*
 
 **Onda 3** *(bloqueada nas Ondas 1–2):*
-- [ ] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
+- [x] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
 
 **Onda 4** *(bloqueada na Onda 3):*
 - [x] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
