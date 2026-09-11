@@ -60,7 +60,14 @@ Escreve um relatório datado em test/reports/, commitado no fim da execução.`;
 
 const MAX_USES = 6; // teto de buscas travado em webSearch_20250305({ maxUses: 6 })
 const DECISOES_VALIDAS = ["aprofundar", "mudar_angulo", "abandonar"];
-const TIPOS_ACHADO_VALIDOS = ["dado_quantificavel", "alegacao_marketing"];
+// 3ª categoria "relato_qualitativo" (ajuste estrutural 23-06, commit f621c51):
+// um relato real de 1 fonte identificável que não é contagem/preço medido nem
+// copy de venda do concorrente.
+const TIPOS_ACHADO_VALIDOS = [
+  "dado_quantificavel",
+  "relato_qualitativo",
+  "alegacao_marketing",
+];
 
 const args = process.argv.slice(2);
 
@@ -403,6 +410,27 @@ function montarRelatorio(resultados, escopo) {
     linhas.push("");
     linhas.push(`**Justificativa:** ${r.diagnostico.veredito_sugerido.justificativa}`);
     linhas.push("");
+    // Contagem por categoria (ajuste estrutural 23-06): visibilidade direta de
+    // quantos achados/gatilhos caíram em cada categoria de evidência — é o que
+    // a REGRA DE ESCOLHA DO VEREDITO (diagnostico-prompt.ts) agora usa.
+    {
+      const porTipo = { dado_quantificavel: 0, relato_qualitativo: 0, alegacao_marketing: 0 };
+      r.diagnostico.achados.forEach((a) => {
+        porTipo[a.tipo] = (porTipo[a.tipo] ?? 0) + 1;
+      });
+      const porEvidencia = { padrao_confirmado: 0, relato_isolado: 0 };
+      r.diagnostico.gatilhos_dor.forEach((g) => {
+        porEvidencia[g.evidencia] = (porEvidencia[g.evidencia] ?? 0) + 1;
+      });
+      const gatilhoMaisForte = r.diagnostico.gatilhos_dor.find((g) => g.mais_forte);
+      linhas.push(
+        `**Achados por categoria:** dado_quantificavel=${porTipo.dado_quantificavel}, relato_qualitativo=${porTipo.relato_qualitativo}, alegacao_marketing=${porTipo.alegacao_marketing}`,
+      );
+      linhas.push(
+        `**Gatilhos por evidência:** padrao_confirmado=${porEvidencia.padrao_confirmado}, relato_isolado=${porEvidencia.relato_isolado} — gatilho mais_forte tem evidencia \`${gatilhoMaisForte?.evidencia ?? "N/A"}\``,
+      );
+      linhas.push("");
+    }
     if (r.falhasEstruturais.length > 0) {
       linhas.push("**Falhas de portão estrutural:**");
       r.falhasEstruturais.forEach((f) => linhas.push(`- FAIL ${f}`));
