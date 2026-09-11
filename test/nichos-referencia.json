@@ -1,0 +1,82 @@
+[
+  {
+    "id": "costureira-sob-medida",
+    "categoria": "gold",
+    "nicho": "costureira sob medida",
+    "oferta": "Ajustes e reformas de roupa com retirada e devolução em domicílio na zona sul de São Paulo",
+    "janelaDias": 90,
+    "meta": "3 clientes recorrentes fechados em 90 dias",
+    "veredito_esperado": "mudar_angulo",
+    "nota": "Gold nº1 — expectativa DURA, validada ao vivo pelo operador em 2026-09-04 (1º Briefing de Nicho). Espera-se que o diagnóstico reconheça concorrência relevante no ajuste genérico, mas identifique um recorte mais estreito ainda livre (ex.: ajuste expresso com prazo garantido para eventos) — 'mudar_angulo', não 'aprofundar' cego nem 'abandonar' por medo da concorrência."
+  },
+  {
+    "id": "motoboy-clientes-particulares",
+    "categoria": "gold",
+    "nicho": "motoboy com clientes particulares",
+    "oferta": "Entregas expressas avulsas e contratos mensais de entrega recorrente para pequenos comércios e clínicas, fora dos aplicativos de entrega",
+    "janelaDias": 90,
+    "meta": "5 contratos mensais recorrentes fechados em 90 dias",
+    "veredito_esperado": "aprofundar",
+    "nota": "Gold nº2 — expectativa DURA, validada ao vivo pelo operador em 2026-09-04 (2º Briefing de Nicho). Espera-se leitura de baixa saturação de concorrência direta (fora de app) e dor real e recorrente (dependência de app com taxa alta) o bastante para justificar 'aprofundar', não um veredito de cautela."
+  },
+  {
+    "id": "estetica-beleza",
+    "categoria": "gold",
+    "nicho": "estética e beleza",
+    "oferta": "Pacote de sessões de limpeza de pele e massagem relaxante para clientes da região",
+    "janelaDias": 90,
+    "meta": "10 pacotes fechados em 90 dias",
+    "veredito_esperado": "abandonar",
+    "nota": "Gold nº3 — expectativa DURA, validada ao vivo pelo operador em 2026-09-04 (3º Briefing de Nicho). Espera-se leitura de saturação alta E oferta indiferenciada (serviço genérico de estética, sem ângulo próprio) o bastante para justificar 'abandonar', não 'mudar_angulo' otimista demais."
+  },
+  {
+    "id": "consultoria-negocios-generica",
+    "categoria": "dificil",
+    "nicho": "consultoria de negócios",
+    "oferta": "Consultoria de gestão para pequenas empresas que querem organizar processos e vender mais",
+    "janelaDias": 90,
+    "meta": "2 contratos de consultoria fechados em 90 dias",
+    "veredito_esperado": null,
+    "nota": "Nicho ultra-amplo de propósito. O que se observa: o diagnóstico NÃO pode aceitar esse recorte genérico como se fosse um nicho específico — o correto é a leitura de saturação e o veredito empurrarem para 'mudar_angulo' (forçando um recorte mais estreito, ex. por segmento ou dor específica), não tratar 'consultoria de negócios' como se já fosse um ângulo definido."
+  },
+  {
+    "id": "ortese-pe-diabetico-bh",
+    "categoria": "dificil",
+    "nicho": "órtese para pé diabético sob medida em Belo Horizonte",
+    "oferta": "Fabricação e ajuste de órteses plantares sob medida para pacientes diabéticos, com acompanhamento presencial",
+    "janelaDias": 90,
+    "meta": "4 órteses vendidas em 90 dias",
+    "veredito_esperado": null,
+    "nota": "Nicho ultra-estreito de propósito. O que se observa: poucos concorrentes achados NÃO pode virar 'oceano azul' automático — o diagnóstico precisa distinguir ausência real de demanda de ausência de concorrência, sem tratar 'contagem baixa' como sinal automático de veredito favorável."
+  },
+  {
+    "id": "afiador-facas-domicilio-interior",
+    "categoria": "dificil",
+    "nicho": "afiador de facas e tesouras a domicílio em cidade pequena do interior",
+    "oferta": "Serviço de afiação de facas e tesouras com coleta e entrega em domicílio, atendimento agendado por WhatsApp",
+    "janelaDias": 90,
+    "meta": "15 clientes recorrentes fechados em 90 dias",
+    "veredito_esperado": null,
+    "nota": "Nicho com presença web quase nula de propósito (cidade pequena, serviço informal, pouca pegada digital). O que se observa: exercita o portão de zero-fontes e o retry reforçado de gerarDiagnostico() — o caso pode legitimamente lançar DiagnosticoSemFonteError após as 2 tentativas; isso é um RESULTADO válido do caso, não um erro do eval."
+  },
+  {
+    "id": "imigracao-brasileiros-portugal",
+    "categoria": "dificil",
+    "nicho": "consultoria de imigração para brasileiros em Portugal",
+    "oferta": "Consultoria de vistos e documentação para brasileiros que querem se mudar para Portugal, atendimento remoto",
+    "janelaDias": 90,
+    "meta": "6 consultorias fechadas em 90 dias",
+    "veredito_esperado": null,
+    "nota": "Nicho cujo mercado-alvo é majoritariamente fora do Brasil (o cliente é brasileiro, mas o serviço e a concorrência vivem em Portugal). O que se observa: o diagnóstico precisa citar fontes legitimamente estrangeiras (portuguesas) rotuladas como tal — a falha seria fingir que a fonte é do mercado brasileiro local, ou ignorar que o ângulo de concorrência correto é o português, não o nacional."
+  },
+  {
+    "id": "estetica-premium-marketing",
+    "categoria": "adversarial",
+    "nicho": "clínica de estética premium",
+    "oferta": "Pacotes de tratamento facial de alto padrão para clientes de renda alta",
+    "janelaDias": 90,
+    "meta": "8 pacotes premium fechados em 90 dias",
+    "veredito_esperado": null,
+    "nota": "Caso adversarial: o material dos concorrentes encontrados na web é quase só copy de marketing ('somos referência', 'clínica nº 1 da região', 'atendimento premiado'). O que se observa: exercita a dimensão 6 (tag dado_quantificavel vs alegacao_marketing correta) — o diagnóstico precisa rotular essas frases como alegacao_marketing e NÃO deixar nada disso vazar para o índice de saturação, o ticket médio ou o veredito sugerido."
+  }
+]
