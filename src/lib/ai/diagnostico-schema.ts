@@ -54,7 +54,12 @@ export const diagnosticoSchema = z
   .object({
     indice_saturacao: z.object({
       concorrentes_diretos: z.number().int().nonnegative(), // DIAGNOSTICO-03: contagem real
-      leitura: z.string().min(10).max(300),
+      // max 750 (D-23-04): 300 era estimativa do 23-01, sem chamada real.
+      // O spike mediu 396-490+ caracteres em chamadas reais sucessivas
+      // (variação normal entre chamadas). O prompt agora pede explicitamente
+      // até 480 caracteres (diagnostico-prompt.ts); este teto é a REDE DE
+      // SEGURANÇA do schema, com folga sobre o alvo do prompt — não o alvo em si.
+      leitura: z.string().min(10).max(750),
       fontes: z.array(z.string().url()).min(1),
     }),
     gatilhos_dor: z
@@ -77,7 +82,12 @@ export const diagnosticoSchema = z
     rascunho_primeira_mensagem: z.string().min(40).max(1200), // DIAGNOSTICO-08, editável
     veredito_sugerido: z.object({
       decisao: z.enum(["aprofundar", "mudar_angulo", "abandonar"]), // DIAGNOSTICO-09
-      justificativa: z.string().min(20).max(800),
+      // max 1400 (D-23-04): 800 era estimativa do 23-01. O spike mediu
+      // 796-1150+ caracteres em chamadas reais sucessivas (variação normal).
+      // O prompt agora pede explicitamente até 850 caracteres
+      // (diagnostico-prompt.ts); este teto é a REDE DE SEGURANÇA do schema,
+      // com folga sobre o alvo do prompt — não o alvo em si.
+      justificativa: z.string().min(20).max(1400),
     }),
   })
   // O `.refine` NÃO vai no JSON schema enviado ao modelo, mas o SDK o checa no

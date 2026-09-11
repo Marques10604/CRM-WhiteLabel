@@ -64,6 +64,12 @@ Estas regras são checadas na validação do retorno e não aparecem no formato 
 - Entre 2 e 3 objeções, cada uma com sua resposta sugerida.
 - Pelo menos 3 achados no array "achados".
 - "veredito_sugerido.decisao" só pode ser um destes três valores literais: "aprofundar", "mudar_angulo" ou "abandonar". O veredito é uma SUGESTÃO, nunca vinculante — a justificativa precisa reconstruir o raciocínio a partir dos achados (saturação mais força dos gatilhos mais ticket versus esforço), de forma que um humano consiga refazer o caminho.
+- LIMITES DE TAMANHO (medidos em caracteres, respeite mesmo sendo específico):
+  "indice_saturacao.leitura" cabe em até 480 caracteres — um parágrafo curto,
+  não um resumo de todos os concorrentes achados. "veredito_sugerido.justificativa"
+  cabe em até 850 caracteres — reconstrua o raciocínio de forma direta, sem repetir
+  os achados por extenso (eles já estão no array "achados"). Se o rascunho mental
+  passar desses tamanhos, corte para a frase mais essencial em vez de enumerar tudo.
 
 INSTRUÇÃO FINAL
 Responda somente com o objeto estruturado pedido, sem nenhuma prosa fora dele.`;

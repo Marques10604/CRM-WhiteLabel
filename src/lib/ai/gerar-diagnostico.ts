@@ -88,13 +88,21 @@ export async function gerarDiagnostico(
       const res = await generateText({
         // ID = alias = snapshot pinado; NÃO existe forma datada claude-sonnet-5-YYYYMMDD.
         model: anthropic("claude-sonnet-5"),
-        temperature: 0.3,
+        // SEM `temperature`: medido no spike do plano 23-04 (D-23-04) — o
+        // provider ignora o parâmetro no claude-sonnet-5 e emite um warning
+        // ("temperature is not supported ... and will be ignored"). Assumption
+        // A3 do 23-RESEARCH.md FALHOU; deixar o parâmetro aqui era ruído morto.
         // Folga deliberada para os tokens de adaptive thinking do Sonnet 5, que
-        // contam contra este teto (Pitfall 9). O plano 23-04 ajusta por medição real.
+        // contam contra este teto (Pitfall 9). Medido em 3 chamadas reais do
+        // spike do 23-04: outputTokens entre 2698 e 5279 de 16000,
+        // finishReason sempre "stop" — teto mantido com folga confirmada
+        // (D-23-04), nenhuma chamada chegou perto do limite.
         maxOutputTokens: 16000,
         // Cobre só erro de transporte 429/5xx, NÃO falha de schema.
         maxRetries: 2,
-        // Corta latência e tokens de raciocínio; repasse confirmado no spike 23-04.
+        // Corta latência e tokens de raciocínio; repasse confirmado no spike
+        // 23-04 (chega como `output_config.effort` no corpo real da request;
+        // sem warning/rejeição do provider — assumption A2 confirmada).
         providerOptions: { anthropic: { effort: "low" } },
         system: SYSTEM_PROMPT,
         prompt: montarUserPrompt(input) + (tentativa > 1 ? REFORCO_RETRY : ""),
