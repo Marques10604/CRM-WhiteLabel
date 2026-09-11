@@ -11,9 +11,20 @@
  *  - `gatilhos_dor`               -> DIAGNOSTICO-04 (até 3, exatamente 1 "mais forte")
  *  - `objecoes`                   -> DIAGNOSTICO-05 (2 a 3, com resposta sugerida)
  *  - `ticket_medio`              -> DIAGNOSTICO-06 (valor + base + fonte)
- *  - `achados`                    -> DIAGNOSTICO-07 (>= 3, cada um dado x marketing)
+ *  - `achados`                    -> DIAGNOSTICO-07 (>= 3, cada um dado/relato/marketing)
  *  - `rascunho_primeira_mensagem` -> DIAGNOSTICO-08 (texto editável)
  *  - `veredito_sugerido`         -> DIAGNOSTICO-09 (sugestão, nunca vinculante)
+ *
+ * AJUSTE ESTRUTURAL (plano 23-06, investigação da não-discriminação dos 3 gold):
+ * o juiz do eval apontou, nas 2 primeiras execuções reais, que relatos anedóticos
+ * únicos e reais (1 reclamação no Reclame Aqui, 1 post no GetNinjas) estavam sendo
+ * marcados "dado_quantificavel" por falta de uma 3ª categoria — o enum binário
+ * original (dado_quantificavel / alegacao_marketing) força essa dicotomia falsa,
+ * porque um relato real claramente não é "alegacao_marketing" (não é copy de venda
+ * do concorrente), então o modelo empurrava tudo que sobrava para
+ * "dado_quantificavel". `tipoAchado` ganha "relato_qualitativo" (item 3), e
+ * `gatilhos_dor` ganha o campo `evidencia` para que a força do gatilho dependa de
+ * uma categoria de evidência formal, não de julgamento livre do modelo.
  *
  * RESTRIÇÃO DURA DE IMPORTS (Pitfall 10 do 23-RESEARCH.md): este arquivo só
  * pode importar zod. É proibido — direta ou transitivamente — o marcador de
@@ -33,11 +44,30 @@ import { z } from "zod";
 export const GATILHO_MAIS_FORTE_MSG =
   "Exatamente um gatilho deve ser marcado como mais_forte";
 
+/**
+ * Mensagem do 2º `.refine` de `diagnosticoSchema` — o gatilho `mais_forte` não
+ * pode se apoiar só num relato isolado quando existe, no mesmo array, algum
+ * gatilho com evidência de padrão confirmado (mais de uma fonte/instância do
+ * mesmo problema). Extraída para constante pelo mesmo motivo de
+ * `GATILHO_MAIS_FORTE_MSG` — o harness precisa asserir a regra sem duplicar a
+ * string.
+ */
+export const GATILHO_MAIS_FORTE_EVIDENCIA_MSG =
+  "O gatilho mais_forte não pode ter evidencia relato_isolado quando existe algum gatilho com evidencia padrao_confirmado no array";
+
 /** Mensagem do gate de fontes (DIAGNOSTICO-02) — ver `assertTemFonte`. */
 export const DIAGNOSTICO_SEM_FONTE_MSG =
   "Diagnóstico sem nenhuma fonte da web — rejeitado.";
 
-const tipoAchado = z.enum(["dado_quantificavel", "alegacao_marketing"]); // DIAGNOSTICO-07
+// DIAGNOSTICO-07 — 3 categorias (não mais 2): "dado_quantificavel" é reservada a
+// contagem/preço MEDIDO; "relato_qualitativo" é um relato real de 1 fonte
+// identificável (reclamação, review, post) que NÃO é uma medição de mercado;
+// "alegacao_marketing" é copy de venda do próprio concorrente sobre si mesmo.
+const tipoAchado = z.enum([
+  "dado_quantificavel",
+  "relato_qualitativo",
+  "alegacao_marketing",
+]);
 
 const achado = z.object({
   afirmacao: z.string().min(10).max(400),
@@ -67,6 +97,11 @@ export const diagnosticoSchema = z
         z.object({
           gatilho: z.string().min(10).max(300),
           observavel_em: z.string().url(),
+          // "padrao_confirmado": mais de uma fonte/instância independente mostra
+          // o mesmo problema (ex.: várias reclamações do mesmo tipo, ou um dado
+          // quantificável sustentando a dor). "relato_isolado": só 1 fonte, 1
+          // ocorrência — pode ser real, mas não é um padrão de mercado.
+          evidencia: z.enum(["padrao_confirmado", "relato_isolado"]),
           mais_forte: z.boolean(),
         }),
       )
@@ -90,12 +125,29 @@ export const diagnosticoSchema = z
       justificativa: z.string().min(20).max(1400),
     }),
   })
-  // O `.refine` NÃO vai no JSON schema enviado ao modelo, mas o SDK o checa no
-  // retorno -> `NoObjectGeneratedError` se violado. A regra também é repetida em
-  // texto no prompt (Pitfall 7 do 23-RESEARCH.md).
+  // Os `.refine` NÃO vão no JSON schema enviado ao modelo, mas o SDK os checa no
+  // retorno -> `NoObjectGeneratedError` se violados. As regras também são
+  // repetidas em texto no prompt (Pitfall 7 do 23-RESEARCH.md).
   .refine(
     (d) => d.gatilhos_dor.filter((g) => g.mais_forte).length === 1,
     { message: GATILHO_MAIS_FORTE_MSG },
+  )
+  // Ajuste estrutural (plano 23-06): o gatilho mais_forte não pode se apoiar só
+  // num relato_isolado quando existe, no mesmo array, algum gatilho com
+  // evidencia padrao_confirmado — a força tem que vir da evidência mais robusta
+  // disponível, nunca de julgamento livre do modelo sobre "o que parece mais
+  // forte". Se NENHUM gatilho do array tem padrao_confirmado, um relato_isolado
+  // pode ser o mais_forte (é a melhor evidência disponível).
+  .refine(
+    (d) => {
+      const temPadraoConfirmado = d.gatilhos_dor.some(
+        (g) => g.evidencia === "padrao_confirmado",
+      );
+      if (!temPadraoConfirmado) return true;
+      const maisForte = d.gatilhos_dor.find((g) => g.mais_forte);
+      return maisForte ? maisForte.evidencia !== "relato_isolado" : true;
+    },
+    { message: GATILHO_MAIS_FORTE_EVIDENCIA_MSG },
   );
 
 export type Diagnostico = z.infer<typeof diagnosticoSchema>;
