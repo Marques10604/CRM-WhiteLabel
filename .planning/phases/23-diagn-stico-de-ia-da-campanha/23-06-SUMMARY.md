@@ -33,9 +33,14 @@ key-files:
     - test/reports/2026-09-11-eval-diagnostico.md
     - test/reports/2026-09-11-eval-diagnostico-2.md
     - test/reports/2026-09-11-eval-diagnostico-3.md
+    - test/reports/2026-09-11-eval-diagnostico-4.md
+    - test/reports/2026-09-11-eval-diagnostico-5.md
   modified:
     - src/lib/ai/diagnostico-schema.ts
     - src/lib/ai/diagnostico-prompt.ts
+    - src/lib/ai/gerar-diagnostico.ts
+    - src/components/achado-tipo-badge.tsx
+    - src/components/diagnostico-resultado.tsx
     - scripts/test-diagnostico-estrutural.cjs
     - test/fixtures/diagnostico/ok-costureira.json
     - test/fixtures/diagnostico/ok-motoboy.json
@@ -50,15 +55,18 @@ key-files:
 key-decisions:
   - "D-23-06: schema de achado passa de 2 para 3 categorias (dado_quantificavel / relato_qualitativo / alegacao_marketing), com campo evidencia (padrao_confirmado/relato_isolado) em gatilhos_dor amarrando a força do gatilho à confiabilidade real da fonte — tomada após 3 rodadas de eval real mostrarem que reforço de prompt sozinho não resolve ambiguidade de schema"
   - "Baseline de discriminação aceito com 1/3 de acerto exato contra o gabarito humano de 2026-09-04 — o critério duro do plano é discriminação entre os 3 nichos (passou), não acerto perfeito; o veredito da IA é sugestão, o humano sempre valida (Fase 24)"
+  - "Variância de veredito entre execuções idênticas (rodadas 4 vs 5, mesmo código) ACEITA como comportamento esperado do sistema — busca adaptativa + LLM não-determinístico, não um bug a corrigir. Documentado para quem usar o produto: o veredito da IA é sugestão inicial, sempre validada pelo humano antes de agir"
+  - "Cross-check de citações: maioria dos mismatches é 'URL real + sufixo espúrio de 1-3 caracteres' (não alucinação de conteúdo) — fix de normalização/prompt aplicado (commit 1105f56) reduz falso-positivo cosmético, mas o sufixo espúrio em si fica como DÍVIDA TÉCNICA não resolvida (sem crédito de API para investigar mais a fundo nesta sessão)"
 
 patterns-established:
   - "Pattern: causa raiz de não-discriminação investigada por leitura de relatório (judge notes) + mapeamento de schema/prompt, ANTES de qualquer reforço de rubrica repetido sem sucesso"
   - "Pattern: fix separado dos bugs do PRÓPRIO harness de eval (judge error não deve descartar resultado de geração; nome de relatório nunca sobrescreve) documentado como deviation, não misturado no commit da mudança de produto"
+  - "Pattern: cross-check de URL como 2 verificadores independentes (produção em gerar-diagnostico.ts + reimplementação no eval) — investigação de causa raiz precisa de instrumentação que persista a LISTA real de mismatches, não só a contagem agregada, senão a evidência commitada não sustenta diagnóstico nenhum"
 
 requirements-completed: [DIAGNOSTICO-02, DIAGNOSTICO-04, DIAGNOSTICO-07, DIAGNOSTICO-09]
 
 # Metrics
-duration: ~90min (3 execuções reais da API, ~US$1,90 de custo real)
+duration: ~5h (2 sessões no mesmo dia — execução do plano + code review + investigação de cross-check), ~US$3,94 de custo real total (spike 23-04 + 5 rodadas do eval 23-06)
 completed: 2026-09-11
 ---
 
@@ -68,10 +76,10 @@ completed: 2026-09-11
 
 ## Performance
 
-- **Duration:** ~90 min (a maior parte em 3 chamadas reais de geração + juiz, 30-150s cada)
+- **Duration:** ~5h no dia (execução do plano + checkpoint de rodadas + code review de fase + investigação de cross-check), maior parte em chamadas reais de geração+juiz (30-150s cada, 5 rodadas do eval)
 - **Completed:** 2026-09-11
-- **Tasks:** 3 do plano original + 1 investigação estrutural adicional (aprovada pelo orquestrador/usuário) + 2 rodadas extras do eval
-- **Files modified:** 22 (6 criados, 16 modificados/estendidos)
+- **Tasks:** 3 do plano original + investigação estrutural (D-23-06, aprovada) + 5 rodadas do eval + 2 críticos de code review + investigação e fix de cross-check (Parte A/B)
+- **Files modified:** 27 (8 criados, 19 modificados/estendidos)
 
 ## Accomplishments
 
@@ -95,8 +103,17 @@ Plano original (Tasks 1-2) + checkpoint humano em 3 rodadas + investigação est
 7. **Fixtures (10) + harness estrutural atualizados para o novo schema** - `4845d6d` (test)
 8. **Eval reconhece a 3ª categoria + mostra contagem por categoria/evidência no relatório** - `6c19275` (feat)
 9. **Task 3, rodada 3: relatório final (DISCRIMINADO)** - `1e81375` (docs)
+10. **Fecha SUMMARY + STATE + ROADMAP do plano 23-06** - `baa0cee` (docs)
 
-**Plan metadata:** (este commit — docs: complete plan)
+Code review da fase + investigação reaberta do cross-check (pós-fechamento do plano, mesmo dia):
+
+11. **CR-01/CR-02 do code review da fase corrigidos** - `b233f80` (fix)
+12. **Registra os fixes de CR-01/CR-02 e reabre o cross-check** - `1cd2e1d` (docs)
+13. **Cross-check tolera diferença cosmética de URL + prompt exige cópia literal + eval loga mismatches reais** - `1105f56` (fix)
+14. **Relatório rodada 4 (pós-fix de cross-check)** - `083a4b8` (docs)
+15. **Relatório rodada 5 (medida de variância, parou por crédito)** - `c2e6cc1` (docs)
+
+**Plan metadata:** (este commit — docs: fecha a Fase 23 definitivamente)
 
 ## Files Created/Modified
 
@@ -106,7 +123,9 @@ Plano original (Tasks 1-2) + checkpoint humano em 3 rodadas + investigação est
 - `src/lib/ai/diagnostico-prompt.ts` - `REGRA DE ESCOLHA DO VEREDITO` reamarrada a `evidencia`; contrato de tipagem com 3 categorias; few-shot com o 3º exemplo
 - `scripts/test-diagnostico-estrutural.cjs` - Grupos G/H novos (refine de evidência + presença do campo); `TIPOS_ACHADO_VALIDOS` com 3 valores
 - `test/fixtures/diagnostico/*.json` (10 arquivos, 1 novo) - campo `evidencia` em todo gatilho; achado `relato_qualitativo` em 2 fixtures gold; nova fixture testando o refine
-- `test/reports/2026-09-11-eval-diagnostico{,-2,-3}.md` - as 3 execuções reais, commitadas como evidência comparável (D-23-05)
+- `test/reports/2026-09-11-eval-diagnostico{,-2,-3,-4,-5}.md` - as 5 execuções reais, commitadas como evidência comparável (D-23-05)
+- `src/components/achado-tipo-badge.tsx`, `src/components/diagnostico-resultado.tsx` - CR-01: 3ª categoria nos mapas de badge + 3º eixo de tratamento de texto
+- `src/lib/ai/gerar-diagnostico.ts` - CR-02 (buscas reset por tentativa) + cross-check normalizado (WR-01/WR-04)
 
 ## Decisions Made
 
@@ -162,17 +181,46 @@ O `gsd-code-reviewer` da Fase 23 (`23-REVIEW.md`, commit `4551cf6`, 30 arquivos 
 
 Gates pós-fix, todos verdes: `npx tsc --noEmit` (0 erros), `npm run lint` (0 erros), `npm run build` (14 rotas), `node scripts/test-diagnostico-estrutural.cjs` (68 asserções).
 
-**Investigação reaberta (WR-01/WR-04 do review):** o usuário decidiu reabrir a questão do cross-check de citações (URLs citadas no objeto ausentes de `res.sources`, 6-11/caso) em vez de aceitar como dívida documentada — diagnóstico de causa raiz reportado separadamente ao orquestrador, sem mudança de código aplicada ainda.
+## Investigação do Cross-Check de Citações (WR-01/WR-04) — encerrada
+
+O usuário reabriu a questão do cross-check de citações (URLs citadas no objeto ausentes de `res.sources`, 6-11/caso) em vez de aceitar como dívida documentada sem entender a causa. Investigação em 2 partes:
+
+**Parte A — fix aplicado, sem custo de API (commit `1105f56`):**
+- `src/lib/ai/diagnostico-prompt.ts`: novo bloco `REGRA DE CÓPIA LITERAL DA URL` — exige cópia caractere-por-caractere da URL recebida como resultado de busca, proíbe reconstrução mesmo "correta sobre o conteúdo"
+- `src/lib/ai/diagnostico-schema.ts`: novo helper puro `normalizarUrl()` (`new URL(u).href`) — absorve diferença cosmética (host maiúsculo, porta padrão, caminho-raiz vazio) sem fundir path/query genuinamente diferentes
+- `src/lib/ai/gerar-diagnostico.ts`: cross-check FM2 normaliza dos dois lados; retorno ganha `urlsForaDasFontes` rotulado por campo de origem (não só a contagem)
+- `scripts/eval-diagnostico.mjs`: `aplicarPortoesEstruturais()` normaliza igual e devolve `{ falhas, mismatches }`; relatório markdown ganha a lista real de pares "campo → URL citada" por caso
+
+**Parte B — 2 rodadas reais pós-fix (rodadas 4 e 5, mesmo código, sem mudança nenhuma entre elas), medindo variância:**
+- Rodada 4 (`083a4b8`, US$0,81): costureira→`aprofundar`, motoboy→`mudar_angulo`, estética→`mudar_angulo`
+- Rodada 5 (`c2e6cc1`, US$0,63): costureira→`mudar_angulo`, motoboy→`abandonar`, estética→**ERRO de crédito da API** ("Your credit balance is too low..."), parada sem retry conforme instruído
+- **Nenhum dos 3 casos deu o mesmo veredito entre rodadas idênticas** — confirma que o sistema tem variância real run-a-run (busca adaptativa descobre fatos de mercado diferentes a cada execução; o modelo não é determinístico mesmo com `effort: "low"`, e `temperature` nem é honrado pelo provider). **Decisão final do usuário: aceitar isso como comportamento ESPERADO do sistema, não um bug** — documentado para quem usar o produto: o veredito da IA é sempre sugestão inicial, o humano valida antes de agir (Fase 24 já prevê isso).
+- **Achado principal da instrumentação nova**: com a lista real de mismatches visível pela 1ª vez, o padrão NÃO é "o modelo parafraseia a URL" (hipótese original) — é, na esmagadora maioria dos casos, a **URL real e exata** (presente em "Fontes coletadas") com um **sufixo espúrio de 1-3 caracteres grudado no final** (`','`, `-`, `1`, `2`, `/https`). Ex.: `.../tabela-de-preco-conserto-de-roupas-2026/','` quando a fonte real é `.../tabela-de-preco-conserto-de-roupas-2026/`. Isso muda a leitura de gravidade: a maioria das citações provavelmente aponta pra fonte certa, só com a string tecnicamente quebrada — não é alucinação de conteúdo. Causa provável: artefato de serialização da saída estruturada (possível bleed-through de sintaxe de array/citação do provider), não confirmada — **fica como DÍVIDA TÉCNICA não resolvida** (ver STATE.md), pendente de investigação futura (ex.: checar se "URL citada menos N caracteres finais" bate com alguma fonte real, ou capturar o texto bruto pré-validação Zod) — sem crédito de API disponível nesta sessão para aprofundar.
 
 ## User Setup Required
 
 None - toda a configuração (`.env.local` com `ANTHROPIC_API_KEY`, Web Search habilitada no Console Anthropic) já estava feita desde o plano 23-04.
 
+## Custo real total (dia inteiro, 2026-09-11)
+
+| Item | Custo estimado |
+|------|------------------|
+| Spike do 23-04 (3 chamadas reais) | ~US$0,45–0,75 |
+| 23-06 rodada 1 (baseline, NÃO discriminado) | US$0,76 |
+| 23-06 rodada 2 (rubrica reforçada, ainda NÃO discriminado) | US$0,31 |
+| 23-06 rodada 3 (fix estrutural, DISCRIMINADO) | US$0,83 |
+| 23-06 rodada 4 (pós-fix de cross-check) | US$0,81 |
+| 23-06 rodada 5 (medida de variância, parou por crédito no caso 3) | US$0,63 |
+| **Total aproximado** | **~US$3,79–4,09 (usar ~US$3,94 de referência)** |
+
 ## Next Phase Readiness
 
-- O baseline de qualidade do eval está estabelecido e commitado (3 relatórios em `test/reports/`, comparáveis entre execuções via D-23-05) — qualquer mudança futura em `src/lib/ai/` deve ser comparada contra `test/reports/2026-09-11-eval-diagnostico-3.md`
-- **Fase 23 fecha com este plano** — os 7 planos (23-01 a 23-07) têm SUMMARY
-- Dívida técnica não-bloqueante para revisão futura: cross-check de fontes (6-11 URLs/caso fora de `res.sources`) e falha ocasional da chamada do juiz (separada da geração, já não derruba mais o resultado)
+- O baseline de qualidade do eval está estabelecido e commitado (5 relatórios em `test/reports/`, comparáveis entre execuções via D-23-05) — qualquer mudança futura em `src/lib/ai/` deve ser comparada contra `test/reports/2026-09-11-eval-diagnostico-3.md` (última execução com os 3 gold discriminados)
+- **Fase 23 FECHADA definitivamente** — os 7 planos (23-01 a 23-07) têm SUMMARY, os 2 críticos do code review (CR-01/CR-02) foram corrigidos, a investigação do cross-check foi encerrada com achados documentados
+- **2 dívidas técnicas finais, ambas registradas em STATE.md:**
+  1. Variância de veredito entre execuções idênticas — ACEITA como característica esperada do sistema (busca adaptativa + LLM não-determinístico), não um bug. Implicação de produto: a UI/copy deve sempre deixar claro que o veredito da IA é sugestão inicial, nunca definitiva.
+  2. Sufixo espúrio de 1-3 caracteres em citações de URL do cross-check — bug real, NÃO resolvido, causa provável é artefato de serialização da saída estruturada. Pendente de investigação futura com nova rodada de crédito de API.
+- Falha ocasional da chamada do juiz (separada da geração, já não derruba mais o resultado desde `e49d6da`) — dívida menor, não re-registrada separadamente.
 - Fase 24 (Veredito + Painel + Mapa de Nichos) pode prosseguir: `gerarDiagnostico()` está validado ponta a ponta contra a API real, o veredito da IA é sugestão não-vinculante por design, e o operador registra o veredito final — exatamente o que a Fase 24 pressupõe
 
 ---
