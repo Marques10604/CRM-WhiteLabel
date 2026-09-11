@@ -11,11 +11,13 @@
     {
       "gatilho": "Concorrentes afirmam nas redes que os clientes sofrem com falta de profissionalismo do mercado.",
       "observavel_em": "https://www.instagram.com/concorrentetop",
+      "evidencia": "relato_isolado",
       "mais_forte": true
     },
     {
       "gatilho": "Uma landing page diz que 90% dos clientes estão insatisfeitos com os fornecedores atuais.",
       "observavel_em": "https://www.concorrente.com.br/sobre",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     }
   ],

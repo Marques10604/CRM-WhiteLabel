@@ -8,11 +8,13 @@
     {
       "gatilho": "Clientes relatam demora no atendimento inicial pelas redes sociais.",
       "observavel_em": "https://www.instagram.com/exemplo",
+      "evidencia": "relato_isolado",
       "mais_forte": true
     },
     {
       "gatilho": "Pequenos negócios dizem perder pedidos por falta de retorno rápido.",
       "observavel_em": "https://www.reclameaqui.com.br/empresa/exemplo",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     }
   ],

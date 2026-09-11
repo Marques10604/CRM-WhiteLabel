@@ -11,16 +11,19 @@
     {
       "gatilho": "Clínicas relatam que exames e receitas atrasam porque dependem de motoboy de aplicativo sem hora marcada.",
       "observavel_em": "https://www.reclameaqui.com.br/categoria/motoboy",
+      "evidencia": "padrao_confirmado",
       "mais_forte": true
     },
     {
       "gatilho": "Consultórios dizem não ter com quem contar para entregas recorrentes no fim da tarde.",
       "observavel_em": "https://www.instagram.com/motoentregasrapidas",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     },
     {
       "gatilho": "Pacientes idosos precisam receber medicação em casa e a clínica não tem entregador fixo.",
       "observavel_em": "https://gruposaude.com.br/blog/logistica-clinicas",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     }
   ],
@@ -58,6 +61,11 @@
       "afirmacao": "Um concorrente anuncia ser 'a entrega mais rápida e confiável do estado'.",
       "tipo": "alegacao_marketing",
       "fonte_url": "https://www.instagram.com/motoentregasrapidas"
+    },
+    {
+      "afirmacao": "Um consultório relata na categoria de reclamações que um exame urgente atrasou 4 horas por falta de motoboy disponível.",
+      "tipo": "relato_qualitativo",
+      "fonte_url": "https://www.reclameaqui.com.br/categoria/motoboy"
     }
   ],
   "rascunho_primeira_mensagem": "Oi! Vi que a clínica de vocês faz entrega de exames e receitas. Quando isso depende de motoboy de aplicativo, costuma atrasar e não tem hora certa. Eu faço rota fixa agendada, sempre com a mesma pessoa. Posso passar um teste de duas tardes esta semana?",

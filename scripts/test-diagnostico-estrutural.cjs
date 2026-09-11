@@ -16,6 +16,10 @@
 //   Grupo D — Dim 2: gate de fontes (filtrarFontes/assertTemFonte) + cross-check
 //   Grupo E — Dim 2: allowlist de esquema de URL (XSS T-23-02)
 //   Grupo F — Dim 9: limiares de custo/latência sobre linhas simuladas
+//   Grupo G — Dim 6/7 (ajuste estrutural 23-06): mais_forte não pode ser
+//     relato_isolado quando existe gatilho padrao_confirmado no array
+//   Grupo H — Dim 6 (ajuste estrutural 23-06): todo gatilho_dor de fixture
+//     válida tem "evidencia" ∈ {padrao_confirmado, relato_isolado}
 "use strict";
 
 const { register } = require("node:module");
@@ -27,7 +31,10 @@ register("./ts-alias-loader.mjs", pathToFileURL(__dirname + "/"));
 
 const FIXTURES_DIR = path.join(__dirname, "..", "test", "fixtures", "diagnostico");
 const DECISOES_VALIDAS = ["aprofundar", "mudar_angulo", "abandonar"];
-const TIPOS_ACHADO_VALIDOS = ["dado_quantificavel", "alegacao_marketing"];
+// 3ª categoria "relato_qualitativo" (ajuste estrutural 23-06): um relato real de
+// 1 fonte identificável, mas não é contagem/preço medido nem copy de venda.
+const TIPOS_ACHADO_VALIDOS = ["dado_quantificavel", "relato_qualitativo", "alegacao_marketing"];
+const EVIDENCIA_VALIDAS = ["padrao_confirmado", "relato_isolado"];
 const MAX_USES = 6; // teto de buscas travado em webSearch_20250305({ maxUses: 6 })
 
 let failed = 0;
@@ -56,15 +63,20 @@ function urlsCitadas(d) {
 }
 
 async function main() {
-  const { diagnosticoSchema, filtrarFontes, assertTemFonte, urlSegura } =
-    await import("@/lib/ai/diagnostico-schema");
+  const {
+    diagnosticoSchema,
+    filtrarFontes,
+    assertTemFonte,
+    urlSegura,
+    GATILHO_MAIS_FORTE_EVIDENCIA_MSG,
+  } = await import("@/lib/ai/diagnostico-schema");
 
   const arquivos = fs
     .readdirSync(FIXTURES_DIR)
     .filter((f) => f.endsWith(".json"))
     .sort();
 
-  check(arquivos.length === 9, `há 9 fixtures em test/fixtures/diagnostico (achei ${arquivos.length})`);
+  check(arquivos.length === 10, `há 10 fixtures em test/fixtures/diagnostico (achei ${arquivos.length})`);
 
   // Uma fixture "valida" = prefixo ok- OU a adversarial (que também deve passar).
   const ehValida = (f) => f.startsWith("ok-") || f.startsWith("adversarial-");
@@ -209,6 +221,34 @@ async function main() {
     check(
       linha.finishReason !== "length",
       `Grupo F [linha ${i}]: finishReason != 'length' (sem truncamento)`,
+    );
+  }
+
+  // ---- Grupo G — ajuste estrutural 23-06: mais_forte x evidencia ----
+  {
+    const data = lerFixture("bad-mais-forte-relato-isolado.json");
+    const r = diagnosticoSchema.safeParse(data);
+    check(
+      r.success === false,
+      "Grupo G: bad-mais-forte-relato-isolado.json é rejeitada por diagnosticoSchema",
+    );
+    const temMensagemEspecifica =
+      !r.success &&
+      r.error.issues.some((i) => i.message === GATILHO_MAIS_FORTE_EVIDENCIA_MSG);
+    check(
+      temMensagemEspecifica,
+      "Grupo G: a rejeição é especificamente pelo refine de evidencia (GATILHO_MAIS_FORTE_EVIDENCIA_MSG)",
+    );
+  }
+
+  // ---- Grupo H — ajuste estrutural 23-06: campo evidencia em fixtures válidas ----
+  for (const { f, d } of validas) {
+    const todasEvidenciasValidas = d.gatilhos_dor.every((g) =>
+      EVIDENCIA_VALIDAS.includes(g.evidencia),
+    );
+    check(
+      todasEvidenciasValidas,
+      `Grupo H [${f}]: todo gatilho_dor tem evidencia válida (padrao_confirmado/relato_isolado)`,
     );
   }
 }

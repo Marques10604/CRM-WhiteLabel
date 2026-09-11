@@ -6,16 +6,16 @@
   },
   "gatilhos_dor": [
     {
-      "gatilho": "Clientes relatam demora no atendimento inicial pelas redes sociais.",
+      "gatilho": "Vários clientes relatam na categoria de reclamações do setor que o atendimento inicial demora dias.",
+      "observavel_em": "https://www.reclameaqui.com.br/categoria/exemplo",
+      "evidencia": "padrao_confirmado",
+      "mais_forte": false
+    },
+    {
+      "gatilho": "Um único comentário no Instagram menciona que preferia um retorno mais rápido.",
       "observavel_em": "https://www.instagram.com/exemplo",
       "evidencia": "relato_isolado",
       "mais_forte": true
-    },
-    {
-      "gatilho": "Pequenos negócios dizem perder pedidos por falta de retorno rápido.",
-      "observavel_em": "https://www.reclameaqui.com.br/empresa/exemplo",
-      "evidencia": "relato_isolado",
-      "mais_forte": false
     }
   ],
   "objecoes": [
@@ -52,12 +52,12 @@
   ],
   "rascunho_primeira_mensagem": "Oi! Vi que voce atende esse tipo de cliente e queria entender como funciona o seu atendimento inicial hoje. Posso te fazer duas perguntas rapidas sobre isso?",
   "veredito_sugerido": {
-    "decisao": "talvez",
-    "justificativa": "Concorrencia moderada e dor recorrente relatada em fontes publicas indicam que vale investigar o nicho com mais profundidade."
+    "decisao": "aprofundar",
+    "justificativa": "Concorrencia moderada e padrao de reclamacao confirmado em fonte publica indicam que vale investigar o nicho com mais profundidade."
   },
   "_sources": [
     { "sourceType": "url", "url": "https://www.olx.com.br/brasil?q=exemplo", "title": "OLX - busca" },
     { "sourceType": "url", "url": "https://www.instagram.com/exemplo", "title": "Instagram" },
-    { "sourceType": "url", "url": "https://www.reclameaqui.com.br/empresa/exemplo", "title": "Reclame Aqui" }
+    { "sourceType": "url", "url": "https://www.reclameaqui.com.br/categoria/exemplo", "title": "Reclame Aqui - categoria exemplo" }
   ]
 }

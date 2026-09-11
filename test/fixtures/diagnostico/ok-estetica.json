@@ -11,11 +11,13 @@
     {
       "gatilho": "Clientes reclamam de fila e remarcação constante nas clínicas de estética grandes.",
       "observavel_em": "https://www.reclameaqui.com.br/categoria/estetica",
+      "evidencia": "padrao_confirmado",
       "mais_forte": true
     },
     {
       "gatilho": "Donas de clínica pequena dizem não conseguir competir com o preço das franquias.",
       "observavel_em": "https://www.instagram.com/esteticaglow",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     }
   ],

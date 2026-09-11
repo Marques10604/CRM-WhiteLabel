@@ -11,11 +11,13 @@
     {
       "gatilho": "Noivas relatam atraso na entrega do vestido ajustado a menos de uma semana do casamento.",
       "observavel_em": "https://www.reclameaqui.com.br/empresa/atelie-costura",
+      "evidencia": "padrao_confirmado",
       "mais_forte": true
     },
     {
       "gatilho": "Clientes reclamam que não conseguem falar pelo WhatsApp para marcar a prova de roupa.",
       "observavel_em": "https://www.instagram.com/costuraatelie",
+      "evidencia": "relato_isolado",
       "mais_forte": false
     }
   ],
@@ -49,6 +51,11 @@
       "afirmacao": "Um concorrente se descreve como 'o melhor ateliê de alta-costura da cidade'.",
       "tipo": "alegacao_marketing",
       "fonte_url": "https://www.instagram.com/costuraatelie"
+    },
+    {
+      "afirmacao": "Uma noiva relata no Reclame Aqui que o vestido chegou 3 dias após a data combinada, quase perdendo o casamento.",
+      "tipo": "relato_qualitativo",
+      "fonte_url": "https://www.reclameaqui.com.br/empresa/atelie-costura"
     }
   ],
   "rascunho_primeira_mensagem": "Oi, Marina! Vi que você faz ajuste de vestido de festa. Muitas noivas ficam ansiosas com o prazo de entrega perto do casamento. Eu faço ajuste expresso com prova marcada em até 48h e data de entrega garantida. Posso te explicar como funciona?",
