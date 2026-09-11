@@ -104,7 +104,7 @@ loop de resultado real fechando com o que `/relatorios` já calcula. Zero WhatsA
 infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminho A escolhido).
 
 - [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (22-01/22-02/22-03 shipados; CAMPANHA-03 / SC3 fechado pelo plano 22-03; 22-03-REVIEW fechado em b9a2c44; re-verificação passou 4/4) (completed 2026-09-05)
-- [ ] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido
+- [x] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido (completed 2026-09-11)
 - [ ] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos
 - [ ] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente
 
@@ -147,7 +147,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 
 **Onda 4** *(bloqueada na Onda 3):*
 - [x] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
-- [ ] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
+- [x] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
 
 **Onda 5** *(bloqueada na Onda 4):*
 - [x] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico

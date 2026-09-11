@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: Executando Fase 23 — só resta 23-06 (eval gold-set, precisa de crédito)
-last_updated: "2026-09-11T13:17:07.358Z"
+status: Fase 23 executada — 7/7 planos com SUMMARY. Aguardando gates pós-execução de fase (code-review/regression/schema-drift/verifier) e UAT humano, fora do escopo deste executor de plano.
+last_updated: "2026-09-11T15:55:36.301Z"
 last_activity: 2026-09-11
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 9
-  percent: 25
+  completed_plans: 10
+  percent: 50
 ---
 
 # Project State
@@ -24,24 +24,30 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 ## Current Position
 
-Phase: 23 (diagn-stico-de-ia-da-campanha) — EXECUTING
-Plan: 6 of 7 com SUMMARY (23-01, 23-02, 23-03, 23-04, 23-05, 23-07) — só falta 23-06
-Status: Executando Fase 23 — só resta 23-06 (eval gold-set, precisa de crédito)
+Phase: 23 (diagn-stico-de-ia-da-campanha) — **FECHADA para o executor de plano** (7 de 7 planos com SUMMARY)
+Plan: 7 of 7 com SUMMARY (23-01 a 23-07)
+Status: Todos os planos executados. Gates pós-execução de fase ainda pendentes (ver "Pendente" abaixo) — fora do escopo do executor de plano, ficam para a orquestração de nível de fase (`/gsd-secure-phase` / `/close-phase`).
 
 ### Feito e commitado
 
-- **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções)
+- **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções — depois 68, ver 23-06)
 - **23-02** ✅ tabela `diagnosticos` (11 colunas, migração `.cjs` idempotente rodada contra `data/crm.db`, gate de schema)
 - **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
 - **23-04** ✅ COMPLETO (3 tasks, SUMMARY). Task 1: Server Action `src/actions/diagnostico-actions.ts` (`f578ade`). Task 2: setup do usuário confirmado. Task 3: spike medido contra a API real (3 chamadas pagas — `aa3556b` script + `9674494` fix) — D-23-04 registrada: `temperature` removido (inerte), `effort:"low"` mantido, `maxOutputTokens:16000` mantido, limites de `indice_saturacao.leitura`/`veredito_sugerido.justificativa` recalibrados por medição real (300→750 / 800→1400) e reforçados no `SYSTEM_PROMPT`.
 - **23-05** ✅ COMPLETO (3 tasks, SUMMARY). `achado-tipo-badge.tsx` + `veredito-sugerido-chip.tsx` (`e3c5817`), `rascunho-mensagem.tsx` (`fd140ba`), `diagnostico-resultado.tsx` (`aaa8747`). Feito inline pelo orquestrador (executor caiu no 429).
 - **23-07** ✅ COMPLETO (3 tasks, SUMMARY). `gerar-diagnostico-button.tsx` (`1288755`), `diagnostico-secao.tsx` (`d96db06`), `page.tsx` estendido com `maxDuration` + `<DiagnosticoSecao>` (`14dc4fe`). Feito inline. tsc/lint/build (14 rotas)/verify:schema/guard/harness verdes.
+- **23-06** ✅ COMPLETO (2 tasks + checkpoint de 3 rodadas reais, SUMMARY). Dataset de referência (`6120471`) + eval on-demand (`6401ca7`). Rodada 1 (`1f4704f`) e rodada 2 (`fb739ba`+`e49d6da`) NÃO discriminaram os 3 gold. Investigação de causa raiz (aprovada pelo usuário) achou dicotomia falsa no schema de achado (2 categorias, sem lugar pra relato anedótico isolado real) — corrigida em `f621c51` (3ª categoria `relato_qualitativo` + campo `evidencia` em `gatilhos_dor` + novo `.refine`, D-23-06), com fixtures/harness atualizados (`4845d6d`) e eval sincronizado (`6c19275`). Rodada 3 (`1e81375`): **os 3 vereditos gold vieram discriminados entre si pela 1ª vez** (aprofundar/mudar_angulo/abandonar), 1/3 batendo exatamente com o gabarito humano de 2026-09-04 — aceito como baseline pelo usuário (o veredito da IA é sugestão, não vinculante). Custo real total: ~US$1,90 nas 3 rodadas do 23-06 (+ ~US$0,45-0,75 do spike do 23-04).
 
-### Pendente (SÓ o que gasta crédito)
+### Dívida técnica remanescente da Fase 23 (não-bloqueante, registrada para revisão futura)
 
-- **23-06** — eval gold-set 3 nichos (checkpoint: aprovar gold-set). **Precisa de créditos** (saldo Anthropic já resolvido pelo usuário nesta sessão — 23-04 consumiu 3 chamadas reais, ~US$0,45–0,75).
-- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier` → rodam depois que 23-06 fechar.
-- **UAT humano** da fase: fluxo do botão em `/campanhas/[id]` (vazio → gerar → pending → resultado → regenerar → histórico), claro + escuro. Também precisa de crédito (gera diagnóstico real) — agora desbloqueado, `gerarDiagnostico()` já validado ponta a ponta contra a API real no spike do 23-04.
+- **Cross-check de fontes falhando nos 3 casos gold da rodada 3 do eval** (6-11 URLs citadas dentro do objeto do diagnóstico ausentes de `res.sources`, a lista real de citações da tool de busca). O gate de zero-fontes (DIAGNOSTICO-02) segue protegendo — sempre havia várias fontes reais — mas a fidelidade de citação individual (URL específica bate com a afirmação atribuída a ela) não foi investigada a fundo. Padrão presente nas 3 rodadas do eval, não só na última.
+- **Chamada do LLM-judge falhando ocasionalmente** (`NoObjectGeneratedError` na própria chamada do juiz, independente da geração) — aconteceu no caso motoboy tanto na rodada 2 quanto na rodada 3. O fix do commit `e49d6da` já garante que essa falha NÃO derruba mais o resultado da geração (veredito/portões estruturais preservados), mas o caso fica sem as 5 notas de julgamento subjetivo. Não investigada a causa (schema do juiz pode estar apertado demais para certas saídas).
+- Ambos os itens NÃO bloqueiam o fechamento da Fase 23 nem o início da Fase 24 — são melhorias de robustez do próprio ferramental de eval/observabilidade, não do produto (`src/`).
+
+### Pendente (fora do escopo deste executor de plano — orquestração de nível de fase)
+
+- Portões pós-execução: `gsd-code-review`, regression gate, schema-drift gate, `gsd-verifier` — ainda não rodados para a Fase 23 inteira.
+- **UAT humano** da fase: fluxo do botão em `/campanhas/[id]` (vazio → gerar → pending → resultado → regenerar → histórico), claro + escuro. `gerarDiagnostico()` já validado ponta a ponta contra a API real (spike do 23-04 + 3 rodadas do eval do 23-06) — só falta a passada visual humana.
 
 ### Medição final do spike do 23-04 (3 chamadas reais, ver D-23-04)
 
@@ -53,7 +59,7 @@ Status: Executando Fase 23 — só resta 23-06 (eval gold-set, precisa de crédi
 
 ### Retomada
 
-`/gsd-execute-phase 23` re-descobre planos, pula os com SUMMARY, retoma de 23-06 (eval gold-set — checkpoint de aprovação do gold-set, precisa de crédito).
+Fase 23 encerrada do ponto de vista de execução de planos. Próximo passo é de nível de fase, não de plano: rodar os gates pós-execução listados acima e/ou avançar para a Fase 24 (Veredito + Painel + Mapa de Nichos), conforme decisão do usuário/orquestrador.
 
 Sem CONTEXT.md (pulou o /gsd-discuss-phase); decisões nos PLAN.md como D-23-*.
 Last activity: 2026-09-11
@@ -147,6 +153,7 @@ Last activity: 2026-09-11
 | Phase 23 P02 | 12min | 3 tasks | 3 files |
 | Phase 23 P03 | 18min | 3 tasks | 4 files |
 | Phase 23 P04 | 45min | 3 tasks | 4 files |
+| Phase 23 P06 | 90min | 3 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -265,6 +272,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Fase 23-02]: tabela `diagnosticos` (append-only, 11 colunas, 3 índices, FK `campanha_id` onDelete restrict) criada via `scripts/migrate-diagnosticos.cjs` manual idempotente contra `data/crm.db` (rodada 2x: 0 campanhas + 44 leads intactos, zero drizzle-kit). D-23-01: `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()`. D-23-07: `erro` (só status=falhou, payload NULL) e `aviso` (só status=ok, ressalva não-fatal) são colunas SEPARADAS. Sem soft-delete → fora da ALLOWLIST de guard-no-hard-delete. `import type { Diagnostico }` em schema.ts (sem efeito colateral). `verify:schema` ganha conjunto estrito (missing E extra) + 3 índices; mutação provada (DROP numa cópia → exit 1).
 - [Phase 23]: [Fase 23-03] Vercel AI SDK instalado (ai@7.0.93 + @ai-sdk/anthropic@4.0.49, pins EXATOS; aprovação humana de legitimidade — ambos repo github.com/vercel/ai, publisher Vercel, sem postinstall). SYSTEM_PROMPT anti-genérico versionado (src/lib/ai/diagnostico-prompt.ts, 10 blocos). gerarDiagnostico() em src/lib/ai/gerar-diagnostico.ts: server-only (T-23-01), DB-free, generateText + Output.object + webSearch_20250305 (maxUses 6, BR) + isStepCount(10), retry manual MAX_TENTATIVAS=2, gate DIAGNOSTICO-02 lê res.sources, cross-check FM2 -> avisoCrossCheck (não bloqueia, D-23-07). maxOutputTokens 16000 + effort low são ponto de partida — spike do 23-04 confirma. NENHUMA chamada real à API neste plano. DIAGNOSTICO-02..10 seguem Pending (behavior só fecha com 23-04/23-05). — Separar o cérebro (prompt+chamada+gate) da fiação com banco/UI; a função DB-free é o que o eval do 23-06 chama direto.
 - [Phase 23-04]: D-23-04: temperature removido de gerar-diagnostico.ts (inerte no provider, warning explicito); effort:low mantido (confirmado); maxOutputTokens:16000 mantido (folga confirmada 2698-5279 tokens); limites de tamanho do diagnosticoSchema recalibrados por medicao real (leitura 300->750, justificativa 800->1400) com reforco no SYSTEM_PROMPT
+- [Phase 23-06]: D-23-06: schema de achado passa de 2 para 3 categorias (dado_quantificavel/relato_qualitativo/alegacao_marketing) com campo evidencia em gatilhos_dor amarrando forca do gatilho a confiabilidade real da fonte — 2 rodadas de reforco de prompt nao resolveram a nao-discriminacao dos 3 gold do eval; causa raiz era dicotomia falsa no schema; rodada 3 pos-fix produziu os 3 vereditos discriminados entre si
 
 ### Pending Todos
 
@@ -797,7 +805,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-11T13:17:07.332Z
+Last session: 2026-09-11T15:55:36.268Z
 
 **O que foi feito nesta sessão:**
 
