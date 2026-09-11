@@ -153,6 +153,17 @@ Plano original (Tasks 1-2) + checkpoint humano em 3 rodadas + investigação est
 - **Cross-check de fontes falhando nos 3 casos gold da rodada 3** (6-11 URLs citadas no objeto ausentes de `res.sources`) — **NÃO investigado nesta fase**, registrado como dívida técnica em STATE.md. O gate de zero-fontes (DIAGNOSTICO-02) continua protegendo (sempre havia >=1 fonte real), mas a fidelidade de citação individual merece atenção futura.
 - **Chamada do juiz falhou no caso motoboy da rodada 3** (`NoObjectGeneratedError` na própria chamada do juiz, não na geração) — o fix do item 1 acima preservou o resultado da geração, mas ficamos sem as 5 notas de julgamento subjetivo desse caso específico. Registrado como dívida técnica não-bloqueante.
 
+## Code Review Fixes (pós-fechamento do plano, gate de fase)
+
+O `gsd-code-reviewer` da Fase 23 (`23-REVIEW.md`, commit `4551cf6`, 30 arquivos revisados) achou 2 críticos reais, ambos já corrigidos em `b233f80` — nenhuma chamada de API envolvida:
+
+- **CR-01** (`src/components/achado-tipo-badge.tsx`): D-23-06 adicionou `relato_qualitativo` ao enum `tipoAchado`, mas `TIPO_LABEL`/`TIPO_TOKEN`/`TIPO_ICON` continuavam com só 2 chaves — confirmado como o ÚNICO erro de `tsc --noEmit` do repo inteiro, e os relatórios reais do 23-06 mostram `relato_qualitativo` em toda geração real. Sem o fix, `/campanhas/[id]` quebraria ao renderizar um diagnóstico real. Corrigido: 3ª entrada nos 3 mapas (label "Relato isolado", ícone `MessageCircle`, token `bg-status-neutral`) + `diagnostico-resultado.tsx` ganhou o 3º eixo de tratamento de texto (`relato_qualitativo` = `text-muted-foreground` sem itálico, peso visual intermediário entre `dado_quantificavel` pleno e `alegacao_marketing` itálico+muted).
+- **CR-02** (`src/lib/ai/gerar-diagnostico.ts`): o array `buscas` era declarado fora do loop de retry e nunca resetado entre tentativas — uma 2ª tentativa bem-sucedida herdava as buscas da 1ª tentativa descartada, corrompendo a coluna de auditoria `diagnosticos.buscas` (DIAGNOSTICO-10) e podendo disparar falso-positivo no gate `MAX_USES` do eval. Corrigido: declaração movida pra dentro do loop (`buscasTentativa`, reset por tentativa).
+
+Gates pós-fix, todos verdes: `npx tsc --noEmit` (0 erros), `npm run lint` (0 erros), `npm run build` (14 rotas), `node scripts/test-diagnostico-estrutural.cjs` (68 asserções).
+
+**Investigação reaberta (WR-01/WR-04 do review):** o usuário decidiu reabrir a questão do cross-check de citações (URLs citadas no objeto ausentes de `res.sources`, 6-11/caso) em vez de aceitar como dívida documentada — diagnóstico de causa raiz reportado separadamente ao orquestrador, sem mudança de código aplicada ainda.
+
 ## User Setup Required
 
 None - toda a configuração (`.env.local` com `ANTHROPIC_API_KEY`, Web Search habilitada no Console Anthropic) já estava feita desde o plano 23-04.

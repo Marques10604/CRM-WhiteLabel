@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: Fase 23 executada — 7/7 planos com SUMMARY. Aguardando gates pós-execução de fase (code-review/regression/schema-drift/verifier) e UAT humano, fora do escopo deste executor de plano.
-last_updated: "2026-09-11T15:55:36.301Z"
+status: Todos os planos executados. Gates pós-execução de fase ainda pendentes (ver "Pendente" abaixo) — fora do escopo do executor de plano, ficam para a orquestração de nível de fase (`/gsd-secure-phase` / `/close-phase`).
+last_updated: "2026-09-11T16:18:19.437Z"
 last_activity: 2026-09-11
 progress:
   total_phases: 4
@@ -40,7 +40,7 @@ Status: Todos os planos executados. Gates pós-execução de fase ainda pendente
 
 ### Dívida técnica remanescente da Fase 23 (não-bloqueante, registrada para revisão futura)
 
-- **Cross-check de fontes falhando nos 3 casos gold da rodada 3 do eval** (6-11 URLs citadas dentro do objeto do diagnóstico ausentes de `res.sources`, a lista real de citações da tool de busca). O gate de zero-fontes (DIAGNOSTICO-02) segue protegendo — sempre havia várias fontes reais — mas a fidelidade de citação individual (URL específica bate com a afirmação atribuída a ela) não foi investigada a fundo. Padrão presente nas 3 rodadas do eval, não só na última.
+- **Cross-check de fontes falhando nos 3 casos gold da rodada 3 do eval** (6-11 URLs citadas dentro do objeto do diagnóstico ausentes de `res.sources`, a lista real de citações da tool de busca). O gate de zero-fontes (DIAGNOSTICO-02) segue protegendo — sempre havia várias fontes reais — mas a fidelidade de citação individual (URL específica bate com a afirmação atribuída a ela) não foi investigada a fundo. Padrão presente nas 3 rodadas do eval, não só na última. **REABERTO** (WR-01/WR-04 do `23-REVIEW.md`, commit `4551cf6`): o usuário decidiu não aceitar mais isto como dívida documentada sem entender a causa — diagnóstico de causa raiz feito por leitura (sem custo de API), reportado ao orquestrador; proposta de fix pendente de aprovação antes de qualquer mudança de código ou nova chamada paga.
 - **Chamada do LLM-judge falhando ocasionalmente** (`NoObjectGeneratedError` na própria chamada do juiz, independente da geração) — aconteceu no caso motoboy tanto na rodada 2 quanto na rodada 3. O fix do commit `e49d6da` já garante que essa falha NÃO derruba mais o resultado da geração (veredito/portões estruturais preservados), mas o caso fica sem as 5 notas de julgamento subjetivo. Não investigada a causa (schema do juiz pode estar apertado demais para certas saídas).
 - Ambos os itens NÃO bloqueiam o fechamento da Fase 23 nem o início da Fase 24 — são melhorias de robustez do próprio ferramental de eval/observabilidade, não do produto (`src/`).
 
@@ -273,6 +273,7 @@ Recent decisions affecting current work:
 - [Phase 23]: [Fase 23-03] Vercel AI SDK instalado (ai@7.0.93 + @ai-sdk/anthropic@4.0.49, pins EXATOS; aprovação humana de legitimidade — ambos repo github.com/vercel/ai, publisher Vercel, sem postinstall). SYSTEM_PROMPT anti-genérico versionado (src/lib/ai/diagnostico-prompt.ts, 10 blocos). gerarDiagnostico() em src/lib/ai/gerar-diagnostico.ts: server-only (T-23-01), DB-free, generateText + Output.object + webSearch_20250305 (maxUses 6, BR) + isStepCount(10), retry manual MAX_TENTATIVAS=2, gate DIAGNOSTICO-02 lê res.sources, cross-check FM2 -> avisoCrossCheck (não bloqueia, D-23-07). maxOutputTokens 16000 + effort low são ponto de partida — spike do 23-04 confirma. NENHUMA chamada real à API neste plano. DIAGNOSTICO-02..10 seguem Pending (behavior só fecha com 23-04/23-05). — Separar o cérebro (prompt+chamada+gate) da fiação com banco/UI; a função DB-free é o que o eval do 23-06 chama direto.
 - [Phase 23-04]: D-23-04: temperature removido de gerar-diagnostico.ts (inerte no provider, warning explicito); effort:low mantido (confirmado); maxOutputTokens:16000 mantido (folga confirmada 2698-5279 tokens); limites de tamanho do diagnosticoSchema recalibrados por medicao real (leitura 300->750, justificativa 800->1400) com reforco no SYSTEM_PROMPT
 - [Phase 23-06]: D-23-06: schema de achado passa de 2 para 3 categorias (dado_quantificavel/relato_qualitativo/alegacao_marketing) com campo evidencia em gatilhos_dor amarrando forca do gatilho a confiabilidade real da fonte — 2 rodadas de reforco de prompt nao resolveram a nao-discriminacao dos 3 gold do eval; causa raiz era dicotomia falsa no schema; rodada 3 pos-fix produziu os 3 vereditos discriminados entre si
+- [Phase 23-review]: CR-01/CR-02 do code review da fase (23-REVIEW.md) corrigidos sem custo de API: AchadoTipoBadge sincronizado com o enum de 3 categorias (D-23-06); buscas resetado por tentativa em gerarDiagnostico() — code review achou o unico erro de tsc do repo (crash real em /campanhas/[id]) e uma corrupcao de trilha de auditoria; ambos bugs puros sem ambiguidade, fix commit b233f80
 
 ### Pending Todos
 
