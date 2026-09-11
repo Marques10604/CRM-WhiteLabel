@@ -1,4 +1,4 @@
-import { Hash, Megaphone } from "lucide-react";
+import { Hash, Megaphone, MessageCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,24 +13,28 @@ export type AchadoTipo = Diagnostico["achados"][number]["tipo"];
  * (`TIPO_LABEL` / `TIPO_TOKEN` / `TIPO_ICON`) para não acoplar a lista de
  * tipos às classes utilitárias.
  *
- * DIAGNOSTICO-07 (modo de falha crítico #4): um `dado_quantificavel` e uma
- * `alegacao_marketing` NUNCA podem ter o mesmo peso visual. A distinção é em
- * 3 eixos — cor (info × warning), ícone (Hash × Megaphone) e, no
- * `DiagnosticoResultado`, o tratamento do texto da afirmação (pleno × itálico
- * recuado). Este componente cobre os 2 primeiros eixos.
+ * DIAGNOSTICO-07 (modo de falha crítico #4) + D-23-06: `dado_quantificavel`,
+ * `relato_qualitativo` e `alegacao_marketing` NUNCA podem ter o mesmo peso
+ * visual entre si. A distinção é em 3 eixos — cor (info × neutral × warning),
+ * ícone (Hash × MessageCircle × Megaphone) e, no `DiagnosticoResultado`, o
+ * tratamento do texto da afirmação (pleno × muted × itálico recuado). Este
+ * componente cobre os 2 primeiros eixos.
  */
 const TIPO_LABEL: Record<AchadoTipo, string> = {
   dado_quantificavel: "Dado quantificável",
+  relato_qualitativo: "Relato isolado",
   alegacao_marketing: "Alegação de concorrente",
 };
 
 const TIPO_TOKEN: Record<AchadoTipo, string> = {
   dado_quantificavel: "bg-status-info text-status-info-foreground",
+  relato_qualitativo: "bg-status-neutral text-status-neutral-foreground",
   alegacao_marketing: "bg-status-warning text-status-warning-foreground",
 };
 
 const TIPO_ICON: Record<AchadoTipo, typeof Hash> = {
   dado_quantificavel: Hash,
+  relato_qualitativo: MessageCircle,
   alegacao_marketing: Megaphone,
 };
 

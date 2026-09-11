@@ -81,9 +81,14 @@ export async function gerarDiagnostico(
   opcoes?: GerarDiagnosticoOpcoes,
 ): Promise<GerarDiagnosticoResultado> {
   let ultimoErro: unknown;
-  const buscas: string[] = [];
 
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+    // Reset por tentativa (fix CR-02, 23-REVIEW.md): se ficasse fora do loop,
+    // uma 2ª tentativa bem-sucedida carregaria junto as buscas da 1ª
+    // tentativa descartada, corrompendo a coluna de auditoria
+    // diagnosticos.buscas (DIAGNOSTICO-10) e podendo disparar falso-positivo
+    // no gate MAX_USES do eval (scripts/eval-diagnostico.mjs).
+    const buscasTentativa: string[] = [];
     try {
       const res = await generateText({
         // ID = alias = snapshot pinado; NÃO existe forma datada claude-sonnet-5-YYYYMMDD.
@@ -127,7 +132,7 @@ export async function gerarDiagnostico(
               typeof chamada.input === "object" &&
               "query" in chamada.input
             ) {
-              buscas.push(
+              buscasTentativa.push(
                 String((chamada.input as { query: unknown }).query),
               );
             }
@@ -177,7 +182,7 @@ export async function gerarDiagnostico(
           inputTokens: res.usage.inputTokens ?? 0,
           outputTokens: res.usage.outputTokens ?? 0,
         },
-        buscas,
+        buscas: buscasTentativa,
         avisoCrossCheck,
       };
     } catch (err) {

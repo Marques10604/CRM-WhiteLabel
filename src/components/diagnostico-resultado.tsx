@@ -194,7 +194,10 @@ export function DiagnosticoResultado({
         </LinkExterno>
       </div>
 
-      {/* 8. Achados — distinção dado × alegação no 3º eixo (o texto) */}
+      {/* 8. Achados — distinção dado × relato × alegação no 3º eixo (o texto,
+             D-23-06): dado_quantificavel pleno, relato_qualitativo muted
+             sem itálico (real, mas não é medição de mercado), alegacao_marketing
+             itálico + muted (copy de venda, o mais de-enfatizado dos 3) */}
       <div className="flex flex-col gap-2">
         <BlocoTitulo>Achados</BlocoTitulo>
         {achados.map((a, i) => (
@@ -205,7 +208,9 @@ export function DiagnosticoResultado({
                 "text-sm",
                 a.tipo === "alegacao_marketing"
                   ? "italic text-muted-foreground"
-                  : "text-foreground",
+                  : a.tipo === "relato_qualitativo"
+                    ? "text-muted-foreground"
+                    : "text-foreground",
               )}
             >
               {a.afirmacao}
