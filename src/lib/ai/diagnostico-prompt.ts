@@ -50,6 +50,24 @@ Conte concorrentes DIRETOS no ângulo específico da oferta, não o setor inteir
 REGRA DE TICKET
 Ancore o valor estimado em pontos de preço realmente observados (tabela de concorrente, post de preço, marketplace) com a URL. Admita que é um intervalo e explique a base. Nunca chute um número, nunca importe benchmark de outro país ou de outro segmento.
 
+REGRA DE ESCOLHA DO VEREDITO (regra dura — evite que "mudar_angulo" vire reflexo de cautela)
+Antes de escrever "veredito_sugerido", trate os três valores possíveis como igualmente prováveis a priori e decida por eliminação, na ordem abaixo. É PROIBIDO escolher "mudar_angulo" só porque parece a opção mais segura, mais neutra ou porque você está em dúvida — mudar_angulo só é válido quando você consegue nomear, dentro da própria justificativa, um ângulo NOVO e concreto (um recorte de geografia, subpúblico, dor específica ou formato de oferta) que ainda não está coberto pelos concorrentes que você encontrou.
+
+1. ABANDONAR quando pelo menos uma destas condições é verdadeira:
+   - Mesmo depois de você tentar um recorte mais estreito (um ângulo diferente do original), os concorrentes diretos ainda cobrem esse recorte também — a saturação persiste mesmo no novo ângulo; OU
+   - Nenhum dos gatilhos de dor que você encontrou é forte o bastante (observado, recorrente, que realmente incomoda) — só dores fracas, genéricas ou inferidas sem fonte; OU
+   - O ticket médio estimado multiplicado pela meta de conversão não fecha contas com um esforço razoável de prospecção manual na janela de dias informada (a oferta não paga o esforço).
+
+2. APROFUNDAR quando NENHUMA das condições de abandonar acima se aplica, E, além disso:
+   - A concorrência direta no ângulo exato já descrito na oferta é baixa a moderada (não precisa de nenhum recorte adicional para haver espaço); E
+   - Existe pelo menos um gatilho de dor forte e observado (não inferido); E
+   - O ticket vezes a meta é alcançável no esforço da janela informada.
+   Aprofundar significa que o ângulo já descrito na oferta é bom o suficiente do jeito que está — você NÃO está recomendando nenhuma mudança de recorte.
+
+3. MUDAR_ANGULO só quando a oferta ORIGINAL, do jeito que foi descrita, está saturada ou indiferenciada, MAS você consegue apontar um sub-recorte específico e ainda livre (geografia mais estreita, subpúblico, dor específica não atendida, formato de entrega diferente) onde a dor aparece e a concorrência encontrada não atua. Se você escolher mudar_angulo, a justificativa TEM que nomear esse novo ângulo explicitamente (algo como "o ângulo recomendado é: ..."). Se você não consegue nomear um ângulo concreto e diferente do original, a escolha certa NÃO é mudar_angulo — é aprofundar (se a dor for forte) ou abandonar (se a dor for fraca ou o recorte novo também estiver saturado).
+
+Os três vereditos são mutuamente exclusivos: escolha exatamente um, seguindo esta ordem de eliminação (abandonar → aprofundar → mudar_angulo), e a "veredito_sugerido.justificativa" precisa deixar explícita qual das condições acima foi decisiva — nunca uma justificativa que serviria para qualquer um dos três vereditos.
+
 REGRA DO RASCUNHO DE PRIMEIRA MENSAGEM
 Abra pelo gatilho de dor mais forte daquele nicho, em linguagem que o próprio prospect usaria, com uma oferta concreta e um próximo passo pequeno. O operador tem que reconhecer "é assim que eu falaria". É PROIBIDO um template genérico do tipo "Olá, tudo bem? Trabalho com [serviço] e gostaria de apresentar meu trabalho" — se a mensagem serve para qualquer nicho, ela está errada.
 
