@@ -366,7 +366,50 @@ Nota: `audit-open` também sinalizou 12 quick_tasks como "missing" — falso pos
 
 ## Session Continuity
 
-### ▶ COMEÇA AQUI (próxima sessão) — FASE 23 ONDA 3 (23-04) EM EXECUÇÃO, BLOQUEADA NA TASK 3 POR SALDO ANTHROPIC (2026-09-10)
+### ▶ COMEÇA AQUI (próxima sessão) — FIM DE DIA 2026-09-10, TUDO SALVO E COMMITADO
+
+**Resumo do dia:** a sessão de 2026-09-10 rodou a Fase 23 (parcialmente), fez uma
+revisão de UI/UX do CRM inteiro e aplicou os itens seguros dela. Nada pendente
+sem commit — `git status` limpo (só `.claude/` untracked, pré-existente).
+
+**Fase 23 — 5/7 planos com SUMMARY (23-01, 02, 03, 05, 07).** Parada, não travada:
+- **23-04 Task 3 (spike do modelo Sonnet 5)** e **23-06 (eval gold-set)** são os
+  2 planos que faltam — **ambos bloqueados em saldo de créditos zerado na conta
+  Anthropic** (não é bug, não é código). Ver o bloco "BLOQUEIO ATIVO" logo abaixo
+  para o detalhe técnico (workspace-scoping já resolvido; só falta saldo).
+- **Pra retomar:** Console da Anthropic → Plans & Billing → comprar ~US$5 de
+  crédito (workspace `wrkspc_01DV6kbx2RESjCE4BLEobsTv`) → `/gsd-execute-phase 23`
+  retoma sozinho (spike → eval → verificação da fase).
+
+**Fora da fase 23, também hoje (paralelo, direto na `main`):**
+- Documento de contexto completo dos 2 projetos (CRM + Prospector Inteligente
+  AI) entregue ao usuário: `C:\Users\Vencedor\Desktop\CONTEXTO-PROJETOS-crm-e-prospector.md`.
+- Ideia capturada: `.planning/todos/pending/2026-09-10-angulo-de-oferta-recomendado-no-diagnostico.md`
+  (IA recomendar um ângulo de oferta pro nicho, não só analisar viabilidade — fase futura).
+- **Revisão de UI/UX completa do CRM** com a skill `ui-ux-pro-max` (terminal,
+  não artifact). Resultado: 6 correções seguras aplicadas + 4 itens maiores no
+  backlog:
+  - **Quick `260910-p6x`** (commits `8e9f39e`/`4f242c7`/`53ff179`): reduced-motion
+    global, skip-link, tabular-nums em `/relatorios`, `mode:"onBlur"` nos forms,
+    stepper + skeleton no wizard de import CSV.
+  - **Quick `260910-qnb`** (commit `29d75ca`): sidebar do CRM esticando até o
+    fim da janela (`sticky top-0 h-dvh`) — corrige o "sidebar cortado" que o
+    usuário mostrou por screenshot — e marca "SOLO" com mais presença (logo
+    40px + nome 20px bold na cor do texto).
+  - **Backlog** (`.planning/todos/pending/2026-09-10-review-uiux-0{2,3,5,6}-*.md`):
+    KeyboardSensor no drag do pipeline, desaninhar elementos interativos
+    (dashboard/pipeline/tarefa cards), varredura de `text-[..px]` → escala,
+    gráfico no `/relatorios`. Nenhum tem crédito de API envolvido — só cuidado
+    de engenharia (código com UAT, ou feature nova).
+
+**Host de 4GB:** o `next dev` foi derrubado 3× por falta de memória durante a
+sessão (Brave com muitas abas + a sessão do Claude Code competindo por RAM).
+Não fica nenhum processo `node` órfão pendurado de propósito — se sobrou algum,
+é seguro matar (`taskkill /F /IM node.exe`) antes de começar amanhã.
+
+---
+
+### ▶ Bloco anterior (ainda válido para o detalhe técnico do bloqueio 23-04) — FASE 23 ONDA 3 (23-04) EM EXECUÇÃO, BLOQUEADA NA TASK 3 POR SALDO ANTHROPIC (2026-09-10)
 
 **BLOQUEIO ATIVO (23-04 Task 3 — spike do modelo) — 2ª iteração (2026-09-10):** a
 chave AGORA é workspace-scoped (resposta trouxe `anthropic-workspace-id:
