@@ -11,13 +11,13 @@ import { motivoPerdaSchema } from "@/lib/validations";
  * `src/actions/nicho-actions.ts` (mesma tabela `id`/`nome`/`deletedAt`,
  * mesmo par de índices, mesma reativação-por-nome).
  *
- * DIVERGÊNCIA DELIBERADA do molde `createNicho`: aqui o `ActionState` de
- * sucesso carrega `id`. `createNicho` devolve só `{ success: true }` porque
- * o `NichoCombobox` recebe a lista pronta por prop; `createMotivoPerda` é
- * chamado de DENTRO do combobox criável (D-03, plano 11-03) para
- * criar-e-já-selecionar, então precisa do id inserido/reativado. As três
- * funções devolvem o mesmo shape homogêneo (`renameMotivoPerda` e
- * `softDeleteMotivoPerda` ecoam o id recebido).
+ * `ActionState` de sucesso carrega `id` em ambos os arquivos (D-03 aqui,
+ * D-04 do quick 260912-n5w em `nicho-actions.ts`): `createMotivoPerda` é
+ * chamado de DENTRO do combobox criável (plano 11-03) para
+ * criar-e-já-selecionar, e `createNicho` passou pelo mesmo tratamento para
+ * habilitar a criação-na-hora de nicho no modal de campanha. As três funções
+ * de cada arquivo devolvem o mesmo shape homogêneo (`rename*`/`softDelete*`
+ * ecoam o id recebido).
  */
 type ActionState =
   | { success: true; id: number }

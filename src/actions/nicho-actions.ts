@@ -6,10 +6,29 @@ import { db } from "@/db/client";
 import { nichos } from "@/db/schema";
 import { nichoSchema } from "@/lib/validations";
 
+/**
+ * CRUD governado de nicho (NICHO-01/02) — molde-fonte de
+ * `src/actions/motivo-perda-actions.ts` (mesma tabela `id`/`nome`/`deletedAt`,
+ * mesmo par de índices, mesma reativação-por-nome).
+ *
+ * `ActionState` de sucesso carrega `id` (D-04, quick 260912-n5w): o
+ * `NichoCombobox` criável (D-01) precisa do id para já selecionar o nicho
+ * recém-criado/reativado sem sair do modal de campanha, mesmo idioma já
+ * implementado para `createMotivoPerda`/plano 11-03.
+ */
 type ActionState =
-  | { success: true }
+  | { success: true; id: number }
   | { errors: { nome: string[] } }
   | undefined;
+
+function revalidateNichoRoutes() {
+  revalidatePath("/nichos");
+  revalidatePath("/");
+  revalidatePath("/leads");
+  revalidatePath("/pipeline");
+  revalidatePath("/importar");
+  revalidatePath("/campanhas");
+}
 
 export async function createNicho(
   _prevState: ActionState,
@@ -32,26 +51,26 @@ export async function createNicho(
     // o nome com a grafia recém-digitada).
     if (existing[0].deletedAt !== null) {
       await db.update(nichos).set({ deletedAt: null, nome }).where(eq(nichos.id, existing[0].id));
-      revalidatePath("/nichos");
-      revalidatePath("/");
-      revalidatePath("/leads");
-      revalidatePath("/pipeline");
-      revalidatePath("/importar");
-      return { success: true };
+      revalidateNichoRoutes();
+      return { success: true, id: existing[0].id };
     }
     return { errors: { nome: ["Esse nicho já existe."] } };
   }
 
+  let insertedId: number;
   try {
-    await db.insert(nichos).values({ nome });
+    const [row] = await db
+      .insert(nichos)
+      .values({ nome })
+      .returning({ id: nichos.id });
+    insertedId = row.id;
   } catch {
     // rede de segurança: violação do uniqueIndex (race de duplo-clique)
     return { errors: { nome: ["Esse nicho já existe."] } };
   }
 
-  revalidatePath("/nichos");
-  revalidatePath("/");
-  return { success: true };
+  revalidateNichoRoutes();
+  return { success: true, id: insertedId };
 }
 
 /**
@@ -74,12 +93,8 @@ export async function softDeleteNicho(nichoId: number): Promise<ActionState> {
     .set({ deletedAt: sql`(unixepoch())` })
     .where(and(eq(nichos.id, nichoId), isNull(nichos.deletedAt)));
 
-  revalidatePath("/nichos");
-  revalidatePath("/");
-  revalidatePath("/leads");
-  revalidatePath("/pipeline");
-  revalidatePath("/importar");
-  return { success: true };
+  revalidateNichoRoutes();
+  return { success: true, id: nichoId };
 }
 
 export async function renameNicho(
@@ -112,7 +127,6 @@ export async function renameNicho(
     return { errors: { nome: ["Esse nicho já existe."] } };
   }
 
-  revalidatePath("/nichos");
-  revalidatePath("/");
-  return { success: true };
+  revalidateNichoRoutes();
+  return { success: true, id };
 }

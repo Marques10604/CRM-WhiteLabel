@@ -10,7 +10,7 @@ import { DeleteNichoDialog } from "@/components/delete-nicho-dialog";
 import type { Nicho } from "@/types";
 
 type ActionState =
-  | { success: true }
+  | { success: true; id: number }
   | { errors: { nome: string[] } }
   | undefined;
 
