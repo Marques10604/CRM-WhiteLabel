@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: executing
-last_updated: "2026-09-12T02:24:47.440Z"
+status: verifying
+last_updated: "2026-09-12T02:36:33.082Z"
 last_activity: 2026-09-12
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 14
-  completed_plans: 13
-  percent: 50
+  completed_plans: 14
+  percent: 75
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 Phase: 24 (Veredito e Mapa de Nichos) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 ### Feito e commitado
 
@@ -160,6 +160,7 @@ Last activity: 2026-09-12
 | Phase 24 P01 | 25min | 3 tasks | 6 files |
 | Phase 24 P02 | 30min | 3 tasks | 4 files |
 | Phase 24 P03 | 20min | 3 tasks | 4 files |
+| Phase 24 P04 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -281,6 +282,7 @@ Recent decisions affecting current work:
 - [Phase 23-06]: D-23-06: schema de achado passa de 2 para 3 categorias (dado_quantificavel/relato_qualitativo/alegacao_marketing) com campo evidencia em gatilhos_dor amarrando forca do gatilho a confiabilidade real da fonte — 2 rodadas de reforco de prompt nao resolveram a nao-discriminacao dos 3 gold do eval; causa raiz era dicotomia falsa no schema; rodada 3 pos-fix produziu os 3 vereditos discriminados entre si
 - [Phase 23-review]: CR-01/CR-02 do code review da fase (23-REVIEW.md) corrigidos sem custo de API: AchadoTipoBadge sincronizado com o enum de 3 categorias (D-23-06); buscas resetado por tentativa em gerarDiagnostico() — code review achou o unico erro de tsc do repo (crash real em /campanhas/[id]) e uma corrupcao de trilha de auditoria; ambos bugs puros sem ambiguidade, fix commit b233f80
 - [Phase 23-review]: Fase 23 fechada definitivamente: variancia de veredito entre execucoes identicas aceita como comportamento esperado do sistema (nao bug); sufixo espurio de 1-3 caracteres em URLs do cross-check registrado como divida tecnica real nao resolvida — rodadas 4 e 5 do eval (mesmo codigo, sem mudanca) nao bateram veredito em nenhum dos 3 gold, confirmando variancia real; instrumentacao nova revelou que a maioria dos mismatches de URL e URL real com sufixo espurio, nao alucinacao de conteudo; sem credito de API para investigar mais fundo nesta sessao
+- [Phase 24-04]: D-24-06/D-24-11/D-24-05/D-24-07 seguidas a risca no Mapa de Nichos (filtro/ordenacao client-side, filtro sem_veredito, VereditoSugeridoChip reusado, zero pacote novo)
 
 ### Pending Todos
 
@@ -813,7 +815,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-12T02:24:47.399Z
+Last session: 2026-09-12T02:36:32.904Z
 
 **O que foi feito nesta sessão:**
 

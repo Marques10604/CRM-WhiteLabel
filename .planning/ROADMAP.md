@@ -105,7 +105,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 
 - [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (22-01/22-02/22-03 shipados; CAMPANHA-03 / SC3 fechado pelo plano 22-03; 22-03-REVIEW fechado em b9a2c44; re-verificação passou 4/4) (completed 2026-09-05)
 - [x] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido (completed 2026-09-11)
-- [ ] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos
+- [x] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos (completed 2026-09-12)
 - [ ] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente
 
 #### Phase 22: Campanha de Exploração de Nicho
@@ -177,7 +177,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 
 **Onda 2** *(bloqueada na Onda 1)*:
 - [x] 24-03-PLAN.md — Painel de resultado real e seção de veredito em `/campanhas/[id]` (VEREDITO-01/02, PAINEL-01)
-- [ ] 24-04-PLAN.md — Tela `/mapa-de-nichos` com filtros/ordenação por veredito e nicho + item na barra lateral (PAINEL-02/03)
+- [x] 24-04-PLAN.md — Tela `/mapa-de-nichos` com filtros/ordenação por veredito e nicho + item na barra lateral (PAINEL-02/03)
 
 **Cross-cutting constraints** (aparecem em 2+ planos):
 - Zero `npm install` e zero primitivo shadcn novo na fase inteira (D-24-07, host de 4GB)
