@@ -39,9 +39,9 @@ mercado 2026 (Build-Measure-Learn, market-entry scoring, problem tiers).
 
 ### VEREDITO — Decisão do usuário
 
-- [ ] **VEREDITO-01**: O usuário registra o veredito final da campanha (aprofundar / mudar ângulo / abandonar) manualmente, podendo divergir da sugestão da IA.
-- [ ] **VEREDITO-02**: O veredito registrado grava a data da decisão.
-- [ ] **VEREDITO-03**: Registrar o veredito não dispara nenhuma ação automática no sistema (não arquiva leads, não altera outros dados) — é memória de decisão pro usuário consultar depois.
+- [x] **VEREDITO-01**: O usuário registra o veredito final da campanha (aprofundar / mudar ângulo / abandonar) manualmente, podendo divergir da sugestão da IA.
+- [x] **VEREDITO-02**: O veredito registrado grava a data da decisão.
+- [x] **VEREDITO-03**: Registrar o veredito não dispara nenhuma ação automática no sistema (não arquiva leads, não altera outros dados) — é memória de decisão pro usuário consultar depois.
 
 ### PAINEL — Loop de resultado real e Mapa de Nichos
 
@@ -112,9 +112,9 @@ Preenchida na criação do roadmap.
 | DIAGNOSTICO-08 | Phase 23 | Complete |
 | DIAGNOSTICO-09 | Phase 23 | Complete |
 | DIAGNOSTICO-10 | Phase 23 | Complete |
-| VEREDITO-01 | Phase 24 | Pending |
-| VEREDITO-02 | Phase 24 | Pending |
-| VEREDITO-03 | Phase 24 | Pending |
+| VEREDITO-01 | Phase 24 | Complete |
+| VEREDITO-02 | Phase 24 | Complete |
+| VEREDITO-03 | Phase 24 | Complete |
 | PAINEL-01 | Phase 24 | Pending |
 | PAINEL-02 | Phase 24 | Pending |
 | PAINEL-03 | Phase 24 | Pending |

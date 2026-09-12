@@ -172,7 +172,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 **Plans**: 4 planos em 2 ondas
 
 **Onda 1** (paralelizáveis, zero sobreposição de arquivos):
-- [ ] 24-01-PLAN.md — Colunas de veredito em `campanhas`, migração `.cjs` idempotente, Zod, Server Action `registrarVeredito` e gate de não-interferência (VEREDITO-01/02/03)
+- [x] 24-01-PLAN.md — Colunas de veredito em `campanhas`, migração `.cjs` idempotente, Zod, Server Action `registrarVeredito` e gate de não-interferência (VEREDITO-01/02/03)
 - [ ] 24-02-PLAN.md — Agregações por campanha em `src/db/queries.ts` (resultado real, motivos de perda reaproveitados de `/relatorios`, veredito da IA) + formatador de taxa compartilhado (PAINEL-01/02)
 
 **Onda 2** *(bloqueada na Onda 1)*:
