@@ -56,7 +56,7 @@ export async function buscarGlobal(termo: string): Promise<ResultadoBusca> {
         and(
           isNull(leads.deletedAt),
           or(
-            sql`lower(${leads.nome}) LIKE ${padrao} ESCAPE '\'`,
+            sql`lower(${leads.nome}) LIKE ${padrao} ESCAPE '\\'`,
             buscaPorTelefone
               ? sql`replace(replace(replace(replace(replace(${leads.telefone}, '(', ''), ')', ''), '-', ''), ' ', ''), '+', '') LIKE ${`%${digitos}%`}`
               : undefined
@@ -73,8 +73,8 @@ export async function buscarGlobal(termo: string): Promise<ResultadoBusca> {
         and(
           isNull(campanhas.deletedAt),
           or(
-            sql`lower(${nichos.nome}) LIKE ${padrao} ESCAPE '\'`,
-            sql`lower(${campanhas.oferta}) LIKE ${padrao} ESCAPE '\'`
+            sql`lower(${nichos.nome}) LIKE ${padrao} ESCAPE '\\'`,
+            sql`lower(${campanhas.oferta}) LIKE ${padrao} ESCAPE '\\'`
           )
         )
       )
@@ -83,7 +83,7 @@ export async function buscarGlobal(termo: string): Promise<ResultadoBusca> {
     db
       .select({ id: nichos.id, nome: nichos.nome })
       .from(nichos)
-      .where(and(isNull(nichos.deletedAt), sql`lower(${nichos.nome}) LIKE ${padrao} ESCAPE '\'`))
+      .where(and(isNull(nichos.deletedAt), sql`lower(${nichos.nome}) LIKE ${padrao} ESCAPE '\\'`))
       .orderBy(asc(nichos.nome))
       .limit(LIMITE_POR_GRUPO),
   ]);
