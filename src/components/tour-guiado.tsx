@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Joyride } from "react-joyride";
 import type { EventData } from "react-joyride";
 
@@ -41,14 +41,14 @@ export function TourGuiado() {
     if (!lerTourVisto(window.localStorage)) setRun(true);
   }, []);
 
-  if (!mounted) return null;
-
-  function handleEvent(data: EventData) {
+  const handleEvent = useCallback((data: EventData) => {
     if (deveGravarComoVisto(data.status)) {
       gravarTourVisto(window.localStorage);
       setRun(false);
     }
-  }
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <Joyride
@@ -76,6 +76,7 @@ export function TourGuiado() {
       }}
       styles={{
         tooltip: { borderRadius: 10, padding: 16 },
+        spotlight: { stroke: "var(--ring)", strokeWidth: 2 },
       }}
     />
   );

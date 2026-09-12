@@ -37,17 +37,44 @@ export function deveGravarComoVisto(status: string): boolean {
   return status === "finished" || status === "skipped";
 }
 
-/** Lê a flag "já viu o tour". Ausência da chave (ou storage vazio) = `false`. */
+/**
+ * Lê a flag "já viu o tour". Ausência da chave (ou storage vazio) = `false`.
+ *
+ * Acesso ao storage é protegido por `try/catch`: se o navegador bloquear
+ * `localStorage` (cota excedida, modo privado, política restritiva), o pior
+ * caso aceitável é o tour reaparecer — nunca uma exceção não tratada dentro
+ * do efeito de montagem de `TourGuiado` (WR-02 do 25-REVIEW.md).
+ */
 export function lerTourVisto(storage: Pick<Storage, "getItem">): boolean {
-  return storage.getItem(TOUR_STORAGE_KEY) !== null;
+  try {
+    return storage.getItem(TOUR_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
 }
 
-/** Grava a flag "já viu o tour" — sempre a string literal `"true"` (T-25-03). */
+/**
+ * Grava a flag "já viu o tour" — sempre a string literal `"true"` (T-25-03).
+ * Falha silenciosa em `try/catch` (WR-02): pior caso é o tour reaparecer.
+ */
 export function gravarTourVisto(storage: Pick<Storage, "setItem">): void {
-  storage.setItem(TOUR_STORAGE_KEY, "true");
+  try {
+    storage.setItem(TOUR_STORAGE_KEY, "true");
+  } catch {
+    // localStorage indisponível (cota/política do navegador) — sem efeito.
+  }
 }
 
-/** Remove a flag — usado pelo botão "Rever tour do CRM" em `/configuracoes` (TUTORIAL-03). */
+/**
+ * Remove a flag — usado pelo botão "Rever tour do CRM" em `/configuracoes`
+ * (TUTORIAL-03). Falha silenciosa em `try/catch` (WR-02): se o `removeItem`
+ * lançar, o botão simplesmente recarrega sem limpar, em vez de travar antes
+ * do `window.location.reload()` em `reiniciar-tour-button.tsx`.
+ */
 export function limparTourVisto(storage: Pick<Storage, "removeItem">): void {
-  storage.removeItem(TOUR_STORAGE_KEY);
+  try {
+    storage.removeItem(TOUR_STORAGE_KEY);
+  } catch {
+    // localStorage indisponível (cota/política do navegador) — sem efeito.
+  }
 }
