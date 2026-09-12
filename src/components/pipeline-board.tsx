@@ -71,6 +71,11 @@ const STAGE_LABEL_BY_VALUE = new Map(
  * updateLeadStage(id, "perdido", motivoPerdaId) })` — aí o card move (otimista)
  * e persiste numa transição normal. "Cancelar" apenas descarta o item da fila:
  * o card nunca chegou a mover, então não há nada a reverter.
+ *
+ * `id="pipeline-board"` no `DndContext` é obrigatório e literal: estabiliza o
+ * `aria-describedby` gerado pelo dnd-kit entre SSR e hidratação; trocá-lo por
+ * um valor gerado em runtime (useId, contador, etc.) reintroduz o warning de
+ * hidratação.
  */
 export function PipelineBoard({
   leads,
@@ -217,7 +222,7 @@ export function PipelineBoard({
         </Button>
       </div>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext id="pipeline-board" sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="flex gap-3 overflow-x-auto pb-8">
           {STAGE_OPTIONS.map((option) => {
             const columnLeads = leadsByStage.get(option.value) ?? [];
