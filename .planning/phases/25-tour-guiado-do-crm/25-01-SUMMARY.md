@@ -126,6 +126,16 @@ None — nenhuma configuração de serviço externo. A única ação humana nece
 - `deveGravarComoVisto`/`lerTourVisto`/`gravarTourVisto`/`limparTourVisto` prontos para o 25-02 injetar `window.localStorage` real, sempre depois do guard `mounted` (nenhuma chamada deve acontecer durante SSR).
 - Nenhum bloqueio conhecido para o plano 25-02.
 
+## Self-Check: PASSED
+
+- FOUND: `src/lib/tour-steps.ts`
+- FOUND: `src/lib/tour-persistence.ts`
+- FOUND: `scripts/test-tour-persistence.cjs`
+- FOUND: `.planning/phases/25-tour-guiado-do-crm/25-01-SUMMARY.md`
+- FOUND commit: `38ddcdb`
+- FOUND commit: `c07e80f`
+- FOUND commit: `1b68671`
+
 ---
 *Phase: 25-tour-guiado-do-crm*
 *Completed: 2026-09-12*
