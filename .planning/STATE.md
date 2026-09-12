@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: none
 milestone_name: null
 status: milestone_complete
-last_updated: "2026-09-12T18:45:00.000Z"
-last_activity: 2026-09-12
+last_updated: "2026-09-12T20:15:00.000Z"
+last_activity: 2026-09-12 - Completed quick task 260912-n5w: Adicionar criação de nicho inline no formulário de campanha
 progress:
   total_phases: 0
   completed_phases: 0
@@ -20,11 +20,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-12)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Nenhum milestone em andamento — v1.7 shipado (2026-09-12). Próximo via `/gsd-new-milestone`.
+**Current focus:** Nenhum milestone em andamento — v1.7 shipado (2026-09-12). Rodando quick tasks avulsas (fila: sidebar reorganizado, surfacing de timeline/veredito, temperatura de lead, busca global). Próximo milestone via `/gsd-new-milestone`.
 
 ## Current Position
 
-Milestone v1.7 (Fases 22-25) fechado e arquivado. Nenhuma fase em andamento.
+Milestone v1.7 (Fases 22-25) fechado e arquivado. Nenhuma fase em andamento — quick tasks avulsas em execução.
 
 ### Feito e commitado
 
@@ -343,6 +343,7 @@ Aberto, carregado para o v1.3:
 | 260721-0cl | Adicionar texto de ajuda/descrição abaixo do label de cada campo do formulário de lead | 2026-07-21 | 689b168 | [260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo](./quick/260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo/) |
 | 260725-219 | Implementar no sidebar real (app-sidebar.tsx) as decisões dos sketches 001/004: brand header selo discreto, rótulo "Principal", ícones lucide, espaçamento e fundo teal suave no item ativo | 2026-07-25 | abaaba7 | [260725-219-implementar-no-sidebar-real-do-app-src-c](./quick/260725-219-implementar-no-sidebar-real-do-app-src-c/) |
 | 260725-gzb | Implementar na lista real de leads (/leads) as decisões dos sketches 002/003: linhas híbridas em flex + botão WhatsApp nomeado | 2026-07-25 | 7deff3b | [260725-gzb-implementar-na-tela-real-de-leads-lead-t](./quick/260725-gzb-implementar-na-tela-real-de-leads-lead-t/) |
+| 260912-n5w | Adicionar criação de nicho inline no formulário de campanha (CampanhaFormDialog / NichoCombobox), sem precisar sair pra /nichos primeiro | 2026-09-12 | 6fd97c0 | [260912-n5w-adicionar-cria-o-de-nicho-inline-no-form](./quick/260912-n5w-adicionar-cria-o-de-nicho-inline-no-form/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 | 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
