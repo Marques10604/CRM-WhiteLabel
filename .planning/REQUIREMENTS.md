@@ -58,7 +58,7 @@ installs/semana, integra nativo com React 19, botão de pular já vem pronto —
 - [ ] **TUTORIAL-01**: Na primeira visita, o usuário vê um tour guiado apresentando as telas principais do CRM (dashboard, leads, pipeline, relatórios, campanhas de nicho) e o que cada uma faz.
 - [ ] **TUTORIAL-02**: O tour pode ser pulado/fechado a qualquer passo, sem forçar o usuário a terminar.
 - [ ] **TUTORIAL-03**: O usuário pode reiniciar o tour quando quiser (não só na 1ª visita) por um ponto de acesso fixo (ex: menu ou tela de configurações).
-- [ ] **TUTORIAL-04**: A implementação usa React Joyride — nenhuma biblioteca de tour concorrente, nenhum servidor/SaaS externo de onboarding.
+- [x] **TUTORIAL-04**: A implementação usa React Joyride — nenhuma biblioteca de tour concorrente, nenhum servidor/SaaS externo de onboarding.
 - [ ] **TUTORIAL-05**: O estado "já viu o tour" persiste (não reaparece sozinho a cada acesso) mas fica sempre disponível pra reativar manualmente (TUTORIAL-03).
 
 ## Future Requirements
@@ -121,7 +121,7 @@ Preenchida na criação do roadmap.
 | TUTORIAL-01 | Phase 25 | Pending |
 | TUTORIAL-02 | Phase 25 | Pending |
 | TUTORIAL-03 | Phase 25 | Pending |
-| TUTORIAL-04 | Phase 25 | Pending |
+| TUTORIAL-04 | Phase 25 | Complete |
 | TUTORIAL-05 | Phase 25 | Pending |
 
 **Coverage:**

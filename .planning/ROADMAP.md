@@ -198,7 +198,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 **Plans**: 2 planos em 2 ondas
 
 **Onda 1:**
-- [ ] 25-01-PLAN.md — Fundação: install pinado do react-joyride, confirmação da API v3 contra o `.d.ts`, os 5 passos e a persistência pura + harness *(checkpoint humano: legitimidade do pacote antes do `npm i`)*
+- [x] 25-01-PLAN.md — Fundação: install pinado do react-joyride, confirmação da API v3 contra o `.d.ts`, os 5 passos e a persistência pura + harness *(checkpoint humano: legitimidade do pacote antes do `npm i`)*
 
 **Onda 2** *(bloqueada na Onda 1):*
 - [ ] 25-02-PLAN.md — UI do tour: `TourGuiado` no layout raiz, alvos `data-tour` na sidebar e botão "Rever tour do CRM" em `/configuracoes`
