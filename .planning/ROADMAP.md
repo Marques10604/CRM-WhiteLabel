@@ -195,7 +195,14 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
   2. O tour pode ser pulado/fechado a qualquer passo, sem forçar o usuário a terminar
   3. O usuário reinicia o tour quando quiser (não só na 1ª visita) por um ponto de acesso fixo (menu ou configurações)
   4. O estado "já viu o tour" persiste entre acessos (não reaparece sozinho), mas continua sempre disponível pra reativação manual
-**Plans**: TBD
+**Plans**: 2 planos em 2 ondas
+
+**Onda 1:**
+- [ ] 25-01-PLAN.md — Fundação: install pinado do react-joyride, confirmação da API v3 contra o `.d.ts`, os 5 passos e a persistência pura + harness *(checkpoint humano: legitimidade do pacote antes do `npm i`)*
+
+**Onda 2** *(bloqueada na Onda 1):*
+- [ ] 25-02-PLAN.md — UI do tour: `TourGuiado` no layout raiz, alvos `data-tour` na sidebar e botão "Rever tour do CRM" em `/configuracoes`
+
 **UI hint**: yes
 **Nota**: TUTORIAL-04 (usar React Joyride, nenhuma lib concorrente nem SaaS externo) é uma restrição de implementação verificável em code review/plan-check, não um comportamento observável adicional — coberta pela escolha de biblioteca no plano, não por um 5º critério de sucesso.
 
