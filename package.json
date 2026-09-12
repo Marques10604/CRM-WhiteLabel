@@ -33,6 +33,7 @@
     "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs",
     "test:lead-csv-export": "node scripts/test-lead-csv-export.cjs",
+    "test:busca-global": "node scripts/test-busca-global.cjs",
     "test:lead-temperatura": "node scripts/test-lead-temperatura.cjs",
     "test:veredito-actions": "node scripts/test-veredito-actions.cjs",
     "test:tour-persistence": "node scripts/test-tour-persistence.cjs"
@@ -48,6 +49,7 @@
     "better-sqlite3": "^12.11.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "1.1.1",
     "date-fns": "^4.4.0",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.25.0",
