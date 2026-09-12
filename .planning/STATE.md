@@ -948,6 +948,37 @@ Sessão de planejamento de 6 novas tarefas a partir do arquivo de ideias (`C:\Us
 
 02-02-PLAN.md is FULLY COMPLETE (Tasks 1-3: gate satisfied, `33e5715`, `dd690ed`, docs `016ced7`).
 
+## Deferred Items
+
+Itens reconhecidos e deferidos no fechamento do milestone v1.7 em 2026-09-12 (auditoria `gsd-sdk query audit-open`, 26 itens, nenhum bloqueia o v1.7 em si — a maioria é débito pré-existente de julho/agosto, anterior ao início do v1.7 em 2026-09-04):
+
+| Categoria | Item | Status |
+|-----------|------|--------|
+| verification_gap | Fase 23 (`23-VERIFICATION.md`) | human_needed — UAT visual de diagnóstico de IA pendente (falta crédito de API) |
+| verification_gap | Fase 25 (`25-VERIFICATION.md`) | human_needed — UAT visual do tour guiado pendente (sem navegador na sessão) |
+| quick_task | 260720-x41-corrigir-dialog-modal-de-preenchimento-n | missing |
+| quick_task | 260721-0cl-adicionar-texto-de-ajuda-descri-o-abaixo | missing |
+| quick_task | 260725-219-implementar-no-sidebar-real-do-app-src-c | missing |
+| quick_task | 260725-gzb-implementar-na-tela-real-de-leads-lead-t | missing |
+| quick_task | 260725-lai-adicionar-botao-de-remocao-soft-delete-d | missing |
+| quick_task | 260801-ij4-corrigir-configuracoes-form-tsx-adiciona | missing |
+| quick_task | 260807-uit-corrigir-os-3-warnings-do-code-review-da | missing |
+| quick_task | 260808-h5i-corrigir-warning-react-19-useactionstate | missing |
+| quick_task | 260811-pb1-corrigir-wr-01-race-condition-em-registe | missing |
+| quick_task | 260811-ro5-corrigir-in-01-guard-de-in-flight-no-bot | missing |
+| quick_task | 260828-flg-corrigir-rotulo-do-seletor-de-periodo | missing |
+| quick_task | 260828-gna-corrigir-deadlock-drag-perdido | missing |
+| quick_task | 260910-p6x-corre-es-seguras-da-revis-o-ui-ux-pro-ma | missing |
+| quick_task | 260910-qnb-sidebar-do-crm-esticar-ate-a-altura-tota | missing |
+| todo | 2026-07-21-sequencia-follow-up-escalonada.md | pending |
+| todo | 2026-08-01-agenda-e-tarefas-soltas.md | pending (ALTO VALOR) |
+| todo | 2026-08-01-anexo-simples-por-lead.md | pending |
+| todo | 2026-08-01-busca-global.md | pending |
+| todo | 2026-08-01-campo-de-vendedor-respons-vel-no-banco.md | pending |
+| todo | (+13 outros todos pendentes, ver `gsd-sdk query audit-open` para lista completa) | pending |
+| seed | SEED-001-roadmap-p-s-cliente-pagante | dormant |
+| seed | SEED-002-infra-white-label | dormant |
+
 ## Operator Next Steps
 
 - Start the next milestone with /gsd-new-milestone

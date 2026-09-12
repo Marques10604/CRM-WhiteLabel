@@ -1,58 +1,20 @@
 # CRM de Leads
 
-## Current Milestone: v1.7 Exploração de Nicho
+## Current Milestone
 
-**Goal:** Dar ao CRM o objeto de 1ª classe que é o diferencial real do produto — a **campanha de
-exploração de nicho** com diagnóstico de IA, veredito e loop de resultado real — sem WhatsApp,
-sem VPS, sem infra nova. É o primeiro degrau concreto rumo à visão de longo prazo do usuário
-("Prospector embutido no CRM"), materializado de um jeito seguro (nenhum disparo automático,
-nenhuma exposição de LGPD/ban).
-
-**Contexto da decisão (2026-09-04):** a direção de longo prazo do usuário é fundir Prospector +
-CRM. Antes de escopar, escrevi `.planning/DIRECAO-v1.7-2026-09-04.md` (parecer + pesquisa na
-internet) respondendo dúvidas sobre diferencial real, parceria com a Meta (não libera cold),
-concorrentes que vendem "2 em 1", e as áreas cinzentas de fundir os produtos (apaga o firewall
-legal do Prospector). Rodamos 3 "Briefings de Nicho" ao vivo na conversa (costureira, motoboy,
-estética, usando WebSearch real) como MVP conversacional — discriminou de verdade (mudar
-ângulo / aprofundar / abandonar, um veredito diferente por nicho) e validou a estrutura contra
-frameworks de mercado de 2026 (Build-Measure-Learn, market-entry scoring). O usuário escolheu o
-**Caminho A** dos 3 propostos: construir o objeto "nicho/campanha" dentro do CRM atual.
-
-**Target features:**
-- **Campanha de exploração de nicho** — nicho (lista existente) + oferta (o que pretende vender,
-  obrigatório) + janela de tempo (~90 dias) + meta de conversão. Leads podem se vincular a uma
-  campanha (além do nicho geral).
-- **Diagnóstico de IA sob demanda** (botão, sempre fresco por campanha, nunca reusado do nicho) —
-  índice de saturação numérico (conta concorrentes achados), até 3 gatilhos de dor (o mais forte
-  marcado), 2-3 objeções + resposta, ticket médio com fonte, cada achado marcado como dado
-  quantificável vs. alegação de marketing do concorrente, rascunho de 1ª mensagem editável.
-  Exige fontes citadas — sem fonte, rejeitado (mesmo padrão anti-genérico do Prospector).
-- **Veredito é do usuário, não da IA** — a IA sugere (aprofundar/mudar ângulo/abandonar), o
-  usuário registra o veredito final (pode divergir), com data.
-- **Loop de resultado real** — o painel da campanha agrega os leads vinculados a ela (contagem,
-  conversão, motivos de perda, ticket médio), reaproveitando as funções já existentes de
-  `/relatorios`.
-- **Mapa de Nichos** — tela nova listando todas as campanhas já criadas: nicho, veredito da IA,
-  veredito final, resultado real. A régua pessoal do usuário, mesmo sozinho, crescendo com o tempo.
-
-**Key context:** puxa integração de IA de verdade (modelo com busca na web) — não é feature de
-CRM comum, vai precisar de escolha de framework + estratégia de avaliação (evitar saída
-genérica, mesmo risco que o próprio research do Prospector já mapeou pra essa ideia). Prospector
-Inteligente AI segue como **semente parada** (pasta própria, parecer em
-`PARECER-E-COORDENADAS-2026-09-04.md`).
-
-**Último milestone shipado:** v1.6 Dark Mode + Exportar CSV — 2026-09-04 (Fases 20-21).
-
-Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por
-lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03).
+Nenhum em andamento — v1.7 acabou de ser shipado (2026-09-12). Próximo milestone a definir via `/gsd-new-milestone`.
 
 ## Current State
 
-**Shipado:** v1.6 Dark Mode + Exportar CSV (2026-09-04) — Fases 20-21, 2 planos, 25 commits, ~1 dia. Push direto para `main` (sem PR — projeto solo). Tag `v1.6`.
+**Shipado:** v1.7 Exploração de Nicho (2026-09-12) — Fases 22-25, 16 planos, 130 commits, 8 dias (2026-09-05 → 09-12). Push direto para `main` (sem PR — projeto solo). Tag `v1.7`.
 
-**O que o v1.6 entregou (milestone pequeno de propósito — 2 utilitários que faltavam):**
-- **Toggle de dark mode** (Fase 20) — switch sol/lua no rodapé da sidebar, visível em toda tela, persiste (localStorage via `next-themes`), 1º acesso segue o SO, sem flash de cor errada (`suppressHydrationWarning` + script pré-paint). Os tokens `.dark` já vinham prontos e verificados WCAG AA 30/30 da Fase 19 — D-16 daquela fase foi suspensa. Bônus: o `sonner` (toast) já chamava `useTheme()` e passou a respeitar o tema.
-- **Exportar CSV da lista de leads** (Fase 21) — botão "Exportar CSV" na toolbar de `/leads` que baixa `table.getSortedRowModel().rows` (= todas as linhas filtradas + ordenadas, todas as páginas). Módulo puro `src/lib/lead-csv-export.ts` (BOM UTF-8 + delimitador `;` pro Excel pt-BR, guard de CSV injection prefixando `'`, colunas legíveis: nicho/motivo por nome, valor em reais, datas `dd/MM/yyyy`). 100% client-side — nenhuma API route nova (o CRM continua "só Server Actions"). Harness `.cjs` com 38 asserções + 2 testes de mutação.
+**O que o v1.7 entregou (1º degrau rumo a "Prospector embutido no CRM", sem WhatsApp/VPS/disparo):**
+- **Campanha de exploração de nicho** (Fase 22) — entidade própria: nicho + oferta + janela (~90d) + meta de conversão + estado; leads podem se vincular a uma campanha além do nicho geral; `/campanhas` lista, `/campanhas/[id]` é a âncora que as fases seguintes enriquecem.
+- **Diagnóstico de IA sob demanda** (Fase 23, 1ª integração de IA do projeto) — Vercel AI SDK + Claude Sonnet 5 com web search real, schema anti-genérico (saturação numérica, até 3 gatilhos de dor, 2-3 objeções, ticket médio com fonte, achados marcados dado/relato/alegação de marketing em 3 categorias, rascunho de 1ª mensagem editável, veredito sugerido não vinculante), gate de zero-fontes, sem cache, custo sempre visível. Eval on-demand com gold-set de 3 nichos.
+- **Veredito do usuário + loop de resultado real** (Fase 24) — o operador registra a decisão final (pode divergir da IA), painel da campanha agrega os leads vinculados dela (contagem, conversão, motivos de perda, ticket médio) reaproveitando `/relatorios`, e a tela nova `/mapa-de-nichos` consolida todas as campanhas com filtro/ordenação.
+- **Tour guiado do CRM** (Fase 25) — React Joyride ancorado na sidebar (zero navegação real entre passos), 5 telas explicadas, pulável a qualquer momento, reiniciável em `/configuracoes`, persistência via `localStorage`.
+- Código: ~15.700 linhas TS/TSX em `src/` (+~3.900 desde o v1.6), 15 rotas.
+- Pendências não-bloqueantes: UAT visual no navegador das Fases 23/24/25 (host sem browser disponível nas sessões de verificação — mesmo padrão desde a Fase 18); geração real de diagnóstico ainda não vista rodando por um humano (falta de crédito de API na sessão); 26 itens de débito pré-existente reconhecidos e deferidos em `STATE.md` no fechamento (a maioria de julho/agosto, anterior ao v1.7).
 
 **Próximo milestone:** a definir via `/gsd-new-milestone`.
 
@@ -65,6 +27,7 @@ lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03)
 - **v1.3 Qualificação e Histórico de Leads** (2026-08-30, Fases 8-12) — origem governada, timeline de interações, sequência de follow-up escalonada, painel `/relatorios`, agenda / tarefas soltas.
 - **v1.4 CRM Genérico Multi-Nicho — despivô** (2026-08-31, Fases 13-15) — `sub-nicho → nicho` em toda a camada de código (nomes físicos do banco intocados, D-01), copy da UI neutralizada, filtro de intervalo customizado em `/relatorios`, campo "interesse / serviço desejado" no lead.
 - **v1.5 Quitação de Débito e Auditoria Retroativa** (2026-09-03, Fases 16-19) — code review da Fase 15 fechado, `npm run lint` da raiz → 0, Fases 1/2/4/6/8 auditadas por code+data, marca "SOLO" + paleta OKLCH + favicon.
+- **v1.6 Dark Mode + Exportar CSV** (2026-09-04, Fases 20-21) — toggle claro/escuro persistido, exportar `/leads` pra CSV 100% client-side.
 
 </details>
 
@@ -110,12 +73,17 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 - ✓ Comportamento shipado das Fases 1/2/4/6/8 verificado (método code+data); `npm run lint` da raiz volta a exit 0 — v1.5 (Fases 17-18), AUDIT-01..05 / LINT-01
 - ✓ Toggle de dark mode (claro / escuro / segue o sistema) no rodapé da sidebar, persistido em `localStorage`, sem flash de cor errada no carregamento — v1.6 (Fase 20), THEME-01..04
 - ✓ Exportar a lista de leads (filtrada + ordenada) para CSV legível — botão na toolbar de `/leads`, geração client-side, BOM UTF-8 + `;` para Excel pt-BR, nicho e motivo de perda por nome — v1.6 (Fase 21), EXPORT-01..03
+- ✓ Campanha de exploração de nicho — nicho + oferta + janela (~90d) + meta + estado; lead pode se vincular a uma campanha além do nicho geral; listagem/navegação — v1.7 (Fase 22), CAMPANHA-01..04
+- ✓ Diagnóstico de IA sob demanda por campanha — saturação numérica, até 3 gatilhos de dor, 2-3 objeções, ticket médio com fonte, achados dado/relato/marketing, rascunho de 1ª mensagem editável, veredito sugerido não vinculante, zero fonte = rejeitado, sem cache — v1.7 (Fase 23), DIAGNOSTICO-01..10
+- ✓ Veredito final registrado pelo usuário (pode divergir da IA), com data, sem efeito colateral em outros dados — v1.7 (Fase 24), VEREDITO-01..03
+- ✓ Painel de resultado real por campanha (reaproveitando `/relatorios`) e tela "Mapa de Nichos" filtrável/ordenável por veredito e nicho — v1.7 (Fase 24), PAINEL-01..03
+- ✓ Tour guiado do CRM (React Joyride) apresentando as telas principais, pulável, reiniciável em `/configuracoes`, estado "já viu" persistente — v1.7 (Fase 25), TUTORIAL-01..05
 
 ### Active
 
-**Milestone v1.7 Exploração de Nicho** — ver `.planning/REQUIREMENTS.md` para os requisitos com REQ-IDs. Resumo: campanha de exploração de nicho (nicho + oferta + janela + meta) com diagnóstico de IA sob demanda (saturação, gatilhos de dor, objeções, ticket médio, fontes citadas), veredito registrado pelo usuário, loop de resultado real via leads vinculados, e tela "Mapa de Nichos". Zero WhatsApp, zero VPS.
+Nenhum requisito ativo — v1.7 fechado, próximo milestone ainda não escopado. Rodar `/gsd-new-milestone` para definir os próximos requisitos.
 
-Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir). Direção de fundo do usuário: fundir Prospector + CRM — este milestone é o primeiro degrau seguro rumo a isso.
+Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir), mapa de nichos agregado entre usuários (NICHO-AGG-01, precisa de tração — dezenas de workspaces). Direção de fundo do usuário: fundir Prospector + CRM — v1.7 foi o primeiro degrau seguro rumo a isso (só a parte "nicho como objeto de 1ª classe", sem disparo).
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
@@ -136,13 +104,17 @@ Candidatos adiados: backlog PME (tags livres, busca global, temperatura automát
 - Múltiplos usuários/equipe — ferramenta pessoal de um único admin
 - Uso mobile nativo — uso previsto é via navegador no computador
 - Sistema de tarefas completo (subtarefas, prioridade, recorrência) — TAREFA-01/02 cobrem a necessidade real (tarefa solta com data); o resto é overkill de PM tool pra 1 usuário
+- Garimpo de empresas / scraping de leads novos dentro do CRM — a campanha organiza leads que já entram pelo fluxo normal (manual ou CSV); garimpo é território do Prospector, sistema separado por firewall legal (CNPJ próprio) — v1.7
+- Multi-tenant / múltiplos usuários no Mapa de Nichos — v1.7 entrega a régua pessoal (1 usuário); agregação entre usuários é NICHO-AGG-01, gatilho de tração real
+- Motor de disparo automático (WhatsApp em massa, mesmo via API oficial com opt-in) embutido no CRM — mantém o firewall legal do Prospector (CNPJ separado); mesmo com Coexistence + templates pré-aprovados (avaliado 2026-09-11), o requisito de opt-in do destinatário não muda — cold outreach continua sendo o mesmo risco de compliance, então o disparo fica fora do CRM por decisão persistente, não só técnica
 
 ## Context
 
 - Usuário é o próprio profissional (admin), atendendo leads de diferentes nichos (hoje: empresa de serviços de automação/IA; nichos rotativos vindos do futuro Prospector)
 - Leads chegam em lote via CSV entregue por um cowork parceiro; abordagem via Instagram e WhatsApp
 - Hoje os leads eram organizados em planilha do Google Sheets — processo desorganizado, esquecimento frequente de follow-up
-- **Estado pós-v1.6 (2026-09-04):** app roda localmente (`localhost:3000`), ~11.800 linhas TS/TSX em `src/`. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form + `next-themes` (dark mode) + PapaParse (import + export CSV). Repo `github.com/Marques10604/CRM-WhiteLabel`, branch `main`, tag `v1.6`. Marca "SOLO"; paleta OKLCH `:root` + `.dark` **agora alternável pela UI** (toggle no rodapé da sidebar). Toda cor da UI vem de token shadcn (`verify:brand`); contraste WCAG AA por `check:contrast` (30/30). Fases 16-21 foram para `main` por push direto (sem PR — projeto solo).
+- **Estado pós-v1.7 (2026-09-12):** app roda localmente (`localhost:3000`), ~15.700 linhas TS/TSX em `src/`, 15 rotas. Stack: Next.js 16.2 (Turbopack) + Drizzle/SQLite (`data/crm.db`) + shadcn-on-Base-UI + Zod + react-hook-form + `next-themes` (dark mode) + PapaParse (import + export CSV) + **Vercel AI SDK (`ai@7.0.93` + `@ai-sdk/anthropic@4.0.49`) — 1ª integração de IA do projeto (Fase 23)** + **`react-joyride@3.2.0` — 1ª dependência de tour (Fase 25)**. Repo `github.com/Marques10604/CRM-WhiteLabel`, branch `main`, tag `v1.7`. Marca "SOLO"; paleta OKLCH `:root` + `.dark` alternável pela UI. Toda cor da UI vem de token shadcn (`verify:brand`); contraste WCAG AA por `check:contrast` (30/30). Fases 16-25 foram para `main` por push direto (sem PR — projeto solo).
+- **Discussão estratégica Prospector vs. CRM reaberta (2026-09-11):** usuário questionou de novo fundir tudo/embutir disparo no CRM; reafirmado que a fronteira legal (CNPJ separado) continua correta mesmo com WhatsApp Coexistence (real, lançado 2025/2026, Brasil entre 1ºs países) — Coexistence resolve fricção de adoção (cliente não perde o app), mas o requisito de opt-in pro 1º contato frio não muda. Ideia registrada como possível feature futura de nutrição pós-opt-in, não muda a arquitetura atual. Ver Out of Scope.
 - **Divergência lógico↔físico deliberada (D-01, Fase 13):** o Drizzle mapeia `nichos = sqliteTable("subnichos")` / `nichoId: integer("subnicho_id")` — o código diz "nicho", o banco continua "subnicho". Doc-comment no `schema.ts` registra. Uma migração de rename físico fica para quando/se houver outro motivo pra tocar o schema.
 - **Fluxo GSD maduro:** `/gsd-secure-phase` → `/close-phase` → PR desde a Fase 12; UAT de navegador real (extensão Claude no Chrome, nível DOM + verdade no `data/crm.db`) nas Fases 9/11/12/13/14/15. **A partir da Fase 18, o host de 4GB deixou de rodar `dev` + Chrome + sessão do agente junto** — a verificação passou a ser por **code+data** (leitura de superfície + query só-SELECT no `data/crm.db` + harnesses `test:*`/`verify:*`); a confirmação puramente visual fica diferida para uma sessão com navegador.
 - **Débito conhecido resolvido no v1.5:** as Fases 1/2/4/6/8 foram auditadas retroativamente (Fase 18) — os 5 `VERIFICATION.md` agora `passed`, 0 issues de runtime. `npm run lint` da raiz volta a exit 0 (Fase 17).
@@ -186,6 +158,12 @@ Candidatos adiados: backlog PME (tags livres, busca global, temperatura automát
 | Export de CSV 100% client-side (`table.getSortedRowModel().rows` → módulo puro → `Blob` download) — nenhuma API route | Os dados já estão na tabela; o CRM continua "só Server Actions". Módulo puro DOM-free = testável por harness `.cjs` sem navegador | ✓ Good — Fase 21; harness com 38 asserções + 2 testes de mutação |
 | `sanitizeCsvCell` mitiga CSV/formula injection prefixando `'` em células que começam com `= + - @` | Parte dos dados (nome, notas) vem de CSV de um parceiro, não só do admin. Trade-off: o `'` fica visível em editor de texto puro (oculto no Excel/Sheets) | ✓ Good — Fase 21, D-21-04 |
 | D-23-06: schema de achado do diagnóstico (`diagnosticoSchema.achados[].tipo`) passa de 2 para 3 categorias (`dado_quantificavel` / `relato_qualitativo` / `alegacao_marketing`), com campo `evidencia` (`padrao_confirmado`/`relato_isolado`) em `gatilhos_dor` amarrando a força do gatilho à confiabilidade real da fonte | 2 rodadas de reforço de prompt (rubrica anti-genérico + REGRA DE ESCOLHA DO VEREDITO) não resolveram a não-discriminação entre os 3 nichos-gold do eval — causa raiz era uma dicotomia falsa no schema (um relato anedótico único, não sendo copy de venda, só tinha `dado_quantificavel` como casa possível), não uma rubrica frouxa | ✓ Good — Fase 23 (plano 23-06); rodada 3 do eval produziu os 3 vereditos gold discriminados entre si pela 1ª vez, zero FAIL do juiz na dimensão dado×marketing nos casos julgados |
+| Framework de IA: Vercel AI SDK (`generateText` + `Output.object` + tool `web_search`), não `generateObject` | `generateObject` não aceita tools; precisava de busca real + saída estruturada validada por Zod no mesmo call | ✓ Good — Fase 23, gate de fontes lê `res.sources` real, nunca URL auto-declarada pelo modelo |
+| Variância de veredito da IA entre execuções idênticas — aceita como comportamento ESPERADO, não bug | Busca adaptativa (cada execução acha fatos diferentes) + LLM não-determinístico mesmo com `effort:"low"` | ✓ Good (aceito) — implicação de produto permanente: o veredito da IA é sempre sugestão de 1 execução, o operador sempre valida (Fase 24 já foi desenhada em cima dessa premissa) |
+| `registrarVeredito` só transiciona `campanhas.estado` pra `veredito_registrado`, nunca `em_escala`/`abandonada` (que ficam no enum mas inalcançáveis nesta fase) | Nenhum requisito do v1.7 mandava essas 2 transições; adicioná-las seria escopo não pedido | ✓ Good — Fase 24, doc-comment do schema corrigido pra não prometer mais do que a fase entrega |
+| Persistência do tour ("já viu") via `localStorage` (`next-themes`-style), não a tabela `configuracoes` | Ferramenta solo sem multiuso real; evita acoplamento de schema pra uma preferência de UI pura | ✓ Good — Fase 25, mesmo padrão do dark mode (Fase 20) |
+| Execução sequencial sem worktree (`parallelization:false`, `use_worktrees:false`) mantida em todo o v1.7, mesmo em fases com 2 planos independentes por onda | Host 4GB — precedente de crash confirmado em milestones anteriores | ✓ Good — zero OOM/crash de worktree no v1.7 inteiro (22-25), custo é onda mais lenta, não falha |
+| `gsd-plan-checker` com 1 rodada de revisão obrigatória antes de executar (Fases 24 e 25) | Achou bugs reais e não-óbvios antes do código existir: 3 critérios de aceitação com contagem de grep desatualizada (Fase 24) e um critério que um stub vazio passaria sem provar TUTORIAL-02 de verdade (Fase 25) | ✓ Good — as duas rodadas de revisão evitaram planos que pareciam prontos mas tinham gates furados |
 
 ## Evolution
 
@@ -196,4 +174,4 @@ This document evolves at phase transitions and milestone boundaries.
 **After each milestone:** revisão completa; Core Value ainda é a prioridade certa?; auditar Out of Scope; atualizar Context.
 
 ---
-*Last updated: 2026-09-04 after starting milestone v1.7 (Exploração de Nicho)*
+*Last updated: 2026-09-12 after v1.7 (Exploração de Nicho) milestone*

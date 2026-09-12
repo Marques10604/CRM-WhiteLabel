@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.7 Exploração de Nicho (Shipped: 2026-09-12)
+
+**Phases completed:** 4 phases (22-25), 16 plans · 130 commits · 2026-09-05 → 2026-09-12 (8 dias)
+
+**Key accomplishments:**
+
+- **Campanha de exploração de nicho** (Fase 22) — entidade própria do CRM: nicho + oferta + janela (~90d) + meta + estado; leads podem se vincular a uma campanha além do nicho geral; `/campanhas` lista, `/campanhas/[id]` navega ao detalhe.
+- **Diagnóstico de IA sob demanda** (Fase 23, 1ª integração de IA do projeto) — Vercel AI SDK + Claude Sonnet 5 com busca real na web, schema anti-genérico com 3 categorias de achado (dado quantificável / relato qualitativo / alegação de marketing), gate de zero-fontes, veredito sugerido não vinculante, sem cache. Eval on-demand com gold-set de 3 nichos discriminou os 3 vereditos entre si pela 1ª vez na 3ª rodada, após corrigir uma dicotomia falsa no schema (D-23-06).
+- **Veredito do usuário + loop de resultado real** (Fase 24) — o operador registra a decisão final da campanha (pode divergir da IA); painel de resultado real agregado reaproveitando `/relatorios`; tela nova `/mapa-de-nichos` consolidando todas as campanhas, filtrável/ordenável por veredito e nicho.
+- **Tour guiado do CRM** (Fase 25) — React Joyride ancorado inteiramente na sidebar (sem navegação real entre passos), 5 telas explicadas, pulável a qualquer momento, reiniciável em `/configuracoes`, persistência via `localStorage`. Checkpoint humano de legitimidade do pacote npm aprovado diretamente pelo usuário na conversa (o executor corretamente rejeitou uma tentativa de aprovação por relay de agente coordenador).
+- `gsd-plan-checker` com revisão obrigatória achou bugs reais antes da execução em 2 das 4 fases: 3 critérios de aceitação com contagem de grep desatualizada (Fase 24) e um critério que um componente-stub vazio passaria sem provar de fato o comportamento de "pular tour" (Fase 25) — ambos corrigidos antes de qualquer código ser escrito.
+- Código cresceu de ~11.800 para ~15.700 linhas TS/TSX; 15 rotas no total. UAT visual no navegador das Fases 23/24/25 ficou pendente (host sem browser disponível nas sessões de verificação, mesmo padrão desde a Fase 18) — `23/24/25-VERIFICATION.md` todos `human_needed`, nenhum gap bloqueante encontrado.
+
+---
+
 ## v1.6 Dark Mode + Exportar CSV (Shipped: 2026-09-04)
 
 **Phases completed:** 2 phases (20-21), 2 plans, 6 tasks · 25 commits · 2026-09-03 → 2026-09-04

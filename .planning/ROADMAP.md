@@ -9,7 +9,7 @@
 - ✅ **v1.4 CRM Genérico Multi-Nicho (despivô)** — Fases 13-15 (shipado 2026-08-31) — `.planning/milestones/v1.4-ROADMAP.md`
 - ✅ **v1.5 Quitação de Débito e Auditoria Retroativa** — Fases 16-19 (shipado 2026-09-03) — `.planning/milestones/v1.5-ROADMAP.md`
 - ✅ **v1.6 Dark Mode + Exportar CSV** — Fases 20-21 (shipado 2026-09-04) — `.planning/milestones/v1.6-ROADMAP.md`
-- 🚧 **v1.7 Exploração de Nicho** — Fases 22-25 (em andamento)
+- ✅ **v1.7 Exploração de Nicho** — Fases 22-25 (shipado 2026-09-12) — `.planning/milestones/v1.7-ROADMAP.md`
 
 ## Phases
 
@@ -96,115 +96,19 @@ Detalhes completos: `.planning/milestones/v1.6-ROADMAP.md`
 
 </details>
 
-### 🚧 v1.7 Exploração de Nicho (Em andamento)
+<details>
+<summary>✅ v1.7 Exploração de Nicho (Fases 22-25) — SHIPADO 2026-09-12</summary>
 
-**Meta:** Dar ao CRM o objeto de 1ª classe que é o diferencial real do produto — a campanha de
-exploração de nicho, com diagnóstico de IA anti-genérico, veredito registrado pelo usuário e o
-loop de resultado real fechando com o que `/relatorios` já calcula. Zero WhatsApp, zero VPS, zero
-infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminho A escolhido).
+**Meta:** Dar ao CRM o objeto de 1ª classe que é o diferencial real do produto — a campanha de exploração de nicho, com diagnóstico de IA anti-genérico, veredito registrado pelo usuário e o loop de resultado real fechando com o que `/relatorios` já calcula. Zero WhatsApp, zero VPS, zero infra nova.
 
-- [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (22-01/22-02/22-03 shipados; CAMPANHA-03 / SC3 fechado pelo plano 22-03; 22-03-REVIEW fechado em b9a2c44; re-verificação passou 4/4) (completed 2026-09-05)
-- [x] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido (completed 2026-09-11)
-- [x] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos (completed 2026-09-12)
-- [x] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente (completed 2026-09-12)
+- [x] Fase 22: Campanha de Exploração de Nicho (3/3 planos) — 2026-09-05 — CAMPANHA-01..04 · CAMPANHA-03/SC3 fechado por gap closure (22-03), re-verificação 4/4
+- [x] Fase 23: Diagnóstico de IA da Campanha (7/7 planos em 5 ondas) — 2026-09-11 — DIAGNOSTICO-01..10 · 1ª integração de IA do projeto (Vercel AI SDK + Claude Sonnet 5 + web search); eval on-demand discriminou os 3 nichos-gold na 3ª rodada; `23-VERIFICATION.md` human_needed (UAT visual pendente, falta crédito de API)
+- [x] Fase 24: Veredito e Mapa de Nichos (4/4 planos em 2 ondas) — 2026-09-12 — VEREDITO-01..03, PAINEL-01..03 · painel de resultado real + tela `/mapa-de-nichos`; `24-VERIFICATION.md` human_needed (UAT visual pendente)
+- [x] Fase 25: Tour Guiado do CRM (2/2 planos em 2 ondas) — 2026-09-12 — TUTORIAL-01..05 · React Joyride ancorado na sidebar, checkpoint humano de legitimidade de pacote aprovado diretamente pelo usuário; `25-VERIFICATION.md` human_needed (UAT visual pendente)
 
-#### Phase 22: Campanha de Exploração de Nicho
-**Goal**: O usuário organiza a exploração de um nicho como uma entidade própria do CRM — nicho + oferta + janela de tempo + meta — e pode vincular leads existentes a ela, além de listar/navegar todas as campanhas já criadas.
-**Depends on**: Nada (usa `nichos`/`leads` já existentes)
-**Requirements**: CAMPANHA-01, CAMPANHA-02, CAMPANHA-03, CAMPANHA-04
-**Success Criteria** (what must be TRUE):
-  1. Usuário cria uma campanha escolhendo um nicho da lista existente, definindo oferta (texto livre), janela de tempo (padrão ~90 dias, editável) e meta de conversão
-  2. A campanha exibe um estado (explorando / veredito registrado / em escala / abandonada) visível na tela
-  3. Ao editar um lead, o usuário pode vincular opcionalmente esse lead a uma campanha existente, sem perder o nicho geral do lead
-  4. Usuário lista todas as campanhas já criadas e navega até o detalhe de qualquer uma delas
-**Plans**: 3 planos
-- [x] 22-01-PLAN.md — Fundação de dados: tabela `campanhas`, coluna `leads.campanha_id`, tipos, Zod e Server Actions
-- [x] 22-02-PLAN.md — UI de campanha: dialog de criação, badge de estado, `/campanhas`, `/campanhas/[id]`, item na sidebar
-- [x] 22-03-PLAN.md — Gap closure (CAMPANHA-03): vínculo lead→campanha no formulário de lead, persistência e cobertura de teste
-**UI hint**: yes
+Detalhes completos: `.planning/milestones/v1.7-ROADMAP.md`
 
-#### Phase 23: Diagnóstico de IA da Campanha
-**Goal**: O usuário gera, sob demanda, um diagnóstico de IA anti-genérico para a campanha — com busca na web, fontes citadas, distinção clara entre dado quantificável e alegação de marketing, e um veredito sugerido que nunca é vinculante.
-**Depends on**: Phase 22 (o diagnóstico se prende a uma campanha existente)
-**Requirements**: DIAGNOSTICO-01, DIAGNOSTICO-02, DIAGNOSTICO-03, DIAGNOSTICO-04, DIAGNOSTICO-05, DIAGNOSTICO-06, DIAGNOSTICO-07, DIAGNOSTICO-08, DIAGNOSTICO-09, DIAGNOSTICO-10
-**Success Criteria** (what must be TRUE):
-  1. Usuário clica um botão explícito na tela da campanha e recebe um diagnóstico gerado do zero — nunca automático ao criar a campanha, nunca reaproveitado de outra geração (nem do mesmo nicho)
-  2. O diagnóstico mostra índice de saturação numérico (contagem de concorrentes achados), até 3 gatilhos de dor (o mais forte destacado), 2-3 objeções com resposta sugerida, e ticket médio com a fonte usada
-  3. Cada achado do diagnóstico aparece marcado visualmente como "dado quantificável" ou "alegação de marketing do concorrente" — nunca misturado sem distinção
-  4. Um diagnóstico sem nenhuma fonte (URL) citada é rejeitado pelo sistema, e o usuário vê isso em vez de um resultado genérico
-  5. O diagnóstico inclui um rascunho de 1ª mensagem editável (nunca enviado automaticamente) e termina com um veredito sugerido pela IA (aprofundar/mudar ângulo/abandonar); o usuário pode regenerar quando quiser, e cada geração aparece como um evento novo e visível, sem cache escondendo o custo
-**Plans**: 7 planos em 5 ondas
-
-**Onda 1:**
-- [x] 23-01-PLAN.md — Contrato Zod do diagnóstico, fixtures de referência e harness estrutural anti-genérico
-
-**Onda 2** *(bloqueada na Onda 1):*
-- [x] 23-02-PLAN.md — [BLOCKING] Tabela `diagnosticos`: schema Drizzle, migração `.cjs` idempotente e gate de schema
-- [x] 23-03-PLAN.md — Núcleo de IA: portão de pacote, instalação do AI SDK, system prompt e `gerarDiagnostico()` *(checkpoint humano: aprovar `npm i` de `ai`/`@ai-sdk/anthropic`)*
-
-**Onda 3** *(bloqueada nas Ondas 1–2):*
-- [x] 23-04-PLAN.md — Server Action de geração, setup do usuário (chave + Web Search) e spike de config do Sonnet 5 *(checkpoint humano: `.env.local` + Web Search no Console Anthropic)*
-
-**Onda 4** *(bloqueada na Onda 3):*
-- [x] 23-05-PLAN.md — Componentes de apresentação: badges dado×marketing, veredito, rascunho e resultado
-- [x] 23-06-PLAN.md — Eval on-demand: dataset de nichos de referência, LLM-judge e baseline dos 3 gold *(checkpoint humano: aprovar gold-set)*
-
-**Onda 5** *(bloqueada na Onda 4):*
-- [x] 23-07-PLAN.md — Seção de diagnóstico em `/campanhas/[id]`: botão, estados vazio/erro/resultado e histórico
-
-**Cross-cutting constraints** (aparecem em 2+ planos):
-- Gate anti-genérico é harness estrutural que chama a função direto, sem navegador (23-01, 23-03, 23-04, 23-06)
-- `ANTHROPIC_API_KEY` só server-side, nunca em client component nem bundle (23-03, 23-04, 23-07)
-- Nenhum cache: cada geração é linha nova append-only em `diagnosticos`, custo sempre visível (23-04, 23-07)
-- `criado_em` = `integer({mode:"timestamp"})` + `unixepoch()` (D-23-01); Server Action em `src/actions/diagnostico-actions.ts` (D-23-02)
-**UI hint**: yes
-**Rationale (IA)**: `config.json` tem `workflow.ai_integration_phase: true` — esta fase precisa do tratamento de `/gsd-ai-integration-phase` ou `/gsd-plan-phase --ai` no planejamento: escolha de framework (Vercel AI SDK + Claude com tool de busca na web é o candidato natural) e uma estratégia de avaliação contra saída genérica/inútil, espelhando o padrão anti-genérico já validado na pesquisa do próprio Prospector (forçar especificidade, exigir fontes citadas, rejeitar saída sem fundamento). O host de 4GB não roda navegador + sessão do agente juntos — a avaliação de qualidade "é útil de verdade" continua sendo julgamento humano, mas os portões estruturais anti-genérico (tem fonte, tem índice numérico, rejeita sem fonte, etc.) devem ser automatizáveis por um harness que chama a função de diagnóstico diretamente e faz asserções estruturais, sem precisar de navegador.
-
-#### Phase 24: Veredito e Mapa de Nichos
-**Goal**: O usuário registra sua decisão final sobre a campanha (podendo divergir da IA) e vê o resultado real do nicho consolidado num painel e numa tela "Mapa de Nichos" que reúne todas as campanhas já exploradas.
-**Depends on**: Phase 22 (entidade campanha); Phase 23 (o veredito do usuário se compara ao veredito sugerido pela IA, DIAGNOSTICO-09)
-**Requirements**: VEREDITO-01, VEREDITO-02, VEREDITO-03, PAINEL-01, PAINEL-02, PAINEL-03
-**Success Criteria** (what must be TRUE):
-  1. Usuário registra o veredito final da campanha (aprofundar/mudar ângulo/abandonar) com a data da decisão, podendo divergir da sugestão da IA
-  2. Registrar o veredito não altera nenhum outro dado do sistema (não arquiva leads, não dispara nada automático) — é só memória de decisão
-  3. O painel da campanha mostra o resultado real agregado (contagem, conversão, motivos de perda, ticket médio) só dos leads vinculados a ela, reaproveitando as funções já existentes de `/relatorios`
-  4. Usuário acessa a tela "Mapa de Nichos" listando todas as campanhas com nicho, veredito da IA, veredito final e resumo do resultado real, filtrável/ordenável por veredito e por nicho
-**Plans**: 4 planos em 2 ondas
-
-**Onda 1** (paralelizáveis, zero sobreposição de arquivos):
-- [x] 24-01-PLAN.md — Colunas de veredito em `campanhas`, migração `.cjs` idempotente, Zod, Server Action `registrarVeredito` e gate de não-interferência (VEREDITO-01/02/03)
-- [x] 24-02-PLAN.md — Agregações por campanha em `src/db/queries.ts` (resultado real, motivos de perda reaproveitados de `/relatorios`, veredito da IA) + formatador de taxa compartilhado (PAINEL-01/02)
-
-**Onda 2** *(bloqueada na Onda 1)*:
-- [x] 24-03-PLAN.md — Painel de resultado real e seção de veredito em `/campanhas/[id]` (VEREDITO-01/02, PAINEL-01)
-- [x] 24-04-PLAN.md — Tela `/mapa-de-nichos` com filtros/ordenação por veredito e nicho + item na barra lateral (PAINEL-02/03)
-
-**Cross-cutting constraints** (aparecem em 2+ planos):
-- Zero `npm install` e zero primitivo shadcn novo na fase inteira (D-24-07, host de 4GB)
-- Mudança de schema SEMPRE por script `.cjs` manual idempotente contra `data/crm.db`, nunca `drizzle-kit push/generate`
-- Registrar o veredito escreve só na própria linha de `campanhas` (D-24-01) — provado por snapshot de `leads` antes/depois (VEREDITO-03)
-- `VereditoSugeridoChip` da Fase 23 é reusado para os dois vereditos (D-24-05); o rótulo do container distingue IA × usuário
-**UI hint**: yes
-
-#### Phase 25: Tour Guiado do CRM
-**Goal**: Um usuário (na 1ª visita ou quando quiser) recebe um tour guiado apresentando as telas principais do CRM — incluindo as novas telas de campanha/nicho — podendo pular a qualquer passo e reiniciar depois.
-**Depends on**: Phase 24 (para tourar as telas de campanha/Mapa de Nichos já prontas) — sem acoplamento de dados/schema, é pura UI/lib cliente
-**Requirements**: TUTORIAL-01, TUTORIAL-02, TUTORIAL-03, TUTORIAL-04, TUTORIAL-05
-**Success Criteria** (what must be TRUE):
-  1. Na primeira visita, o usuário vê um tour guiado apresentando dashboard, leads, pipeline, relatórios e campanhas de nicho, explicando o que cada tela faz
-  2. O tour pode ser pulado/fechado a qualquer passo, sem forçar o usuário a terminar
-  3. O usuário reinicia o tour quando quiser (não só na 1ª visita) por um ponto de acesso fixo (menu ou configurações)
-  4. O estado "já viu o tour" persiste entre acessos (não reaparece sozinho), mas continua sempre disponível pra reativação manual
-**Plans**: 2 planos em 2 ondas
-
-**Onda 1:**
-- [x] 25-01-PLAN.md — Fundação: install pinado do react-joyride, confirmação da API v3 contra o `.d.ts`, os 5 passos e a persistência pura + harness *(checkpoint humano: legitimidade do pacote antes do `npm i`)*
-
-**Onda 2** *(bloqueada na Onda 1):*
-- [x] 25-02-PLAN.md — UI do tour: `TourGuiado` no layout raiz, alvos `data-tour` na sidebar e botão "Rever tour do CRM" em `/configuracoes`
-
-**UI hint**: yes
-**Nota**: TUTORIAL-04 (usar React Joyride, nenhuma lib concorrente nem SaaS externo) é uma restrição de implementação verificável em code review/plan-check, não um comportamento observável adicional — coberta pela escolha de biblioteca no plano, não por um 5º critério de sucesso.
+</details>
 
 ## Progress
 
@@ -217,4 +121,4 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 | v1.4 CRM Genérico Multi-Nicho | 13-15 | 7 | ✅ 2026-08-31 |
 | v1.5 Quitação de Débito e Auditoria Retroativa | 16-19 | 15 | ✅ 2026-09-03 |
 | v1.6 Dark Mode + Exportar CSV | 20-21 | 2 | ✅ 2026-09-04 |
-| v1.7 Exploração de Nicho | 22-25 | TBD | 🚧 planejado |
+| v1.7 Exploração de Nicho | 22-25 | 16 | ✅ 2026-09-12 |
