@@ -17,22 +17,39 @@ import {
   ListX,
   Trash2,
   Settings,
+  type LucideIcon,
 } from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Follow-ups", icon: Clock },
-  { href: "/leads", label: "Leads", icon: Users },
+/**
+ * `tourId` é opcional de propósito: só os 5 itens tourados (Fase 25,
+ * TUTORIAL-01) ganham um valor real, resolvido pelo seletor
+ * `[data-tour="nav-*"]` em `src/lib/tour-steps.ts`. Sem `as const` porque um
+ * array com apenas alguns literais carregando o campo `tourId` quebra a
+ * inferência de tupla do TypeScript ao mapear (`item.tourId` deixaria de
+ * existir em parte da união de tipos) — tipagem explícita preserva o mesmo
+ * comportamento em runtime sem esse erro de compilação.
+ */
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  tourId?: string;
+};
+
+const NAV_ITEMS: NavItem[] = [
+  { href: "/", label: "Follow-ups", icon: Clock, tourId: "nav-dashboard" },
+  { href: "/leads", label: "Leads", icon: Users, tourId: "nav-leads" },
   { href: "/importar", label: "Importar", icon: Upload },
-  { href: "/pipeline", label: "Pipeline", icon: Kanban },
-  { href: "/campanhas", label: "Campanhas", icon: Target },
+  { href: "/pipeline", label: "Pipeline", icon: Kanban, tourId: "nav-pipeline" },
+  { href: "/campanhas", label: "Campanhas", icon: Target, tourId: "nav-campanhas" },
   { href: "/mapa-de-nichos", label: "Mapa de Nichos", icon: MapIcon },
-  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+  { href: "/relatorios", label: "Relatórios", icon: BarChart3, tourId: "nav-relatorios" },
   { href: "/templates", label: "Templates", icon: MessageSquare },
   { href: "/nichos", label: "Nichos", icon: Tag },
   { href: "/motivos-perda", label: "Motivos de Perda", icon: ListX },
   { href: "/lixeira", label: "Lixeira", icon: Trash2 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
-] as const;
+];
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -62,6 +79,7 @@ export function AppSidebar() {
               key={item.href}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
+              data-tour={item.tourId}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-[14px] py-2.5 text-sm font-medium transition-colors",
                 isActive

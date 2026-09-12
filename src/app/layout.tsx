@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TourGuiado } from "@/components/tour-guiado";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,6 +47,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppSidebar />
+          <TourGuiado />
           <main id="conteudo" tabIndex={-1} className="min-w-0 flex-1 px-8 py-8">
             {children}
           </main>
