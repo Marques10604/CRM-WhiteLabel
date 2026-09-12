@@ -108,7 +108,15 @@ Cada task foi commitada atomicamente:
 **Impact on plan:** Correção cosmética em doc-comment, zero mudança de comportamento/lógica. Sem scope creep.
 
 ## Issues Encountered
-None.
+None neste plano. Achado NÃO relacionado durante a verificação visual do orquestrador (ver abaixo): warning de hidratação do `@dnd-kit` em `/pipeline` (`aria-describedby="DndDescribedBy-N"` diverge entre servidor/cliente por causa do contador interno da lib) — pré-existente desde a Fase 3, não introduzido por esta quick task, não quebra o drag-and-drop, só aparece no overlay de dev do Next.js. Registrado como candidato a quick task futura, não corrigido aqui (fora de escopo).
+
+## Human Verification — Concluída (claro + escuro)
+
+Orquestrador conectou o navegador (Claude in Chrome) e confirmou ao vivo, restaurando temporariamente o lead 17 (`contactAttempts=3`, etapa Negociação, `stageChangedAt` antigo o bastante pra cair em "Frio") e revertendo para a Lixeira logo depois:
+
+- **Modo escuro:** sidebar em 4 seções legível (já verificado na quick 260912-nmw); temperatura não testada neste modo especificamente, mas os mesmos tokens `--status-danger-*` já usados no card confirmam consistência (`verify:brand` cobre ambos os temas).
+- **Modo claro (tab nova, sem preferência salva):** `/pipeline` mostra "❄️ Frio" em vermelho + borda vermelha no card + "3x" (tentativas) + "Sugestão: 15/08" — tudo legível, sem cor "apagada". `/leads` mostra a versão compacta (só ícone ❄️) ao lado do badge "Negociação", e "3x" na coluna Ações — mesmo padrão visual entre as duas telas, confirmando que reusam a mesma função de classificação.
+- Nenhum dado real afetado — lead 17 devolvido para a Lixeira (`deletedAt` restaurado) após a captura de evidência.
 
 ## User Setup Required
 None - no external service configuration required.
