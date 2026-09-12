@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PeriodoSelector } from "@/components/periodo-selector";
+import { formatarTaxaConversao } from "@/lib/utils";
 
 /**
  * Rota `/relatorios` (METRICAS-01, METRICAS-02, PERDA-01) — superfície ÚNICA
@@ -28,11 +29,6 @@ import { PeriodoSelector } from "@/components/periodo-selector";
  * encapsulada dentro das funções de `queries.ts` — a página passa o MESMO
  * `range` para as três e não replica essa lógica.
  */
-
-/** Taxa já vem crua (0..1) de `computeTaxaConversao`; a página formata. `0%` quando total=0, nunca `NaN%`. */
-function formatarTaxa(taxa: number): string {
-  return `${Math.round(taxa * 100)}%`;
-}
 
 /**
  * No App Router um param repetido na URL (`?period=custom&period=30d`) chega
@@ -132,7 +128,7 @@ export default async function RelatoriosPage({
                   </TableCell>
                   {/* Ênfase por PESO, nunca por cor (11-UI-SPEC.md linha 82). */}
                   <TableCell className="text-right font-mono tabular-nums font-semibold text-foreground">
-                    {formatarTaxa(linha.taxa)}
+                    {formatarTaxaConversao(linha.taxa)}
                   </TableCell>
                 </TableRow>
               ))
