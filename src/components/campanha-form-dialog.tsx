@@ -221,11 +221,12 @@ export function CampanhaFormDialog({ open, onOpenChange, nichos }: CampanhaFormD
                       value={(field.value as number | null | undefined) ?? null}
                       onValueChange={(id) => field.onChange(id)}
                       invalid={!!errors.nichoId}
+                      allowCreate
                     />
                   )}
                 />
                 <FieldDescription>
-                  O nicho que essa campanha vai explorar.
+                  O nicho que essa campanha vai explorar — digite um nome novo para criá-lo na hora.
                 </FieldDescription>
                 <FieldError errors={[errors.nichoId]} />
               </FieldContent>
