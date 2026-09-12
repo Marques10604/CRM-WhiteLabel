@@ -325,3 +325,27 @@ export const campanhaUpdateSchema = campanhaBaseSchema
     path: ["janelaFim"],
     message: CAMPANHA_JANELA_INVALIDA_MSG,
   });
+
+/**
+ * Os 3 valores do veredito do operador (VEREDITO-01, Fase 24) — MESMOS
+ * valores, na MESMA ordem, de `veredito_sugerido.decisao` em
+ * `src/lib/ai/diagnostico-schema.ts` (o veredito do operador é comparável ao
+ * da IA justamente por compartilhar o vocabulário).
+ */
+export const VEREDITO_VALORES = ["aprofundar", "mudar_angulo", "abandonar"] as const;
+
+/**
+ * Contrato do veredito do operador (VEREDITO-01/VEREDITO-02, Fase 24,
+ * D-24-02). NÃO recebe data nenhuma: a data da decisão é gravada pelo
+ * SERVIDOR no momento do registro (`sql\`(unixepoch())\`` em
+ * `registrarVeredito`) — aceitar data do cliente seria aceitar dado não
+ * confiável sem necessidade.
+ */
+export const vereditoSchema = z.object({
+  campanhaId: z.coerce.number().int().positive(),
+  vereditoFinal: z.enum(VEREDITO_VALORES, {
+    error: "Escolha o veredito da campanha.",
+  }),
+});
+
+export type VereditoFinal = z.infer<typeof vereditoSchema>["vereditoFinal"];
