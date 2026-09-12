@@ -50,6 +50,7 @@ async function nichoExists(nichoId: number): Promise<boolean> {
 function revalidateCampanhaRoutes(id?: number) {
   revalidatePath("/campanhas");
   if (id) revalidatePath(`/campanhas/${id}`);
+  revalidatePath("/mapa-de-nichos");
 }
 
 export async function createCampanha(
@@ -191,6 +192,5 @@ export async function registrarVeredito(
     .where(and(eq(campanhas.id, campanhaId), isNull(campanhas.deletedAt)));
 
   revalidateCampanhaRoutes(campanhaId);
-  revalidatePath("/mapa-de-nichos");
   return { success: true };
 }
