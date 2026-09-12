@@ -30,7 +30,8 @@
     "test:diagnostico-estrutural": "node scripts/test-diagnostico-estrutural.cjs",
     "test:group-by-urgency": "node scripts/test-group-by-urgency.cjs",
     "test:relatorios": "node scripts/test-relatorios-queries.cjs",
-    "test:lead-csv-export": "node scripts/test-lead-csv-export.cjs"
+    "test:lead-csv-export": "node scripts/test-lead-csv-export.cjs",
+    "test:veredito-actions": "node scripts/test-veredito-actions.cjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.49",
