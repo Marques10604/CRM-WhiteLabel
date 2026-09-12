@@ -181,7 +181,7 @@ export async function registrarVeredito(
     return { errors: { campanhaId: ["Campanha inválida."] } };
   }
 
-  await db
+  const result = await db
     .update(campanhas)
     .set({
       vereditoFinal,
@@ -190,6 +190,14 @@ export async function registrarVeredito(
       updatedAt: sql`(unixepoch())`,
     })
     .where(and(eq(campanhas.id, campanhaId), isNull(campanhas.deletedAt)));
+
+  // A pré-checagem acima e este UPDATE não são atômicos: se a campanha foi
+  // soft-deletada nessa janela, o UPDATE casa zero linhas sem lançar erro
+  // (better-sqlite3 não trata no-op update como falha). Sem este check,
+  // a action retornaria { success: true } mesmo sem persistir nada.
+  if (result.changes === 0) {
+    return { errors: { campanhaId: ["Campanha inválida."] } };
+  }
 
   revalidateCampanhaRoutes(campanhaId);
   return { success: true };
