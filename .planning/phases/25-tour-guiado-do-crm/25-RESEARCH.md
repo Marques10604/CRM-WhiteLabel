@@ -361,17 +361,19 @@ export function ReiniciarTourButton() {
 
 ## Open Questions
 
-1. **Nome exato do campo per-step para pular o beacon (`disableBeacon` vs outro nome na v3)**
+**Status: as 3 questões abaixo foram RESOLVIDAS durante o planejamento da Fase 25 (2026-09-12). Nenhuma continua aberta — ver o marcador inline em cada uma.**
+
+1. **Nome exato do campo per-step para pular o beacon (`disableBeacon` vs outro nome na v3)** **(RESOLVED — adiado para a Task 2 do plano 25-01, que lê o `.d.ts` publicado em `node_modules/react-joyride` logo após o install e registra o nome real do campo como decisão D-25-XX no `25-01-SUMMARY.md`; o plano 25-02 consome esse SUMMARY sem reinvestigar.)**
    - What we know: a v2 usava `disableBeacon: true` no objeto do passo; a doc de `options` da v3 confirma `beaconTrigger`/`skipBeacon` a nível global, mas a página específica de `docs/props/steps` retornou 404 durante a pesquisa.
    - What's unclear: se o campo per-step se chama igual na v3 ou foi renomeado/removido em favor de só configuração global.
    - Recommendation: o executor do primeiro plano deve abrir os tipos TypeScript do pacote (`node_modules/react-joyride`) logo após `npm install`, antes de escrever `tour-steps.ts`, e confirmar o nome real do campo (ou usar só `options.beaconTrigger`/`skipBeacon` globalmente, o que já está 100% confirmado).
 
-2. **Vale a pena tourar também `/mapa-de-nichos` (6º passo), já que também é conteúdo novo da Fase 24?**
+2. **Vale a pena tourar também `/mapa-de-nichos` (6º passo), já que também é conteúdo novo da Fase 24?** **(RESOLVED — fora de escopo. O tour tem 5 passos, exatamente os 5 critérios de sucesso literais do ROADMAP; `/mapa-de-nichos` NÃO ganha passo nesta fase, escopo travado na Task 2 do plano 25-02.)**
    - What we know: a descrição da fase e os critérios de sucesso citam "campanhas de nicho" (singular conceito) como a 5ª tela, o que mapeia mais diretamente para `/campanhas`. `/mapa-de-nichos` é uma tela irmã, também nova.
    - What's unclear: se o usuário considera isso parte do mesmo "conceito de campanha" (1 passo cobre as duas) ou quer um passo dedicado.
    - Recommendation: manter escopo mínimo de 5 passos (bate com os 5 critérios de sucesso ipsis litteris); se o usuário quiser, é trivial adicionar um 6º passo (`data-tour="nav-mapa-de-nichos"`) no mesmo padrão — decisão de escopo pro planner/discuss-phase, não um bloqueio técnico.
 
-3. **Reiniciar via `window.location.reload()` é aceitável, ou o produto quer uma experiência sem reload de página inteira?**
+3. **Reiniciar via `window.location.reload()` é aceitável, ou o produto quer uma experiência sem reload de página inteira?** **(RESOLVED — aceito. `window.location.reload()` é a estratégia oficial da fase: ver Task 3 do `25-02-PLAN.md` e regra 4 do `25-UI-SPEC.md`. Nada de Context global só para sincronizar um booleano.)**
    - What we know: `reload()` é a implementação mais simples e sem necessidade de Context/estado compartilhado entre `/configuracoes` e o layout raiz.
    - What's unclear: se um reload completo (perda de scroll position, remonta toda a árvore) é uma UX aceitável para "reiniciar tour" — provavelmente sim, dado que é uma ação rara e intencional, mas vale confirmar em discuss-phase/plan.
    - Recommendation: aceitar `reload()` como solução padrão da fase; só investir em Context/estado global se o discuss-phase explicitamente pedir uma transição mais suave.
