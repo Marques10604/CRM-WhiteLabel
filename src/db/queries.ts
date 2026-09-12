@@ -691,7 +691,7 @@ export async function getVereditoIAPorCampanha(
         campanhaId !== undefined ? eq(diagnosticos.campanhaId, campanhaId) : undefined
       )
     )
-    .orderBy(desc(diagnosticos.criadoEm));
+    .orderBy(desc(diagnosticos.criadoEm), desc(diagnosticos.id));
 
   const map = new Map<number, Diagnostico["veredito_sugerido"]["decisao"]>();
   const vistos = new Set<number>();
