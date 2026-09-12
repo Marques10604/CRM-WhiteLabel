@@ -169,7 +169,21 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
   2. Registrar o veredito não altera nenhum outro dado do sistema (não arquiva leads, não dispara nada automático) — é só memória de decisão
   3. O painel da campanha mostra o resultado real agregado (contagem, conversão, motivos de perda, ticket médio) só dos leads vinculados a ela, reaproveitando as funções já existentes de `/relatorios`
   4. Usuário acessa a tela "Mapa de Nichos" listando todas as campanhas com nicho, veredito da IA, veredito final e resumo do resultado real, filtrável/ordenável por veredito e por nicho
-**Plans**: TBD
+**Plans**: 4 planos em 2 ondas
+
+**Onda 1** (paralelizáveis, zero sobreposição de arquivos):
+- [ ] 24-01-PLAN.md — Colunas de veredito em `campanhas`, migração `.cjs` idempotente, Zod, Server Action `registrarVeredito` e gate de não-interferência (VEREDITO-01/02/03)
+- [ ] 24-02-PLAN.md — Agregações por campanha em `src/db/queries.ts` (resultado real, motivos de perda reaproveitados de `/relatorios`, veredito da IA) + formatador de taxa compartilhado (PAINEL-01/02)
+
+**Onda 2** *(bloqueada na Onda 1)*:
+- [ ] 24-03-PLAN.md — Painel de resultado real e seção de veredito em `/campanhas/[id]` (VEREDITO-01/02, PAINEL-01)
+- [ ] 24-04-PLAN.md — Tela `/mapa-de-nichos` com filtros/ordenação por veredito e nicho + item na barra lateral (PAINEL-02/03)
+
+**Cross-cutting constraints** (aparecem em 2+ planos):
+- Zero `npm install` e zero primitivo shadcn novo na fase inteira (D-24-07, host de 4GB)
+- Mudança de schema SEMPRE por script `.cjs` manual idempotente contra `data/crm.db`, nunca `drizzle-kit push/generate`
+- Registrar o veredito escreve só na própria linha de `campanhas` (D-24-01) — provado por snapshot de `leads` antes/depois (VEREDITO-03)
+- `VereditoSugeridoChip` da Fase 23 é reusado para os dois vereditos (D-24-05); o rótulo do container distingue IA × usuário
 **UI hint**: yes
 
 #### Phase 25: Tour Guiado do CRM
