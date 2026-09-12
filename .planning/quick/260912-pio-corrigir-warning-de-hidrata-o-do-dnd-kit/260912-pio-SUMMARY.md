@@ -77,16 +77,14 @@ Nenhum. `npx tsc --noEmit` limpo, `npm run lint` passou com exit 0 (4 warnings p
 
 None - nenhuma configuração de serviço externo necessária.
 
-## Verificação humana pendente (não-bloqueante)
+## Verificação humana — Concluída (parcial)
 
-Conforme o `<human-check blocking="false">` do plano, a confirmação final de que o warning de hidratação sumiu do console do navegador exige passada manual (não automatizável por `tsc`/`lint`/`build`):
+Orquestrador conectou o navegador (Claude in Chrome) contra `npm run dev` real:
 
-1. `npm run dev` e abrir `http://localhost:3000/pipeline`.
-2. Abrir o console do DevTools (F12), recarregar com console limpo.
-3. Esperado: nenhum warning contendo `aria-describedby`, `DndDescribedBy` ou "hydrated but some attributes...".
-4. Arrastar um card entre colunas (incluindo para "Perdido") e confirmar que o comportamento de antes (modal obrigatório, toast, persistência) continua idêntico.
-
-Se algum warning de hidratação persistir, ele tem outra causa — abrir tarefa nova, não estender esta.
+1. Restaurou temporariamente o lead 17 (único jeito de ter um card real em `/pipeline` pra montar o `DndContext` com um item arrastável) — revertido pra Lixeira logo depois.
+2. Navegou pra `/pipeline` duas vezes (força reload/hidratação real) e leu o console via `read_console_messages` com padrão amplo (`.`).
+3. **Resultado: 12 mensagens de console capturadas, nenhuma de erro/warning de hidratação** — só logs normais de dev (`[HMR] connected`, `[Fast Refresh] rebuilding/done`, aviso padrão do React DevTools). Nenhuma menção a `aria-describedby`, `DndDescribedBy` ou "hydrated but some attributes...". ✅ Confirmado que o fix resolveu o warning.
+4. **Não testado nesta passada:** arrastar um card entre colunas (incluindo pra "Perdido") — captura de screenshot ficou instável na sessão (erros de CDP timeout/0-width), então a confirmação visual do drag-and-drop em si fica como dívida residual mínima. Risco muito baixo: a mudança foi só a prop `id`, `onDragEnd`/`sensors` intocados e confirmados via grep.
 
 ## Next Phase Readiness
 
