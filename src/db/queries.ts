@@ -1,7 +1,8 @@
-import { and, asc, eq, gte, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull, isNull, lte, ne, notInArray, sql } from "drizzle-orm";
 import { addDays, endOfDay, isBefore, isToday, isValid, parseISO, startOfDay, subDays } from "date-fns";
 import { db } from "@/db/client";
-import { configuracoes, interacoes, leads, motivosPerda, nichos, tarefas } from "@/db/schema";
+import { configuracoes, diagnosticos, interacoes, leads, motivosPerda, nichos, tarefas } from "@/db/schema";
+import { diagnosticoSchema, type Diagnostico } from "@/lib/ai/diagnostico-schema";
 import type { Lead, Tarefa } from "@/types";
 
 /**
@@ -539,9 +540,19 @@ export async function getContagemPorNicho(
  * desempate por nome ASC (11-UI-SPEC.md linha 175). `motivosPerda.deletedAt` NÃO
  * é filtrado — um motivo soft-deletado com leads perdidos históricos continua
  * contando (mesmo raciocínio do `innerJoin` de nicho acima).
+ *
+ * D-24-09 (Fase 24, PAINEL-01): `campanhaId` é um SEGUNDO parâmetro OPCIONAL,
+ * não uma função irmã — o painel da campanha reaproveita esta mesma função em
+ * vez de duplicá-la, restringindo o `GROUP BY` a `leads.campanhaId = id` quando
+ * informado. O call-site de `/relatorios` não muda (continua passando só
+ * `range`). ATENÇÃO: com `campanhaId`, leads perdidos com `stageChangedAt`
+ * NULO continuam fora de TODOS os períodos (consequência (1) do doc-comment
+ * acima, inalterada) — a UI do painel (plano 24-03) precisa comunicar isso ao
+ * usuário, não assumir que "0 motivos" significa "nenhum lead perdido".
  */
 export async function getContagemPorMotivoPerda(
-  range: PeriodRange
+  range: PeriodRange,
+  campanhaId?: number
 ): Promise<{ motivoPerdaId: number | null; nome: string; total: number }[]> {
   return db
     .select({
@@ -556,9 +567,143 @@ export async function getContagemPorMotivoPerda(
         isNull(leads.deletedAt),
         eq(leads.stage, "perdido"),
         gte(leads.stageChangedAt, range.start),
-        lte(leads.stageChangedAt, range.end)
+        lte(leads.stageChangedAt, range.end),
+        campanhaId !== undefined ? eq(leads.campanhaId, campanhaId) : undefined
       )
     )
     .groupBy(leads.motivoPerdaId, motivosPerda.nome)
     .orderBy(sql`count(*) desc`, asc(motivosPerda.nome));
+}
+
+// ---------------------------------------------------------------------------
+// Resultado real por campanha (PAINEL-01/PAINEL-02)
+// ---------------------------------------------------------------------------
+//
+// As duas telas da Onda 2 (painel da campanha e Mapa de Nichos) consomem as
+// mesmas agregações — escritas uma única vez aqui para não divergirem.
+// Nenhuma das duas funções abaixo filtra por período (D-24-07): o vínculo
+// lead→campanha é um gesto explícito do operador (Fase 22-03), e filtrar por
+// data esconderia leads que ele mesmo vinculou. A janela da campanha
+// (`janelaInicio`/`janelaFim`) é só informativa, nunca um filtro de leitura.
+
+/**
+ * Resultado real de uma campanha (PAINEL-01) — total de leads vinculados,
+ * quantos fecharam, quantos foram perdidos e o ticket médio REALIZADO (D-24-04:
+ * média de `valorEstimado` só dos leads `fechado`, NUNCA de leads em aberto).
+ */
+export type ResultadoCampanha = {
+  total: number;
+  fechados: number;
+  perdidos: number;
+  ticketMedioCentavos: number | null;
+};
+
+/**
+ * Agregação por campanha (PAINEL-01/PAINEL-02) — UMA query com `.groupBy()`
+ * sobre a FK de campanha do lead, no mesmo espírito das "três agregações SQL"
+ * acima: `count(*)`/`sum(case ...)` em SQL, nunca `.reduce()` em JS.
+ *
+ * `WHERE` = `isNull(deletedAt) AND isNotNull(campanhaId) AND (campanhaId ===
+ * undefined OU eq(campanhaId))` — o `and()` do Drizzle descarta `undefined`,
+ * então o MESMO SQL serve tanto para "uma campanha" (`getResultadoPorCampanha(id)`)
+ * quanto para "todas" (`getResultadoPorCampanha()`), sem duplicar a query
+ * (D-24-07).
+ *
+ * `ticketMedio` é `avg(case when stage = 'fechado' then valor_estimado_centavos end)`
+ * SEM `else` — o `avg` do SQLite ignora linhas NULL do CASE, então "zero
+ * fechados" produz NULL (não 0), exatamente D-24-04: a UI mostra "—", nunca
+ * "R$ 0,00" (que mentiria dizendo que houve fechamento de valor zero).
+ *
+ * Campanha SEM nenhum lead vinculado NÃO aparece no `Map` — é o caso normal de
+ * uma campanha recém-criada; o consumidor (planos 24-03/24-04) faz fallback
+ * (`.get(id) ?? { total: 0, fechados: 0, perdidos: 0, ticketMedioCentavos: null }`).
+ */
+export async function getResultadoPorCampanha(
+  campanhaId?: number
+): Promise<Map<number, ResultadoCampanha>> {
+  const rows = await db
+    .select({
+      campanhaId: leads.campanhaId,
+      total: sql<number>`count(*)`,
+      fechados: sql<number>`sum(case when ${leads.stage} = 'fechado' then 1 else 0 end)`,
+      perdidos: sql<number>`sum(case when ${leads.stage} = 'perdido' then 1 else 0 end)`,
+      ticketMedio: sql<number | null>`avg(case when ${leads.stage} = 'fechado' then ${leads.valorEstimado} end)`,
+    })
+    .from(leads)
+    .where(
+      and(
+        isNull(leads.deletedAt),
+        isNotNull(leads.campanhaId),
+        campanhaId !== undefined ? eq(leads.campanhaId, campanhaId) : undefined
+      )
+    )
+    .groupBy(leads.campanhaId);
+
+  const map = new Map<number, ResultadoCampanha>();
+  for (const row of rows) {
+    if (row.campanhaId === null) continue; // isNotNull já garante isso em SQL; defensivo contra a tipagem nullable da coluna
+    map.set(row.campanhaId, {
+      total: Number(row.total),
+      fechados: Number(row.fechados),
+      perdidos: Number(row.perdidos),
+      ticketMedioCentavos: row.ticketMedio === null ? null : Math.round(Number(row.ticketMedio)),
+    });
+  }
+  return map;
+}
+
+/**
+ * Veredito sugerido pela IA na geração `status = 'ok'` MAIS RECENTE de cada
+ * campanha (PAINEL-02, D-24-08).
+ *
+ * A seleção do "mais recente" é feita no `ORDER BY desc(criadoEm)` do SQL —
+ * os índices `diagnosticos_status_idx` e `diagnosticos_criado_em_idx` já
+ * cobrem esta consulta. A materialização em JS abaixo existe SÓ porque o
+ * `payload` precisa passar pelo Zod (fronteira de confiança do banco, T-24-06)
+ * — não é uma agregação em JS: percorremos as linhas já ordenadas e paramos no
+ * primeiro `payload` válido de cada `campanhaId`.
+ *
+ * Para cada `campanhaId` ainda não visto, marcamos como visto e rodamos o
+ * `safeParse` de `diagnosticoSchema` sobre o `payload`:
+ *   - sucesso → grava `data.veredito_sugerido.decisao` no Map;
+ *   - falha → NÃO grava nada e NÃO tenta a geração anterior (D-24-08: é o
+ *     veredito da geração mais recente ou nenhum — nunca um "penúltimo válido"
+ *     escondido do operador).
+ *
+ * Um diagnóstico gravado sob um schema antigo (payload que não bate mais com
+ * `diagnosticoSchema` atual) simplesmente não aparece no Map — a campanha
+ * renderiza "—" na UI, nunca lança exceção (precedente Pitfall 11 do plano
+ * 23-07).
+ */
+export async function getVereditoIAPorCampanha(
+  campanhaId?: number
+): Promise<Map<number, Diagnostico["veredito_sugerido"]["decisao"]>> {
+  const rows = await db
+    .select({
+      campanhaId: diagnosticos.campanhaId,
+      payload: diagnosticos.payload,
+      criadoEm: diagnosticos.criadoEm,
+    })
+    .from(diagnosticos)
+    .where(
+      and(
+        eq(diagnosticos.status, "ok"),
+        campanhaId !== undefined ? eq(diagnosticos.campanhaId, campanhaId) : undefined
+      )
+    )
+    .orderBy(desc(diagnosticos.criadoEm));
+
+  const map = new Map<number, Diagnostico["veredito_sugerido"]["decisao"]>();
+  const vistos = new Set<number>();
+  for (const row of rows) {
+    if (vistos.has(row.campanhaId)) continue;
+    vistos.add(row.campanhaId);
+
+    const parsed = diagnosticoSchema.safeParse(row.payload);
+    if (parsed.success) {
+      map.set(row.campanhaId, parsed.data.veredito_sugerido.decisao);
+    }
+    // falha na validação → nem grava nem tenta a geração anterior (D-24-08)
+  }
+  return map;
 }
