@@ -52,12 +52,13 @@ export function buildLimitesPorEtapa(config: {
  * Classifica um único lead em `"quente" | "morno" | "frio" | null`.
  *
  * Ordem exata das guardas (não reordenar — o passo 4 é literalmente a
- * condição do antigo `esfriandoLeadIds`, é isso que garante que a faixa
- * "frio" nunca divirja do comportamento anterior):
+ * condição do antigo conjunto booleano de leads "esfriando" do `/pipeline`,
+ * é isso que garante que a faixa "frio" nunca divirja do comportamento
+ * anterior):
  *   1. Sem limite configurado para a etapa (inclui `fechado`/`perdido`) -> null
  *   2. `stageChangedAt` nulo -> null
  *   3. Calcula dias parados na etapa atual
- *   4. `dias >= limite` -> "frio" (paridade com o `esfriandoLeadIds` de hoje)
+ *   4. `dias >= limite` -> "frio" (paridade com o booleano de "esfriando" de antes)
  *   5. `dias >= limite * LIMIAR_MORNO` -> "morno"
  *   6. Caso contrário -> "quente"
  */

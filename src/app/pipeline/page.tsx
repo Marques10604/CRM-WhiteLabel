@@ -1,5 +1,4 @@
 import { asc, isNull } from "drizzle-orm";
-import { differenceInDays } from "date-fns";
 import { db } from "@/db/client";
 import { campanhas, leads, motivosPerda, nichos, templates } from "@/db/schema";
 import {
@@ -7,18 +6,21 @@ import {
   getConfiguracoes,
   getUltimaInteracaoWhatsAppPorLead,
 } from "@/db/queries";
+import { buildLimitesPorEtapa, computeTemperaturaPorLead } from "@/lib/lead-temperatura";
 import { PipelineBoard } from "@/components/pipeline-board";
 
 /**
  * Rota `/pipeline` (PIPE-01) — board somente-leitura nesta fase (03-02); o
  * drag-and-drop entra em 03-03. Busca leads ativos NÃO-filtrados (D-12) e
- * computa server-side o conjunto de ids "esfriando" (D-06/D-07) a partir dos
- * limites de dias-parado por etapa configurados em `/configuracoes`
- * (CONFIG-02): cada etapa Novo/Contatado/Negociação tem seu próprio N,
- * lido de `getConfiguracoes()`. Fechado/Perdido ficam de fora do mapa de
- * limites por definição — nunca "esfriam". Leads sem `stageChangedAt`
- * (criados antes de qualquer `updateLeadStage`) nunca são flagados — guard
- * explícito abaixo evita quebrar o cálculo com `null`. `templates` alimenta
+ * computa server-side a temperatura de cada lead (quick task 260912-omq,
+ * TEMP-01/02/03) a partir dos limites de dias-parado por etapa configurados
+ * em `/configuracoes` (CONFIG-02): cada etapa Novo/Contatado/Negociação tem
+ * seu próprio N, lido de `getConfiguracoes()`. O antigo conjunto booleano
+ * "esfriando" virou classificação de 3 faixas (Quente/Morno/Frio) — a regra
+ * de exclusão de `fechado`/`perdido` e de `stageChangedAt` nulo agora mora
+ * em `buildLimitesPorEtapa`/`computeTemperatura` (`@/lib/lead-temperatura`,
+ * fonte única compartilhada com `/leads`), e a faixa "frio" é exatamente o
+ * antigo "esfriando" (mesma condição `dias >= limite`). `templates` alimenta
  * o botão inline "Enviar WhatsApp" (WA-05) de cada card.
  *
  * SEQ-02/D-05/D-06: a sugestão de próxima reabordagem é derivada aqui, na
@@ -52,25 +54,7 @@ export default async function PipelinePage() {
     getUltimaInteracaoWhatsAppPorLead(),
   ]);
 
-  const limitesPorEtapa: Partial<Record<(typeof activeLeads)[number]["stage"], number>> = {
-    novo: config.diasParadoNovo,
-    contatado: config.diasParadoContatado,
-    negociacao: config.diasParadoNegociacao,
-    // As duas etapas terminais do funil ficam de fora deste mapa de
-    // propósito: sem entrada aqui, `limitesPorEtapa[lead.stage]` resolve
-    // para `undefined` e o filtro abaixo nunca as destaca como esfriando.
-  };
-
-  const esfriandoLeadIds = activeLeads
-    .filter((lead) => {
-      const limite = limitesPorEtapa[lead.stage];
-      return (
-        limite != null &&
-        lead.stageChangedAt != null &&
-        differenceInDays(new Date(), lead.stageChangedAt) >= limite
-      );
-    })
-    .map((lead) => lead.id);
+  const temperaturaPorLead = computeTemperaturaPorLead(activeLeads, buildLimitesPorEtapa(config));
 
   const sugestaoPorLead = activeLeads
     .map((lead) => ({
@@ -91,7 +75,7 @@ export default async function PipelinePage() {
         nichos={allNichos}
         motivosPerda={allMotivosPerda}
         campanhas={allCampanhas}
-        esfriandoLeadIds={esfriandoLeadIds}
+        temperaturaPorLead={temperaturaPorLead}
         templates={allTemplates}
         sugestaoPorLead={sugestaoPorLead}
       />

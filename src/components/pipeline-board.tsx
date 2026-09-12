@@ -18,6 +18,7 @@ import { MotivoPerdaDialog } from "@/components/motivo-perda-dialog";
 import { WhatsAppPreviewDialog } from "@/components/whatsapp-preview-dialog";
 import { LeadTimelineDialog } from "@/components/lead-timeline-dialog";
 import { updateLeadStage } from "@/actions/lead-actions";
+import type { Temperatura } from "@/lib/lead-temperatura";
 import type { Campanha, Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 type PipelineBoardProps = {
@@ -26,7 +27,7 @@ type PipelineBoardProps = {
   motivosPerda: MotivoPerda[];
   /** Campanhas de exploração de nicho (CAMPANHA-03) — repassadas ao LeadFormDialog. Sem filtro de deletedAt. */
   campanhas: Campanha[];
-  esfriandoLeadIds: number[];
+  temperaturaPorLead: { leadId: number; temperatura: Temperatura }[];
   templates: Template[];
   sugestaoPorLead: { leadId: number; data: Date }[];
 };
@@ -76,7 +77,7 @@ export function PipelineBoard({
   nichos,
   motivosPerda,
   campanhas,
-  esfriandoLeadIds,
+  temperaturaPorLead,
   templates,
   sugestaoPorLead,
 }: PipelineBoardProps) {
@@ -113,7 +114,10 @@ export function PipelineBoard({
     [templates]
   );
 
-  const esfriandoSet = useMemo(() => new Set(esfriandoLeadIds), [esfriandoLeadIds]);
+  const temperaturaPorLeadId = useMemo(
+    () => new Map(temperaturaPorLead.map((t) => [t.leadId, t.temperatura])),
+    [temperaturaPorLead]
+  );
 
   const sugestaoPorLeadId = useMemo(() => new Map(sugestaoPorLead.map((s) => [s.leadId, s.data])), [sugestaoPorLead]);
 
@@ -229,7 +233,7 @@ export function PipelineBoard({
                     key={lead.id}
                     lead={lead}
                     nichoNome={nichoNameById.get(lead.nichoId) ?? "—"}
-                    isEsfriando={esfriandoSet.has(lead.id)}
+                    temperatura={temperaturaPorLeadId.get(lead.id)}
                     sugestao={sugestaoPorLeadId.get(lead.id)}
                     onClick={() => setDialogState({ mode: "edit", lead })}
                     onSendWhatsApp={() =>

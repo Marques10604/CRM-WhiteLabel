@@ -2,17 +2,19 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
-import { CalendarClock, Clock, History, MessageCircle } from "lucide-react";
+import { CalendarClock, History, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePhone } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button";
+import { TemperaturaIndicator } from "@/components/temperatura-indicator";
+import type { Temperatura } from "@/lib/lead-temperatura";
 import type { Lead } from "@/types";
 
 type PipelineLeadCardProps = {
   lead: Lead;
   nichoNome: string;
-  isEsfriando: boolean;
+  temperatura?: Temperatura;
   sugestao?: Date;
   onClick: () => void;
   onSendWhatsApp: () => void;
@@ -22,16 +24,17 @@ type PipelineLeadCardProps = {
 /**
  * Card de lead do board (D-09) — Nome (Body, mais proeminente) + Nicho +
  * data de follow-up (Label). SEM `EtapaBadge` (a etapa já é implícita pela
- * coluna). Quando `isEsfriando`, borda âmbar de 2px + rótulo "Esfriando" com
- * ícone `Clock` (D-08). `onClick` reabre o modal de edição (D-10). Arrastável
- * via `useDraggable` (id = lead.id) — a disambiguação clique-vs-drag vem do
+ * coluna). Quando `temperatura === "frio"` (quick task 260912-omq — antigo
+ * booleano "esfriando"), borda de 2px + `TemperaturaIndicator` na linha de
+ * metadados. `onClick` reabre o modal de edição (D-10). Arrastável via
+ * `useDraggable` (id = lead.id) — a disambiguação clique-vs-drag vem do
  * `PointerSensor` com `activationConstraint` configurado no board pai
  * (Pitfall 4), não da remoção deste `onClick`.
  */
 export function PipelineLeadCard({
   lead,
   nichoNome,
-  isEsfriando,
+  temperatura,
   sugestao,
   onClick,
   onSendWhatsApp,
@@ -60,7 +63,7 @@ export function PipelineLeadCard({
       }}
       className={cn(
         "flex cursor-pointer flex-col gap-1 rounded-lg bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        isEsfriando ? "border-2 border-status-warning-foreground" : "border",
+        temperatura === "frio" ? "border-2 border-status-danger-foreground" : "border",
         isDragging ? "z-10 opacity-70" : null
       )}
     >
@@ -100,11 +103,7 @@ export function PipelineLeadCard({
       </span>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[14px] leading-normal text-muted-foreground">
         <span>{format(lead.followUpDate, "dd/MM/yyyy")}</span>
-        {isEsfriando ? (
-          <span className="flex items-center gap-1 text-status-warning-foreground">
-            <Clock className="size-3.5" /> Esfriando
-          </span>
-        ) : null}
+        {temperatura ? <TemperaturaIndicator temperatura={temperatura} /> : null}
         {lead.contactAttempts > 0 ? (
           <span
             className="flex items-center gap-1"
