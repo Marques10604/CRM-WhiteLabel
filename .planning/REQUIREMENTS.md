@@ -45,8 +45,8 @@ mercado 2026 (Build-Measure-Learn, market-entry scoring, problem tiers).
 
 ### PAINEL — Loop de resultado real e Mapa de Nichos
 
-- [ ] **PAINEL-01**: O painel da campanha mostra o resultado real agregado dos leads vinculados a ela (contagem, taxa de conversão, motivos de perda, ticket médio), reaproveitando as funções já existentes de `/relatorios`.
-- [ ] **PAINEL-02**: Existe uma tela "Mapa de Nichos" listando todas as campanhas já criadas, com nicho, veredito sugerido pela IA, veredito final do usuário, e um resumo do resultado real.
+- [x] **PAINEL-01**: O painel da campanha mostra o resultado real agregado dos leads vinculados a ela (contagem, taxa de conversão, motivos de perda, ticket médio), reaproveitando as funções já existentes de `/relatorios`.
+- [x] **PAINEL-02**: Existe uma tela "Mapa de Nichos" listando todas as campanhas já criadas, com nicho, veredito sugerido pela IA, veredito final do usuário, e um resumo do resultado real.
 - [ ] **PAINEL-03**: O Mapa de Nichos é filtrável/ordenável pelo menos por veredito e por nicho.
 
 ### TUTORIAL — Tour guiado do CRM
@@ -115,8 +115,8 @@ Preenchida na criação do roadmap.
 | VEREDITO-01 | Phase 24 | Complete |
 | VEREDITO-02 | Phase 24 | Complete |
 | VEREDITO-03 | Phase 24 | Complete |
-| PAINEL-01 | Phase 24 | Pending |
-| PAINEL-02 | Phase 24 | Pending |
+| PAINEL-01 | Phase 24 | Complete |
+| PAINEL-02 | Phase 24 | Complete |
 | PAINEL-03 | Phase 24 | Pending |
 | TUTORIAL-01 | Phase 25 | Pending |
 | TUTORIAL-02 | Phase 25 | Pending |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
 status: executing
-last_updated: "2026-09-12T01:54:31.048Z"
+last_updated: "2026-09-12T02:11:51.877Z"
 last_activity: 2026-09-12
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
   percent: 50
 ---
 
@@ -25,11 +25,13 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 ## Current Position
 
 Phase: 24 (Veredito e Mapa de Nichos) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 
 ### Feito e commitado
 
+- **24-01** ✅ COMPLETO (SUMMARY). Colunas `campanhas.veredito_final`/`veredito_decidido_em` (migração `.cjs` idempotente), Server Action `registrarVeredito` (contrato Zod `vereditoSchema`, D-24-01/D-24-02), transição de estado `explorando` → `veredito_registrado` implementada (CAMPANHA-02).
+- **24-02** ✅ COMPLETO (3 tasks, SUMMARY). `getResultadoPorCampanha`/`getVereditoIAPorCampanha`/`getContagemPorMotivoPerda(range, campanhaId?)` em `src/db/queries.ts` (`a2834f6`), `formatarTaxaConversao` extraído para `@/lib/utils` e consumido por `/relatorios` (`8cce4ba`), harness `test:relatorios` PARTE C com 14 asserções novas — 71 no total, antes 57 — + teste de mutação confirmado (`88422eb`). PAINEL-01/PAINEL-02 concluídos.
 - **23-01** ✅ contrato Zod + fixtures + harness estrutural (`test:diagnostico-estrutural`, 61 asserções — depois 68, ver 23-06)
 - **23-02** ✅ tabela `diagnosticos` (11 colunas, migração `.cjs` idempotente rodada contra `data/crm.db`, gate de schema)
 - **23-03** ✅ `ai@7.0.93` + `@ai-sdk/anthropic@4.0.49` (pins exatos), `SYSTEM_PROMPT` anti-genérico (`src/lib/ai/diagnostico-prompt.ts`), `gerarDiagnostico()` (`src/lib/ai/gerar-diagnostico.ts`, server-only, DB-free)
@@ -156,6 +158,7 @@ Last activity: 2026-09-12
 | Phase 23 P04 | 45min | 3 tasks | 4 files |
 | Phase 23 P06 | 90min | 3 tasks | 22 files |
 | Phase 24 P01 | 25min | 3 tasks | 6 files |
+| Phase 24 P02 | 30min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -809,7 +812,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-12T01:54:31.016Z
+Last session: 2026-09-12T02:11:51.844Z
 
 **O que foi feito nesta sessão:**
 
