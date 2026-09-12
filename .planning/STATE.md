@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: none
 milestone_name: null
 status: milestone_complete
-last_updated: "2026-09-12T20:15:00.000Z"
-last_activity: 2026-09-12 - Completed quick task 260912-nzq: Veredito na listagem de campanhas + contador de tentativas em /leads
+last_updated: "2026-09-12T21:07:02.764Z"
+last_activity: 2026-09-12 - Completed quick task 260912-omq: Indicador de temperatura automatico em /pipeline e /leads
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 25
+  completed_phases: 25
+  total_plans: 81
+  completed_plans: 81
+  percent: 100
 ---
 
 # Project State
@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-12)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Nenhum milestone em andamento — v1.7 shipado (2026-09-12). Rodando quick tasks avulsas (fila: sidebar reorganizado, surfacing de timeline/veredito, temperatura de lead, busca global). Próximo milestone via `/gsd-new-milestone`.
+**Current focus:** Nenhum milestone em andamento — v1.7 shipado (2026-09-12). Rodando quick tasks avulsas (fila: sidebar reorganizado, surfacing de timeline/veredito, temperatura de lead ✅ concluída em 260912-omq, busca global). Próximo milestone via `/gsd-new-milestone`.
 
 ## Current Position
 
@@ -161,6 +161,7 @@ Last activity: 2026-09-12
 | Phase 24 P04 | 15min | 2 tasks | 3 files |
 | Phase 25 P01 | 35min | 3 tasks | 5 files |
 | Phase 25 P02 | 19min | 3 tasks | 5 files |
+| Phase quick-260912-omq P01 | 35min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -288,6 +289,8 @@ Recent decisions affecting current work:
 - [Phase 25-01]: D-25-03: options.borderRadius nao existe na v3 do react-joyride — Raio do tooltip deve ser aplicado via styles.tooltip no plano 25-02
 - [Phase 25-02]: D-25-04: contador Passo n de 5 embutido em locale.nextWithProgress (react-joyride v3 sem slot de contador separado)
 - [Phase 25-02]: D-25-05: NAV_ITEMS trocou as const por tipo explicito NavItem (tourId opcional) para nao quebrar inferencia de uniao do TS
+- [Quick 260912-omq]: Borda de 2px do card de pipeline em "frio" migrou de status-warning para status-danger, para casar com a cor do TemperaturaIndicator na faixa fria (mudanca deliberada de tom, mesmo comportamento estrutural)
+- [Quick 260912-omq]: Temperatura sempre calculada NO SERVIDOR (mesma funcao computeTemperaturaPorLead + mesma config em /leads e /pipeline) — nunca no cliente, evita divergencia entre telas e mismatch de hidratacao pelo relogio do cliente
 
 ### Pending Todos
 
@@ -346,6 +349,7 @@ Aberto, carregado para o v1.3:
 | 260912-n5w | Adicionar criação de nicho inline no formulário de campanha (CampanhaFormDialog / NichoCombobox), sem precisar sair pra /nichos primeiro | 2026-09-12 | 6fd97c0 | [260912-n5w-adicionar-cria-o-de-nicho-inline-no-form](./quick/260912-n5w-adicionar-cria-o-de-nicho-inline-no-form/) |
 | 260912-nmw | Reorganizar o sidebar do CRM em seções lógicas agrupadas (Principal/Prospecção/Operação/Configuração), mantendo os itens reais existentes | 2026-09-12 | 395f64e | [260912-nmw-reorganizar-o-sidebar-do-crm-em-se-es-l-](./quick/260912-nmw-reorganizar-o-sidebar-do-crm-em-se-es-l-/) |
 | 260912-nzq | Tornar mais visíveis veredito (IA+final) na listagem /campanhas e contador de tentativas de contato na tabela /leads | 2026-09-12 | 3e516c4 | [260912-nzq-tornar-mais-vis-veis-2-coisas-que-j-exis](./quick/260912-nzq-tornar-mais-vis-veis-2-coisas-que-j-exis/) |
+| 260912-omq | Indicador de temperatura automático em 3 faixas (Quente/Morno/Frio) — módulo puro `lead-temperatura.ts` + `TemperaturaIndicator` compartilhado, substituindo o booleano "esfriando" em /pipeline e levando o mesmo sinal para /leads | 2026-09-12 | e33a4d3, 39f55ec, 85f9765 | [260912-omq-adicionar-indicador-de-temperatura-autom](./quick/260912-omq-adicionar-indicador-de-temperatura-autom/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 | 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |
@@ -823,7 +827,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-12T15:27:53.401Z
+Last session: 2026-09-12T21:02:38.198Z
 
 **O que foi feito nesta sessão:**
 
