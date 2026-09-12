@@ -19,6 +19,13 @@
  *   as colunas de `leads` que o snapshot do drizzle-kit não tem (mesmo débito
  *   documentado em `scripts/test-lead-actions.cjs`).
  *
+ * PARTE C — agregações por campanha (Fase 24, PAINEL-01/PAINEL-02):
+ *   `getResultadoPorCampanha`, `getVereditoIAPorCampanha`, o parâmetro
+ *   `campanhaId` de `getContagemPorMotivoPerda` e `formatarTaxaConversao` (de
+ *   `@/lib/utils`), contra o MESMO banco temporário (tabelas `campanhas` e
+ *   `diagnosticos` adicionadas ao `SCHEMA_DDL`), cenário próprio com ids
+ *   únicos para não colidir com os dados da PARTE B.
+ *
  * Bootstrap: `process.env.DB_FILE_NAME` é setado ANTES do
  * `register("./ts-alias-loader.mjs", ...)` e de qualquer `await import("@/...")`
  * — molde de `scripts/test-compute-sequencia-sugestao.cjs` /
@@ -94,10 +101,38 @@ const SCHEMA_DDL = `
     stage_changed_at INTEGER,
     contact_attempts INTEGER NOT NULL DEFAULT 0,
     sequencia_posicao INTEGER NOT NULL DEFAULT 0,
+    campanha_id INTEGER REFERENCES campanhas(id),
     import_batch_id TEXT,
     deleted_at INTEGER,
     created_at INTEGER NOT NULL DEFAULT (unixepoch()),
     updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+  CREATE TABLE campanhas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nicho_id INTEGER NOT NULL REFERENCES subnichos(id),
+    oferta TEXT NOT NULL,
+    meta_conversao TEXT NOT NULL,
+    janela_inicio INTEGER NOT NULL,
+    janela_fim INTEGER NOT NULL,
+    estado TEXT NOT NULL DEFAULT 'explorando',
+    veredito_final TEXT,
+    veredito_decidido_em INTEGER,
+    deleted_at INTEGER,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+  CREATE TABLE diagnosticos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    campanha_id INTEGER NOT NULL REFERENCES campanhas(id),
+    payload TEXT,
+    fontes TEXT,
+    buscas TEXT,
+    status TEXT NOT NULL,
+    erro TEXT,
+    aviso TEXT,
+    input_tokens INTEGER,
+    output_tokens INTEGER,
+    criado_em INTEGER NOT NULL DEFAULT (unixepoch())
   );
 `;
 
@@ -115,7 +150,10 @@ const SCHEMA_DDL = `
     getContagemPorOrigem,
     getContagemPorNicho,
     getContagemPorMotivoPerda,
+    getResultadoPorCampanha,
+    getVereditoIAPorCampanha,
   } = await import("@/db/queries");
+  const { formatarTaxaConversao } = await import("@/lib/utils");
   const { subDays, startOfDay, endOfDay, parseISO } = await import("date-fns");
 
   // =========================================================================
@@ -537,6 +575,184 @@ const SCHEMA_DDL = `
       !threwAdulterado && outboundAdulterado && Number(outboundAdulterado.total) === 8,
       `WR-03: getContagemPorOrigem(range do fallback) roda sem erro e devolve o recorte 30d (outbound === 8) (threw=${threwAdulterado}, got ${outboundAdulterado && outboundAdulterado.total})`
     );
+  }
+
+  // =========================================================================
+  // PARTE C — agregações por campanha (Fase 24, PAINEL-01/PAINEL-02)
+  // =========================================================================
+  {
+    const rawC = new Database(tmpDb);
+    rawC.pragma("foreign_keys = ON");
+
+    const idCampanhaA = 501;
+    const idCampanhaB = 502;
+
+    const insCampanha = rawC.prepare(`
+      INSERT INTO campanhas
+        (id, nicho_id, oferta, meta_conversao, janela_inicio, janela_fim, estado, veredito_final, veredito_decidido_em, deleted_at, created_at, updated_at)
+      VALUES (@id, @nicho_id, @oferta, @meta_conversao, @janela_inicio, @janela_fim, 'explorando', NULL, NULL, NULL, @created_at, @created_at)
+    `);
+    insCampanha.run({
+      id: idCampanhaA,
+      nicho_id: 2,
+      oferta: "Ajuste expresso de vestido",
+      meta_conversao: "3 leads fechados",
+      janela_inicio: ago(90),
+      janela_fim: ago(0),
+      created_at: ago(90),
+    });
+    insCampanha.run({
+      id: idCampanhaB,
+      nicho_id: 2,
+      oferta: "Consultoria avulsa",
+      meta_conversao: "10% de resposta",
+      janela_inicio: ago(90),
+      janela_fim: ago(0),
+      created_at: ago(90),
+    });
+
+    const insLeadCampanha = rawC.prepare(`
+      INSERT INTO leads
+        (nome, telefone, canal, origem, origem_tipo, subnicho_id, stage, motivo_perda_id, stage_changed_at, deleted_at, created_at, campanha_id, valor_estimado_centavos)
+      VALUES
+        (@nome, '5511999999999', 'whatsapp', 'x', 'outbound', @subnicho_id, @stage, @motivo_perda_id, @stage_changed_at, @deleted_at, @created_at, @campanha_id, @valor_estimado_centavos)
+    `);
+    const LC = (o) =>
+      insLeadCampanha.run({
+        nome: o.nome,
+        subnicho_id: o.subnicho_id ?? 2,
+        stage: o.stage ?? "novo",
+        motivo_perda_id: o.motivo_perda_id ?? null,
+        stage_changed_at: o.stage_changed_at ?? null,
+        deleted_at: o.deleted_at ?? null,
+        created_at: o.created_at ?? ago(10),
+        campanha_id: o.campanha_id ?? null,
+        valor_estimado_centavos: o.valor_estimado_centavos ?? 0,
+      });
+
+    // Campanha A: 4 leads — 2 fechado (100000/300000 centavos), 1 perdido (motivo "Preço"), 1 novo
+    LC({ nome: "CA-fechado-1", campanha_id: idCampanhaA, stage: "fechado", valor_estimado_centavos: 100000 });
+    LC({ nome: "CA-fechado-2", campanha_id: idCampanhaA, stage: "fechado", valor_estimado_centavos: 300000 });
+    LC({ nome: "CA-perdido", campanha_id: idCampanhaA, stage: "perdido", motivo_perda_id: 1, stage_changed_at: ago(2) });
+    LC({ nome: "CA-novo", campanha_id: idCampanhaA, stage: "novo" });
+
+    // Campanha B: 1 lead novo
+    LC({ nome: "CB-novo", campanha_id: idCampanhaB, stage: "novo" });
+
+    // Lead SEM campanha nenhuma — não deve criar chave `null` em nenhum Map
+    LC({ nome: "SemCampanha", campanha_id: null, stage: "novo" });
+
+    // Lead da campanha A soft-deletado (fechado, valor alto) — se a Lixeira
+    // vazasse pro resultado, o total/ticket médio da campanha A mudariam
+    LC({ nome: "CA-lixeira", campanha_id: idCampanhaA, stage: "fechado", valor_estimado_centavos: 700000, deleted_at: 444444 });
+
+    // Diagnósticos da campanha A: geração antiga OK ("mudar_angulo"), geração
+    // MAIS RECENTE OK ("abandonar") e uma FALHA ainda mais recente (payload NULL)
+    const payloadOk = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "test", "fixtures", "diagnostico", "ok-costureira.json"), "utf8")
+    );
+    const payloadOkMaisRecente = {
+      ...payloadOk,
+      veredito_sugerido: { ...payloadOk.veredito_sugerido, decisao: "abandonar" },
+    };
+    const payloadInvalido = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "test", "fixtures", "diagnostico", "bad-enum-veredito.json"), "utf8")
+    );
+
+    const insDiag = rawC.prepare(`
+      INSERT INTO diagnosticos (campanha_id, payload, status, erro, aviso, criado_em)
+      VALUES (@campanha_id, @payload, @status, @erro, @aviso, @criado_em)
+    `);
+    insDiag.run({ campanha_id: idCampanhaA, payload: JSON.stringify(payloadOk), status: "ok", erro: null, aviso: null, criado_em: ago(10) });
+    insDiag.run({ campanha_id: idCampanhaA, payload: JSON.stringify(payloadOkMaisRecente), status: "ok", erro: null, aviso: null, criado_em: ago(1) });
+    insDiag.run({ campanha_id: idCampanhaA, payload: null, status: "falhou", erro: "erro de teste", aviso: null, criado_em: ago(0) });
+    // Campanha B: única geração "ok" tem payload INVÁLIDO (enum de veredito quebrado)
+    insDiag.run({ campanha_id: idCampanhaB, payload: JSON.stringify(payloadInvalido), status: "ok", erro: null, aviso: null, criado_em: ago(1) });
+
+    rawC.close();
+
+    // Caso 1 — PAINEL-01: getResultadoPorCampanha(A)
+    const resultadoA = await getResultadoPorCampanha(idCampanhaA);
+    const rA = resultadoA.get(idCampanhaA);
+    check(
+      !!rA && rA.total === 4 && rA.fechados === 2 && rA.perdidos === 1,
+      `PAINEL-01: getResultadoPorCampanha(A) → total 4, fechados 2, perdidos 1, lead soft-deletado excluído (got ${JSON.stringify(rA)})`
+    );
+
+    // Caso 2 — D-24-04: ticket médio só dos 2 fechados (não os 4 leads)
+    check(
+      !!rA && rA.ticketMedioCentavos === 200000,
+      `D-24-04: getResultadoPorCampanha(A).ticketMedioCentavos === 200000, média de 100000+300000 (got ${rA && rA.ticketMedioCentavos})`
+    );
+
+    // Caso 3 — D-24-04: zero fechados → null, nunca 0
+    const resultadoB = await getResultadoPorCampanha(idCampanhaB);
+    const rB = resultadoB.get(idCampanhaB);
+    check(
+      !!rB && rB.ticketMedioCentavos === null,
+      `D-24-04: getResultadoPorCampanha(B).ticketMedioCentavos === null, zero fechados, nunca 0 (got ${rB && rB.ticketMedioCentavos})`
+    );
+
+    // Caso 4 — getResultadoPorCampanha() sem argumento devolve exatamente A e B
+    const resultadoTodas = await getResultadoPorCampanha();
+    check(
+      resultadoTodas.size === 2 && resultadoTodas.has(idCampanhaA) && resultadoTodas.has(idCampanhaB),
+      `getResultadoPorCampanha() sem argumento → Map com exatamente 2 entradas (A e B); lead sem campanha não cria chave null (got size=${resultadoTodas.size})`
+    );
+
+    // Caso 5 — campanha sem nenhum lead vinculado não aparece no Map
+    const resultadoInexistente = await getResultadoPorCampanha(999999);
+    check(
+      resultadoInexistente.size === 0 && resultadoInexistente.get(999999) === undefined,
+      `getResultadoPorCampanha(id inexistente) → Map vazio, .get() undefined — consumidor precisa de fallback (got size=${resultadoInexistente.size})`
+    );
+
+    // Caso 6 — PAINEL-01/D-24-09: getContagemPorMotivoPerda com e sem campanhaId
+    const motivoTudo = resolvePeriodRange(undefined);
+    const motivoSoCampanhaA = await getContagemPorMotivoPerda(motivoTudo, idCampanhaA);
+    const motivoTodasCampanhas = await getContagemPorMotivoPerda(motivoTudo);
+    const totalSoA = motivoSoCampanhaA.reduce((s, r) => s + Number(r.total), 0);
+    const totalTodas = motivoTodasCampanhas.reduce((s, r) => s + Number(r.total), 0);
+    check(
+      totalSoA === 1 && motivoSoCampanhaA.every((r) => r.nome === "Preço"),
+      `PAINEL-01/D-24-09: getContagemPorMotivoPerda(tudo, A) → só o motivo do lead perdido da campanha A (got ${JSON.stringify(motivoSoCampanhaA)})`
+    );
+    check(
+      totalTodas >= totalSoA,
+      `D-24-09: getContagemPorMotivoPerda(tudo) sem campanhaId → total >= com campanhaId, regressão do call-site de /relatorios preservada (got ${totalTodas} >= ${totalSoA})`
+    );
+
+    // Caso 7 — PAINEL-02/D-24-08: veredito da geração OK mais recente
+    const vereditoA = await getVereditoIAPorCampanha(idCampanhaA);
+    check(
+      vereditoA.get(idCampanhaA) === "abandonar",
+      `PAINEL-02/D-24-08: getVereditoIAPorCampanha(A) devolve o veredito da geração OK MAIS RECENTE ("abandonar", não "mudar_angulo") (got ${vereditoA.get(idCampanhaA)})`
+    );
+
+    // Caso 8 — D-24-08: falha MAIS RECENTE que a "ok" não muda o resultado
+    check(
+      vereditoA.get(idCampanhaA) !== undefined,
+      `D-24-08: uma geração "falhou" mais recente que a "ok" não esvazia getVereditoIAPorCampanha(A) (falha não é veredito)`
+    );
+
+    // Caso 9 — D-24-08: payload inválido não aparece no Map, e a chamada não lança
+    let threwVereditoB = false;
+    let vereditoB;
+    try {
+      vereditoB = await getVereditoIAPorCampanha(idCampanhaB);
+    } catch {
+      threwVereditoB = true;
+    }
+    check(!threwVereditoB, `D-24-08: getVereditoIAPorCampanha(B) não lança mesmo com payload inválido na geração ok mais recente`);
+    check(
+      !threwVereditoB && vereditoB.get(idCampanhaB) === undefined,
+      `D-24-08: getVereditoIAPorCampanha(B) — payload inválido (bad-enum-veredito) NÃO aparece no Map (got ${vereditoB && vereditoB.get(idCampanhaB)})`
+    );
+
+    // Caso 10 — formatarTaxaConversao (de @/lib/utils)
+    check(formatarTaxaConversao(0) === "0%", `formatarTaxaConversao(0) === "0%" (got ${formatarTaxaConversao(0)})`);
+    check(formatarTaxaConversao(0.5) === "50%", `formatarTaxaConversao(0.5) === "50%" (got ${formatarTaxaConversao(0.5)})`);
+    check(formatarTaxaConversao(1) === "100%", `formatarTaxaConversao(1) === "100%" (got ${formatarTaxaConversao(1)})`);
   }
 
   for (const suffix of ["", "-shm", "-wal"]) {
