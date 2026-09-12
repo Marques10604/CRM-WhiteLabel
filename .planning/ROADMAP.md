@@ -106,7 +106,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [x] **Phase 22: Campanha de Exploração de Nicho** - Entidade campanha (nicho + oferta + janela + meta), estado, vínculo opcional com lead, tela de listagem (22-01/22-02/22-03 shipados; CAMPANHA-03 / SC3 fechado pelo plano 22-03; 22-03-REVIEW fechado em b9a2c44; re-verificação passou 4/4) (completed 2026-09-05)
 - [x] **Phase 23: Diagnóstico de IA da Campanha** - Diagnóstico sob demanda com busca na web, fontes citadas obrigatórias, saturação/gatilhos/objeções/ticket médio/rascunho/veredito sugerido (completed 2026-09-11)
 - [x] **Phase 24: Veredito e Mapa de Nichos** - Usuário registra veredito final; painel da campanha reaproveita `/relatorios`; tela Mapa de Nichos (completed 2026-09-12)
-- [ ] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente
+- [x] **Phase 25: Tour Guiado do CRM** - React Joyride apresentando as telas principais, pulável, reiniciável, persistente (completed 2026-09-12)
 
 #### Phase 22: Campanha de Exploração de Nicho
 **Goal**: O usuário organiza a exploração de um nicho como uma entidade própria do CRM — nicho + oferta + janela de tempo + meta — e pode vincular leads existentes a ela, além de listar/navegar todas as campanhas já criadas.
@@ -201,7 +201,7 @@ infra nova. Direção completa em `.planning/DIRECAO-v1.7-2026-09-04.md` (Caminh
 - [x] 25-01-PLAN.md — Fundação: install pinado do react-joyride, confirmação da API v3 contra o `.d.ts`, os 5 passos e a persistência pura + harness *(checkpoint humano: legitimidade do pacote antes do `npm i`)*
 
 **Onda 2** *(bloqueada na Onda 1):*
-- [ ] 25-02-PLAN.md — UI do tour: `TourGuiado` no layout raiz, alvos `data-tour` na sidebar e botão "Rever tour do CRM" em `/configuracoes`
+- [x] 25-02-PLAN.md — UI do tour: `TourGuiado` no layout raiz, alvos `data-tour` na sidebar e botão "Rever tour do CRM" em `/configuracoes`
 
 **UI hint**: yes
 **Nota**: TUTORIAL-04 (usar React Joyride, nenhuma lib concorrente nem SaaS externo) é uma restrição de implementação verificável em code review/plan-check, não um comportamento observável adicional — coberta pela escolha de biblioteca no plano, não por um 5º critério de sucesso.

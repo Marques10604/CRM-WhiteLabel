@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Exploração de Nicho
-status: executing
-last_updated: "2026-09-12T15:06:19.496Z"
+status: verifying
+last_updated: "2026-09-12T15:27:53.470Z"
 last_activity: 2026-09-12
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 15
-  percent: 75
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-04)
 
 Phase: 25 (Tour Guiado do CRM) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 ### Feito e commitado
 
@@ -162,6 +162,7 @@ Last activity: 2026-09-12
 | Phase 24 P03 | 20min | 3 tasks | 4 files |
 | Phase 24 P04 | 15min | 2 tasks | 3 files |
 | Phase 25 P01 | 35min | 3 tasks | 5 files |
+| Phase 25 P02 | 19min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -287,6 +288,8 @@ Recent decisions affecting current work:
 - [Phase 25-01]: D-25-01: payload do onEvent do react-joyride v3 se chama EventData, nao CallBackProps — Confirmado direto no .d.ts publicado do pacote na Task 2 do 25-01
 - [Phase 25-01]: D-25-02: campo per-step para pular beacon e skipBeacon, nao disableBeacon — Resolve Open Question 1 do 25-RESEARCH.md; confirmado no .d.ts
 - [Phase 25-01]: D-25-03: options.borderRadius nao existe na v3 do react-joyride — Raio do tooltip deve ser aplicado via styles.tooltip no plano 25-02
+- [Phase 25-02]: D-25-04: contador Passo n de 5 embutido em locale.nextWithProgress (react-joyride v3 sem slot de contador separado)
+- [Phase 25-02]: D-25-05: NAV_ITEMS trocou as const por tipo explicito NavItem (tourId opcional) para nao quebrar inferencia de uniao do TS
 
 ### Pending Todos
 
@@ -819,7 +822,7 @@ v1.3 fechado: PR #3 mergeado, tag `v1.3`. Branch `main`. Working tree só com `.
 
 ---
 
-Last session: 2026-09-12T15:06:19.442Z
+Last session: 2026-09-12T15:27:53.401Z
 
 **O que foi feito nesta sessão:**
 
