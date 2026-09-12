@@ -12,6 +12,7 @@
     "migrate:interesse": "node scripts/migrate-interesse.cjs",
     "migrate:campanhas": "node scripts/migrate-campanhas.cjs",
     "migrate:diagnosticos": "node scripts/migrate-diagnosticos.cjs",
+    "migrate:veredito": "node scripts/migrate-veredito.cjs",
     "verify:schema": "node scripts/verify-schema.cjs",
     "verify:origem-tipo": "node scripts/verify-origem-tipo.cjs",
     "verify:sequencia": "node scripts/verify-sequencia-posicao.cjs",

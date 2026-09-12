@@ -122,11 +122,13 @@ if (tableNames.has("tarefas")) {
   }
 }
 
-// Gate de sync de schema para a tabela campanhas (Fase 22, CAMPANHA-01/02):
-// exige exatamente o conjunto de colunas físicas, nem a mais nem a menos.
-// Conjunto estrito é seguro aqui porque a tabela nasce nesta fase e não
-// acumula colunas por fase (diferente de 'leads') — mesmo idioma dos blocos
-// de 'interacoes'/'tarefas' acima.
+// Gate de sync de schema para a tabela campanhas (Fase 22, CAMPANHA-01/02;
+// Fase 24, VEREDITO-01/02): exige exatamente o conjunto de colunas físicas,
+// nem a mais nem a menos. Conjunto estrito é seguro aqui porque a tabela
+// nasce nesta fase e não acumula colunas por fase (diferente de 'leads') —
+// mesmo idioma dos blocos de 'interacoes'/'tarefas' acima. `veredito_final`/
+// `veredito_decidido_em` (Fase 24) ficam na mesma posição relativa da
+// declaração Drizzle: depois de `estado`, antes de `deleted_at`.
 const REQUIRED_CAMPANHAS_COLUMNS = [
   "id",
   "nicho_id",
@@ -135,6 +137,8 @@ const REQUIRED_CAMPANHAS_COLUMNS = [
   "janela_inicio",
   "janela_fim",
   "estado",
+  "veredito_final",
+  "veredito_decidido_em",
   "deleted_at",
   "created_at",
   "updated_at",

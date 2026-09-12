@@ -90,19 +90,32 @@ export const motivosPerda = sqliteTable(
  * querer registrar; normalizar para número perderia expressividade sem
  * ganho real para um usuário solo.
  *
- * `estado` (CAMPANHA-02) nasce sempre `"explorando"` (default físico) — a
- * transição para os outros 3 valores (`veredito_registrado`, `em_escala`,
- * `abandonada`) é escopo da Fase 24 (VEREDITO), fora deste plano.
+ * `estado` (CAMPANHA-02) nasce sempre `"explorando"` (default físico). A
+ * Fase 24 implementa APENAS a transição `explorando` → `veredito_registrado`
+ * (via `registrarVeredito`, VEREDITO-01/D-24-01) — `em_escala` e `abandonada`
+ * permanecem declarados no enum abaixo, mas INALCANÇÁVEIS por código nesta
+ * fase, adiados explicitamente para uma fase futura.
  *
  * `deletedAt` segue o padrão default do projeto (soft-delete, LEAD-04) —
  * `campanhas` NÃO entra na ALLOWLIST de `guard-no-hard-delete.cjs`.
  *
- * Os campos de diagnóstico de IA e veredito (Fases 23/24) são ADITIVOS em
- * migrações futuras — fora do escopo desta tabela agora, propositalmente.
+ * `vereditoFinal`/`vereditoDecididoEm` (VEREDITO-01/VEREDITO-02, Fase 24,
+ * D-24-01/D-24-02) — decisão do OPERADOR sobre a campanha (pode divergir do
+ * `veredito_sugerido.decisao` da IA em `src/lib/ai/diagnostico-schema.ts`,
+ * mesmos 3 valores/mesma ordem, propositalmente comparáveis). As duas colunas
+ * são ADITIVAS e NULLABLE, SEM `.default()`: a maioria das campanhas nunca
+ * recebeu veredito, e NULL nas duas é o estado normal delas.
+ * `vereditoDecididoEm` é gravado pelo SERVIDOR (`sql\`(unixepoch())\``) no
+ * momento do registro, nunca escolhido pelo cliente (D-24-02) — re-registrar
+ * sobrescreve as duas colunas, não há histórico de vereditos do operador
+ * (histórico é papel de `diagnosticos`, não desta tabela). SEM índice: o
+ * filtro por veredito do Mapa de Nichos (plano 24-04) é client-side, não há
+ * `WHERE` por `veredito_final` em lugar nenhum.
  *
- * Migração SEMPRE via `scripts/migrate-campanhas.cjs` manual, NUNCA
- * `drizzle-kit push`/`generate` — mesmo precedente de `motivosPerda`/`tarefas`
- * (dois incidentes destrutivos documentados nas Fases 06-01/07-01).
+ * Migração SEMPRE via `scripts/migrate-campanhas.cjs` (+ `migrate-veredito.cjs`
+ * para as 2 colunas acima) manual, NUNCA `drizzle-kit push`/`generate` —
+ * mesmo precedente de `motivosPerda`/`tarefas` (dois incidentes destrutivos
+ * documentados nas Fases 06-01/07-01).
  *
  * Deve ser declarada ANTES de `leads` — a FK `leads.campanhaId` exige a
  * tabela já definida (mesma ordem `motivosPerda` → `leads` de hoje).
@@ -123,6 +136,13 @@ export const campanhas = sqliteTable(
     })
       .notNull()
       .default("explorando"),
+    // VEREDITO-01/VEREDITO-02 (Fase 24, D-24-01/D-24-02) — ver doc-comment
+    // acima. NULLABLE, SEM default: campanha sem veredito registrado tem as
+    // duas NULL.
+    vereditoFinal: text("veredito_final", {
+      enum: ["aprofundar", "mudar_angulo", "abandonar"],
+    }),
+    vereditoDecididoEm: integer("veredito_decidido_em", { mode: "timestamp" }),
     deletedAt: integer("deleted_at", { mode: "timestamp" }), // nullable = ativo (LEAD-04)
     createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
