@@ -1,32 +1,30 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7
-milestone_name: Exploração de Nicho
-status: verifying
-last_updated: "2026-09-12T15:27:53.470Z"
+milestone: none
+milestone_name: null
+status: milestone_complete
+last_updated: "2026-09-12T18:45:00.000Z"
 last_activity: 2026-09-12
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-04)
+See: .planning/PROJECT.md (updated 2026-09-12)
 
 **Core value:** Nunca mais perder um follow-up e enxergar o funil de vendas de relance — substituindo a planilha do Google Sheets.
-**Current focus:** Phase 25 — Tour Guiado do CRM
+**Current focus:** Nenhum milestone em andamento — v1.7 shipado (2026-09-12). Próximo via `/gsd-new-milestone`.
 
 ## Current Position
 
-Phase: 25 (Tour Guiado do CRM) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Milestone v1.7 (Fases 22-25) fechado e arquivado. Nenhuma fase em andamento.
 
 ### Feito e commitado
 
