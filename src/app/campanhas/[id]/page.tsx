@@ -6,6 +6,8 @@ import { db } from "@/db/client";
 import { campanhas, nichos } from "@/db/schema";
 import { CampanhaEstadoBadge } from "@/components/campanha-estado-badge";
 import { DiagnosticoSecao } from "@/components/diagnostico-secao";
+import { ResultadoCampanhaPainel } from "@/components/resultado-campanha-painel";
+import { VereditoSecao } from "@/components/veredito-secao";
 
 // A Server Action de diagnóstico (plano 23-04) leva de 30 a 90 segundos.
 // Localmente `next dev`/`next start` não impõem limite; este valor documenta a
@@ -14,14 +16,16 @@ import { DiagnosticoSecao } from "@/components/diagnostico-secao";
 export const maxDuration = 120;
 
 /**
- * Rota de detalhe `/campanhas/[id]` (CAMPANHA-01/02, Fase 22). Layout
- * deliberadamente minimalista — as Fases 23 (diagnóstico de IA) e 24
- * (veredito / painel de resultado) vão ADICIONAR seções a esta mesma página
- * em migrações futuras, sem retrabalhar o que está aqui.
+ * Rota de detalhe `/campanhas/[id]` (CAMPANHA-01/02, Fase 22). A Fase 23
+ * (diagnóstico de IA) e a Fase 24 (painel de resultado real + veredito)
+ * ADICIONARAM seções a esta mesma página, sem retrabalhar o que já estava
+ * aqui — ordem narrativa final (D-24-10): dados da campanha → Resultado
+ * real → Diagnóstico de IA → Veredito.
  *
  * Segurança (T-22-07/T-22-08): `id` vem cru da URL — checagem de inteiro
  * positivo antes de qualquer query, e `notFound()` para campanha inexistente
- * OU soft-deletada (deletedAt preenchido).
+ * OU soft-deletada (deletedAt preenchido). As duas seções novas (Fase 24) só
+ * recebem `campanhaId` DEPOIS desse guard (T-24-10).
  */
 export default async function CampanhaDetalhePage({
   params,
@@ -70,7 +74,15 @@ export default async function CampanhaDetalhePage({
         </div>
       </dl>
 
+      <ResultadoCampanhaPainel campanhaId={campanhaId} />
+
       <DiagnosticoSecao campanhaId={campanhaId} />
+
+      <VereditoSecao
+        campanhaId={campanhaId}
+        vereditoFinal={campanha.vereditoFinal}
+        vereditoDecididoEm={campanha.vereditoDecididoEm}
+      />
     </div>
   );
 }
