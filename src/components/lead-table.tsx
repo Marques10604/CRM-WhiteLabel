@@ -27,8 +27,10 @@ import {
   type LeadRow,
 } from "@/components/lead-table-columns";
 import { EtapaBadge } from "@/components/etapa-badge";
+import { TemperaturaIndicator } from "@/components/temperatura-indicator";
 import { normalizePhone } from "@/lib/phone";
 import { softDeleteLead } from "@/actions/lead-actions";
+import type { Temperatura } from "@/lib/lead-temperatura";
 import type { Campanha, Lead, MotivoPerda, Nicho, Template } from "@/types";
 
 /**
@@ -75,6 +77,8 @@ type LeadTableProps = {
   /** Campanhas de exploração de nicho (CAMPANHA-03) — repassadas ao LeadFormDialog. Sem filtro de deletedAt. */
   campanhas: Campanha[];
   templates: Template[];
+  /** Temperatura por lead (quick task 260912-omq) — calculada no servidor, mesma função/config de `/pipeline`. */
+  temperaturaPorLead: { leadId: number; temperatura: Temperatura }[];
 };
 
 type DialogState =
@@ -101,7 +105,14 @@ type TimelineState = { open: false } | { open: true; lead: Lead };
  * 01-03 (só `getCoreRowModel` nesta fase). Clicar numa linha reabre o mesmo
  * `<LeadFormDialog>` pré-preenchido (D-07). Estado vazio com CTA (D-13).
  */
-export function LeadTable({ leads, nichos, motivosPerda, campanhas, templates }: LeadTableProps) {
+export function LeadTable({
+  leads,
+  nichos,
+  motivosPerda,
+  campanhas,
+  templates,
+  temperaturaPorLead,
+}: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
@@ -118,6 +129,11 @@ export function LeadTable({ leads, nichos, motivosPerda, campanhas, templates }:
   const motivoPerdaNomeById = useMemo(
     () => new Map(motivosPerda.map((motivo) => [motivo.id, motivo.nome])),
     [motivosPerda]
+  );
+
+  const temperaturaPorLeadId = useMemo(
+    () => new Map(temperaturaPorLead.map((t) => [t.leadId, t.temperatura])),
+    [temperaturaPorLead]
   );
 
   const firstContactTemplate = useMemo(
@@ -244,8 +260,14 @@ export function LeadTable({ leads, nichos, motivosPerda, campanhas, templates }:
                       {lead.nichoNome}
                     </span>
 
-                    <div className={COL.etapa}>
+                    <div className={`flex items-center gap-1.5 ${COL.etapa}`}>
                       <EtapaBadge stage={lead.stage} />
+                      {temperaturaPorLeadId.get(lead.id) ? (
+                        <TemperaturaIndicator
+                          temperatura={temperaturaPorLeadId.get(lead.id)!}
+                          compact
+                        />
+                      ) : null}
                     </div>
 
                     <div
