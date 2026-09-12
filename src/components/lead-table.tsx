@@ -79,6 +79,8 @@ type LeadTableProps = {
   templates: Template[];
   /** Temperatura por lead (quick task 260912-omq) — calculada no servidor, mesma função/config de `/pipeline`. */
   temperaturaPorLead: { leadId: number; temperatura: Temperatura }[];
+  /** Deep-link da busca global (quick task 260912-pzc) — semeia o filtro inicial da coluna `nome`, valor de entrada, não estado controlado. */
+  buscaInicial?: string;
 };
 
 type DialogState =
@@ -112,13 +114,16 @@ export function LeadTable({
   campanhas,
   templates,
   temperaturaPorLead,
+  buscaInicial,
 }: LeadTableProps) {
   const [dialogState, setDialogState] = useState<DialogState>({ mode: "closed" });
   const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
   const [previewState, setPreviewState] = useState<PreviewState>({ open: false });
   const [timelineState, setTimelineState] = useState<TimelineState>({ open: false });
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    buscaInicial ? [{ id: "nome", value: buscaInicial }] : []
+  );
   const [, startTransition] = useTransition();
 
   const nichoNameById = useMemo(

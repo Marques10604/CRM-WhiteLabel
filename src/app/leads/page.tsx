@@ -17,8 +17,29 @@ import { LeadTable } from "@/components/lead-table";
  * `/pipeline`, então as duas telas nunca podem divergir — e propositalmente
  * no servidor, para não haver mismatch de hidratação por causa do relógio
  * do cliente.
+ *
+ * `?busca=` (quick task 260912-pzc, DESVIO-2): destino real da seleção de um
+ * lead na busca global — sem isso, cair em `/leads` sem mais nada devolveria
+ * o usuário para a mesma tabela paginada de onde ele queria escapar.
  */
-export default async function LeadsPage() {
+
+/**
+ * Mesmo helper de `src/app/relatorios/page.tsx` (IN-04): um param repetido
+ * na URL chega como `string[]`, não `string`. Copiado local por serem só
+ * 3 linhas — não justifica um módulo compartilhado.
+ */
+function primeiro(valor: string | string[] | undefined): string | undefined {
+  return Array.isArray(valor) ? valor[0] : valor;
+}
+
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const buscaInicial = primeiro(params.busca);
+
   const [activeLeads, allNichos, allMotivosPerda, allTemplates, allCampanhas, config] =
     await Promise.all([
       db
@@ -57,6 +78,7 @@ export default async function LeadsPage() {
         campanhas={allCampanhas}
         templates={allTemplates}
         temperaturaPorLead={temperaturaPorLead}
+        buscaInicial={buscaInicial}
       />
     </div>
   );
