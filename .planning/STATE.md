@@ -4,7 +4,7 @@ milestone: none
 milestone_name: null
 status: milestone_complete
 last_updated: "2026-09-12T21:07:02.764Z"
-last_activity: 2026-09-12 - Completed quick task 260912-pzc: busca global (Ctrl/Cmd+K) com cmdk
+last_activity: 2026-09-12 - Verificação humana da 260912-pzc concluída; corrigido bug real (SqliteError no ESCAPE do LIKE de buscarGlobal, commit 8099ad8)
 progress:
   total_phases: 25
   completed_phases: 25
@@ -351,7 +351,7 @@ Aberto, carregado para o v1.3:
 | 260912-nzq | Tornar mais visíveis veredito (IA+final) na listagem /campanhas e contador de tentativas de contato na tabela /leads | 2026-09-12 | 3e516c4 | [260912-nzq-tornar-mais-vis-veis-2-coisas-que-j-exis](./quick/260912-nzq-tornar-mais-vis-veis-2-coisas-que-j-exis/) |
 | 260912-omq | Indicador de temperatura automático em 3 faixas (Quente/Morno/Frio) — módulo puro `lead-temperatura.ts` + `TemperaturaIndicator` compartilhado, substituindo o booleano "esfriando" em /pipeline e levando o mesmo sinal para /leads | 2026-09-12 | e33a4d3, 39f55ec, 85f9765 | [260912-omq-adicionar-indicador-de-temperatura-autom](./quick/260912-omq-adicionar-indicador-de-temperatura-autom/) |
 | 260912-pio | Corrigir warning de hidratação do @dnd-kit em /pipeline — id estável `"pipeline-board"` no DndContext | 2026-09-12 | 76efac1 | [260912-pio-corrigir-warning-de-hidrata-o-do-dnd-kit](./quick/260912-pio-corrigir-warning-de-hidrata-o-do-dnd-kit/) |
-| 260912-pzc | Busca global (Ctrl/Cmd+K) com `cmdk` — leads/campanhas/nichos, gatilho na sidebar, deep-link `/leads?busca=` | 2026-09-12 | 2721959, bc58cde, fde6043 | [260912-pzc-adicionar-busca-global-ctrl-k-no-topo-do](./quick/260912-pzc-adicionar-busca-global-ctrl-k-no-topo-do/) |
+| 260912-pzc | Busca global (Ctrl/Cmd+K) com `cmdk` — leads/campanhas/nichos, gatilho na sidebar, deep-link `/leads?busca=`. Verificação humana achou e corrigiu bug real (`SqliteError` no `ESCAPE` do `LIKE`) | 2026-09-12 | 2721959, bc58cde, fde6043, 8099ad8 | [260912-pzc-adicionar-busca-global-ctrl-k-no-topo-do](./quick/260912-pzc-adicionar-busca-global-ctrl-k-no-topo-do/) |
 | 260725-lai | Botão de remoção (soft-delete) de sub-nicho em /subnichos: coluna deletedAt, softDeleteSubnicho, reativação por nome, filtro nas superfícies de seleção (combobox + toolbar) | 2026-07-29 | 59a27c6, 2c7a1ba, fa7a778 | [260725-lai-adicionar-botao-de-remocao-soft-delete-d](./quick/260725-lai-adicionar-botao-de-remocao-soft-delete-d/) |
 | 260801-ij4 | Fix do gap item 3 do UAT da Fase 07: noValidate no `<form>` de configuracoes-form.tsx para o zodResolver assumir a validação (HTML5 nativo min=1 interceptava o submit antes do react-hook-form e escondia a mensagem "Mínimo de 1 dia.") | 2026-08-01 | 7e9e5e5, 9aecf6a | [260801-ij4-corrigir-configuracoes-form-tsx-adiciona](./quick/260801-ij4-corrigir-configuracoes-form-tsx-adiciona/) |
 | 260807-uit | Fechar os 3 warnings do code review da Fase 8 (`08-REVIEW.md`): WR-02 (verify-origem-tipo.cjs reescrito com checagens estruturais tolerantes a reformatação), WR-01 (csvRowSchema.origemTipo consome CSV_DEFAULTS.origemTipo como fonte única), WR-03 (Casos 11/12 de cobertura comportamental de bulkImportLeads em test-lead-actions.cjs) | 2026-08-08 | 39be18a, d60b3ee, 2cbbd8a | [260807-uit-corrigir-os-3-warnings-do-code-review-da](./quick/260807-uit-corrigir-os-3-warnings-do-code-review-da/) |

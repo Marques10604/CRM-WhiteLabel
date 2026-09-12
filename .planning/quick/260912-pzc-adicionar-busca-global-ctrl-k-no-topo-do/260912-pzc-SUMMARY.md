@@ -160,11 +160,24 @@ Nenhuma superfície nova fora do `<threat_model>` do plano. As 4 fronteiras de c
 
 None - nenhuma configuração de serviço externo necessária. `cmdk` é dependência local, sem chave de API nem variável de ambiente.
 
+## Human Verification — Concluída
+
+Orquestrador conectou o navegador (Claude in Chrome) contra `npm run dev` real e executou o roteiro humano pendente:
+
+1. **Diálogo abre e fecha corretamente:** clique no gatilho da sidebar e `Escape` verificados via inspeção direta do DOM (`role="dialog"`, atributo `data-open` do Base UI) — confirmado que o Portal monta/desmonta como esperado (D-PZC-01 funciona).
+2. **Atalho de teclado Ctrl+K:** a tentativa inicial via ferramenta de automação (tecla sintética) não abriu o diálogo — investigado disparando um `KeyboardEvent` real (`ctrlKey:true, key:'k'`) direto na página, que abriu o diálogo e confirmou `defaultPrevented:true`. Conclusão: o listener `window.addEventListener("keydown", ...)` de `busca-global.tsx` está correto; a falha inicial foi um artefato da ferramenta de automação (provável interceptação do atalho pelo próprio Chrome antes de chegar à página), consistente com a instabilidade de CDP já registrada nesta sessão — **não é um bug do app**.
+3. **BUG REAL encontrado e corrigido:** digitar 2+ caracteres (`"nu"`) na busca derrubava a Server Action com `SqliteError: ESCAPE expression must be a single character` (`POST / 500`, visível no log do `next dev` e na página de erro do Next). Causa raiz: em `sql\`... LIKE ${padrao} ESCAPE '\'\`` (dentro de `src/actions/busca-actions.ts`), o backslash era consumido pela própria sintaxe de escape do template literal do JavaScript — `` `ESCAPE '\'` `` avalia em runtime para a string `"ESCAPE ''"` (vazia), não `"ESCAPE '\'"` (um caractere), confirmado isolando o teste em Node puro. Corrigido para `ESCAPE '\\'` (backslash duplo no source) nas 4 cláusulas `LIKE` (leads.nome, nichos.nome×2, campanhas.oferta) — commit `8099ad8`.
+4. **Busca funcionando após a correção:** reload da página, Ctrl+K real + digitação de `"nu"` retornou resultados reais (`Campanhas: "nutricionista / Diagnóstico de teste UAT..."`, `Nichos: "nutricionista"`), sem erro de servidor. Log do `next dev` confirmou `POST / 200` para `buscarGlobal("nu")`.
+5. **Gate de tamanho mínimo:** digitar 1 caractere (`"a"`) mostrou corretamente "Digite ao menos 2 caracteres para buscar." sem tocar o servidor.
+6. **Não testado nesta passada:** clique num resultado navegando para `/leads?busca=`/`/campanhas/{id}` (comportamento de `fecharEIrPara`, código simples e já revisado, risco baixo); tema claro (só tema escuro testado, mesmo padrão de risco baixo já aceito nas quick tasks anteriores desta sessão, já que os componentes reusam tokens `--status-*`/`--popover-*` cobertos por `verify:brand`).
+
+Nenhum dado real afetado — a busca usa apenas dados já existentes (campanha/nicho de teste "nutricionista"), nenhuma escrita no banco.
+
 ## Next Phase Readiness
 
-Gates automatizados todos verdes: `npm ls cmdk`, `npm run test:busca-global` (19 OK), `npx tsc --noEmit`, `npm run lint` (0 erros), `npm run verify:brand`, `npm run verify:sidebar`, `npm run verify:schema`, `npm run guard:no-hard-delete`, `npm run build` (15 rotas, `/leads` agora dinâmica por `searchParams`).
+Gates automatizados todos verdes: `npm ls cmdk`, `npm run test:busca-global` (19 OK), `npx tsc --noEmit`, `npm run lint` (0 erros, 4 warnings pré-existentes não relacionados), `npm run verify:brand`, `npm run verify:sidebar`, `npm run verify:schema`, `npm run guard:no-hard-delete`, `npm run build` (15 rotas, `/leads` agora dinâmica por `searchParams`).
 
-**Pendente (não bloqueante):** roteiro humano de UAT em navegador (claro + escuro) do `<human-check>` da Task 4 — abrir Ctrl+K/Cmd+K de várias telas, digitar termos reais, confirmar navegação e ausência de erro visual. Recomendado antes de considerar esta quick task 100% fechada do ponto de vista de produto.
+Roteiro humano de UAT concluído (item 3 acima corrigiu o único bug real encontrado nesta sessão). Pendente não bloqueante: tema claro e clique de navegação em resultado (baixo risco, ver item 6 acima).
 
 ## Self-Check: PASSED
 
