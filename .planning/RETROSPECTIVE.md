@@ -220,6 +220,49 @@
 
 ---
 
+## Milestone: v1.7 — Exploração de Nicho
+
+**Shipado:** 2026-09-12
+**Fases:** 4 (Fase 22-25) | **Planos:** 16 | **Commits:** 130 | **Sessões:** 2026-09-05 → 2026-09-12 (8 dias) | **Ship:** push direto para `main` (sem PR), tag `v1.7`
+
+### O que foi construído
+- **Fase 22** — entidade `campanhas` (nicho + oferta + janela ~90d + meta + estado) via migração `.cjs` idempotente; `/campanhas` lista, `/campanhas/[id]` é a âncora minimalista; CAMPANHA-03 (vínculo lead→campanha) foi silenciosamente omitido dos 2 primeiros planos e fechado por gap closure (22-03).
+- **Fase 23** — 1ª integração de IA do projeto. Vercel AI SDK + Claude Sonnet 5 com `web_search` real, `diagnosticoSchema` anti-genérico (saturação numérica, até 3 gatilhos de dor, 2-3 objeções, ticket médio com fonte, achados dado/relato/marketing, rascunho editável, veredito sugerido não vinculante), gate de zero-fontes lendo `res.sources`. Eval on-demand com gold-set de 3 nichos — rodadas 1-2 não discriminaram, causa raiz era dicotomia falsa no schema (D-23-06, 3ª categoria `relato_qualitativo`), rodada 3 discriminou os 3 vereditos pela 1ª vez.
+- **Fase 24** — `registrarVeredito` (usuário registra decisão final, pode divergir da IA, escreve só a própria linha de `campanhas`); painel de resultado real reaproveitando `/relatorios`; tela `/mapa-de-nichos` consolidando todas as campanhas.
+- **Fase 25** — `react-joyride@3.2.0` (1ª dependência de tour), tour ancorado inteiramente na sidebar (zero navegação real entre passos), persistência via `localStorage` (mesmo padrão do dark mode), botão de reinício em `/configuracoes`.
+
+### O que funcionou bem
+- **`gsd-plan-checker` com revisão obrigatória pagou de verdade nas Fases 24 e 25** — achou bugs reais ANTES de qualquer código existir: 3 critérios de aceitação com contagem de `grep` desatualizada (Fase 24, corrigidos e re-verificados) e um critério que um componente-stub vazio passaria sem provar TUTORIAL-02 de verdade (Fase 25) — a correção foi testada empiricamente pelo próprio planner num scratch dir antes de ser aceita.
+- **Pesquisa dedicada pra biblioteca nova valeu o custo** — `react-joyride` v3 tinha 3 divergências reais de API vs. a v2 que domina a internet (payload `EventData`, campo `skipBeacon`, `styles.tooltip` em vez de `options.borderRadius`); a pesquisa prévia + a exigência do plano de ler o `.d.ts` real antes de escrever componente evitou queimar ciclo de execução em erro de build.
+- **Checkpoint humano de legitimidade de pacote funcionou como desenhado** — o executor da Fase 25 corretamente REJEITOU duas tentativas do orquestrador de relatar "o usuário aprovou" (a 2ª mesmo depois do `npm install` já ter sido feito de fato), exigindo confirmação verificável por si mesmo. É a defesa contra aprovação por relay de agente funcionando na prática, não só na teoria.
+- **Execução sequencial sem worktree (host 4GB) segurou o milestone inteiro** — 4 fases, várias ondas com 2 planos paralelizáveis por design, zero OOM/crash de worktree.
+- **Investigação de causa raiz em vez de reforço de prompt (Fase 23)** — 2 rodadas de reforçar a rubrica anti-genérico não resolveram a não-discriminação do eval; só quando o usuário aprovou investigar a causa raiz (dicotomia falsa no schema) o problema foi resolvido de verdade.
+
+### O que foi ineficiente
+- **UAT visual das 3 últimas fases (23/24/25) ficou pendente** — nenhuma delas teve a passada real no navegador; todas fecharam `human_needed`. O padrão desde a Fase 18 (host sem browser + sessão) continua se acumulando fase a fase, mesmo com o código/testes/gates automatizados 100% verdes.
+- **Rate limit de sessão interrompeu execução e review no meio do trabalho** — tanto um plano (25-01) quanto o code review da Fase 25 foram cortados por 429; o plano já tinha comitado tudo antes de cair, o review já tinha escrito o REVIEW.md — ambos recuperáveis sem perda, mas exigiu diagnosticar "isso é falha real ou só a notificação chegando tarde?" mais de uma vez.
+- **Sessão entrou em plan mode no meio de uma tarefa de verificação** — o subagente `gsd-verifier` da Fase 25 não conseguiu gravar `25-VERIFICATION.md` diretamente (só podia editar o arquivo de plano); teve que devolver o conteúdo pronto pro orquestrador materializar depois de sair do plan mode. Zero investigação perdida, mas um passo extra de "copiar o que já foi escrito" que não deveria existir num fluxo headless.
+- **Geração real de diagnóstico de IA nunca foi vista rodando por um humano** — o UAT parcial no navegador (Fase 23) confirmou o estado vazio + dark mode, mas a chamada real ficou bloqueada por falta de crédito de API na sessão.
+
+### Padrões estabelecidos
+- **Checkpoint `blocking-human` de legitimidade de pacote npm**: evidência automatizada (`npm view` + repositório + licença + `postinstall` vazio) apresentada ao humano ANTES do install, nunca auto-aprovado por `mode: yolo`; e o executor deve rejeitar qualquer alegação de aprovação que não seja a palavra do próprio usuário na conversa principal, verificando o estado do disco por si mesmo quando o install já foi feito por outra via.
+- **Pesquisa de biblioteca nova exige confirmar a API contra o `.d.ts` publicado**, não contra o treinamento/tutoriais — especialmente quando a lib teve uma reescrita major recente (v2→v3) e o conteúdo genérico da web ainda reflete a versão antiga.
+- **Investigação de causa raiz > reforço de prompt** quando uma rubrica de IA não discrimina como esperado — a causa costuma ser uma lacuna estrutural no schema/contrato, não uma instrução frouxa.
+- **Transição de estado restrita ao literalmente pedido pelo requisito** (`registrarVeredito` só ativa `veredito_registrado`, não `em_escala`/`abandonada`) — evita escopo não pedido, mesmo quando o enum já declara os outros valores.
+
+### Lições principais
+1. **O gate de plan-checker com revisão obrigatória se paga em fases de UI com biblioteca nova** — as 2 fases que passaram por revisão (24, 25) tiveram bugs reais pegos antes da execução; vale manter esse gate ligado sempre que uma dependência nova entra no projeto.
+2. **Rejeitar aprovação de relay de agente é o comportamento correto, não um bug a contornar** — quando isso acontecer de novo, o caminho certo é o orquestrador fazer a ação diretamente (com aprovação real do usuário) e reportar o estado verificável do disco ao executor, não insistir tentando convencer o subagente.
+3. **UAT visual pendente de 3 fases seguidas é o mesmo padrão de débito já visto nas Fases 1/2/4/6/8 (pago só no v1.5)** — vale considerar escopar uma fase de auditoria de navegador dedicada num milestone futuro, em vez de deixar acumular indefinidamente.
+4. **Plan mode pode interromper um subagente no meio de uma tarefa headless** — quando acontecer, o subagente deve preparar o conteúdo final e devolver pro orquestrador materializar, em vez de tentar contornar a restrição.
+
+### Observações de custo
+- Mix de modelo: planner Opus, executor/checker/verifier Sonnet; não medido em %
+- Sessões: 8 dias corridos (2026-09-05 → 2026-09-12); Fase 23 teve custo real de API (~US$3,94 em spike + 5 rodadas de eval, aprovado pelo usuário)
+- Notável: rate limit de sessão (429) interrompeu 1 execução de plano e 1 code review; ambos recuperados sem perda de trabalho porque já tinham persistido em disco antes de cair
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -232,6 +275,7 @@
 | v1.4 | ~2 dias | 3 | Milestone de "rename + adições pequenas" — zero desvio de execução; fechamento via `/go-and-do`→`/close-phase`→`/gsd:complete-milestone` encadeados (adaptados ao `get-shit-done` antigo); 2 PRs mergeados; débito de UAT das Fases 04/06/08 re-reconhecido |
 | v1.5 | ~3 dias | 4 | Milestone de quitação de débito (zero feature nova); débito de UAT das Fases 1/2/4/6/8 **finalmente pago** (Fase 18, método code+data); `npm run lint` da raiz volta a exit 0 (Fase 17); marca "SOLO" + paleta OKLCH (Fase 19); host de 4GB bloqueia navegador de vez → verificação code+data vira padrão; **push direto pra `main`, sem PR** |
 | v1.6 | ~1 dia | 2 | Milestone pequeno de propósito (2 utilitários) em modo enxuto (sem discuss/research/UI-SPEC/Nyquist); dark mode via next-themes (D-16 da Fase 19 suspensa) + export CSV client-side (módulo puro + harness); plan-checker mantido e pagou nas 2 fases; CLI `milestone.complete` errou a contagem (repo inteiro) 2º milestone seguido |
+| v1.7 | 8 dias | 4 | 1ª integração de IA do projeto (Vercel AI SDK + web search, Fase 23) e 1ª dependência de tour (react-joyride, Fase 25); `gsd-plan-checker` com revisão obrigatória virou norma e achou bugs reais em 2 fases; checkpoint humano de legitimidade de pacote corretamente rejeitou relay de aprovação de agente; investigação de causa raiz resolveu não-discriminação do eval de IA onde reforço de prompt falhou; UAT visual das 3 últimas fases (23/24/25) acumulou pendente |
 
 ### Cumulative Quality
 
@@ -241,6 +285,7 @@
 | v1.3 | 5+ harnesses `.cjs` (`test:tarefa-actions`, `test:group-by-urgency`, `test:relatorios` 38 checagens, `test:interacao-actions`, `test:compute-sequencia`) + guardas de regressão provadas por mutação | régua de urgência, agregações de relatório, Server Actions de tarefa/interação, cálculo de sequência — todos com cobertura comportamental | 0 pacotes npm novos em todo o milestone; 0 blocos novos do registry shadcn |
 | v1.5 | +3 gates de marca (`verify:brand` grep-guard de cor+nome, `verify:brand-md` estrutura, `check:contrast` WCAG AA OKLCH→sRGB real 30 pares); `npm run lint` da raiz volta a exit 0; 5 `VERIFICATION.md` retroativos (Fases 1/2/4/6/8) por code+data | cor da UI 100% tokenizada (gate); contraste AA verificado light+dark; comportamento shipado de 5 fases antigas auditado | 0 pacotes npm novos; toda a Fase 19 é CSS + classes + 3 scripts `node:fs` |
 | v1.6 | +`verify:theme` (guarda a fiação de 4 arquivos do dark mode); +`test:lead-csv-export` (38 asserções + 2 testes de mutação para a serialização CSV) | fiação de tema guardada; serialização CSV (colunas legíveis, BOM, guard de injection) com cobertura comportamental | 0 pacotes npm novos (next-themes e PapaParse já instalados) |
+| v1.7 | harness estrutural anti-genérico do diagnóstico (61→68 asserções); `test:veredito-actions` (9 casos/21 asserções, gate de não-interferência VEREDITO-03); `test:relatorios-queries` +14 asserções (71 total); `test:tour-persistence` (11 asserções + mutação provada); eval on-demand com gold-set de 3 nichos (`eval-diagnostico.mjs`, LLM-judge) | 1ª cobertura de IA generativa do projeto (gate estrutural sem chamar API + eval on-demand pago); persistência pura de UI testável sem browser | 2 pacotes npm novos, ambos com checkpoint humano de legitimidade: `ai`+`@ai-sdk/anthropic` (Fase 23), `react-joyride` (Fase 25) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -252,3 +297,5 @@
 6. As skills de fechamento novas (`/go-and-do`, `/close-phase`) assumem OpenGSD (`@opengsd/gsd-core`); este repo roda o `get-shit-done` antigo — os comandos `gsd-tools` divergem e cada fechamento adapta à mão (confirmado de novo no v1.5: `phase complete` e `milestone` caem em fallback)
 7. **Débito de verificação vira fase ou nunca se paga** — 4 milestones re-listaram os gaps das Fases 1/2/4/6/8 no `audit-open` antes do v1.5 escopar a Fase 18 pra isso (confirmado no v1.5)
 8. **Refactor mecânico ("só `className`") ainda carrega erro de julgamento de design** — no v1.5 a Fase 19 passou 2 regressões de UX com diff perfeito; a escolha de qual token é a decisão, pega só no code review pós-refactor
+9. **Plan-checker com revisão obrigatória vale o custo em fases com dependência nova ou UI crítica** — confirmado no v1.7 (Fases 24 e 25): achou bugs reais (grep desatualizado, critério que um stub vazio passaria) antes de qualquer linha de código ser escrita
+10. **Checkpoint humano de legitimidade de pacote deve rejeitar aprovação relatada por outro agente, exigindo confirmação verificável** — confirmado no v1.7 (Fase 25): o executor corretamente recusou 2 tentativas de relay e só prosseguiu após verificar o estado real do disco
