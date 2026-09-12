@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BuscaGlobal } from "@/components/busca-global";
 import {
   Clock,
   Users,
@@ -97,7 +98,7 @@ export function AppSidebar() {
 
   return (
     <aside className="sticky top-0 flex h-dvh w-[240px] shrink-0 flex-col overflow-y-auto bg-sidebar">
-      <div className="flex items-center gap-3 px-4 pt-5 pb-6">
+      <div className="flex items-center gap-3 px-4 pt-5 pb-4">
         <div
           className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-base font-bold text-primary-foreground"
           aria-hidden="true"
@@ -105,6 +106,9 @@ export function AppSidebar() {
           S
         </div>
         <span className="text-xl font-bold text-sidebar-foreground">SOLO</span>
+      </div>
+      <div className="px-[14px] pb-1">
+        <BuscaGlobal />
       </div>
       <nav className="flex flex-col gap-[3px] px-[14px]" aria-label="Navegação principal">
         {NAV_GROUPS.map((group) => {
