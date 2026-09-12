@@ -282,6 +282,15 @@ export function LeadTable({ leads, nichos, motivosPerda, campanhas, templates }:
                         <MessageCircle className="size-4" />
                         WhatsApp
                       </Button>
+                      {lead.contactAttempts > 0 ? (
+                        <span
+                          className="flex items-center gap-1 text-[14px] leading-normal text-muted-foreground"
+                          aria-label={`${lead.contactAttempts} tentativas de contato`}
+                        >
+                          <MessageCircle className="size-3.5" />
+                          {lead.contactAttempts}x
+                        </span>
+                      ) : null}
                       <Button
                         type="button"
                         variant="ghost"
