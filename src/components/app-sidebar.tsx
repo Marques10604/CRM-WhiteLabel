@@ -36,20 +36,61 @@ type NavItem = {
   tourId?: string;
 };
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Follow-ups", icon: Clock, tourId: "nav-dashboard" },
-  { href: "/leads", label: "Leads", icon: Users, tourId: "nav-leads" },
-  { href: "/importar", label: "Importar", icon: Upload },
-  { href: "/pipeline", label: "Pipeline", icon: Kanban, tourId: "nav-pipeline" },
-  { href: "/campanhas", label: "Campanhas", icon: Target, tourId: "nav-campanhas" },
-  { href: "/mapa-de-nichos", label: "Mapa de Nichos", icon: MapIcon },
-  { href: "/relatorios", label: "Relatórios", icon: BarChart3, tourId: "nav-relatorios" },
-  { href: "/templates", label: "Templates", icon: MessageSquare },
-  { href: "/nichos", label: "Nichos", icon: Tag },
-  { href: "/motivos-perda", label: "Motivos de Perda", icon: ListX },
-  { href: "/lixeira", label: "Lixeira", icon: Trash2 },
-  { href: "/configuracoes", label: "Configurações", icon: Settings },
+/**
+ * Um único rótulo de seção com os itens reais que caem sob ele — a sidebar
+ * tem exatamente 4 grupos (Quick 260912-nmw), sem nenhuma tela nova: só os
+ * 12 itens que já existiam, redistribuídos por intenção (usar o funil /
+ * prospectar / operar / configurar).
+ */
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Principal",
+    items: [
+      { href: "/", label: "Follow-ups", icon: Clock, tourId: "nav-dashboard" },
+      { href: "/leads", label: "Leads", icon: Users, tourId: "nav-leads" },
+      { href: "/pipeline", label: "Pipeline", icon: Kanban, tourId: "nav-pipeline" },
+    ],
+  },
+  {
+    label: "Prospecção",
+    items: [
+      { href: "/campanhas", label: "Campanhas", icon: Target, tourId: "nav-campanhas" },
+      { href: "/mapa-de-nichos", label: "Mapa de Nichos", icon: MapIcon },
+      { href: "/importar", label: "Importar", icon: Upload },
+    ],
+  },
+  {
+    label: "Operação",
+    items: [
+      { href: "/relatorios", label: "Relatórios", icon: BarChart3, tourId: "nav-relatorios" },
+      { href: "/templates", label: "Templates", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "Configuração",
+    items: [
+      { href: "/nichos", label: "Nichos", icon: Tag },
+      { href: "/motivos-perda", label: "Motivos de Perda", icon: ListX },
+      { href: "/configuracoes", label: "Configurações", icon: Settings },
+      { href: "/lixeira", label: "Lixeira", icon: Trash2 },
+    ],
+  },
 ];
+
+// Deriva um id estável e legível a partir do rótulo do grupo (acentos
+// removidos, minúsculo) — só usado para o par id/aria-labelledby do container
+// de cada grupo, nunca exibido.
+function slugifyGroupLabel(label: string) {
+  return label
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -65,31 +106,42 @@ export function AppSidebar() {
         </div>
         <span className="text-xl font-bold text-sidebar-foreground">SOLO</span>
       </div>
-      <p className="px-[14px] pt-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-        Principal
-      </p>
       <nav className="flex flex-col gap-[3px] px-[14px]" aria-label="Navegação principal">
-        {NAV_ITEMS.map((item) => {
-          const isActive =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const Icon = item.icon;
+        {NAV_GROUPS.map((group) => {
+          const groupId = `nav-group-${slugifyGroupLabel(group.label)}`;
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isActive ? "page" : undefined}
-              data-tour={item.tourId}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-[14px] py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-              {item.label}
-            </Link>
+            <div key={group.label} aria-labelledby={groupId} className="flex flex-col gap-[3px]">
+              <p
+                id={groupId}
+                className="pt-3 pb-1.5 text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground"
+              >
+                {group.label}
+              </p>
+              {group.items.map((item) => {
+                const isActive =
+                  item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+                const Icon = item.icon;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={isActive ? "page" : undefined}
+                    data-tour={item.tourId}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-[14px] py-2.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <Icon className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
           );
         })}
       </nav>
