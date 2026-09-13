@@ -14,3 +14,7 @@ lugar do app — só filtros locais em `/leads`.
 ## Solution
 
 TBD — valioso mas não urgente.
+
+## Resolvido
+
+Implementado na quick task `260912-pzc` (2026-09-12): paleta de comandos `cmdk` aberta por Ctrl+K/Cmd+K ou gatilho na sidebar, buscando leads/campanhas/nichos via Server Action única. Ver `.planning/quick/260912-pzc-adicionar-busca-global-ctrl-k-no-topo-do/`.

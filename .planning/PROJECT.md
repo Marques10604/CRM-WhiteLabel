@@ -83,11 +83,19 @@ Nunca mais perder um follow-up e enxergar o funil de vendas de relance — subst
 
 Nenhum requisito ativo — v1.7 fechado, próximo milestone ainda não escopado. Rodar `/gsd-new-milestone` para definir os próximos requisitos.
 
-Candidatos adiados: backlog PME (tags livres, busca global, temperatura automática, anexo por lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir), mapa de nichos agregado entre usuários (NICHO-AGG-01, precisa de tração — dezenas de workspaces). Direção de fundo do usuário: fundir Prospector + CRM — v1.7 foi o primeiro degrau seguro rumo a isso (só a parte "nicho como objeto de 1ª classe", sem disparo).
+Candidatos adiados: backlog PME (tags livres, anexo por lead, campo de vendedor, meta mensal), handoff Prospector→CRM (HANDOFF-01..03, quando o Prospector existir), mapa de nichos agregado entre usuários (NICHO-AGG-01, precisa de tração — dezenas de workspaces). Direção de fundo do usuário: fundir Prospector + CRM — v1.7 foi o primeiro degrau seguro rumo a isso (só a parte "nicho como objeto de 1ª classe", sem disparo).
+
+Também fora do backlog PME original: reorganização da sidebar em 4 seções, criação de nicho inline no formulário de campanha, e surfacing de veredito/tentativas de contato já existentes nas listas — todos entregues como quick tasks avulsas em 2026-09-12 (fila "faça tudo" pós-v1.7).
 
 **Backlog registrado (2026-08-01, `C:\Users\Vencedor\Desktop\Ideias.txt`), fora do milestone v1.4:**
 
-*Ideias PME — avaliar prioridade:* tags livres, temperatura automática do lead, busca global, exportar dados em CSV, anexo simples por lead, campo de vendedor responsável (só coluna no banco), meta mensal com barra de progresso — individuais em `.planning/todos/pending/2026-08-01-*.md`
+*Ideias PME — avaliar prioridade:* tags livres, anexo simples por lead, campo de vendedor responsável (só coluna no banco), meta mensal com barra de progresso — individuais em `.planning/todos/pending/2026-08-01-*.md`. ✓ Temperatura automática do lead e busca global já entregues (quick tasks `260912-omq`/`260912-pzc`, 2026-09-12) — ver `.planning/todos/completed/`.
+
+**Débito de UI/UX ainda pendente (revisão `ui-ux-pro-max` de 2026-09-10, `.planning/todos/pending/2026-09-10-review-uiux-*.md`), nenhum corrigido ainda:**
+- Drag-and-drop do `/pipeline` sem alternativa de teclado (`KeyboardSensor`) — marcado como fase dedicada, não quick, por causa do bug já conhecido do deadlock em "Perdido"
+- Elementos interativos aninhados (cards clicáveis com botão dentro) em telas gerais
+- Varredura de `text-[NNpx]` arbitrário → escala tipográfica do design system
+- `/relatorios` só tem tabelas numéricas, sem gráfico
 
 *Herdadas de sessões anteriores:*
 - [ ] Porta de entrada local (sem auth, só localhost) para uma IA cadastrar leads — decisão: só local, sem deploy
